@@ -10,6 +10,15 @@ for Apple silicon.** It runs the MLX GPU and the Apple Neural Engine at the same
 uses the Neural Engine only where it has been proven to give the same decisions as
 upstream Laya.
 
+![The same burst of requests served GPU-only and GPU + ANE: GPU-only short requests wait in the GPU queue for up to 1.5 s, while under GPU + ANE the router sends them to the ANE and they run as they arrive](https://raw.githubusercontent.com/tc3oliver/laya-apple/main/docs/readme/heterogeneous-serving.gif)
+
+**Short requests stop waiting behind longer requests on the GPU.** laya-apple sends short,
+single-question requests with a validated artifact to the Apple Neural Engine while longer
+ones keep running on the MLX GPU. The animation replays one burst of the
+laya-typed-decisions bursty workload on an M4 Max, from a per-request trace of the
+benchmark's arrival sequence. Its P99 values are the published v1.0 numbers in
+[GPU + ANE heterogeneous serving](#gpu--ane-heterogeneous-serving).
+
 ![Mixed-workload throughput against GPU-only serving: laya 41.9 to 122.5 req/s (2.92×), laya-multilingual 55.7 to 241.8 req/s (4.34×), laya-typed-decisions 24.0 to 109.6 req/s (4.57×)](https://raw.githubusercontent.com/tc3oliver/laya-apple/main/docs/readme/hero-throughput.svg)
 
 The gain comes from running both engines at once, not from raw ANE latency. This is the
@@ -138,12 +147,6 @@ with Laya.from_pretrained("convaiinnovations/laya-typed-decisions", execution="w
 - The GPU runs in a worker process, and the ANE on its own dispatcher.
 - Each request runs on one device, chosen by the router.
 - Under load, the router also compares queue backlogs.
-
-![The same burst of requests served GPU-only and GPU + ANE: GPU-only short requests wait in the GPU queue for up to 1.5 s, while under GPU + ANE the router sends them to the ANE and they run as they arrive](https://raw.githubusercontent.com/tc3oliver/laya-apple/main/docs/readme/heterogeneous-serving.gif)
-
-One burst of the laya-typed-decisions bursty workload on the M4 Max, replayed from a
-per-request trace of the benchmark's arrival sequence. The table below is the published
-v1.0 run.
 
 **Short-request P99 under open-loop bursty arrivals**, measured from arrival with queueing
 included (v1.0, same arrival sequence for both):
