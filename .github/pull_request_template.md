@@ -1,3 +1,6 @@
+<!-- Title format: <type>(<scope>): <imperative summary>, for example
+     bench(hardware): add M3 Max benchmark result. See CONTRIBUTING.md, "Pull request titles". -->
+
 ## What and why
 
 <!-- What changed, and why it was wrong or missing before. -->

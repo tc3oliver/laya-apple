@@ -23,6 +23,22 @@ Application-level or agent-level logic does not belong in this repository.
   - `bench/`, `research/`, `release/`.
 - **Every change goes through a pull request.** Merge only after CI passes. Prefer
   squash merge.
+- **Title pull requests as `<type>(<scope>): <imperative summary>`.** The title becomes
+  the squash commit subject on `main`.
+  - Types: `feat`, `fix`, `perf`, `docs`, `test`, `refactor`, `build`, `ci`, `chore`,
+    `bench`.
+  - Scope: optional, short and lowercase, for example `runtime`, `routing`,
+    `scheduler`, `mlx`, `ane`, `parity`, `artifacts`, `benchmarks`, `hardware`,
+    `community`, `readme` or `media`.
+  - Summary: concise and imperative, lowercase after the colon, no trailing period.
+  - Examples:
+    - `feat(routing): add calibrated profile selection`
+    - `fix(ane): reject artifacts that fail placement validation`
+    - `perf(scheduler): reduce short-request queueing`
+    - `docs(community): clarify hardware benchmark submissions`
+    - `bench(hardware): add M3 Max benchmark result`
+  - One pull request is still one logical change. The convention applies from now on;
+    merged pull requests are not renamed, and CI does not check titles.
 - **Protect published history:**
   - never force-push `main`;
   - never rewrite `main`'s published history;

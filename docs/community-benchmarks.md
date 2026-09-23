@@ -5,10 +5,12 @@ Every number laya-apple ships was measured on one machine, an Apple M4 Max
 each one produced by the same script and submitted as a pull request, so the matrix
 fills in from measurements rather than expectations.
 
-## Wanted: contribution slots
+## Priority contribution slots
 
-Have one of these Macs? You can add a result in 10–25 minutes without changing any code.
-Each issue has copy-and-paste steps from `git clone` to the pull request.
+These Macs are the current priority, and each has a `good first issue` with
+copy-and-paste steps from `git clone` to the pull request. You can add a result in
+10–25 minutes without changing any code. The [matrix](#matrix) below records what has
+been measured; any Mac without a result is wanted, with or without an issue.
 
 | Your Mac | Contribute | What you run |
 |---|---|---|
@@ -21,26 +23,26 @@ Each issue has copy-and-paste steps from `git clone` to the pull request.
 
 | SoC | MLX | ANE | Auto uses ANE | Heterogeneous | Evidence |
 |---|---|---|---|---|---|
-| M1 | – | – | – | – | **Wanted**: [contribute (#1)](https://github.com/tc3oliver/laya-apple/issues/1) |
-| M1 Pro | – | – | – | – | **Wanted**: [contribute (#1)](https://github.com/tc3oliver/laya-apple/issues/1) |
-| M1 Max | – | – | – | – | **Wanted**: [contribute (#1)](https://github.com/tc3oliver/laya-apple/issues/1) |
-| M1 Ultra | – | – | – | – | **Wanted**: [contribute (#1)](https://github.com/tc3oliver/laya-apple/issues/1) |
-| M2 | – | – | – | – | **Wanted**: [contribute (#1)](https://github.com/tc3oliver/laya-apple/issues/1) |
-| M2 Pro | – | – | – | – | **Wanted**: [contribute (#1)](https://github.com/tc3oliver/laya-apple/issues/1) |
-| M2 Max | – | – | – | – | **Wanted**: [contribute (#1)](https://github.com/tc3oliver/laya-apple/issues/1) |
-| M2 Ultra | – | – | – | – | **Wanted**: [contribute (#1)](https://github.com/tc3oliver/laya-apple/issues/1) |
-| M3 | – | – | – | – | **Wanted**: [contribute](#add-your-mac) |
-| M3 Pro | – | – | – | – | **Wanted**: [contribute](#add-your-mac) |
-| M3 Max | – | – | – | – | **Wanted**: [contribute (#2)](https://github.com/tc3oliver/laya-apple/issues/2) |
-| M3 Ultra | – | – | – | – | **Wanted**: [contribute](#add-your-mac) |
-| M4 | – | – | – | – | **Wanted**: [contribute](#add-your-mac) |
-| M4 Pro | – | – | – | – | **Wanted**: [contribute (#3)](https://github.com/tc3oliver/laya-apple/issues/3) |
+| M1 | – | – | – | – | **Wanted** — [submit a benchmark](#add-your-mac) |
+| M1 Pro | – | – | – | – | **Wanted** — [submit a benchmark](#add-your-mac) |
+| M1 Max | – | – | – | – | **Wanted** — [submit a benchmark](#add-your-mac) |
+| M1 Ultra | – | – | – | – | **Wanted** — [submit a benchmark](#add-your-mac) |
+| M2 | – | – | – | – | **Wanted** — [submit a benchmark](#add-your-mac) |
+| M2 Pro | – | – | – | – | **Wanted** — [submit a benchmark](#add-your-mac) |
+| M2 Max | – | – | – | – | **Wanted** — [submit a benchmark](#add-your-mac) |
+| M2 Ultra | – | – | – | – | **Wanted** — [submit a benchmark](#add-your-mac) |
+| M3 | – | – | – | – | **Wanted** — [submit a benchmark](#add-your-mac) |
+| M3 Pro | – | – | – | – | **Wanted** — [submit a benchmark](#add-your-mac) |
+| M3 Max | – | – | – | – | **Wanted** — [submit a benchmark](#add-your-mac) |
+| M3 Ultra | – | – | – | – | **Wanted** — [submit a benchmark](#add-your-mac) |
+| M4 | – | – | – | – | **Wanted** — [submit a benchmark](#add-your-mac) |
+| M4 Pro | – | – | – | – | **Wanted** — [submit a benchmark](#add-your-mac) |
 | M4 Max (macOS 26.6.2) | ✓ | ✓ | yes | ✓ | [`benchmarks/v1.0.md`](../benchmarks/v1.0.md), [bundle](../hardware-results/apple-m4-max-macos26/summary.md) |
-| M5 | – | – | – | – | **Wanted**: [contribute](#add-your-mac) |
-| M5 Pro | – | – | – | – | **Wanted**: [contribute](#add-your-mac) |
-| M5 Max | – | – | – | – | **Wanted**: [contribute](#add-your-mac) |
-| M5 Ultra | – | – | – | – | **Wanted**: [contribute](#add-your-mac) |
-| Any other or newer Apple silicon | – | – | – | – | **Wanted**: [contribute](#add-your-mac) |
+| M5 | – | – | – | – | **Wanted** — [submit a benchmark](#add-your-mac) |
+| M5 Pro | – | – | – | – | **Wanted** — [submit a benchmark](#add-your-mac) |
+| M5 Max | – | – | – | – | **Wanted** — [submit a benchmark](#add-your-mac) |
+| M5 Ultra | – | – | – | – | **Wanted** — [submit a benchmark](#add-your-mac) |
+| Any other or newer Apple silicon | – | – | – | – | **Wanted** — [submit a benchmark](#add-your-mac) |
 
 What each column means:
 
@@ -119,10 +121,14 @@ MLX-only result takes about 10 minutes.
    gh repo fork --remote              # your fork becomes origin, this repo becomes upstream
    git switch -c bench/add-my-mac
    git add hardware-results/
-   git commit -m "Add hardware report for my Mac"
+   git commit -m "bench(hardware): add <your SoC> benchmark result"
    git push -u origin HEAD
    gh pr create --fill
    ```
+
+   `gh pr create --fill` uses the commit subject as the pull request title, for example
+   `bench(hardware): add M3 Max benchmark result`. A different title is fine; the
+   maintainer can adjust it when merging.
 
    Paste the matrix row the script printed into the description, and name the issue it
    closes if there is one ([#1](https://github.com/tc3oliver/laya-apple/issues/1),

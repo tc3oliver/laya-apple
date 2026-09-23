@@ -240,3 +240,24 @@ setting, and any quantized or otherwise optimized export.
   the relevant `scripts/derive_*.py --check` or `scripts/make_goldens.py --check`.
 - Coding agents follow [`AGENTS.md`](AGENTS.md), which condenses these rules; `CLAUDE.md`
   imports it for Claude Code.
+
+### Pull request titles
+
+Pull requests are squash-merged, so the title becomes the commit subject on `main`. Use
+`<type>(<scope>): <summary>`:
+
+- **type**: `feat`, `fix`, `perf`, `docs`, `test`, `refactor`, `build`, `ci`, `chore` or
+  `bench`;
+- **scope** (optional): a short lowercase area such as `routing`, `ane`, `mlx`,
+  `hardware` or `community`;
+- **summary**: imperative, lowercase after the colon, no trailing period.
+
+```text
+bench(hardware): add M3 Max benchmark result
+fix(ane): reject artifacts that fail placement validation
+perf(scheduler): reduce short-request queueing
+docs(community): clarify hardware benchmark submissions
+```
+
+A title in a different format does not block a pull request; the maintainer can adjust it
+when merging. Titles of already-merged pull requests are not changed.
