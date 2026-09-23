@@ -195,6 +195,7 @@ the command above and open a PR with `hardware-results/`
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) covers setup, test tiers (which tests a change
   actually needs), parity checks and backend changes.
 - Open work is labelled `good first issue`, `help wanted` and `research`.
+- Coding agents: [`AGENTS.md`](AGENTS.md) has the repository rules.
 
 ## Limitations
 

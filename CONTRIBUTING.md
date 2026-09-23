@@ -225,6 +225,10 @@ setting, and any quantized or otherwise optimized export.
 
 ## Commits and pull requests
 
+- `main` is protected: every change, including a maintainer's, lands through a pull
+  request from a branch named `feat/…`, `fix/…`, `docs/…`, `bench/…`, `research/…` or
+  `release/…`. CI (`test`) must pass, and pull requests are squash-merged. Force pushes
+  to `main` and rewriting published tags are not allowed.
 - Write commit subjects in the imperative mood ("Add X", not "Added X" or "Adds X"),
   under about 70 characters.
 - Explain *why* a change was made in the body, not just what changed; the diff already
@@ -234,3 +238,5 @@ setting, and any quantized or otherwise optimized export.
 - Before opening a PR: run the fast test suite, `ruff check .`, and `ruff format --check`.
   If your change touches parity, routing, placement or the artifact manifest, also run
   the relevant `scripts/derive_*.py --check` or `scripts/make_goldens.py --check`.
+- Coding agents follow [`AGENTS.md`](AGENTS.md), which condenses these rules; `CLAUDE.md`
+  imports it for Claude Code.
