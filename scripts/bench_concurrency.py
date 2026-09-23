@@ -52,7 +52,8 @@ def conditions() -> dict:
     import os
     import subprocess
 
-    top = subprocess.run(["ps", "-Ao", "%cpu=,comm="], capture_output=True, text=True).stdout.splitlines()
+    env = dict(os.environ, LC_ALL="C")  # ps formats %cpu per locale, force period decimals
+    top = subprocess.run(["ps", "-Ao", "%cpu=,comm="], capture_output=True, text=True, env=env).stdout.splitlines()
     busy = sorted((line.split(None, 1) for line in top if line.strip()), key=lambda x: -float(x[0]))[:5]
     return {"loadavg": os.getloadavg(), "top_cpu": [(float(c), n.rsplit("/", 1)[-1]) for c, n in busy]}
 
