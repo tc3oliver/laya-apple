@@ -1,6 +1,6 @@
 [project]
 name = "laya-apple"
-version = "1.0.1"
+version = "1.0.2"
 description = "Correctness-validated heterogeneous Laya runtime for Apple Silicon (MLX GPU + Apple Neural Engine)"
 readme = "README.md"
 license = "Apache-2.0"

@@ -5,14 +5,36 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-09-23
+
+Packaging and documentation only. The library code is unchanged since 1.0.1; this
+release exists so the PyPI project page shows the current README, since 1.0.1 was
+built from a README that still said the package was not on PyPI.
+
 ### Added
 
 - **PyPI release workflow** (`.github/workflows/release.yml`), using Trusted Publishing
-  with GitHub OIDC; no API token is stored. It builds on an Apple silicon runner, checks
-  that the tag matches the package version, rejects distributions that contain
-  benchmarks, research, tests or local paths, and imports the built wheel in a clean
-  environment before the `pypi` environment publishes it. How to use it:
+  with GitHub OIDC; no API token is stored. It builds on an Apple silicon runner and
+  checks that the tag is on `main` and matches `pyproject.toml`, `__version__` and the
+  wheel metadata. Distribution contents are checked against an allowlist, with no local
+  paths and `LICENSE`/`NOTICE` in both files. It imports the built wheel in a clean
+  environment before the reviewer-gated `pypi` environment publishes it. How to use it:
   [`docs/publishing.md`](docs/publishing.md).
+- **README figures** generated from data by `scripts/generate_readme_svgs.py`: the v1.0
+  mixed-workload throughput gain, and the request-level routing between the ANE and the
+  MLX GPU. CI fails if a committed figure drifts from `benchmarks/v1.0/` or
+  `routing.json`.
+
+### Changed
+
+- **README:** `pip install laya-apple` is the primary install, with the `ane` and
+  `convert` extras optional. Running from source moved to `CONTRIBUTING.md`. The figures
+  use absolute image URLs so they also render on PyPI.
+- **`benchmarks/v1.0.md`** explains why the raw part-A gate records `passed: false`.
+  The flag also bounds each stream's P99 against its solo value, and the long streams
+  exceed that bound. The throughput ratio and the mismatch count, which are also part
+  of the flag, hold.
+- **CI** pins its actions to commit SHAs.
 
 ### Notes
 
