@@ -30,6 +30,10 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **`docs/launch-checklist.md`** records the final launch state. Every item is done, and each
   row gives its evidence: the public repository, `main` protection, the releases through
   1.0.2, PyPI, the seeded issues and the social preview.
+- **README community benchmark status.** The "Help benchmark Apple Silicon" section no
+  longer calls other Macs untested: it says the headline benchmark is M4 Max only and that
+  the community matrix has its first external result, an M4 Pro, kept separate from the
+  headline numbers. The pointer to the closed M4 Pro issue #3 is removed.
 - **Community benchmark onboarding.** The README has a short "Help benchmark Apple
   Silicon" section that points M1/M2, M3 Max and M4 Pro owners to issues #1, #2 and #3.
   `docs/community-benchmarks.md` lists those issues as contribution slots, marks untested

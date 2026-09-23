@@ -24,25 +24,27 @@ benchmark's arrival sequence. Its P99 values are the published v1.0 numbers in
 The gain comes from running both engines at once, not from raw ANE latency. This is the
 v1.0 benchmark on one Apple M4 Max with macOS 26.6.2: one short and one long
 request stream through one `Laya(execution="workers")` instance (see
-[GPU + ANE heterogeneous serving](#gpu--ane-heterogeneous-serving)). Other Macs are untested, and you can
-[add yours](docs/community-benchmarks.md). The method and raw data are in
+[GPU + ANE heterogeneous serving](#gpu--ane-heterogeneous-serving)). Other Macs are not part of this
+benchmark; their results go in the [community matrix](docs/community-benchmarks.md), and you can
+[add yours](docs/community-benchmarks.md#add-your-mac). The method and raw data are in
 [`benchmarks/v1.0.md`](benchmarks/v1.0.md).
 
 ### Help benchmark Apple Silicon
 
-The benchmark above covers only an M4 Max. If you have another Mac, one command adds it to
-the [community matrix](docs/community-benchmarks.md). **No code changes required.**
+The benchmark above covers only an M4 Max. The [community matrix](docs/community-benchmarks.md)
+collects results from other Macs as separate runs, not mixed into the numbers above. It has
+its first external result, an M4 Pro. If you have another Mac, one command adds it.
+**No code changes required.**
 
 - M1 / M2 → [#1](https://github.com/tc3oliver/laya-apple/issues/1)
 - M3 Max → [#2](https://github.com/tc3oliver/laya-apple/issues/2)
-- M4 Pro → [#3](https://github.com/tc3oliver/laya-apple/issues/3)
 - M5 or any other Mac → [add your Mac](docs/community-benchmarks.md#add-your-mac)
 
 ```bash
 uv run python scripts/hardware_report.py --quick
 ```
 
-Each issue has the full steps, from `git clone` to the pull request, in about 10 minutes.
+The linked issues and guide have the full steps, from `git clone` to the pull request, in about 10 minutes.
 
 ## Why this exists
 
