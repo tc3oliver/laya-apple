@@ -2,6 +2,7 @@
 
     uv run python scripts/generate_readme_svgs.py            # writes docs/readme/*.svg
     uv run python scripts/generate_readme_svgs.py --check    # fails if the committed files are stale
+    uv run python scripts/generate_readme_svgs.py --social-png   # also renders docs/readme/social-preview.png
 
 - hero-throughput.svg: mixed-workload throughput, GPU-only against GPU + ANE, read from
   benchmarks/v1.0/placement-*.json (the same numbers as `scripts/v1_report.py hetero`).
@@ -9,6 +10,11 @@
   README text next to it names the benchmark report and its methodology.
 - architecture.svg: request-level routing and concurrent GPU + ANE serving; the ANE limits
   are read from laya_apple/data/routing.json.
+- social-preview.png: the repository's 1280x640 link preview, with the best throughput gain
+  from the same data and the hard-mismatch count from benchmarks/v1.0/parity. It is
+  rendered by headless Google Chrome, so it is not part of --check; regenerate it with
+  --social-png when the data changes, then upload it under Settings -> Social preview
+  (GitHub has no API for that).
 
 Colours are CSS classes with a prefers-color-scheme override, and each figure draws its own
 background card with the same override. prefers-color-scheme inside an image follows the
@@ -20,11 +26,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import shutil
+import subprocess
 import sys
+import tempfile
 from html import escape
 from pathlib import Path
 
-from v1_report import MODELS, PLACEMENT, V1
+from v1_report import MODELS, PLACEMENT, V1, _mismatches, _parity
 
 ROOT = Path(__file__).resolve().parents[1]
 ROUTING = ROOT / "laya_apple" / "data" / "routing.json"
@@ -222,10 +231,103 @@ def architecture() -> str:
 
 FIGURES = {"hero-throughput.svg": hero, "architecture.svg": architecture}
 
+SOCIAL_W, SOCIAL_H = 1280, 640
+CHROME_CANDIDATES = (
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    "google-chrome",
+    "chromium",
+)
+
+
+def hard_mismatches() -> int:
+    """Hard decision mismatches of laya-apple MLX FP16 and ANE FP16 against the upstream
+    goldens, summed over the three models (benchmarks/v1.0/parity)."""
+    total = 0
+    for m in MODELS:
+        for name in ("laya-apple-gpu-float16", "laya-apple-ane-float16"):
+            p = _parity(m, name)
+            if p is None or not p.get("passed"):
+                sys.exit(f"{m} {name}: parity result missing or failed")
+            total += _mismatches(p)[0]
+    return total
+
+
+def social_preview() -> str:
+    """The 1280x640 link preview. A fixed light palette: it is a PNG shown on any background."""
+    rows, (soc, macos) = throughput_data()
+    best = max(rows, key=lambda r: r[3])
+    hard = hard_mismatches()
+    W, H = SOCIAL_W, SOCIAL_H
+    ink, muted, acc, gpu = "#1f2328", "#59636e", "#0969da", "#8c959f"
+
+    def t(x, y, s, fill, size, weight=None, anchor=None):
+        return _text(x, y, s, size=size, weight=weight, anchor=anchor).replace('class="t"', f'fill="{fill}"')
+
+    # One pair of bars for the model with the largest gain, on the right.
+    bx, base, top = 930, 500, 250
+    scale = (base - top) / best[2]
+    b = [
+        f'<rect width="{W}" height="{H}" fill="#ffffff"/>',
+        f'<rect x="0" y="0" width="{W}" height="10" fill="{acc}"/>',
+        t(72, 138, "laya-apple", ink, 84, 700),
+        t(72, 190, "Correctness-validated heterogeneous Laya runtime for Apple Silicon", muted, 27),
+        f'<rect x="72" y="224" width="420" height="52" rx="26" fill="#ddf4ff" stroke="{acc}" stroke-width="1.5"/>',
+        t(282, 259, "MLX GPU + Apple Neural Engine", acc, 25, 600, "middle"),
+        t(72, 402, f"Up to {best[3]:.2f}×", acc, 104, 700),
+        t(72, 450, "mixed-workload throughput vs GPU-only serving", ink, 29),
+        '<circle cx="84" cy="499" r="9" fill="#1a7f37"/>',
+        t(104, 508, f"{hard} hard decision mismatches against upstream Laya", ink, 27, 600),
+        t(72, 590, f"Measured on {soc} · macOS {macos}", muted, 22),
+    ]
+    for k, (label, v, fill) in enumerate((("GPU-only", best[1], gpu), ("GPU + ANE", best[2], acc))):
+        x, h = bx + k * 140, best[1 + k] * scale
+        b.append(f'<rect x="{x}" y="{base - h:.1f}" width="96" height="{h:.1f}" rx="4" fill="{fill}"/>')
+        b.append(t(x + 48, base - h - 14, f"{v:.1f}", ink, 24, 600, "middle"))
+        b.append(t(x + 48, base + 34, label, muted, 22, None, "middle"))
+    b.append(f'<line x1="{bx - 20}" x2="{bx + 256}" y1="{base}" y2="{base}" stroke="#d1d9e0" stroke-width="2"/>')
+    b.append(t(bx + 118, base + 76, f"{best[0]}, req/s", muted, 22, None, "middle"))
+    body = "\n".join(b)
+    return (
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" '
+        f'font-family="{FONT}">\n{body}\n</svg>\n'
+    )
+
+
+def render_social_png(out: Path) -> None:
+    chrome = next((c for c in CHROME_CANDIDATES if Path(c).exists() or shutil.which(c)), None)
+    if chrome is None:
+        sys.exit("--social-png needs Google Chrome or Chromium")
+    with tempfile.TemporaryDirectory() as d:
+        svg = Path(d) / "social-preview.svg"
+        svg.write_text(social_preview())
+        page = Path(d) / "page.html"
+        page.write_text(
+            f'<html><body style="margin:0"><img src="{svg.as_uri()}" width="{SOCIAL_W}" height="{SOCIAL_H}"></body></html>'
+        )
+        subprocess.run(
+            [
+                chrome,
+                "--headless=new",
+                "--disable-gpu",
+                "--hide-scrollbars",
+                "--force-device-scale-factor=1",
+                "--allow-file-access-from-files",
+                f"--window-size={SOCIAL_W},{SOCIAL_H}",
+                f"--screenshot={out}",
+                page.as_uri(),
+            ],
+            check=True,
+            capture_output=True,
+        )
+    print(f"wrote {out.relative_to(ROOT)}")
+
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--check", action="store_true", help="fail if a committed figure differs from the data")
+    ap.add_argument(
+        "--social-png", action="store_true", help="also render docs/readme/social-preview.png (needs Chrome)"
+    )
     args = ap.parse_args(argv)
     stale = []
     for name, fn in FIGURES.items():
@@ -240,6 +342,8 @@ def main(argv=None) -> int:
     if stale:
         print(f"stale: {', '.join(stale)}; run scripts/generate_readme_svgs.py", file=sys.stderr)
         return 1
+    if args.social_png and not args.check:
+        render_social_png(OUT / "social-preview.png")
     return 0
 
 
