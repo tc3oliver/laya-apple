@@ -5,6 +5,8 @@
 
 - hero-throughput.svg: mixed-workload throughput, GPU-only against GPU + ANE, read from
   benchmarks/v1.0/placement-*.json (the same numbers as `scripts/v1_report.py hetero`).
+  The figure carries no release version, so it does not change with every release; the
+  README text next to it names the benchmark report and its methodology.
 - architecture.svg: request-level routing and concurrent GPU + ANE serving; the ANE limits
   are read from laya_apple/data/routing.json.
 
@@ -90,7 +92,7 @@ def hero() -> str:
     x0, bar_max, bar_h = 196, 440, 16
     scale = bar_max / max(r[2] for r in rows)
     b = [
-        _text(24, 34, "laya-apple v1.0: mixed-workload throughput against GPU-only serving", size=18, weight=600),
+        _text(24, 34, "laya-apple: mixed-workload throughput against GPU-only serving", size=18, weight=600),
         _text(
             24,
             58,
@@ -124,7 +126,7 @@ def hero() -> str:
             size=12,
         )
     )
-    b.append(_text(24, H - 18, f"{soc} · macOS {macos} · data: benchmarks/v1.0/placement-*.json", cls="m", size=12))
+    b.append(_text(24, H - 18, f"Measured on {soc} · macOS {macos}", cls="m", size=12))
     title = "Mixed-workload throughput, GPU-only vs GPU + ANE: " + ", ".join(
         f"{m} {gpu:.1f} to {het:.1f} req/s ({r:.2f}×)" for m, gpu, het, r in rows
     )

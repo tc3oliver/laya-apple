@@ -5,6 +5,12 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- **README throughput figure** no longer carries a release version, so it does not have to
+  change with every release. The text next to it names the v1.0 benchmark report, its
+  methodology and raw data; `benchmarks/v1.0.md` keeps its version.
+
 ## [1.0.2] - 2026-09-23
 
 Packaging and documentation only. The library code is unchanged since 1.0.1; this

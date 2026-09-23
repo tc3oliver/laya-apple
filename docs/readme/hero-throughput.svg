@@ -13,7 +13,7 @@
 }
 </style>
 <rect x="0.5" y="0.5" width="879" height="361" rx="10" class="bg"/>
-<text x="24" y="34" class="t" font-size="18" font-weight="600">laya-apple v1.0: mixed-workload throughput against GPU-only serving</text>
+<text x="24" y="34" class="t" font-size="18" font-weight="600">laya-apple: mixed-workload throughput against GPU-only serving</text>
 <text x="24" y="58" class="m" font-size="13">Heterogeneous MLX GPU + Apple Neural Engine serving · ANE paths parity-validated against upstream Laya</text>
 <rect x="24" y="76" width="12" height="12" rx="2" class="gpu"/>
 <text x="42" y="87" class="m" font-size="12">GPU-only (MLX)</text>
@@ -43,5 +43,5 @@
 <text x="856" y="274" class="acc" font-size="28" font-weight="700" text-anchor="end">4.57×</text>
 <line x1="24" x2="856" y1="298" y2="298" class="grid"/>
 <text x="24" y="324" class="m" font-size="12">One short and one long request stream per model through one Laya(execution=&quot;workers&quot;) instance; GPU-only runs both on the MLX worker.</text>
-<text x="24" y="344" class="m" font-size="12">Apple M4 Max · macOS 26.6.2 · data: benchmarks/v1.0/placement-*.json</text>
+<text x="24" y="344" class="m" font-size="12">Measured on Apple M4 Max · macOS 26.6.2</text>
 </svg>
