@@ -10,6 +10,9 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **README throughput figure** no longer carries a release version, so it does not have to
   change with every release. The text next to it names the v1.0 benchmark report, its
   methodology and raw data; `benchmarks/v1.0.md` keeps its version.
+- **`docs/launch-checklist.md`** records the final launch state. Every item is done, and each
+  row gives its evidence: the public repository, `main` protection, the releases through
+  1.0.2, PyPI, the seeded issues and the social preview.
 
 ## [1.0.2] - 2026-09-23
 
