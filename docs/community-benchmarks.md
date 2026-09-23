@@ -16,7 +16,6 @@ been measured; any Mac without a result is wanted, with or without an issue.
 |---|---|---|
 | M1 or M2, any variant | [#1: M1/M2 MLX-only result](https://github.com/tc3oliver/laya-apple/issues/1) | MLX only, about 10 minutes |
 | M3 Max | [#2: M3 Max result](https://github.com/tc3oliver/laya-apple/issues/2) | MLX, plus ANE if you have 15 more minutes |
-| M4 Pro | [#3: M4 Pro result](https://github.com/tc3oliver/laya-apple/issues/3) | MLX, plus ANE if you have 15 more minutes |
 | Any other Apple silicon Mac, including M5 and newer | No issue needed: follow [Add your Mac](#add-your-mac) | Same steps |
 
 ## Matrix
@@ -36,7 +35,7 @@ been measured; any Mac without a result is wanted, with or without an issue.
 | M3 Max | – | – | – | – | **Wanted** — [submit a benchmark](#add-your-mac) |
 | M3 Ultra | – | – | – | – | **Wanted** — [submit a benchmark](#add-your-mac) |
 | M4 | – | – | – | – | **Wanted** — [submit a benchmark](#add-your-mac) |
-| M4 Pro | – | – | – | – | **Wanted** — [submit a benchmark](#add-your-mac) |
+| M4 Pro (48 GB, macOS 27.0) | ✓ | ✓ | yes, local calibrated profile | ✓ | [bundle](../hardware-results/apple-m4-pro-macos27/summary.md) ([#32](https://github.com/tc3oliver/laya-apple/pull/32); `--quick`, laya-typed-decisions only) |
 | M4 Max (macOS 26.6.2) | ✓ | ✓ | yes | ✓ | [`benchmarks/v1.0.md`](../benchmarks/v1.0.md), [bundle](../hardware-results/apple-m4-max-macos26/summary.md) |
 | M5 | – | – | – | – | **Wanted** — [submit a benchmark](#add-your-mac) |
 | M5 Pro | – | – | – | – | **Wanted** — [submit a benchmark](#add-your-mac) |
@@ -53,11 +52,19 @@ What each column means:
 - **Auto uses ANE**: `device="auto"` sends at least one request to the ANE. On a profile
   that is not shipped and not calibrated, the answer is `no` with `routing_reason`
   `platform_not_validated`. That is the runtime working as designed, not a failure.
+  `yes, local calibrated profile` means the submitter ran `laya-apple calibrate` on
+  that Mac and `auto` used the resulting local profile. The shipped routing table does
+  not include that profile, so on another Mac with the same SoC `auto` stays on MLX
+  until that Mac builds its own ANE artifacts and runs `laya-apple calibrate`
+  ([`compatibility.md`](compatibility.md), "What happens on an untested profile").
 - **Heterogeneous**: a short closed-loop mix of short and long requests has zero answer
   mismatches and more aggregate throughput with GPU + ANE than GPU alone.
 
 `–` with **Wanted** means nobody has submitted a result yet. It says nothing about
 whether that Mac works.
+
+A filled row records one submitted run on one machine, with the memory, macOS version
+and scope shown in the row. It is not a claim about every configuration of that SoC.
 
 ## Add your Mac
 

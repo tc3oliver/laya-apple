@@ -7,6 +7,11 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- **First community hardware result: Apple M4 Pro** (48 GB, macOS 27.0), in
+  `hardware-results/apple-m4-pro-macos27/` (#32). `docs/community-benchmarks.md` fills its
+  matrix row from that bundle and marks `Auto uses ANE` as coming from a local calibrated
+  profile, not the shipped routing table. The M4 Pro contribution slot is removed now that
+  issue #3 is closed. No runtime, routing, parity or benchmark code changed.
 - **README serving animation.** `docs/media/heterogeneous-serving.gif` (960×540, 10 fps, 20 s,
   0.6 MB) is the first figure in the README, after the one-line description and before the
   throughput figure. It replays one burst of the laya-typed-decisions bursty workload, GPU-only against GPU + ANE, from a
