@@ -7,8 +7,8 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
-- **README serving animation.** `docs/media/heterogeneous-serving.gif` (960×540, 20 s,
-  2.2 MB) is the first figure in the README, after the one-line description and before the
+- **README serving animation.** `docs/media/heterogeneous-serving.gif` (960×540, 10 fps, 20 s,
+  0.6 MB) is the first figure in the README, after the one-line description and before the
   throughput figure. It replays one burst of the laya-typed-decisions bursty workload, GPU-only against GPU + ANE, from a
   per-request trace of the benchmark's arrival sequence. The P99 values it shows are the
   published v1.0 numbers.
