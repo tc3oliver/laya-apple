@@ -1,0 +1,713 @@
+"""GPU-ANE interference and tail latency: the measurement driver (issue #16).
+
+    LAYA_APPLE_CACHE=... HF_HUB_OFFLINE=1 uv run python \
+        research/gpu-ane-interference/scripts/interference.py \
+        --model laya-typed-decisions --ane-placement thread --plan device \
+        --out research/gpu-ane-interference/raw/device-laya-typed-decisions-thread.json.gz
+
+One product `Laya(device="auto", execution="workers")` instance per run: the GPU in its
+worker process, the ANE on a thread or in a worker process (--ane-placement). Two plans:
+
+device    Each stream feeds ONE device directly through the product's DeviceWorker, so the
+          experimenter, not the router, decides which device runs what. Cells:
+            solo      one stream alone (the baseline every other cell is compared with)
+            matrix    one GPU and one ANE stream, both closed loop
+            sweep     a closed-loop victim on one device, an open-loop Poisson aggressor on
+                      the other at a fraction of its solo capacity
+            control   a closed-loop victim with no device aggressor, but a CPU, memory-
+                      bandwidth or GIL aggressor (to tell device from host contention)
+            sparse    one device alone, open-loop Poisson at a low fraction of its capacity
+                      (--parts sparse): service time when the machine is mostly idle
+product   Requests go through Laya.submit, so the v0.2 queue-aware router decides:
+            closed    the v0.2 Part A mix (solo_short, solo_long, hetero)
+            open      Poisson arrivals of the v0.2 Part B class mix at several rates
+
+Every request records arrival, queue_enter, device_start, device_end and response
+(time.perf_counter, one system-wide monotonic clock; see jobtrace.py) plus the backend's
+own phase split (device spans vs host work). Every answer is compared with the inline answer
+for the same request on the same device; a mismatch is reported, never dropped.
+
+Windows: each cell runs `--cycles` times, in alternating cell order. Within one window the
+streams start together; the first `--warmup` seconds are discarded and only requests that
+ARRIVE inside [warmup, warmup + window] are measured, while every stream keeps running for a
+tail guard after the window, so each measured request ran with its aggressor still active.
+"""
+
+from __future__ import annotations
+
+import argparse
+import gzip
+import itertools
+import json
+import os
+import platform
+import queue
+import random
+import shutil
+import subprocess
+import sys
+import tempfile
+import threading
+import time
+from datetime import datetime, timezone
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))
+import jobtrace  # noqa: E402
+
+perf = time.perf_counter
+
+# ----------------------------------------------------------------------------- environment
+
+
+def conditions() -> dict:
+    """Background load before a window. LC_ALL=C: ps prints %cpu with the locale's decimal
+    separator otherwise (issue #35)."""
+    env = dict(os.environ, LC_ALL="C")
+    top = subprocess.run(["ps", "-Ao", "%cpu=,comm="], capture_output=True, text=True, env=env).stdout.splitlines()
+    rows = []
+    for line in top:
+        parts = line.split(None, 1)
+        if len(parts) == 2:
+            try:
+                rows.append((float(parts[0]), parts[1].rsplit("/", 1)[-1]))
+            except ValueError:
+                pass
+    therm = subprocess.run(["pmset", "-g", "therm"], capture_output=True, text=True).stdout
+    return {
+        "loadavg": os.getloadavg(),
+        "top_cpu": sorted(rows, reverse=True)[:6],
+        "thermal_warning": "No thermal warning level has been recorded" not in therm,
+        "performance_warning": "No performance warning level has been recorded" not in therm,
+    }
+
+
+def environment(laya) -> dict:
+    import coremltools
+    import mlx.core as mx
+    import numpy
+
+    import laya_apple
+    from laya_apple.artifacts import platform_profile
+
+    def sh(*cmd):
+        return subprocess.run(cmd, capture_output=True, text=True).stdout.strip()
+
+    return {
+        "laya_apple": laya_apple.__version__,
+        "git_commit": sh("git", "-C", str(HERE), "rev-parse", "HEAD"),
+        "platform": platform_profile(),
+        "python": platform.python_version(),
+        "mlx": mx.__version__,
+        "coremltools": coremltools.__version__,
+        "numpy": numpy.__version__,
+        "cpu_perflevels": {
+            "p_cores": int(sh("sysctl", "-n", "hw.perflevel0.logicalcpu") or 0),
+            "e_cores": int(sh("sysctl", "-n", "hw.perflevel1.logicalcpu") or 0),
+        },
+        "memory_bytes": int(sh("sysctl", "-n", "hw.memsize") or 0),
+        "power": sh("pmset", "-g", "batt").splitlines()[:1],
+        "clock": jobtrace.clock_info(),
+        "switch_interval_s": sys.getswitchinterval(),
+        "laya_info": laya.info(),
+    }
+
+
+# ----------------------------------------------------------------------------- aggressors
+# Host-side aggressors, for the controls. Each runs in its own process (so it contends for
+# CPU cores or memory bandwidth, not for this interpreter's GIL), except "gil", which is a
+# pure-Python thread in this process.
+
+_CPU_BURN = "import time\nx=0\nwhile True:\n    for i in range(100000): x ^= i\n"
+_MEM_BW = """
+import numpy as np, sys, time, json
+a = np.ones(64 << 20, np.float64); b = np.empty_like(a)   # 512 MB each: far beyond any cache
+n = 0; t0 = time.perf_counter()
+while True:
+    np.copyto(b, a); n += 1
+    if n % 20 == 0:
+        dt = time.perf_counter() - t0
+        sys.stdout.write(json.dumps({"gb_s": 2 * a.nbytes * 20 / dt / 1e9}) + "\\n"); sys.stdout.flush()
+        t0 = time.perf_counter()
+"""
+
+
+class Aggressor:
+    def __init__(self, kind: str, n: int = 1):
+        self.kind, self.n = kind, n
+        self._procs: list = []
+        self._stop = threading.Event()
+        self._thread = None
+        self.samples: list = []
+
+    def start(self):
+        if self.kind == "cpu":
+            self._procs = [subprocess.Popen([sys.executable, "-c", _CPU_BURN]) for _ in range(self.n)]
+        elif self.kind == "membw":
+            self._procs = [
+                subprocess.Popen([sys.executable, "-c", _MEM_BW], stdout=subprocess.PIPE, text=True)
+                for _ in range(self.n)
+            ]
+        elif self.kind == "gil":
+
+            def spin():
+                x = 0
+                while not self._stop.is_set():
+                    for i in range(10000):
+                        x ^= i
+
+            self._thread = threading.Thread(target=spin, daemon=True)
+            self._thread.start()
+        else:
+            raise ValueError(self.kind)
+        time.sleep(1.0)
+
+    def stop(self):
+        self._stop.set()
+        if self._thread is not None:
+            self._thread.join()
+        for p in self._procs:
+            p.terminate()
+        for p in self._procs:
+            p.wait()
+            if p.stdout is not None:
+                for line in p.stdout.read().splitlines():
+                    try:
+                        self.samples.append(json.loads(line)["gb_s"])
+                    except (ValueError, KeyError):
+                        pass
+
+    def describe(self) -> dict:
+        d = {"kind": self.kind, "n": self.n}
+        if self.samples:
+            d["gb_s_median"] = sorted(self.samples)[len(self.samples) // 2]
+        return d
+
+
+# ----------------------------------------------------------------------------- requests
+
+
+class Workload:
+    """Exact-length requests per shape (several seeds each) and their inline references."""
+
+    def __init__(self, laya, model: str, shapes: dict, seeds: int):
+        from laya_apple import Laya, LayaAppleError
+        from laya_apple.workload import make_request
+
+        self.laya = laya
+        self.shapes = shapes  # name -> (length, questions)
+        self.reqs: dict = {}
+        ref = {
+            "gpu": Laya.from_pretrained(model, device="gpu", local_files_only=True),
+            "ane": Laya.from_pretrained(model, device="ane", local_files_only=True),
+        }
+        self.refs: dict = {}
+        for name, (length, q) in shapes.items():
+            self.reqs[name] = []
+            for seed in range(seeds):
+                state, questions = make_request(laya.tokenizer, laya.config, length, n_questions=q, seed=100 + seed)
+                self.reqs[name].append({"state": state, "questions": questions, "seed": seed})
+                for dev, r in ref.items():
+                    try:
+                        self.refs[(name, seed, dev)] = r.predict(context=state, questions=questions).answers
+                    except LayaAppleError:
+                        self.refs[(name, seed, dev)] = None  # not ANE-eligible; never sent there
+        for r in ref.values():
+            r.close()
+        del ref
+
+    def cycle(self, name: str):
+        return itertools.cycle(self.reqs[name])
+
+
+# ----------------------------------------------------------------------------- streams
+
+
+class DeviceStream:
+    """Requests of one shape to one device's worker, closed loop or open-loop Poisson."""
+
+    def __init__(self, run, device: str, shape: str, mode: str = "closed", rate: float = 0.0, seed: int = 0):
+        self.run, self.device, self.shape, self.mode, self.rate = run, device, shape, mode, rate
+        self.rng = random.Random(seed)
+        self.records: list = []
+        self.errors: list = []
+
+    @property
+    def label(self) -> str:
+        return f"{self.device}_{self.shape}"
+
+    def _issue(self, req, arrival):
+        """Prepare, check eligibility and submit one request (on the calling thread)."""
+        laya, service = self.run.laya, self.run.laya._service
+        prep = laya.prepare(req["state"], req["questions"])
+        if self.device == "ane":
+            buckets = laya.ane.check(prep.items)  # the product's ANE eligibility gate: raises, never pads/truncates
+            estimate = sum(service.ane_ms(b) for b in buckets)
+        else:
+            estimate = service.gpu_ms(prep.sequence_length, prep.question_count)
+        rec = self.run.jobs.open(prep.items, arrival=arrival, prepared=perf(), seed=req["seed"])
+        fut = self.run.workers[self.device].submit(prep.items, estimate)
+        return prep, rec, fut
+
+    def _complete(self, req, prep, rec, fut):
+        from laya_apple.prompt import format_answers
+
+        try:
+            logits, act, wait_ms, device_ms = fut.result()
+        except Exception as e:  # an error is a result, not something to skip silently
+            self.errors.append(repr(e))
+            self.run.jobs.close(rec)
+            return
+        rec["woke"] = perf()
+        answers = format_answers(prep, logits, act, self.run.laya.calibration)
+        rec["response"] = perf()
+        rec["forward_ms"] = device_ms
+        rec["match"] = answers == self.run.work.refs[(self.shape, req["seed"], self.device)]
+        self.records.append(self.run.jobs.close(rec))
+
+    def run_closed(self, start_at, stop_at):
+        reqs = self.run.work.cycle(self.shape)
+        while perf() < start_at:
+            time.sleep(0.0002)
+        while perf() < stop_at:
+            req = next(reqs)
+            prep, rec, fut = self._issue(req, perf())
+            self._complete(req, prep, rec, fut)
+
+    def run_open(self, start_at, stop_at):
+        reqs = self.run.work.cycle(self.shape)
+        pending: queue.Queue = queue.Queue()
+
+        def collect():  # one device is FIFO, so completing in submission order never waits long
+            while (item := pending.get()) is not None:
+                self._complete(*item)
+
+        collector = threading.Thread(target=collect, daemon=True)
+        collector.start()
+        t = start_at
+        while True:
+            t += self.rng.expovariate(self.rate)
+            if t >= stop_at:
+                break
+            while (now := perf()) < t:
+                time.sleep(min(0.0005, t - now))
+            req = next(reqs)
+            prep, rec, fut = self._issue(req, t)  # arrival = the scheduled time
+            rec["submitted"] = perf()
+            pending.put((req, prep, rec, fut))
+        pending.put(None)
+        collector.join()
+
+    def run_window(self, start_at, stop_at):
+        if self.mode == "closed":
+            self.run_closed(start_at, stop_at)
+        else:
+            self.run_open(start_at, stop_at)
+
+
+class ProductStream:
+    """Requests through Laya.submit (the v0.2 router decides the device)."""
+
+    def __init__(self, run, classes, mode: str = "closed", rate: float = 0.0, label: str = "", seed: int = 0):
+        self.run, self.classes, self.mode, self.rate = run, classes, mode, rate  # classes: [(shape, weight)]
+        self.label = label or "+".join(c for c, _ in classes)
+        self.rng = random.Random(seed)
+        self.records: list = []
+        self.errors: list = []
+
+    def _issue(self, shape, req, arrival):
+        self.run.jobs.expect_new()
+        fut = self.run.laya.submit(context=req["state"], questions=req["questions"])
+        rec = self.run.jobs.last_opened()
+        rec.update(arrival=arrival, shape=shape, seed=req["seed"])
+        return rec, fut
+
+    def _complete(self, shape, req, rec, fut):
+        try:
+            r = fut.result()
+        except Exception as e:
+            self.errors.append(repr(e))
+            self.run.jobs.close(rec)
+            return
+        # open loop: the collector may reach this late; the Future's own resolution time is the response
+        rec["response"] = rec.pop("response_cb", None) or perf()
+        rt = r.runtime
+        rec.update(
+            forward_ms=rt.device_ms,
+            reason=rt.routing_reason,
+            gpu_backlog_ms=rt.gpu_backlog_ms,
+            ane_backlog_ms=rt.ane_backlog_ms,
+            latency_ms=rt.latency_ms,
+            match=r.answers == self.run.work.refs[(shape, req["seed"], rt.device)],
+        )
+        self.records.append(self.run.jobs.close(rec))
+
+    def _pick(self, cycles):
+        names = [c for c, _ in self.classes]
+        shape = self.rng.choices(names, [w for _, w in self.classes])[0] if len(names) > 1 else names[0]
+        return shape, next(cycles[shape])
+
+    def run_window(self, start_at, stop_at):
+        cycles = {c: self.run.work.cycle(c) for c, _ in self.classes}
+        while perf() < start_at:
+            time.sleep(0.0002)
+        if self.mode == "closed":
+            while perf() < stop_at:
+                shape, req = self._pick(cycles)
+                rec, fut = self._issue(shape, req, perf())
+                self._complete(shape, req, rec, fut)
+            return
+        pending: queue.Queue = queue.Queue()
+        done = []
+
+        def collect():  # two devices complete out of order: wait on each in turn, all finish
+            while (item := pending.get()) is not None:
+                done.append(item)
+                item[3].exception()  # block until this one finished
+            for item in done:
+                self._complete(*item)
+
+        collector = threading.Thread(target=collect, daemon=True)
+        collector.start()
+        t = start_at
+        while True:
+            t += self.rng.expovariate(self.rate)
+            if t >= stop_at:
+                break
+            while (now := perf()) < t:
+                time.sleep(min(0.0005, t - now))
+            shape, req = self._pick(cycles)
+            rec, fut = self._issue(shape, req, t)
+            rec["submitted"] = perf()
+
+            def stamp(_f, rec=rec):  # response = when the Future resolved (collector may lag)
+                rec["response_cb"] = perf()
+
+            fut.add_done_callback(stamp)
+            pending.put((shape, req, rec, fut))
+        pending.put(None)
+        collector.join()
+
+
+# ----------------------------------------------------------------------------- raw layout
+
+
+def columns(records: list) -> dict:
+    """List of dicts -> dict of equal-length lists (keys stored once; None where absent)."""
+    keys = list(dict.fromkeys(k for r in records for k in r))
+    return {k: [r.get(k) for r in records] for k in keys}
+
+
+def rows(cols: dict) -> list:
+    keys = list(cols)
+    return [dict(zip(keys, vals)) for vals in zip(*(cols[k] for k in keys))] if keys else []
+
+
+# ----------------------------------------------------------------------------- run
+
+
+class Run:
+    def __init__(self, args):
+        from laya_apple import Laya
+
+        self.args = args
+        self.trace_dir = Path(tempfile.mkdtemp(prefix="laya-trace-"))
+        os.environ["LAYA_TRACE_DIR"] = str(self.trace_dir)
+        os.environ["PYTHONPATH"] = os.pathsep.join(
+            [str(HERE / "hooks")] + [p for p in os.environ.get("PYTHONPATH", "").split(os.pathsep) if p]
+        )
+        jobtrace.install_phase_hooks()  # this process: the thread-placed ANE backend
+        t = perf()
+        self.laya = Laya.from_pretrained(
+            args.model, device="auto", execution="workers", local_files_only=True, ane_placement=args.ane_placement
+        )
+        self.load_s = perf() - t
+        if self.laya.ane is None or self.laya.ane_state.unavailable:
+            raise SystemExit(f"ANE path unavailable: {self.laya.info()['auto_ane']}")  # never measure a fallback
+        self.workers = dict(self.laya._workers)
+        self.jobs = jobtrace.JobTable()
+        for w in self.workers.values():
+            jobtrace.instrument_worker(w, self.jobs)
+        spec = self.laya.spec
+        ane_short, ane_long = spec.ane_buckets[0], max(self.laya.ane.buckets)
+        gpu_long = int(self.laya.config.get("max_len", 512))
+        self.shapes = {
+            "S": (ane_short, 1),  # ANE short: the smallest bucket
+            "M": (128, 1),  # the v0.2 Part A short length (typed-decisions, laya)
+            "A": (args.part_a_short, 1),  # the Part A short length for this model
+            "B": (ane_long, 1),  # ANE long: the largest validated bucket
+            "L": (gpu_long, 1),  # GPU long: the model's maximum length
+            "Md": (512 if gpu_long > 512 else 256, 1),  # Part B "medium"
+            "S4": (args.part_a_short, 4),  # Part B short 4-question
+        }
+        self.work = Workload(self.laya, args.model, self.shapes, args.seeds)
+        self.env = environment(self.laya)
+        jobtrace.clear_phases()  # drop the reference instances' forwards
+        self.t_ref = perf()
+        self.windows: list = []
+        self.solo: dict = {}
+
+    # ------------------------------------------------------------- one window
+
+    def window(self, cell: dict, cycle: int, streams: list, aggressors: list):
+        a = self.args
+        time.sleep(a.settle)
+        cond = conditions()
+        for g in aggressors:
+            g.start()
+        start_at = perf() + 0.3
+        measure_from, measure_to = start_at + a.warmup, start_at + a.warmup + a.seconds
+        guard = a.guard_ms / 1e3
+        stop_at = measure_to + guard
+        threads = [threading.Thread(target=s.run_window, args=(start_at, stop_at)) for s in streams]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+        for g in aggressors:
+            g.stop()
+        out = {
+            "cell": cell["name"],
+            "kind": cell["kind"],
+            "cycle": cycle,
+            "spec": {k: v for k, v in cell.items() if k not in ("streams", "aggressors")},
+            "conditions_before": cond,
+            "t_start": start_at - self.t_ref,
+            "measure": [measure_from - self.t_ref, measure_to - self.t_ref],
+            "stop": stop_at - self.t_ref,
+            "aggressors": [g.describe() for g in aggressors],
+            "streams": {},
+        }
+        for s in streams:
+            out["streams"][s.label] = {
+                "device": getattr(s, "device", None),
+                "shape": getattr(s, "shape", None),
+                "mode": s.mode,
+                "rate": s.rate,
+                "errors": s.errors,
+                "records": columns([self._rel(r, measure_from, measure_to) for r in s.records]),
+            }
+        self.windows.append(out)
+        brief = {}
+        for label, st in out["streams"].items():
+            ms = [r for r in rows(st["records"]) if r["in_window"]]
+            svc = sorted(r["device_end"] - r["device_start"] for r in ms if "device_end" in r)
+            e2e = sorted(r["response"] - r["arrival"] for r in ms)
+            if svc:
+                brief[label] = (
+                    len(ms),
+                    round(svc[len(svc) // 2], 2),
+                    round(e2e[int(0.99 * (len(e2e) - 1))], 2),
+                    sum(not r["match"] for r in ms),
+                )
+        print(f"[{cell['name']} c{cycle}] n, svc P50, e2e P99, mismatches: {brief}", flush=True)
+        return out
+
+    def _rel(self, r: dict, lo: float, hi: float) -> dict:
+        """Timestamps relative to the run's reference, in ms (3 decimals = 1 µs)."""
+        out = {}
+        for k, v in r.items():
+            if k in ("arrival", "prepared", "submitted", "queue_enter", "device_start", "device_end", "woke", "response",
+                     "response_cb"):
+                out[k] = round((v - self.t_ref) * 1e3, 3)
+            elif isinstance(v, float):
+                out[k] = round(v, 3)
+            else:
+                out[k] = v
+        out["in_window"] = lo <= r["arrival"] < hi
+        return out
+
+    # ------------------------------------------------------------- plans
+
+    def solo_service_s(self, device: str, shape: str) -> float:
+        return self.solo[(device, shape)]
+
+    def record_solo(self, w: dict):
+        for st in w["streams"].values():
+            ms = [r for r in rows(st["records"]) if r["in_window"]]
+            svc = [r["device_end"] - r["device_start"] for r in ms]
+            key = (st["device"], st["shape"])
+            self.solo.setdefault(key, []).append(sum(svc) / len(svc) / 1e3)
+
+    def device_cells(self) -> list:
+        a = self.args
+        g_short, g_long, a_short, a_long = "M", "L", "S", "B"
+        cells = []
+        for dev, shp in (("gpu", g_short), ("gpu", g_long), ("ane", a_short), ("ane", a_long)):
+            cells.append({"name": f"solo:{dev}_{shp}", "kind": "solo", "streams": [(dev, shp, "closed", 0)]})
+        for gs, ans in itertools.product((g_short, g_long), (a_short, a_long)):
+            cells.append(
+                {
+                    "name": f"matrix:gpu_{gs}+ane_{ans}",
+                    "kind": "matrix",
+                    "streams": [("gpu", gs, "closed", 0), ("ane", ans, "closed", 0)],
+                }
+            )
+        if "sweep" in a.parts:
+            for u in a.utils:
+                for vic, agg in ((("gpu", g_long), ("ane", a_long)), (("gpu", g_short), ("ane", a_long)),
+                                 (("ane", a_long), ("gpu", g_long)), (("ane", a_long), ("gpu", g_short))):
+                    cells.append(
+                        {
+                            "name": f"sweep:{vic[0]}_{vic[1]}|{agg[0]}_{agg[1]}@{u:g}",
+                            "kind": "sweep",
+                            "util": u,
+                            "streams": [(vic[0], vic[1], "closed", 0), (agg[0], agg[1], "poisson", u)],
+                        }
+                    )
+        if "sparse" in a.parts:  # one device alone at low offered load: no interference possible
+            for u in a.sparse_utils:
+                for dev, shp in (("gpu", g_short), ("gpu", g_long), ("ane", a_long)):
+                    cells.append(
+                        {
+                            "name": f"sparse:{dev}_{shp}@{u:g}",
+                            "kind": "sparse",
+                            "util": u,
+                            "streams": [(dev, shp, "poisson", u)],
+                        }
+                    )
+            for dev, shp in (("gpu", g_short), ("ane", a_long)):  # same, with the CPU kept busy
+                cells.append(
+                    {
+                        "name": f"sparse:{dev}_{shp}@0.1|cpu1",
+                        "kind": "sparse",
+                        "util": 0.1,
+                        "streams": [(dev, shp, "poisson", 0.1)],
+                        "aggressors": [("cpu", 1)],
+                    }
+                )
+        if "control" in a.parts:
+            for kind, n in (("cpu", a.cpu_burners), ("membw", 1), ("gil", 1)):
+                for dev, shp in (("gpu", g_long), ("ane", a_long)):
+                    cells.append(
+                        {
+                            "name": f"control:{dev}_{shp}|{kind}{n}",
+                            "kind": "control",
+                            "streams": [(dev, shp, "closed", 0)],
+                            "aggressors": [(kind, n)],
+                        }
+                    )
+        return cells
+
+    def product_cells(self) -> list:
+        a = self.args
+        cells = [
+            {"name": "product:solo_short", "kind": "product_closed", "pstreams": [(["A"], "closed", 0)]},
+            {"name": "product:solo_long", "kind": "product_closed", "pstreams": [(["L"], "closed", 0)]},
+            {"name": "product:hetero", "kind": "product_closed", "pstreams": [(["A"], "closed", 0), (["L"], "closed", 0)]},
+        ]
+        mix = [("A", 0.6), ("Md", 0.2), ("L", 0.1), ("S4", 0.1)]
+        for rate in a.rates:
+            cells.append({"name": f"product:open@{rate:g}", "kind": "product_open", "rate": rate,
+                          "pstreams": [(mix, "poisson", rate)]})
+        return cells
+
+    def make_streams(self, cell: dict) -> list:
+        streams = []
+        for i, (dev, shp, mode, u) in enumerate(cell.get("streams", [])):
+            rate = u / self.solo_service_s(dev, shp) if mode == "poisson" else 0.0
+            streams.append(DeviceStream(self, dev, shp, mode, rate, seed=17 + i))
+        for i, (classes, mode, rate) in enumerate(cell.get("pstreams", [])):
+            if isinstance(classes[0], str):
+                classes = [(classes[0], 1.0)]
+            streams.append(ProductStream(self, classes, mode, rate, seed=29 + i))
+        return streams
+
+    def execute(self):
+        a = self.args
+        plan = self.device_cells() if a.plan == "device" else self.product_cells()
+        if a.plan == "device":  # solo first, once, so the sweep rates are known
+            solo = [c for c in plan if c["kind"] == "solo"]
+            rest = [c for c in plan if c["kind"] != "solo"]
+            for cycle in range(a.cycles):
+                for c in solo if cycle % 2 == 0 else solo[::-1]:
+                    self.record_solo(self.window(c, cycle, self.make_streams(c), []))
+            self.solo = {k: sum(v) / len(v) for k, v in self.solo.items()}
+            plan = rest
+        for cycle in range(a.cycles):
+            for c in plan if cycle % 2 == 0 else plan[::-1]:
+                aggs = [Aggressor(k, n) for k, n in c.get("aggressors", [])]
+                self.window(c, cycle, self.make_streams(c), aggs)
+
+    def finish(self):
+        self.laya.close()  # workers exit and dump their phase records
+        time.sleep(0.5)
+        phases = {"parent": jobtrace.phases()}
+        for f in sorted(self.trace_dir.glob("phases-*.json")):
+            phases[f.stem] = json.loads(f.read_text())
+        shutil.rmtree(self.trace_dir, ignore_errors=True)
+        rel = []
+        for src, recs in phases.items():
+            for p in recs:
+                t0 = (p["t0"] - self.t_ref) * 1e3
+                if t0 < 0:
+                    continue  # warm-up and references
+                rel.append(
+                    {
+                        "src": src,
+                        "kind": p["kind"],
+                        "L": p["max_len"],
+                        "t0": round(t0, 3),
+                        "t1": round((p["t1"] - self.t_ref) * 1e3, 3),
+                        "cpu_ms": round(p["cpu_ms"], 3),
+                        "dev": [[round((x - self.t_ref) * 1e3, 3), round((y - self.t_ref) * 1e3, 3)] for x, y in p["device_spans"]],
+                    }
+                )
+        rel.sort(key=lambda p: p["t0"])
+        rel = columns(rel)
+        return {
+            "experiment": "gpu-ane-interference",
+            "plan": self.args.plan,
+            "args": {k: v for k, v in vars(self.args).items()},
+            "time": datetime.now(timezone.utc).isoformat(),
+            "environment": self.env,
+            "load_s": self.load_s,
+            "shapes": {k: {"length": v[0], "questions": v[1]} for k, v in self.shapes.items()},
+            "service_model": {"gpu": self.laya._service.gpu, "ane": self.laya._service.ane},
+            "solo_mean_service_s": {f"{d}_{s}": v for (d, s), v in self.solo.items()},
+            "windows": self.windows,
+            "phases": rel,
+        }
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--model", default="laya-typed-decisions")
+    ap.add_argument("--ane-placement", choices=["thread", "process"], required=True)
+    ap.add_argument("--plan", choices=["device", "product"], default="device")
+    ap.add_argument("--parts", nargs="*", default=["sweep", "control"], help="device plan: extra cell groups")
+    ap.add_argument("--utils", type=float, nargs="+", default=[0.25, 0.5, 0.75])
+    ap.add_argument("--sparse-utils", type=float, nargs="+", default=[0.05, 0.1, 0.25, 0.5])
+    ap.add_argument("--rates", type=float, nargs="+", default=[15, 25, 35])
+    ap.add_argument("--part-a-short", type=int, default=128, help="Part A short length (v0.2: 96 for multilingual)")
+    ap.add_argument("--cpu-burners", type=int, default=4)
+    ap.add_argument("--seconds", type=float, default=25.0)
+    ap.add_argument("--warmup", type=float, default=2.0)
+    ap.add_argument("--guard-ms", type=float, default=400.0)
+    ap.add_argument("--settle", type=float, default=2.0)
+    ap.add_argument("--cycles", type=int, default=3)
+    ap.add_argument("--seeds", type=int, default=8)
+    ap.add_argument("--only", nargs="*", default=None, help="run only cells whose name starts with one of these")
+    ap.add_argument("--out", required=True)
+    args = ap.parse_args()
+    run = Run(args)
+    if args.only:
+        keep = tuple(args.only)
+        for name in ("device_cells", "product_cells"):
+            orig = getattr(run, name)
+            setattr(run, name, lambda orig=orig: [c for c in orig() if c["kind"] == "solo" or c["name"].startswith(keep)])
+    try:
+        run.execute()
+    finally:
+        record = run.finish()
+        out = Path(args.out)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        opener = gzip.open if out.suffix == ".gz" else open
+        with opener(out, "wt") as f:
+            json.dump(record, f, separators=(",", ":"))
+        print("wrote", out, f"{out.stat().st_size / 1e6:.1f} MB")
+
+
+if __name__ == "__main__":
+    main()
