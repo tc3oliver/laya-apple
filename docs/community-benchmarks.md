@@ -121,12 +121,13 @@ MLX-only result takes about 10 minutes.
    gh repo fork --remote              # your fork becomes origin, this repo becomes upstream
    git switch -c bench/add-my-mac
    git add hardware-results/
-   git commit -m "bench(hardware): add <your SoC> benchmark result"
+   git commit -m "bench(hardware): add <SoC> benchmark result"
    git push -u origin HEAD
    gh pr create --fill
    ```
 
-   `gh pr create --fill` uses the commit subject as the pull request title, for example
+   Replace `<SoC>` with your chip, for example `M1 Pro` or `M2 Max`. `gh pr create --fill`
+   uses the commit subject as the pull request title, for example
    `bench(hardware): add M3 Max benchmark result`. A different title is fine; the
    maintainer can adjust it when merging.
 

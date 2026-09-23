@@ -66,10 +66,13 @@ With the [GitHub CLI](https://cli.github.com/):
 gh repo fork --remote              # your fork becomes origin, this repo becomes upstream
 git switch -c bench/add-my-mac
 git add hardware-results/
-git commit -m "Add hardware report for my Mac"
+git commit -m "bench(hardware): add <SoC> benchmark result"
 git push -u origin HEAD
 gh pr create --fill
 ```
+
+Replace `<SoC>` with your chip, for example `M1 Pro` or `M2 Max`. `gh pr create --fill`
+uses the commit subject as the pull request title.
 
 Without the GitHub CLI: fork the repository on GitHub, then run
 `git remote add fork https://github.com/<you>/laya-apple`, the same `switch`, `add` and

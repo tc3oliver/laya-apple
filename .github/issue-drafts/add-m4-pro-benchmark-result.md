@@ -83,7 +83,7 @@ With the [GitHub CLI](https://cli.github.com/):
 gh repo fork --remote              # your fork becomes origin, this repo becomes upstream
 git switch -c bench/add-my-mac
 git add hardware-results/
-git commit -m "Add hardware report for my Mac"
+git commit -m "bench(hardware): add M4 Pro benchmark result"
 git push -u origin HEAD
 gh pr create --fill
 ```
