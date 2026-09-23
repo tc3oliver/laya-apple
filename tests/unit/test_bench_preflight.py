@@ -97,34 +97,37 @@ def test_measure_accepts_a_workspace_that_does_not_exist_yet(bp, caches, tmp_pat
 
 
 @pytest.mark.parametrize(
-    "free_gib, e5_gib, expected",
+    "free_gib, e5_gib, fails, warns",
     [
-        (250, 10, []),
-        (200, 50, []),  # exactly at both thresholds is allowed
-        (199.9, 10, ["free disk"]),
-        (250, 50.1, ["E5 caches"]),
-        (100, 80, ["free disk", "E5 caches"]),
+        (250, 10, False, False),
+        (200, 50, False, False),  # exactly at both levels is allowed
+        (199.9, 10, True, False),
+        (250, 50.1, False, True),
+        (100, 80, True, True),
     ],
 )
-def test_problems_thresholds(bp, free_gib, e5_gib, expected):
+def test_free_disk_fails_and_e5_size_only_warns(bp, free_gib, e5_gib, fails, warns):
     r = bp.Report(Path("/w"), int(free_gib * GIB), [(Path("/c"), int(e5_gib * GIB))])
-    found = bp.problems(r, 200, 50)
-    assert len(found) == len(expected)
-    for message, key in zip(found, expected):
-        assert key in message
+    assert (bp.failure(r, 200) is not None) == fails
+    assert (bp.warning(r, 50) is not None) == warns
+    if fails:
+        assert "free disk" in bp.failure(r, 200)
+    if warns:
+        assert "E5 caches" in bp.warning(r, 50)
 
 
-def test_zero_threshold_disables_that_check(bp):
+def test_zero_disables_each_check(bp):
     r = bp.Report(Path("/w"), 0, [(Path("/c"), 999 * GIB)])
-    assert bp.problems(r, 0, 0) == []
+    assert bp.failure(r, 0) is None
+    assert bp.warning(r, 0) is None
 
 
 def test_thresholds_from_env(bp):
     assert bp.thresholds_from_env({}) == (200.0, 50.0)
-    env = {"LAYA_APPLE_PREFLIGHT_MIN_FREE_GIB": "40", "LAYA_APPLE_PREFLIGHT_MAX_E5_GIB": "0"}
+    env = {"LAYA_APPLE_PREFLIGHT_MIN_FREE_GIB": "40", "LAYA_APPLE_PREFLIGHT_WARN_E5_GIB": "0"}
     assert bp.thresholds_from_env(env) == (40.0, 0.0)
     with pytest.raises(SystemExit, match="number of GiB"):
-        bp.thresholds_from_env({"LAYA_APPLE_PREFLIGHT_MAX_E5_GIB": "lots"})
+        bp.thresholds_from_env({"LAYA_APPLE_PREFLIGHT_WARN_E5_GIB": "lots"})
     for bad in ("-1", "nan", "inf"):
         with pytest.raises(SystemExit, match="finite number >= 0"):
             bp.thresholds_from_env({"LAYA_APPLE_PREFLIGHT_MIN_FREE_GIB": bad})
@@ -133,22 +136,38 @@ def test_thresholds_from_env(bp):
 def test_check_passes_and_reports(bp, caches, tmp_path, monkeypatch, capsys):
     _fixed_free(monkeypatch, bp, 500 * GIB)
     assert bp.check(tmp_path, caches, env={}) == 0
-    out = capsys.readouterr().out
+    out, err = capsys.readouterr()
     assert "free disk: 500.0 GiB" in out
     assert str(caches / "python3/com.apple.e5rt.e5bundlecache") in out
     assert "preflight: ok" in out
+    assert err == ""
 
 
-def test_check_fails_fast_with_actionable_message_and_deletes_nothing(bp, caches, tmp_path, monkeypatch, capsys):
+def test_large_e5_cache_warns_but_the_run_may_start(bp, caches, tmp_path, monkeypatch, capsys):
+    # The current machine's case: ~94 GiB of E5 caches, ~330 GiB free.
+    _fixed_free(monkeypatch, bp, 330 * GIB)
+    before = sorted(caches.rglob("*"))
+    assert bp.check(tmp_path, caches, env={"LAYA_APPLE_PREFLIGHT_WARN_E5_GIB": "0.000001"}) == 0
+    out, err = capsys.readouterr()
+    assert "preflight WARNING" in err and "E5 caches total" in err
+    assert str(caches / "python3/com.apple.e5rt.e5bundlecache") in out
+    assert "FAILED" not in err and "Not starting" not in err
+    assert "preflight: ok (with warning)" in out
+    assert sorted(caches.rglob("*")) == before
+
+
+def test_low_free_disk_fails_fast_with_actionable_message_and_deletes_nothing(
+    bp, caches, tmp_path, monkeypatch, capsys
+):
     _fixed_free(monkeypatch, bp, 10 * GIB)
-    before = sorted(p for p in caches.rglob("*"))
-    assert bp.check(tmp_path, caches, env={"LAYA_APPLE_PREFLIGHT_MAX_E5_GIB": "0.000001"}) == 1
+    before = sorted(caches.rglob("*"))
+    assert bp.check(tmp_path, caches, env={"LAYA_APPLE_PREFLIGHT_WARN_E5_GIB": "0.000001"}) == 1
     err = capsys.readouterr().err
-    assert "below the 200 GiB minimum" in err
-    assert "E5 caches total" in err
+    assert "preflight FAILED" in err and "below the 200 GiB minimum" in err
+    assert "preflight WARNING" in err
     assert "Nothing was deleted" in err
     assert "docs/benchmarks.md" in err
-    assert sorted(p for p in caches.rglob("*")) == before
+    assert sorted(caches.rglob("*")) == before
 
 
 def test_main_exit_code_follows_the_check(bp, caches, tmp_path, monkeypatch):
@@ -157,7 +176,7 @@ def test_main_exit_code_follows_the_check(bp, caches, tmp_path, monkeypatch):
     caches.rename(home / "Library" / "Caches")
     monkeypatch.setattr(bp.Path, "home", lambda: home)
     monkeypatch.delenv("LAYA_APPLE_PREFLIGHT_MIN_FREE_GIB", raising=False)
-    monkeypatch.delenv("LAYA_APPLE_PREFLIGHT_MAX_E5_GIB", raising=False)
+    monkeypatch.delenv("LAYA_APPLE_PREFLIGHT_WARN_E5_GIB", raising=False)
     _fixed_free(monkeypatch, bp, 500 * GIB)
     assert bp.main(["--workspace", str(tmp_path / "out")]) == 0
     _fixed_free(monkeypatch, bp, GIB)

@@ -2,19 +2,20 @@
 
     uv run python scripts/bench_preflight.py [--workspace benchmarks/v1.0]
 
-Every Core ML model a process loads is compiled by macOS into an E5 bundle and kept under
-~/Library/Caches/<process name>/com.apple.e5rt.e5bundlecache, one bundle per distinct
-model and compute-unit configuration. Nothing evicts it, so a benchmark matrix that loads
-many Core ML variants (scripts/bench_v1.sh) can leave tens of GiB behind. This check
-reports free space and those caches, and exits 1 when either threshold is exceeded,
-before a run starts rather than when the disk fills halfway through it.
+macOS compiles Core ML models into E5 bundles and keeps them for later loads under
+~/Library/Caches/<process name>/com.apple.e5rt.e5bundlecache. These caches can persist and
+grow substantially across benchmark runs that load many Core ML variants
+(scripts/bench_v1.sh). This check runs before a benchmark starts. It reports free space and
+the size of those caches. It exits 1 only when free space is below the minimum, because
+available disk is the actual safety condition. A large E5 cache is reported as a warning
+and does not stop the run.
 
 It never deletes anything: a cache named after the Python executable is shared with every
 other Core ML workload run by that Python. Cleanup is manual; see docs/benchmarks.md,
 "Disk space and the Core ML E5 cache".
 
-Thresholds (GiB) can be changed for a machine with a smaller disk, and 0 disables one:
-LAYA_APPLE_PREFLIGHT_MIN_FREE_GIB (default 200), LAYA_APPLE_PREFLIGHT_MAX_E5_GIB (default 50).
+Thresholds (GiB), where 0 disables one: LAYA_APPLE_PREFLIGHT_MIN_FREE_GIB (failure,
+default 200) and LAYA_APPLE_PREFLIGHT_WARN_E5_GIB (warning only, default 50).
 """
 
 from __future__ import annotations
@@ -30,7 +31,7 @@ from pathlib import Path
 GIB = 1024**3
 E5_CACHE_DIRNAME = "com.apple.e5rt.e5bundlecache"
 MIN_FREE_GIB = 200.0
-MAX_E5_GIB = 50.0
+WARN_E5_GIB = 50.0
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -98,21 +99,25 @@ def thresholds_from_env(env=os.environ) -> tuple[float, float]:
 
     return (
         read("LAYA_APPLE_PREFLIGHT_MIN_FREE_GIB", MIN_FREE_GIB),
-        read("LAYA_APPLE_PREFLIGHT_MAX_E5_GIB", MAX_E5_GIB),
+        read("LAYA_APPLE_PREFLIGHT_WARN_E5_GIB", WARN_E5_GIB),
     )
 
 
-def problems(report: Report, min_free_gib: float, max_e5_gib: float) -> list[str]:
-    """Human-readable threshold violations; empty when the run may start. 0 disables a check."""
-    out = []
+def failure(report: Report, min_free_gib: float) -> str | None:
+    """Why the run must not start, or None. Only free disk stops a run; 0 disables the check."""
     if min_free_gib and report.free_bytes < min_free_gib * GIB:
-        out.append(
+        return (
             f"free disk {report.free_bytes / GIB:.1f} GiB on the filesystem holding {report.workspace} "
             f"is below the {min_free_gib:g} GiB minimum"
         )
-    if max_e5_gib and report.e5_bytes > max_e5_gib * GIB:
-        out.append(f"Core ML E5 caches total {report.e5_bytes / GIB:.1f} GiB, above the {max_e5_gib:g} GiB maximum")
-    return out
+    return None
+
+
+def warning(report: Report, warn_e5_gib: float) -> str | None:
+    """A large E5 cache is worth knowing about, but does not stop a run; 0 disables the warning."""
+    if warn_e5_gib and report.e5_bytes > warn_e5_gib * GIB:
+        return f"Core ML E5 caches total {report.e5_bytes / GIB:.1f} GiB, above the {warn_e5_gib:g} GiB warning level"
+    return None
 
 
 def format_report(report: Report) -> str:
@@ -129,32 +134,38 @@ def format_report(report: Report) -> str:
     return "\n".join(lines)
 
 
-ADVICE = (
-    "Not starting the benchmark. Nothing was deleted.\n"
-    "Free space before retrying. The E5 caches above are safe to delete only by hand:\n"
+CLEANUP = (
+    "The E5 caches listed above can be deleted only by hand; the preflight never deletes them:\n"
     "  1. stop every process that uses Core ML under that cache's name (a cache named after a\n"
     "     Python executable is shared by other benchmarks, tests and unrelated projects;\n"
     "     leave caches of macOS services alone);\n"
     "  2. delete the cache directory yourself; the next model load recompiles it.\n"
-    "See docs/benchmarks.md, 'Disk space and the Core ML E5 cache'. On a machine with a smaller\n"
-    "disk, set LAYA_APPLE_PREFLIGHT_MIN_FREE_GIB / LAYA_APPLE_PREFLIGHT_MAX_E5_GIB."
+    "See docs/benchmarks.md, 'Disk space and the Core ML E5 cache'."
+)
+STOP = (
+    "Not starting the benchmark. Nothing was deleted. Free space before retrying.\n"
+    "On a machine with a smaller disk, set LAYA_APPLE_PREFLIGHT_MIN_FREE_GIB."
 )
 
 
 def check(workspace: Path, caches_root: Path | None = None, env=os.environ) -> int:
-    """Print the report; return 0 if the run may start, 1 if a threshold is exceeded."""
+    """Print the report; return 0 if the run may start, 1 if free disk is below the minimum."""
     caches_root = caches_root or Path.home() / "Library" / "Caches"
-    min_free_gib, max_e5_gib = thresholds_from_env(env)
+    min_free_gib, warn_e5_gib = thresholds_from_env(env)
     report = measure(workspace, caches_root)
     print("benchmark preflight\n" + format_report(report), flush=True)
-    found = problems(report, min_free_gib, max_e5_gib)
-    if not found:
-        print("preflight: ok", flush=True)
-        return 0
-    for p in found:
-        print(f"preflight FAILED: {p}", file=sys.stderr)
-    print(ADVICE, file=sys.stderr, flush=True)
-    return 1
+    warn, fail = warning(report, warn_e5_gib), failure(report, min_free_gib)
+    if warn:
+        print(f"preflight WARNING: {warn}", file=sys.stderr)
+    if fail:
+        print(f"preflight FAILED: {fail}", file=sys.stderr)
+    if warn or fail:
+        print(CLEANUP, file=sys.stderr, flush=True)
+    if fail:
+        print(STOP, file=sys.stderr, flush=True)
+        return 1
+    print("preflight: ok" + (" (with warning)" if warn else ""), flush=True)
+    return 0
 
 
 def main(argv=None) -> int:
