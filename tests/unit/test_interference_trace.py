@@ -143,3 +143,42 @@ def test_columnar_round_trip(analyze):
     cols = {"a": [1, 2], "b": [None, "x"]}
     assert analyze.rows(cols) == [{"a": 1, "b": None}, {"a": 2, "b": "x"}]
     assert analyze.rows({}) == []
+
+
+def test_compact_encoding_round_trips_every_request(analyze):
+    compact = _load("compact")
+    recs = [
+        {
+            "arrival": 10.0,
+            "queue_enter": 10.5,
+            "device_start": 11.0,
+            "device_end": 21.03,
+            "response": 21.2,
+            "forward_ms": 9.98,
+            "device": "ane",
+            "in_window": True,
+            "match": True,
+            "seed": 3,
+            "estimate_ms": 9.93,
+        },
+        {"arrival": 12.5, "response": 13.0, "device": "gpu", "in_window": False, "match": False, "seed": 4},
+    ]
+    phases = analyze.Phases({"kind": ["ane"], "t0": [11.01], "t1": [21.0], "cpu_ms": [0.5], "dev": [[[11.2, 20.9]]]})
+    out = compact.decode(compact.encode(recs, phases))
+    assert len(out) == 2
+    a, b = out
+    for k in ("arrival", "queue_enter", "device_start", "device_end", "response", "forward_ms", "estimate_ms"):
+        assert a[k] == pytest.approx(recs[0][k], abs=0.006)
+    assert a["device_exec"] == pytest.approx(9.7, abs=0.006) and a["host"] == pytest.approx(0.29, abs=0.006)
+    assert a["match"] is True and a["seed"] == 3 and a["device"] == "ane"
+    assert b["response"] == pytest.approx(13.0) and "device_start" not in b and b["match"] is False
+
+
+def test_contention_fit_separates_additive_from_proportional():
+    contention = _load("contention")
+    a, d = contention._fit([(12.0, 20.0), (71.0, 79.0)])  # the same +8 ms at both lengths
+    assert a == pytest.approx(0.0) and d == pytest.approx(8.0)
+    a, d = contention._fit([(10.0, 11.0), (70.0, 77.0)])  # +10% at both lengths
+    assert a == pytest.approx(0.1) and d == pytest.approx(0.0)
+    a, d = contention._fit([(10.0, 9.9), (70.0, 69.0)])  # faster: clamped, never negative
+    assert a == 0.0 and d == 0.0

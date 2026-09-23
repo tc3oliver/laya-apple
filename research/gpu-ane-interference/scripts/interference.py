@@ -21,6 +21,9 @@ device    Each stream feeds ONE device directly through the product's DeviceWork
 product   Requests go through Laya.submit, so the v0.2 queue-aware router decides:
             closed    the v0.2 Part A mix (solo_short, solo_long, hetero)
             open      Poisson arrivals of the v0.2 Part B class mix at several rates
+            heavy     Poisson arrivals of 90% short / 10% long (--heavy-rates)
+          --scheduler both runs every open cell twice per cycle, once with the v0.2
+          decide_queued and once with the contention.py prototype (research only).
 
 Every request records arrival, queue_enter, device_start, device_end and response
 (time.perf_counter, one system-wide monotonic clock; see jobtrace.py) plus the backend's
@@ -54,6 +57,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
+import contention  # noqa: E402
 import jobtrace  # noqa: E402
 
 perf = time.perf_counter
@@ -444,6 +448,9 @@ class Run:
         self.work = Workload(self.laya, args.model, self.shapes, args.seeds)
         self.env = environment(self.laya)
         jobtrace.clear_phases()  # drop the reference instances' forwards
+        self.contention_params = None
+        if args.scheduler != "baseline":
+            self.contention_params = contention.calibrate(args.model, args.ane_placement)
         self.t_ref = perf()
         self.windows: list = []
         self.solo: dict = {}
@@ -456,6 +463,8 @@ class Run:
         cond = conditions()
         for g in aggressors:
             g.start()
+        if cell.get("sched") == "contention":
+            contention.install(self.contention_params)
         start_at = perf() + 0.3
         measure_from, measure_to = start_at + a.warmup, start_at + a.warmup + a.seconds
         guard = a.guard_ms / 1e3
@@ -467,6 +476,7 @@ class Run:
             t.join()
         for g in aggressors:
             g.stop()
+        contention.uninstall()
         out = {
             "cell": cell["name"],
             "kind": cell["kind"],
@@ -598,9 +608,15 @@ class Run:
             {"name": "product:hetero", "kind": "product_closed", "pstreams": [(["A"], "closed", 0), (["L"], "closed", 0)]},
         ]
         mix = [("A", 0.6), ("Md", 0.2), ("L", 0.1), ("S4", 0.1)]
-        for rate in a.rates:
-            cells.append({"name": f"product:open@{rate:g}", "kind": "product_open", "rate": rate,
-                          "pstreams": [(mix, "poisson", rate)]})
+        heavy = [("A", 0.9), ("L", 0.1)]  # short-heavy: the ANE saturates first, routing matters
+        opens = [(f"product:open@{r:g}", mix, r) for r in a.rates]
+        opens += [(f"product:heavy@{r:g}", heavy, r) for r in a.heavy_rates]
+        for name, m, rate in opens:
+            for sched in ("baseline", "contention") if a.scheduler == "both" else (a.scheduler,):
+                cells.append({"name": name + ("#contention" if sched == "contention" else ""), "kind": "product_open",
+                              "rate": rate, "sched": sched, "pstreams": [(m, "poisson", rate)]})
+        if a.only_open:
+            cells = [c for c in cells if c["kind"] == "product_open"]
         return cells
 
     def make_streams(self, cell: dict) -> list:
@@ -665,6 +681,7 @@ class Run:
             "load_s": self.load_s,
             "shapes": {k: {"length": v[0], "questions": v[1]} for k, v in self.shapes.items()},
             "service_model": {"gpu": self.laya._service.gpu, "ane": self.laya._service.ane},
+            "contention_params": self.contention_params,
             "solo_mean_service_s": {f"{d}_{s}": v for (d, s), v in self.solo.items()},
             "windows": self.windows,
             "phases": rel,
@@ -680,6 +697,10 @@ def main():
     ap.add_argument("--utils", type=float, nargs="+", default=[0.25, 0.5, 0.75])
     ap.add_argument("--sparse-utils", type=float, nargs="+", default=[0.05, 0.1, 0.25, 0.5])
     ap.add_argument("--rates", type=float, nargs="+", default=[15, 25, 35])
+    ap.add_argument("--heavy-rates", type=float, nargs="*", default=[], help="product plan: short-heavy mix rates")
+    ap.add_argument("--scheduler", choices=["baseline", "contention", "both"], default="baseline",
+                    help="product plan: v0.2 decide_queued, the contention.py prototype, or both interleaved")
+    ap.add_argument("--only-open", action="store_true", help="product plan: open-loop cells only")
     ap.add_argument("--part-a-short", type=int, default=128, help="Part A short length (v0.2: 96 for multilingual)")
     ap.add_argument("--cpu-burners", type=int, default=4)
     ap.add_argument("--seconds", type=float, default=25.0)

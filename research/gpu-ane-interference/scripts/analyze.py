@@ -36,6 +36,7 @@ from pathlib import Path
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 RAW = ROOT / "raw"
 OUT = ROOT / "results.json"
 RNG_SEED = 20260924
@@ -101,9 +102,9 @@ def median(a, axis=None):
 class Phases:
     """Backend phase records (device spans, CPU time) looked up by device and time."""
 
-    def __init__(self, cols: dict):
+    def __init__(self, cols: dict | None):
         self.by_kind = defaultdict(list)
-        for p in rows(cols):
+        for p in rows(cols or {}):  # compact runs (compact.py) carry no phase list
             self.by_kind[p["kind"]].append(p)
         self.t0 = {k: [p["t0"] for p in v] for k, v in self.by_kind.items()}
 
@@ -150,7 +151,7 @@ def enrich(recs: list, phases: Phases) -> None:
             r["post"] = r["response"] - r["device_end"]
             if r.get("forward_ms") is not None:
                 r["dispatch"] = r["service"] - r["forward_ms"]
-            p = phases.within(r["device"], r["device_start"], r["device_end"])
+            p = None if "device_exec" in r else phases.within(r["device"], r["device_start"], r["device_end"])
             if p is not None:
                 r["device_exec"] = sum(y - x for x, y in p["dev"])
                 r["host"] = (p["t1"] - p["t0"]) - r["device_exec"]
@@ -161,6 +162,12 @@ METRICS = ("e2e", "pre", "queue", "service", "post", "forward_ms", "dispatch", "
 
 
 # ----------------------------------------------------------------------------- per run
+
+
+def decode(enc: dict) -> list:
+    from compact import decode as _decode  # compact.py imports this module: import late
+
+    return _decode(enc)
 
 
 def load(path: Path) -> dict:
@@ -177,8 +184,10 @@ def analyse_run(d: dict) -> dict:
         per_stream = {}
         all_recs = {}
         for label, st in w["streams"].items():
-            recs = rows(st["records"])
+            recs = decode(st["encoded"]) if "encoded" in st else rows(st["records"])
             enrich(recs, phases)
+            for r in recs:
+                r["cycle"] = w["cycle"]
             all_recs[label] = recs
         # overlap with the OTHER device's busy time (from its own stream's device intervals)
         busy = {}
@@ -400,6 +409,43 @@ def sweep_curve(cells: dict) -> dict:
     return dict(out)
 
 
+def sparse_curve(cells: dict) -> dict:
+    """One device alone at low offered load: service time relative to its closed-loop solo."""
+    out = defaultdict(list)
+    for name, c in cells.items():
+        if c["kind"] != "sparse":
+            continue
+        (label,) = c["streams"]
+        solo = cells.get(solo_key(label))
+        if solo is None:
+            continue
+        st = c["streams"][label]
+        a = [r["service"] for r in st["_recs"]]
+        b = [r["service"] for r in solo["streams"][label]["_recs"]]
+        cpu_a = [r["cpu_ms"] for r in st["_recs"] if "cpu_ms" in r]
+        cpu_b = [r["cpu_ms"] for r in solo["streams"][label]["_recs"] if "cpu_ms" in r]
+        out[label].append(
+            {
+                "cell": name,
+                "offered_util": c["spec"].get("util"),
+                "realised_util": c["device_util"][label.split("_")[0]]["mean"],
+                "aggressors": [g["kind"] for g in c["aggressors"]],
+                "n": len(a),
+                "service_ratio": ratio_ci(a, b, np.mean),
+                "service_ratio_median": ratio_ci(a, b, median),
+                "cpu_ms_ratio": ratio_ci(cpu_a, cpu_b, np.mean) if cpu_a and cpu_b else None,
+                "exec_ratio": ratio_ci(
+                    [r["device_exec"] for r in st["_recs"] if "device_exec" in r],
+                    [r["device_exec"] for r in solo["streams"][label]["_recs"] if "device_exec" in r],
+                    np.mean,
+                ),
+            }
+        )
+    for v in out.values():
+        v.sort(key=lambda x: (x["aggressors"] != [], x["offered_util"]))
+    return dict(out)
+
+
 def tail_attribution(st: dict) -> dict:
     """Mean of each latency component over the requests at or above the e2e P99, and overall."""
     recs = [r for r in st["_recs"] if "service" in r]
@@ -442,6 +488,166 @@ def routing_eval(cells: dict) -> dict:
     return out
 
 
+def routing_hindsight(cells: dict, auto_shape: str = "A") -> dict:
+    """Product open-loop runs: was each queue-aware choice for an ANE-eligible request right?
+
+    For every ANE-eligible request (the Part B short 1-question class), at its decision time
+    t (queue_enter) the other device's FIFO was free at F = the latest device_end of the jobs
+    queued there before t (observed; jobs run one at a time in queue order). Its hindsight
+    completion on the other device is (F - t) + S, where S is the median service time that
+    device actually gave this class in the same window (so S already carries that window's
+    interference). A choice is a miss when that counterfactual beats the observed completion
+    by more than 1 ms. Queueing effects of the counterfactual on later requests are ignored."""
+    out = {}
+    for name, c in cells.items():
+        if c["kind"] != "product_open":
+            continue
+        for label, st in c["streams"].items():
+            recs = [r for r in st["_recs"] if "service" in r]
+            svc = {
+                dev: float(np.median([r["service"] for r in recs if r["device"] == dev and r.get("shape") == auto_shape]))
+                for dev in ("gpu", "ane")
+                if any(r["device"] == dev and r.get("shape") == auto_shape for r in recs)
+            }
+            if len(svc) < 2:
+                out[f"{name}|{label}"] = {"note": "one device never served the short class", "service_median": svc}
+                continue
+            jobs = {dev: sorted((r["queue_enter"], r["device_end"]) for r in recs if r["device"] == dev) for dev in svc}
+            enters = {dev: [q for q, _ in js] for dev, js in jobs.items()}
+            prefix_end = {}
+            for dev, js in jobs.items():
+                m, acc = -np.inf, []
+                for _, e in js:
+                    m = max(m, e)
+                    acc.append(m)
+                prefix_end[dev] = acc
+            res = defaultdict(lambda: {"n": 0, "miss": 0, "miss_cost_ms": [], "gain_ms": []})
+            for r in recs:
+                if r.get("shape") != auto_shape:
+                    continue
+                t, dev = r["queue_enter"], r["device"]
+                other = "ane" if dev == "gpu" else "gpu"
+                i = bisect.bisect_left(enters[other], t) - 1
+                free = max(t, prefix_end[other][i]) if i >= 0 else t
+                cf = (free - t) + svc[other]
+                act = r["device_end"] - t
+                busy = (r.get("ane_backlog_ms") or 0) > 0 or (r.get("gpu_backlog_ms") or 0) > 0
+                key = f"{r['reason']}|{'busy' if busy else 'idle'}"
+                e = res[key]
+                e["n"] += 1
+                if cf + 1.0 < act:
+                    e["miss"] += 1
+                    e["miss_cost_ms"].append(act - cf)
+                else:
+                    e["gain_ms"].append(cf - act)
+            out[f"{name}|{label}"] = {
+                "service_median": svc,
+                "by_reason": {
+                    k: {
+                        "n": v["n"],
+                        "miss": v["miss"],
+                        "miss_rate": v["miss"] / v["n"],
+                        "miss_cost_ms_mean": float(np.mean(v["miss_cost_ms"])) if v["miss_cost_ms"] else 0.0,
+                        "miss_cost_ms_p95": float(np.percentile(v["miss_cost_ms"], 95)) if v["miss_cost_ms"] else 0.0,
+                    }
+                    for k, v in sorted(res.items())
+                },
+            }
+    return out
+
+
+# Written before the A/B was run (research/gpu-ane-interference/README.md, "Scheduler
+# prototype"): what counts as an improvement, so the verdict cannot be chosen afterwards.
+AB_CRITERIA = {
+    "short_p99_min_reduction": 0.10,  # short-class P99 at least 10% lower ...
+    "ci_excludes_one": True,  # ... with the bootstrap 95% CI of the P99 ratio below 1.0
+    "min_load_levels": 2,  # in at least 2 of a workload's 3 load levels
+    "throughput_tolerance": 0.02,  # aggregate completed req/s within 2%
+    "other_class_max_regression": 0.10,  # no other class's P99 >10% worse with its CI above 1.0
+    "mismatches": 0,
+}
+
+
+def p99_ratio_ci(new, old) -> dict:
+    return ratio_ci(new, old, lambda a, axis=None: np.percentile(a, 99, axis=axis))
+
+
+def scheduler_ab(cells: dict) -> dict:
+    """Pairs each open-loop cell with its #contention twin (same arrivals, same windows)."""
+    out = {}
+    for name, c in cells.items():
+        if c["kind"] != "product_open" or name.endswith("#contention") or f"{name}#contention" not in cells:
+            continue
+        twin = cells[f"{name}#contention"]
+        ((label, base),) = c["streams"].items()
+        new = twin["streams"][label]
+        rb, rn = base["_recs"], new["_recs"]
+        entry = {"n": [len(rb), len(rn)], "classes": {}, "devices": {}}
+        for shape in sorted({r.get("shape") for r in rb}):
+            eb = [r["e2e"] for r in rb if r.get("shape") == shape]
+            en = [r["e2e"] for r in rn if r.get("shape") == shape]
+            entry["classes"][shape] = {
+                "baseline": describe(eb, boot=False),
+                "contention": describe(en, boot=False),
+                "p99_ratio": p99_ratio_ci(en, eb),
+                "mean_ratio": ratio_ci(en, eb),
+                "gpu_share": [
+                    float(np.mean([r["device"] == "gpu" for r in rb if r.get("shape") == shape])),
+                    float(np.mean([r["device"] == "gpu" for r in rn if r.get("shape") == shape])),
+                ],
+                "queue_mean": [float(np.mean([r["queue"] for r in rb if r.get("shape") == shape])),
+                               float(np.mean([r["queue"] for r in rn if r.get("shape") == shape]))],
+                "service_mean": [float(np.mean([r["service"] for r in rb if r.get("shape") == shape])),
+                                 float(np.mean([r["service"] for r in rn if r.get("shape") == shape]))],
+            }
+        allb, alln = [r["e2e"] for r in rb], [r["e2e"] for r in rn]
+        entry["all"] = {"baseline": describe(allb, boot=False), "contention": describe(alln, boot=False),
+                        "p99_ratio": p99_ratio_ci(alln, allb)}
+        entry["req_s"] = [base["req_s"], new["req_s"]]
+        for dev in ("gpu", "ane"):
+            entry["devices"][dev] = [sum(r["device"] == dev for r in rb), sum(r["device"] == dev for r in rn)]
+        entry["reasons"] = [base["devices"], new["devices"]]
+        entry["routing_reasons"] = [dict(_count(r.get("reason") for r in rb)), dict(_count(r.get("reason") for r in rn))]
+        entry["mismatches"] = [base["mismatches"], new["mismatches"]]
+        entry["short_p99_by_cycle"] = {
+            str(cy): [
+                pct([r["e2e"] for r in rb if r.get("shape") == "A" and r["cycle"] == cy], 99),
+                pct([r["e2e"] for r in rn if r.get("shape") == "A" and r["cycle"] == cy], 99),
+            ]
+            for cy in sorted({r["cycle"] for r in rb})
+        }
+        a = entry["classes"].get("A", {})
+        pr = a.get("p99_ratio", {})
+        entry["short_improved"] = bool(
+            pr and pr["ratio"] <= 1 - AB_CRITERIA["short_p99_min_reduction"] and pr["ci95"][1] < 1.0
+        )
+        entry["throughput_ok"] = abs(entry["req_s"][1] / entry["req_s"][0] - 1) <= AB_CRITERIA["throughput_tolerance"]
+        entry["other_regressed"] = [
+            k for k, v in entry["classes"].items()
+            if k != "A" and v["p99_ratio"]["ratio"] > 1 + AB_CRITERIA["other_class_max_regression"]
+            and v["p99_ratio"]["ci95"][0] > 1.0
+        ]
+        out[name] = entry
+    workloads = defaultdict(list)
+    for name, e in out.items():
+        workloads[name.split("@")[0]].append(e)
+    verdict = {
+        w: {
+            "levels": len(es),
+            "short_improved_levels": sum(e["short_improved"] for e in es),
+            "throughput_ok_all": all(e["throughput_ok"] for e in es),
+            "other_regressions": sum(len(e["other_regressed"]) for e in es),
+            "mismatches": sum(sum(e["mismatches"]) for e in es),
+            "passes": sum(e["short_improved"] for e in es) >= AB_CRITERIA["min_load_levels"]
+            and all(e["throughput_ok"] for e in es)
+            and not any(e["other_regressed"] for e in es)
+            and sum(sum(e["mismatches"]) for e in es) == AB_CRITERIA["mismatches"],
+        }
+        for w, es in workloads.items()
+    }
+    return {"criteria": AB_CRITERIA, "cells": out, "verdict": verdict}
+
+
 # ----------------------------------------------------------------------------- main
 
 
@@ -450,7 +656,7 @@ def analyse_all(paths) -> dict:
     for p in paths:
         d = load(p)
         results["inputs"][p.name] = hashlib.sha256(p.read_bytes()).hexdigest()
-        key = f"{d['plan']}:{d['args']['model']}:{d['args']['ane_placement']}"
+        key = f"{p.name.split('-', 1)[0]}:{d['args']['model']}:{d['args']['ane_placement']}"
         cells = analyse_run(d)
         run = {
             "environment": {k: d["environment"][k] for k in ("laya_apple", "git_commit", "platform", "python", "mlx",
@@ -465,11 +671,16 @@ def analyse_all(paths) -> dict:
             run["inflation"] = inflation(cells)
             run["overlap_curve"] = {dev: overlap_curve(cells, dev) for dev in ("gpu", "ane")}
             run["sweep_curve"] = sweep_curve(cells)
+            run["sparse_curve"] = sparse_curve(cells)
         run["tail_attribution"] = {
             f"{n}|{lab}": tail_attribution(st) for n, c in cells.items() for lab, st in c["streams"].items()
         }
         if d["plan"] == "product":
             run["routing"] = routing_eval(cells)
+            run["routing_hindsight"] = routing_hindsight(cells)
+            if d["args"].get("scheduler", "baseline") == "both":
+                run["scheduler_ab"] = scheduler_ab(cells)
+                run["contention_params"] = d.get("contention_params")
         results["runs"][key] = run
     return _strip(results)
 

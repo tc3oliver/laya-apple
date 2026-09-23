@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="396" viewBox="0 0 900 396" role="img" aria-labelledby="title" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+<title id="title">Short-stream tail composition. typed-decisions, ANE thread, alone: post 0.05 ms, pre 0.16 ms, queue 0.03 ms, service 10.20 ms; typed-decisions, ANE thread, with the long stream: post 0.17 ms, pre 0.15 ms, queue 0.18 ms, service 10.67 ms; typed-decisions, ANE process, alone: post 0.05 ms, pre 0.16 ms, queue 0.02 ms, service 10.27 ms; typed-decisions, ANE process, with the long stream: post 0.61 ms, pre 1.10 ms, queue 5.14 ms, service 15.43 ms; multilingual, ANE thread, alone: post 0.05 ms, pre 0.09 ms, queue 0.03 ms, service 4.20 ms; multilingual, ANE thread, with the long stream: post 0.54 ms, pre 0.57 ms, queue 1.12 ms, service 9.14 ms; multilingual, ANE process, alone: post 0.05 ms, pre 0.11 ms, queue 0.02 ms, service 4.33 ms; multilingual, ANE process, with the long stream: post 0.68 ms, pre 0.51 ms, queue 1.20 ms, service 6.61 ms</title>
+<style>
+.bg{fill:#ffffff;stroke:#d1d9e0}.t{fill:#1f2328}.m{fill:#59636e}.grid{stroke:#e6e9ec}.ax{stroke:#8c959f}
+.s1{fill:#2a78d6;stroke:#2a78d6}.s2{fill:#eb6834;stroke:#eb6834}.s3{fill:#1baf7a;stroke:#1baf7a}
+.s4{fill:#eda100;stroke:#eda100}.ln{fill:none;stroke-width:2}.ring{stroke:#ffffff;stroke-width:2}
+.c1{fill:#8c959f}.c2{fill:#2a78d6}.c3{fill:#eb6834}.c4{fill:#1baf7a}
+@media (prefers-color-scheme: dark){
+.bg{fill:#0d1117;stroke:#3d444d}.t{fill:#e6edf3}.m{fill:#9198a1}.grid{stroke:#21262d}.ax{stroke:#656c76}
+.s1{fill:#3987e5;stroke:#3987e5}.s2{fill:#d95926;stroke:#d95926}.s3{fill:#199e70;stroke:#199e70}
+.s4{fill:#c98500;stroke:#c98500}.ring{stroke:#0d1117}
+.c1{fill:#656c76}.c2{fill:#3987e5}.c3{fill:#d95926}.c4{fill:#199e70}
+}
+</style>
+<rect x="0.5" y="0.5" width="899" height="395" rx="10" class="bg"/>
+<text x="24.0" y="32.0" class="t" font-size="16" font-weight="600">Short-stream tail (requests at or above P99), closed loop: where the time goes</text>
+<rect x="24" y="53" width="12" height="12" rx="2" class="c1"/>
+<text x="41.0" y="63.0" class="m" font-size="12">prompt + routing</text>
+<rect x="174.2" y="53" width="12" height="12" rx="2" class="c2"/>
+<text x="191.2" y="63.0" class="m" font-size="12">queue</text>
+<rect x="245.2" y="53" width="12" height="12" rx="2" class="c3"/>
+<text x="262.2" y="63.0" class="m" font-size="12">service</text>
+<rect x="330.6" y="53" width="12" height="12" rx="2" class="c4"/>
+<text x="347.6" y="63.0" class="m" font-size="12">wake + answer</text>
+<text x="318.0" y="109.0" class="t" font-size="11" text-anchor="end">typed-decisions, ANE thread, alone</text>
+<rect x="330.0" y="96" width="1.2" height="18" rx="2" class="c1"/>
+<rect x="333.2" y="96" width="0.5" height="18" rx="2" class="c2"/>
+<rect x="333.9" y="96" width="207.3" height="18" rx="2" class="c3"/>
+<rect x="543.1" y="96" width="0.5" height="18" rx="2" class="c4"/>
+<text x="552.1" y="109.0" class="m" font-size="11">P99 10.3 ms</text>
+<text x="318.0" y="139.0" class="t" font-size="11" text-anchor="end">typed-decisions, ANE thread, with the long stream</text>
+<rect x="330.0" y="126" width="1.0" height="18" rx="2" class="c1"/>
+<rect x="333.0" y="126" width="1.7" height="18" rx="2" class="c2"/>
+<rect x="336.7" y="126" width="217.0" height="18" rx="2" class="c3"/>
+<rect x="555.7" y="126" width="1.6" height="18" rx="2" class="c4"/>
+<text x="567.3" y="139.0" class="m" font-size="11">P99 11.1 ms</text>
+<text x="318.0" y="169.0" class="t" font-size="11" text-anchor="end">typed-decisions, ANE process, alone</text>
+<rect x="330.0" y="156" width="1.3" height="18" rx="2" class="c1"/>
+<rect x="333.8" y="156" width="208.7" height="18" rx="2" class="c3"/>
+<rect x="544.5" y="156" width="0.5" height="18" rx="2" class="c4"/>
+<text x="553.6" y="169.0" class="m" font-size="11">P99 10.4 ms</text>
+<text x="318.0" y="199.0" class="t" font-size="11" text-anchor="end">typed-decisions, ANE process, with the long stream</text>
+<rect x="330.0" y="186" width="20.5" height="18" rx="2" class="c1"/>
+<rect x="352.5" y="186" width="103.4" height="18" rx="2" class="c2"/>
+<rect x="457.9" y="186" width="314.7" height="18" rx="2" class="c3"/>
+<rect x="774.5" y="186" width="10.6" height="18" rx="2" class="c4"/>
+<text x="795.1" y="199.0" class="m" font-size="11">P99 20.8 ms</text>
+<text x="318.0" y="229.0" class="t" font-size="11" text-anchor="end">multilingual, ANE thread, alone</text>
+<rect x="330.0" y="216" width="0.5" height="18" rx="2" class="c1"/>
+<rect x="331.9" y="216" width="0.5" height="18" rx="2" class="c2"/>
+<rect x="332.6" y="216" width="84.1" height="18" rx="2" class="c3"/>
+<rect x="418.7" y="216" width="0.5" height="18" rx="2" class="c4"/>
+<text x="427.7" y="229.0" class="m" font-size="11">P99 4.2 ms</text>
+<text x="318.0" y="259.0" class="t" font-size="11" text-anchor="end">multilingual, ANE thread, with the long stream</text>
+<rect x="330.0" y="246" width="9.7" height="18" rx="2" class="c1"/>
+<rect x="341.7" y="246" width="21.1" height="18" rx="2" class="c2"/>
+<rect x="364.8" y="246" width="185.6" height="18" rx="2" class="c3"/>
+<rect x="552.4" y="246" width="9.0" height="18" rx="2" class="c4"/>
+<text x="571.5" y="259.0" class="m" font-size="11">P99 10.9 ms</text>
+<text x="318.0" y="289.0" class="t" font-size="11" text-anchor="end">multilingual, ANE process, alone</text>
+<rect x="330.0" y="276" width="0.5" height="18" rx="2" class="c1"/>
+<rect x="332.6" y="276" width="86.8" height="18" rx="2" class="c3"/>
+<rect x="421.4" y="276" width="0.5" height="18" rx="2" class="c4"/>
+<text x="430.5" y="289.0" class="m" font-size="11">P99 4.2 ms</text>
+<text x="318.0" y="319.0" class="t" font-size="11" text-anchor="end">multilingual, ANE process, with the long stream</text>
+<rect x="330.0" y="306" width="8.6" height="18" rx="2" class="c1"/>
+<rect x="340.6" y="306" width="22.6" height="18" rx="2" class="c2"/>
+<rect x="365.2" y="306" width="133.7" height="18" rx="2" class="c3"/>
+<rect x="500.9" y="306" width="12.0" height="18" rx="2" class="c4"/>
+<text x="522.9" y="319.0" class="m" font-size="11">P99 8.1 ms</text>
+<text x="330.0" y="372.0" class="m" font-size="11">milliseconds (mean over the tail requests)</text>
+</svg>
