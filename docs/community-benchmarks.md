@@ -140,8 +140,7 @@ MLX-only result takes about 10 minutes.
 
    Paste the matrix row the script printed into the description, and name the issue it
    closes if there is one ([#1](https://github.com/tc3oliver/laya-apple/issues/1),
-   [#2](https://github.com/tc3oliver/laya-apple/issues/2),
-   [#3](https://github.com/tc3oliver/laya-apple/issues/3)).
+   [#2](https://github.com/tc3oliver/laya-apple/issues/2)). Any other Mac needs no issue.
 
 ## What reviewers check
 

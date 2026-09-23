@@ -1,15 +1,15 @@
 # Compatibility statement (v1.0)
 
-This page states, for each dimension of the runtime, what is **tested** (every measured
-number in this repository comes from this exact profile), what is **expected** (a
-hypothesis, not measured), and what is **unknown**. Where it disagrees with
+This page states, for each dimension of the runtime, what is **tested** (the
+release-validation profile below), what is **expected** (a hypothesis, not measured), and
+what is **unknown**. Where it disagrees with
 [`support-matrix.md`](support-matrix.md), that page wins; this page restates its
 conclusions for someone deciding whether to run `laya-apple` on a given machine.
 
 ## Tested profile
 
-Every benchmark, parity record and routing threshold in this repository was measured on
-exactly one profile:
+The shipped routing thresholds, the release benchmarks and the parity records behind the
+release were all measured on one profile:
 
 | | |
 |---|---|
@@ -20,12 +20,19 @@ exactly one profile:
 | NumPy | 2.1.3 (the `[ane]` extra pins `numpy>=1.26,<2.2`) |
 | Python | 3.12.14, but 3.11–3.13 are all in the install matrix ([`release_gate.py`](../scripts/release_gate.py) builds and smoke-tests base and `ane` extras on 3.11, 3.12, 3.13) |
 
+Community hardware results are recorded separately, in
+[`community-benchmarks.md`](community-benchmarks.md) and `hardware-results/`. They do not
+change the shipped routing table or the status in this page's **Tested** column. The first
+one is an Apple M4 Pro (48 GB, macOS 27.0, coremltools 9.0): a `--quick` run of
+`laya-typed-decisions` with a locally calibrated profile,
+[`hardware-results/apple-m4-pro-macos27/`](../hardware-results/apple-m4-pro-macos27/summary.md) ([#32](https://github.com/tc3oliver/laya-apple/pull/32)).
+
 ## Per-dimension status
 
 | Dimension | Tested | Expected | Unknown |
 |---|---|---|---|
-| SoC | Apple M4 Max | Other Apple M-series SoCs run MLX correctly (hypothesis: MLX itself is validated across Apple Silicon upstream) | ANE placement, correctness and routing thresholds on any other SoC |
-| macOS | 26.6.2 | macOS 15–26 run MLX correctly | ANE behaviour on any macOS other than 26.6.2; macOS 27.x specifically — prior third-party work saw different Core ML placement there (enumerated shapes moved to the GPU) |
+| SoC | Apple M4 Max | Other Apple M-series SoCs run MLX correctly (hypothesis: MLX itself is validated across Apple Silicon upstream) | ANE placement, correctness and routing thresholds on any other SoC, except one community data point: on an M4 Pro (macOS 27.0, coremltools 9.0), `laya-typed-decisions` passed MLX and ANE parity with 0 hard mismatches, a locally calibrated profile routed short requests to the ANE, and the heterogeneous check passed ([community matrix](community-benchmarks.md#matrix)). That covers one machine and one model, not every M4 Pro and not the shipped routing |
+| macOS | 26.6.2 | macOS 15–26 run MLX correctly | ANE behaviour on any macOS other than 26.6.2; macOS 27.x specifically — prior third-party work saw different Core ML placement there (enumerated shapes moved to the GPU). The M4 Pro community result above is the only macOS 27 evidence; other SoCs, models and macOS 27 profiles are unmeasured |
 | Python | 3.12.14 (benchmarks); 3.11–3.13 (install matrix) | — | Any Python outside 3.11–3.13 (unsupported, not merely untested) |
 | MLX | 0.32.2 | Other MLX versions within the package's declared constraint are expected to work for the GPU backend | Numerical or performance drift on a materially different MLX version |
 | coremltools | 9.0 (pinned exactly by the `ane`/`convert` extras) | — | Any other coremltools version — the placement and parity gates have not been run against one, and coremltools 9.0 constrains NumPy to `<2.2` for a reason: it breaks on NumPy ≥ 2.5 |

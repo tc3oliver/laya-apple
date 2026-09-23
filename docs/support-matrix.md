@@ -8,9 +8,10 @@ someone deciding whether to run `laya-apple` on a given machine.
 
 | Scope | Status |
 |---|---|
-| Apple M4 Max, macOS 26.6.2, MLX 0.32.2, coremltools 9.0 | **Tested** — every measured value in this repository comes from this profile |
+| Apple M4 Max, macOS 26.6.2, MLX 0.32.2, coremltools 9.0 | **Tested (release validation).** The shipped routing thresholds, the release benchmarks and the full validation of all three models come from this profile |
+| Apple M4 Pro 48 GB, macOS 27.0, MLX 0.32.2, coremltools 9.0 | **Community measurement**, one `--quick` run of `laya-typed-decisions` only: [`hardware-results/apple-m4-pro-macos27/`](../hardware-results/apple-m4-pro-macos27/summary.md) ([#32](https://github.com/tc3oliver/laya-apple/pull/32)). MLX and ANE parity passed with 0 hard mismatches, a locally calibrated profile made `auto` use the ANE, and the heterogeneous check passed. Not a shipped routing profile and not release-validated |
 | Other Apple M-series SoCs, macOS 15–26 | **Expected** to run the MLX backend correctly (hypothesis, not measured). ANE placement, correctness and routing thresholds are **unknown** |
-| macOS 27.x | **Unknown.** Prior third-party work observed different Core ML placement behaviour there (enumerated shapes on the GPU) |
+| macOS 27.x | **One community measurement** (the M4 Pro row above: macOS 27.0, coremltools 9.0, `laya-typed-decisions`). Every other SoC, model and macOS 27 profile is **unknown**. Prior third-party work observed different Core ML placement behaviour there (enumerated shapes on the GPU) |
 | iOS / iPadOS | Out of scope |
 
 On an unvalidated hardware/OS profile, `device="auto"` uses MLX only

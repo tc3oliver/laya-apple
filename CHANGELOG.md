@@ -30,6 +30,13 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **`docs/launch-checklist.md`** records the final launch state. Every item is done, and each
   row gives its evidence: the public repository, `main` protection, the releases through
   1.0.2, PyPI, the seeded issues and the social preview.
+- **Cross-SoC validation status.** `docs/support-matrix.md` and `docs/compatibility.md` no
+  longer say every measurement in the repository comes from the M4 Max. They separate the
+  release-validation profile (M4 Max, macOS 26.6.2), which still backs the shipped routing
+  and release benchmarks, from community measurements, starting with the M4 Pro / macOS
+  27.0 `--quick` result from #32, scoped to one machine and `laya-typed-decisions`.
+  `docs/community-benchmarks.md` no longer offers the closed issue #3, and the stale
+  `.github/issue-drafts/add-m4-pro-benchmark-result.md` is removed.
 - **README community benchmark status.** The "Help benchmark Apple Silicon" section no
   longer calls other Macs untested: it says the headline benchmark is M4 Max only and that
   the community matrix has its first external result, an M4 Pro, kept separate from the
