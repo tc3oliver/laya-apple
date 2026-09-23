@@ -139,6 +139,12 @@ with Laya.from_pretrained("convaiinnovations/laya-typed-decisions", execution="w
 - Each request runs on one device, chosen by the router.
 - Under load, the router also compares queue backlogs.
 
+![The same burst of requests served GPU-only and GPU + ANE: GPU-only short requests wait in the GPU queue for up to 1.5 s, while under GPU + ANE the router sends them to the ANE and they run as they arrive](https://raw.githubusercontent.com/tc3oliver/laya-apple/main/docs/readme/heterogeneous-serving.gif)
+
+One burst of the laya-typed-decisions bursty workload on the M4 Max, replayed from a
+per-request trace of the benchmark's arrival sequence. The table below is the published
+v1.0 run.
+
 **Short-request P99 under open-loop bursty arrivals**, measured from arrival with queueing
 included (v1.0, same arrival sequence for both):
 

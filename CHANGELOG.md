@@ -5,6 +5,14 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- **README serving animation.** `docs/readme/heterogeneous-serving.gif` (1280×720, 20 s,
+  1.9 MB) sits in "GPU + ANE heterogeneous serving", before the P99 table. It replays one
+  burst of the laya-typed-decisions bursty workload, GPU-only against GPU + ANE, from a
+  per-request trace of the benchmark's arrival sequence. The P99 values it shows are the
+  published v1.0 numbers.
+
 ### Changed
 
 - **README throughput figure** no longer carries a release version, so it does not have to
