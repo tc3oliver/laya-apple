@@ -10,7 +10,7 @@ for Apple silicon.** It runs the MLX GPU and the Apple Neural Engine at the same
 uses the Neural Engine only where it has been proven to give the same decisions as
 upstream Laya.
 
-![The same burst of requests served GPU-only and GPU + ANE: GPU-only short requests wait in the GPU queue for up to 1.5 s, while under GPU + ANE the router sends them to the ANE and they run as they arrive](https://raw.githubusercontent.com/tc3oliver/laya-apple/main/docs/readme/heterogeneous-serving.gif)
+![The same burst of requests served GPU-only and GPU + ANE: GPU-only short requests wait in the GPU queue for up to 1.5 s, while under GPU + ANE the router sends them to the ANE and they run as they arrive](https://raw.githubusercontent.com/tc3oliver/laya-apple/main/docs/media/heterogeneous-serving.gif)
 
 **Short requests stop waiting behind longer requests on the GPU.** laya-apple sends short,
 single-question requests with a validated artifact to the Apple Neural Engine while longer
