@@ -19,6 +19,22 @@ request stream through one `Laya(execution="workers")` instance (see
 [add yours](docs/community-benchmarks.md). The method and raw data are in
 [`benchmarks/v1.0.md`](benchmarks/v1.0.md).
 
+### Help benchmark Apple Silicon
+
+The benchmark above covers only an M4 Max. If you have another Mac, one command adds it to
+the [community matrix](docs/community-benchmarks.md). **No code changes required.**
+
+- M1 / M2 → [#1](https://github.com/tc3oliver/laya-apple/issues/1)
+- M3 Max → [#2](https://github.com/tc3oliver/laya-apple/issues/2)
+- M4 Pro → [#3](https://github.com/tc3oliver/laya-apple/issues/3)
+- M5 or any other Mac → [add your Mac](docs/community-benchmarks.md#add-your-mac)
+
+```bash
+uv run python scripts/hardware_report.py --quick
+```
+
+Each issue has the full steps, from `git clone` to the pull request, in about 10 minutes.
+
 ## Why this exists
 
 Laya answers typed questions about a context (`choice`, `score`, `noul`) in one forward

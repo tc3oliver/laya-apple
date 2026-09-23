@@ -5,25 +5,42 @@ Every number laya-apple ships was measured on one machine, an Apple M4 Max
 each one produced by the same script and submitted as a pull request, so the matrix
 fills in from measurements rather than expectations.
 
+## Wanted: contribution slots
+
+Have one of these Macs? You can add a result in 10–25 minutes without changing any code.
+Each issue has copy-and-paste steps from `git clone` to the pull request.
+
+| Your Mac | Contribute | What you run |
+|---|---|---|
+| M1 or M2, any variant | [#1: M1/M2 MLX-only result](https://github.com/tc3oliver/laya-apple/issues/1) | MLX only, about 10 minutes |
+| M3 Max | [#2: M3 Max result](https://github.com/tc3oliver/laya-apple/issues/2) | MLX, plus ANE if you have 15 more minutes |
+| M4 Pro | [#3: M4 Pro result](https://github.com/tc3oliver/laya-apple/issues/3) | MLX, plus ANE if you have 15 more minutes |
+| Any other Apple silicon Mac, including M5 and newer | No issue needed: follow [Add your Mac](#add-your-mac) | Same steps |
+
 ## Matrix
 
 | SoC | MLX | ANE | Auto uses ANE | Heterogeneous | Evidence |
 |---|---|---|---|---|---|
-| M1 | ? | ? | ? | ? | |
-| M1 Pro | ? | ? | ? | ? | |
-| M1 Max | ? | ? | ? | ? | |
-| M1 Ultra | ? | ? | ? | ? | |
-| M2 | ? | ? | ? | ? | |
-| M2 Pro | ? | ? | ? | ? | |
-| M2 Max | ? | ? | ? | ? | |
-| M2 Ultra | ? | ? | ? | ? | |
-| M3 | ? | ? | ? | ? | |
-| M3 Pro | ? | ? | ? | ? | |
-| M3 Max | ? | ? | ? | ? | |
-| M3 Ultra | ? | ? | ? | ? | |
-| M4 | ? | ? | ? | ? | |
-| M4 Pro | ? | ? | ? | ? | |
+| M1 | – | – | – | – | **Wanted**: [contribute (#1)](https://github.com/tc3oliver/laya-apple/issues/1) |
+| M1 Pro | – | – | – | – | **Wanted**: [contribute (#1)](https://github.com/tc3oliver/laya-apple/issues/1) |
+| M1 Max | – | – | – | – | **Wanted**: [contribute (#1)](https://github.com/tc3oliver/laya-apple/issues/1) |
+| M1 Ultra | – | – | – | – | **Wanted**: [contribute (#1)](https://github.com/tc3oliver/laya-apple/issues/1) |
+| M2 | – | – | – | – | **Wanted**: [contribute (#1)](https://github.com/tc3oliver/laya-apple/issues/1) |
+| M2 Pro | – | – | – | – | **Wanted**: [contribute (#1)](https://github.com/tc3oliver/laya-apple/issues/1) |
+| M2 Max | – | – | – | – | **Wanted**: [contribute (#1)](https://github.com/tc3oliver/laya-apple/issues/1) |
+| M2 Ultra | – | – | – | – | **Wanted**: [contribute (#1)](https://github.com/tc3oliver/laya-apple/issues/1) |
+| M3 | – | – | – | – | **Wanted**: [contribute](#add-your-mac) |
+| M3 Pro | – | – | – | – | **Wanted**: [contribute](#add-your-mac) |
+| M3 Max | – | – | – | – | **Wanted**: [contribute (#2)](https://github.com/tc3oliver/laya-apple/issues/2) |
+| M3 Ultra | – | – | – | – | **Wanted**: [contribute](#add-your-mac) |
+| M4 | – | – | – | – | **Wanted**: [contribute](#add-your-mac) |
+| M4 Pro | – | – | – | – | **Wanted**: [contribute (#3)](https://github.com/tc3oliver/laya-apple/issues/3) |
 | M4 Max (macOS 26.6.2) | ✓ | ✓ | yes | ✓ | [`benchmarks/v1.0.md`](../benchmarks/v1.0.md), [bundle](../hardware-results/apple-m4-max-macos26/summary.md) |
+| M5 | – | – | – | – | **Wanted**: [contribute](#add-your-mac) |
+| M5 Pro | – | – | – | – | **Wanted**: [contribute](#add-your-mac) |
+| M5 Max | – | – | – | – | **Wanted**: [contribute](#add-your-mac) |
+| M5 Ultra | – | – | – | – | **Wanted**: [contribute](#add-your-mac) |
+| Any other or newer Apple silicon | – | – | – | – | **Wanted**: [contribute](#add-your-mac) |
 
 What each column means:
 
@@ -37,31 +54,29 @@ What each column means:
 - **Heterogeneous**: a short closed-loop mix of short and long requests has zero answer
   mismatches and more aggregate throughput with GPU + ANE than GPU alone.
 
-`?` means nobody has submitted a result yet. It says nothing about whether that Mac
-works.
+`–` with **Wanted** means nobody has submitted a result yet. It says nothing about
+whether that Mac works.
 
 ## Add your Mac
 
-You need a Mac with Apple Silicon, [uv](https://docs.astral.sh/uv/), disk space for the
-checkpoints and, for the optional ANE step, 5–10 minutes.
+You need a Mac with Apple silicon, `git`, [uv](https://docs.astral.sh/uv/)
+(`brew install uv`) and about 2 GB of free disk, or 5 GB with the optional ANE step. An
+MLX-only result takes about 10 minutes.
 
-1. Clone the repository and install it with the ANE and conversion extras:
+1. Clone the repository, install it and download the pinned checkpoint (800 MB, hash
+   verified):
 
    ```bash
    git clone https://github.com/tc3oliver/laya-apple
    cd laya-apple
-   uv sync --extra ane --extra convert
-   ```
-
-2. Download the pinned checkpoint and verify its hash:
-
-   ```bash
+   uv sync
    uv run laya-apple download laya-typed-decisions
    ```
 
-3. Optional: build the ANE artifacts on your machine.
+2. Optional: build the ANE artifacts on your machine.
 
    ```bash
+   uv sync --extra ane --extra convert
    uv run laya-apple artifacts build laya-typed-decisions
    ```
 
@@ -70,26 +85,49 @@ checkpoints and, for the optional ANE step, 5–10 minutes.
    can skip it: results for MLX alone are useful too, and the report then records the
    ANE column as `untested` together with this command.
 
-4. Run the report:
+3. Run the report:
 
    ```bash
-   uv run python scripts/hardware_report.py
+   uv run python scripts/hardware_report.py --quick
    ```
 
    The script records your SoC, memory, macOS version and build, the package versions
-   and the laya-apple revision on its own. Then it runs, for each model, MLX parity,
-   ANE parity when artifacts exist, warm latency, the routing decisions of
-   `device="auto"`, and a short heterogeneous mix when the ANE is in use. Without
-   `--models` it measures all three models, so download them all first
-   (`uv run laya-apple download`) or pass `--models laya-typed-decisions`. `--quick`
-   measures only `laya-typed-decisions` with fewer iterations.
+   and the laya-apple revision on its own. Then it runs MLX parity, ANE parity when
+   artifacts exist, warm latency, the routing decisions of `device="auto"`, and a short
+   heterogeneous mix when `auto` routes to the ANE. `--quick` measures
+   `laya-typed-decisions` with fewer iterations. Without `--quick` it measures all
+   three models with more iterations, so download them all first
+   (`uv run laya-apple download`) or pass `--models laya-typed-decisions`.
+
+4. Check the new directory before you share it:
+
+   ```bash
+   NEW=$(git ls-files --others --exclude-standard hardware-results/ | xargs -n1 dirname | sort -u)
+   echo "$NEW"                    # exactly one new directory
+   head -20 "$NEW/summary.md"     # the matrix row and your environment
+   grep -rn -e "$USER" -e "$(hostname -s)" "$NEW" || echo "OK: no user name or host name in the bundle"
+   ```
+
+   The script records no host name or serial number, and it replaces your home
+   directory with `~` and the checkout path with `.`.
 
 5. Open a pull request that adds the directory the script prints,
-   `hardware-results/<soc>-macos<major>/`, unchanged. Include the matrix row from
-   `summary.md` in the description.
+   `hardware-results/<soc>-macos<major>/`, unchanged. With the
+   [GitHub CLI](https://cli.github.com/):
 
-The script records no host name or serial number, and it replaces your home directory
-with `~` and the checkout path with `.`. Read `bundle.json` before you submit it anyway.
+   ```bash
+   gh repo fork --remote              # your fork becomes origin, this repo becomes upstream
+   git switch -c bench/add-my-mac
+   git add hardware-results/
+   git commit -m "Add hardware report for my Mac"
+   git push -u origin HEAD
+   gh pr create --fill
+   ```
+
+   Paste the matrix row the script printed into the description, and name the issue it
+   closes if there is one ([#1](https://github.com/tc3oliver/laya-apple/issues/1),
+   [#2](https://github.com/tc3oliver/laya-apple/issues/2),
+   [#3](https://github.com/tc3oliver/laya-apple/issues/3)).
 
 ## What reviewers check
 

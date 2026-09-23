@@ -13,6 +13,13 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **`docs/launch-checklist.md`** records the final launch state. Every item is done, and each
   row gives its evidence: the public repository, `main` protection, the releases through
   1.0.2, PyPI, the seeded issues and the social preview.
+- **Community benchmark onboarding.** The README has a short "Help benchmark Apple
+  Silicon" section that points M1/M2, M3 Max and M4 Pro owners to issues #1, #2 and #3.
+  `docs/community-benchmarks.md` lists those issues as contribution slots, marks untested
+  SoCs (M5 family included) as **Wanted** instead of `?`, and its "Add your Mac" steps
+  start from a base `uv sync` and `--quick`, with a pre-PR check of the bundle. The three
+  issue drafts in `.github/issue-drafts/` are rewritten as copy-and-paste walkthroughs.
+  No runtime, routing, parity or benchmark code changed.
 
 ## [1.0.2] - 2026-09-23
 

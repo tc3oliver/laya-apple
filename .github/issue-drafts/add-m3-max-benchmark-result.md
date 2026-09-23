@@ -3,45 +3,104 @@ title: "Add an M3 Max benchmark result"
 labels: ["good first issue", "help wanted", "benchmark", "hardware"]
 ---
 
-## Problem
+> **Have this Mac? You can contribute useful benchmark data without changing any code.**
 
-Every number in this repository — every forward-pass latency, every parity result,
-every heterogeneous-serving multiplier — comes from one machine: an Apple M4 Max on
-macOS 26.6.2 (see `docs/support-matrix.md`, "Platform scope"). There is no community
-result yet showing how laya-apple performs, or whether the ANE parity gate even passes,
-on an M3 Max.
+Every number laya-apple publishes comes from one Apple M4 Max. An M3 Max result shows how the
+MLX backend performs on the previous generation, and whether the Neural Engine parity gate
+passes there.
 
-## Why it matters
+| | |
+|---|---|
+| **Hardware needed** | An M3 Max Mac (any memory size) |
+| **Estimated time** | About 10 minutes for an MLX-only result, about 25 minutes with the optional ANE step |
+| **Code changes** | **None.** You add one generated directory under `hardware-results/`. |
+| **Also needed** | `git`, [uv](https://docs.astral.sh/uv/) (`brew install uv`), about 5 GB of free disk with the ANE step |
 
-`docs/support-matrix.md` is explicit that other Apple SoCs are only an "expected"
-hypothesis for the MLX backend, and that ANE placement, correctness and routing
-thresholds are unknown off the tested machine. Community hardware results are how that
-gap gets closed one machine at a time.
+## 1. Install (about 5 minutes)
 
-## Expected output
+```bash
+git clone https://github.com/tc3oliver/laya-apple
+cd laya-apple
+uv sync
+uv run laya-apple download laya-typed-decisions
+```
 
-A hardware-results bundle produced by `scripts/hardware_report.py` on an M3 Max
-machine, committed under `hardware-results/<soc>-macos<major>/` (see
-`docs/community-benchmarks.md` for the exact directory naming and bundle contents), plus
-a short PR description noting macOS version, MLX version, coremltools version, and
-whether the ANE parity gate passed for each model.
+`download` fetches the pinned 800 MB checkpoint and verifies its SHA-256.
 
-## How to validate
+## 2. Optional, and the most valuable part: build ANE artifacts (10–15 minutes)
 
-1. `uv sync --extra dev --extra ane --extra convert` on the M3 Max machine.
-2. Build and parity-validate the ANE artifacts locally: `laya-apple artifacts build laya-typed-decisions` (repeat for `laya` and `laya-multilingual` if time allows).
-3. Run `scripts/hardware_report.py` (see `--quick` for a fast pass first) to produce the bundle.
-4. Confirm the bundle lands under `hardware-results/<soc>-macos<major>/` per `docs/community-benchmarks.md`, and that it includes raw per-request data, not only summary numbers (`CONTRIBUTING.md`, "Benchmarks record raw data").
+```bash
+uv sync --extra ane --extra convert
+uv run laya-apple artifacts build laya-typed-decisions
+```
 
-## Relevant files
+This converts the model for each Neural Engine bucket and keeps an artifact only if it
+passes the placement and parity gates on your Mac. A rejected artifact is a result too:
+the report records why. If you skip this step, the report records the ANE column as
+`untested`, and an MLX-only result is still useful.
 
-- `docs/support-matrix.md` — platform scope table to update once results land
-- `docs/community-benchmarks.md` — bundle format and directory convention
-- `scripts/hardware_report.py` — the report generator
-- `benchmarks/v1.0.md` — what a full report on the tested machine looks like
+## 3. Run the benchmark (1–3 minutes)
 
-## Difficulty / scope
+```bash
+uv run python scripts/hardware_report.py --quick
+```
 
-Good first issue. No code changes required, only hardware access (an M3 Max Mac) and
-following the existing benchmark tooling. Time is mostly machine time, not engineering
-time.
+When it finishes, it prints your matrix row and the directory it wrote, for example:
+
+```
+| Apple M3 Max (<memory> GB, macOS <version>) | <MLX> | <ANE> | no | untested |
+
+wrote hardware-results/apple-m3-max-macos<major>/bundle.json and hardware-results/apple-m3-max-macos<major>/summary.md (<seconds> s)
+```
+
+`Auto uses ANE: no` and `Heterogeneous: untested` are expected: `device="auto"` stays on
+the GPU on a Mac whose routing profile is neither shipped nor calibrated
+(`platform_not_validated`). That is the runtime working as designed, not a failure.
+
+## 4. Check the result before you share it
+
+```bash
+NEW=$(git ls-files --others --exclude-standard hardware-results/ | xargs -n1 dirname | sort -u)
+echo "$NEW"                    # exactly one new directory
+head -20 "$NEW/summary.md"     # the matrix row and your environment
+grep -rn -e "$USER" -e "$(hostname -s)" "$NEW" || echo "OK: no user name or host name in the bundle"
+```
+
+The script records no host name or serial number. It replaces your home directory with
+`~` and the checkout path with `.`. Do not edit `bundle.json` or `summary.md`. If
+something looks wrong, say so in the pull request.
+
+## 5. Open the pull request
+
+With the [GitHub CLI](https://cli.github.com/):
+
+```bash
+gh repo fork --remote              # your fork becomes origin, this repo becomes upstream
+git switch -c bench/add-my-mac
+git add hardware-results/
+git commit -m "Add hardware report for my Mac"
+git push -u origin HEAD
+gh pr create --fill
+```
+
+Without the GitHub CLI: fork the repository on GitHub, then run
+`git remote add fork https://github.com/<you>/laya-apple`, the same `switch`, `add` and
+`commit` commands, and `git push -u fork HEAD`. Open the pull request from the link that
+`git push` prints.
+
+In the pull request description, paste the matrix row the script printed and write
+`Closes #2`.
+
+## What the reviewer checks
+
+- The PR adds only the new `hardware-results/<soc>-macos<major>/` directory, with
+  `bundle.json` and `summary.md`.
+- The files are unedited. The reviewer regenerates the summary with
+  `uv run python scripts/hardware_report.py --render hardware-results/<dir>/bundle.json`
+  and compares it.
+- Parity: MLX, and ANE if you built artifacts, shows `passed`. A failure is still a
+  useful result, so submit it anyway.
+- Provenance: the laya-apple revision is a published commit and the dirty flag is false.
+
+Full details: [`docs/community-benchmarks.md`](https://github.com/tc3oliver/laya-apple/blob/main/docs/community-benchmarks.md#add-your-mac).
+Questions are welcome as comments on this issue.
