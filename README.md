@@ -36,7 +36,7 @@ benchmark; their results go in the [community matrix](docs/community-benchmarks.
 
 The benchmark above covers only an M4 Max. The [community matrix](docs/community-benchmarks.md)
 collects results from other Macs as separate runs, not mixed into the numbers above. It has
-its first external result, an M4 Pro. If you have another Mac, one command adds it.
+external results for an M4 Pro and an M4. If you have another Mac, one command adds it.
 **No code changes required.**
 
 - M1 / M2 → [#1](https://github.com/tc3oliver/laya-apple/issues/1)

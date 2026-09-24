@@ -5,13 +5,20 @@ labels: ["help wanted", "coreml", "hardware", "correctness"]
 
 ## Problem
 
-Every measurement and every validated artifact ships from one profile: macOS 26.6.2 with
-coremltools 9.0 (`docs/support-matrix.md`). `docs/support-matrix.md` also notes that
-"macOS 27.x" is unknown, and cites prior third-party observation of different Core ML
-placement behaviour there (enumerated shapes running on the GPU instead of the ANE). No
-one has run laya-apple's own build-and-parity pipeline against a different macOS major
-version or coremltools release to see whether the same BC1S graph still places 100% on
-the ANE.
+The shipped routing table and the release validation come from one profile: macOS 26.6.2
+with coremltools 9.0 (`docs/support-matrix.md`). Two community hardware results have since
+run laya-apple's own build-and-parity pipeline on other macOS versions, both with
+coremltools 9.0 and `laya-typed-decisions` only:
+
+- macOS 27.0 on an M4 Pro (#32): ANE artifacts built, placement and parity passed. Prior
+  third-party work had observed different Core ML placement on macOS 27 (enumerated shapes
+  running on the GPU instead of the ANE); this one machine did not reproduce it.
+- macOS 26.2 on an M4 (#41): ANE artifacts built, placement and parity passed.
+
+No one has run the pipeline against a coremltools release other than 9.0, so it is still
+unknown whether the same BC1S graph places 100% on the ANE after a Core ML compiler
+version change. More macOS 27 results, on other SoCs and with the other two models, are
+also wanted.
 
 ## Why it matters
 
@@ -25,7 +32,7 @@ change or whether it needs its own follow-up fix.
 ## Expected output
 
 A report of what `laya-apple artifacts build` and `laya-apple parity --device ane`
-produce on a different macOS major version and/or coremltools release than 26 / 9.0:
+produce on a coremltools release other than 9.0, or on a macOS 27 profile not covered above:
 compute plan (ANE % and transition count), parity pass/fail, and the placement probe
 ratio. Include exact `sw_vers` and `pip show coremltools` output. If it fails, describe
 the failure mode (build error, wrong device placement, parity regression) — that is a
