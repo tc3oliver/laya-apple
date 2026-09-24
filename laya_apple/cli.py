@@ -6,6 +6,7 @@ laya-apple download MODEL...
 laya-apple artifacts build MODEL [--length L ...] | list | verify [MODEL]
 laya-apple parity MODEL [--device gpu|ane] [--dtype float16|float32]
 laya-apple benchmark MODEL [--device ...] [--lengths ...] [--questions N]
+laya-apple switchyard [--seed N] [--duration S] [--out DIR] [--no-open] [--setup-ane] [--replay DIR]
 """
 
 from __future__ import annotations
@@ -324,6 +325,10 @@ def build_parser():
     s.add_argument("--dtype", default="float16", choices=["float16", "float32"])
     s.add_argument("--output", help="append JSONL records here")
     s.set_defaults(fn=cmd_benchmark)
+
+    from .demos.switchyard.cli import add_parser as add_switchyard
+
+    add_switchyard(sub)
     return p
 
 

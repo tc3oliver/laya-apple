@@ -176,6 +176,17 @@ def install_matrix_step():
                     entry.update(ok=False, stage="cli info", output=_tail(r.stdout + r.stderr))
                     results.append(entry)
                     continue
+                r = subprocess.run(
+                    [str(laya_apple_cli), "switchyard", "--help"],
+                    capture_output=True,
+                    text=True,
+                    cwd=str(tmp),
+                    env=env,
+                )
+                if r.returncode != 0:
+                    entry.update(ok=False, stage="switchyard --help", output=_tail(r.stdout + r.stderr))
+                    results.append(entry)
+                    continue
                 site_packages = next(venv_dir.glob("lib/python*/site-packages"), None)
                 entry.update(
                     ok=True,

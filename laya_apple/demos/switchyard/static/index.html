@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<title>Switchyard replay</title>
+<style>/*__SWITCHYARD_CSS__*/</style>
+</head>
+<body>
+<div id="stage" class="stage">
+
+  <header class="top">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span class="brand-name">Switchyard</span>
+      <span id="synthetic-chip" class="chip chip-warn" hidden>Synthetic sample data</span>
+    </div>
+    <nav id="round-tabs" class="tabs" role="tablist" aria-label="Rounds"></nav>
+    <div class="controls">
+      <button id="btn-play" class="btn btn-icon" type="button" title="Play / pause (Space)" aria-keyshortcuts="Space" aria-label="Play">
+        <svg class="i-play" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2.8v10.4L13 8z"/></svg>
+        <svg class="i-pause" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 3h3v10H4zM9 3h3v10H9z"/></svg>
+      </button>
+      <div id="speeds" class="seg" role="group" aria-label="Playback speed" title="Playback speed (S)"></div>
+      <span id="speed-label" class="speed-label mono" aria-live="polite">0.25× real time</span>
+      <button id="btn-rush" class="btn" type="button" title="Jump to the next rush hour (N)" aria-keyshortcuts="N">Next rush hour</button>
+      <button id="btn-timeline" class="btn btn-ghost" type="button" aria-expanded="false" aria-controls="timeline" title="Show the engine timeline (T)" aria-keyshortcuts="T">Engines</button>
+      <button id="btn-details" class="btn btn-ghost" type="button" aria-expanded="false" aria-controls="details" title="Round totals (D)" aria-keyshortcuts="D">Details</button>
+      <button id="btn-result" class="btn btn-primary" type="button" title="Skip to the result (R)" aria-keyshortcuts="R">Result</button>
+      <button id="btn-help" class="btn btn-icon" type="button" title="How to read this and keyboard shortcuts (?)" aria-keyshortcuts="?" aria-label="Help">?</button>
+    </div>
+  </header>
+
+  <section class="hud" aria-label="Round status">
+    <div class="hud-round">
+      <span id="round-title" class="round-title">Round</span>
+    </div>
+    <div class="hud-stat hud-late">
+      <span class="hud-k">Late</span>
+      <span id="m-late" class="hud-v late-num">0</span>
+      <span id="m-late-rate" class="hud-s">of 0</span>
+    </div>
+    <div class="hud-stat">
+      <span class="hud-k">P99 so far</span>
+      <span id="m-p99" class="hud-v mono">—</span>
+    </div>
+    <div class="hud-stat hud-last">
+      <span class="hud-k">Latest decision</span>
+      <span id="dec-line" class="hud-dec">—</span>
+    </div>
+    <span id="rush" class="chip chip-rush" hidden>Rush hour</span>
+  </section>
+
+  <div class="scrub">
+    <span id="clock" class="clock mono">0.0 s</span>
+    <div class="scrub-track">
+      <canvas id="scrub-bg" class="scrub-bg" aria-hidden="true"></canvas>
+      <input id="scrubber" type="range" min="0" max="1000" step="1" value="0" aria-label="Replay position (data time)">
+    </div>
+    <span id="clock-end" class="clock mono dim">60 s</span>
+  </div>
+
+  <main class="yard" aria-label="Rail yard">
+    <canvas id="map" class="yard-canvas" aria-hidden="true"></canvas>
+    <p id="round-desc" class="round-desc"></p>
+    <div id="watermark" class="watermark" hidden aria-hidden="true">SYNTHETIC SAMPLE DATA</div>
+    <div id="map-status" class="sr-only" aria-live="polite"></div>
+    <p class="legend">
+      <span class="lg"><i class="tr tr-wait"></i>Waiting for its answer</span>
+      <span class="lg"><i class="tr tr-late">!</i>Late: no answer within <b class="deadline-text">100 ms</b></span>
+      <span class="lg"><i class="tr tr-gpu"></i>Answered by the MLX GPU</span>
+      <span class="lg"><i class="tr tr-ane"></i>Answered by the Neural Engine</span>
+      <span class="lg"><i class="tr tr-parked"></i>Platform occupied</span>
+      <span class="lg"><i class="barrier"></i>Platform closed</span>
+    </p>
+
+    <section id="timeline" class="drawer-bottom" aria-label="Engine timeline" hidden>
+      <div class="tl-head">
+        <h2 class="eyebrow">What each engine is doing <span class="dim">(last 3 s of data time)</span></h2>
+        <p class="tl-legend">
+          <span class="lg"><i class="sw sw-hatch"></i>Waiting in queue</span>
+          <span class="lg"><i class="sw sw-solid"></i>Running on device</span>
+          <span class="lg"><i class="sw sw-hatch-late"></i>Train still waiting after <b class="deadline-text">100 ms</b></span>
+          <span class="lg"><i class="sw sw-bg"></i>Background document</span>
+        </p>
+      </div>
+      <canvas id="tl" class="tl-canvas" aria-hidden="true"></canvas>
+    </section>
+
+    <aside id="details" class="drawer-right" aria-label="Round totals" hidden>
+      <h2 class="eyebrow">Round totals <span class="dim">(final, from result.json)</span></h2>
+      <dl id="details-list" class="dl"></dl>
+    </aside>
+  </main>
+
+  <div id="intro" class="overlay" role="dialog" aria-modal="true" aria-labelledby="intro-title" hidden>
+    <div class="card intro-card">
+      <h2 id="intro-title">How to watch Switchyard</h2>
+      <ul class="intro-list">
+        <li><i class="tr tr-wait"></i><span>Every <b>train is a request</b> to the model. Trains arrive on six lines on a recorded timetable.</span></li>
+        <li><i class="sig" aria-hidden="true"></i><span>A <b>red signal</b> means the train is <b>waiting for its answer</b>. The junction is the model's decision: which platform, A, B or C, is clear.</span></li>
+        <li><i class="tr tr-gpu"></i><span>When the answer arrives the signal turns green, the switch throws and the train runs in. Its colour shows who answered: <b class="t-gpu">amber</b> the MLX GPU, <b class="t-ane">teal</b> the Neural Engine.</span></li>
+        <li><i class="tr tr-late">!</i><span>No answer within <b class="deadline-text">100 ms</b>? The train is <b>Late</b>: held at red and marked with <b>!</b>. In rush hour, watch the queues back up.</span></li>
+        <li><i class="tr tr-same"></i><span id="intro-rounds">The same timetable is replayed once per setup, then the result compares them.</span></li>
+      </ul>
+      <div class="intro-actions">
+        <button id="btn-start" class="btn btn-primary btn-lg" type="button">Start replay</button>
+        <span class="dim small">Space play · N next rush hour · S speed · ← → round · R result · ? help</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="help" class="overlay" role="dialog" aria-modal="true" aria-labelledby="help-title" hidden>
+    <div class="card help-card">
+      <h2 id="help-title">Keyboard shortcuts</h2>
+      <dl class="keys">
+        <dt><kbd>Space</kbd></dt><dd>Play / pause</dd>
+        <dt><kbd>N</kbd></dt><dd>Jump to the next rush hour</dd>
+        <dt><kbd>S</kbd></dt><dd>Change speed</dd>
+        <dt><kbd>←</kbd> <kbd>→</kbd></dt><dd>Previous / next round</dd>
+        <dt><kbd>,</kbd> <kbd>.</kbd></dt><dd>Back / forward 1 second of data time</dd>
+        <dt><kbd>T</kbd></dt><dd>Show or hide the engine timeline</dd>
+        <dt><kbd>D</kbd></dt><dd>Show or hide round totals</dd>
+        <dt><kbd>R</kbd></dt><dd>Show the result</dd>
+        <dt><kbd>?</kbd></dt><dd>This help</dd>
+        <dt><kbd>Esc</kbd></dt><dd>Close</dd>
+      </dl>
+      <div class="intro-actions">
+        <button id="btn-help-close" class="btn btn-primary" type="button">Close</button>
+        <button id="btn-help-intro" class="btn btn-ghost" type="button">Show the introduction</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="between" class="overlay overlay-soft" role="dialog" aria-modal="false" aria-labelledby="between-title" hidden>
+    <div class="card between-card">
+      <p class="eyebrow" id="between-eyebrow">Round complete</p>
+      <h2 id="between-title">—</h2>
+      <p id="between-text" class="dim"></p>
+      <div class="intro-actions">
+        <button id="btn-next" class="btn btn-primary btn-lg" type="button">Continue</button>
+        <button id="btn-between-result" class="btn btn-ghost" type="button">Skip to result</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="result" class="overlay result" role="dialog" aria-modal="true" aria-labelledby="result-title" hidden>
+    <h2 id="result-title" class="sr-only">Result</h2>
+    <canvas id="card" class="card-canvas" role="img" aria-label=""></canvas>
+    <div class="result-actions">
+      <button id="btn-save" class="btn btn-primary" type="button">Save PNG</button>
+      <button id="btn-copy" class="btn" type="button" hidden>Copy setup command</button>
+      <span id="copy-status" class="dim small" aria-live="polite"></span>
+      <span class="spacer"></span>
+      <button id="btn-replay" class="btn btn-ghost" type="button">Watch the replay again</button>
+      <button id="btn-result-close" class="btn btn-ghost" type="button" title="Close (Esc)">Close</button>
+    </div>
+  </div>
+
+  <div id="fatal" class="overlay" hidden><div class="card"><h2>Replay data is missing</h2><p id="fatal-text" class="dim"></p></div></div>
+</div>
+
+<script type="application/json" id="switchyard-data">__SWITCHYARD_DATA__</script>
+<script>/*__SWITCHYARD_JS__*/</script>
+</body>
+</html>

@@ -5,6 +5,28 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- **`laya-apple switchyard`.** A headless benchmark of the frozen `switchyard-v1` workload
+  (bursty seeded arrivals, single-question routing decisions as "trains", background
+  long-context requests loading the GPU), replayed as a rail-junction game. The CLI runs the
+  timed `gpu_only` and (when the Neural Engine is ready) `hybrid` rounds, writes `result.json`
+  and `trace.jsonl`, builds a self-contained `replay.html` and opens it (`--no-open` to skip).
+  `--setup-ane` builds and parity-validates the ANE artifact, calibrates if needed, then runs.
+  Missing ANE never fails the command — it runs `gpu_only` and prints the setup command. See
+  [`docs/switchyard.md`](docs/switchyard.md) for the workload, measurement boundaries and
+  result schema.
+  - Official campaign (`benchmarks/switchyard/v1-m4-max/`, 3 runs, Apple M4 Max, macOS
+    26.6.2, `laya-typed-decisions`, standard workload: seed 11, 60 s, 40 req/s nominal, 1,422
+    trains, 100 ms deadline): `gpu_only` 1,407–1,408/1,422 late (P99 decision
+    3,107.7–3,170.6 ms, P99 queue 3,095.9–3,158.8 ms); `hybrid` (GPU + ANE) 0 late (P99
+    decision 54.5–54.7 ms, P99 queue 39.6–42.8 ms); 0 decision disagreements, 0 misrouted in
+    all 3 runs. Round order is fixed by seed parity (`hybrid` first in this campaign),
+    `design.counterbalance` is `"none"`, and these numbers are not comparable with the v1.0
+    open-loop table (different rate, measurement boundary and workload) — see
+    [`docs/switchyard.md`](docs/switchyard.md). Report:
+    [`benchmarks/switchyard/README.md`](benchmarks/switchyard/README.md).
+
 ## [1.1.0] - 2026-09-24
 
 Adds public request lifecycle tracing for `execution="workers"` (`RequestTrace`,
