@@ -12,10 +12,13 @@ laya-apple is one repository. It covers:
   backends, parity and provenance.
 - **GPU + ANE serving** (product direction): routing, heterogeneous serving and
   benchmarking.
-- **Agent offloading** (research, candidate product direction): local Laya decisions
-  inside coding agents (OpenClaw, Hermes Agent, Pi).
-  - It becomes a product direction once EXP-001 and the later value experiments pass
-    (`research/agent-decision-offloading/`).
+- **Agent offloading** (research, **paused**): local Laya decisions inside coding agents
+  (OpenClaw, Hermes Agent, Pi).
+  - The EXP-001 and EXP-002 quick probes found no measurable upside, so no further
+    experiments are added (`research/agent-decision-offloading/`).
+  - Resume only if new evidence shows a workload with measurable offloading value, such
+    as substantial redundant tool-output context or a meaningful fraction of
+    fixed-action post-tool LLM turns.
   - Integrations, adapters, hooks, installers and CLI integration belong here when that
     work is promoted.
 
