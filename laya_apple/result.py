@@ -26,6 +26,7 @@ class RuntimeInfo:
     device_ms: float | None = None  # workers: time inside the backend's forward, in the worker
     gpu_backlog_ms: float | None = None  # workers: backlog estimates seen by the router
     ane_backlog_ms: float | None = None
+    request_id: int | None = None  # this instance's id for the request; RequestTrace.request_id
 
     def __str__(self) -> str:
         return (

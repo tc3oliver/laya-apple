@@ -15,9 +15,10 @@ Placement per device, chosen from measurements (research/v0.2-concurrency/):
 Process workers are started as `python -m laya_apple.executor` subprocesses, not
 multiprocessing children, so the caller's main module is never re-imported (works from a
 REPL or notebook, no `if __name__ == "__main__"` requirement). They connect back over an
-authenticated AF_UNIX multiprocessing connection. The parent sends (job_id, rows); the
-worker runs backend.forward(rows) and replies (job_id, "ok", (logits, act, device_ms)) or
-(job_id, "error", exception).
+authenticated AF_UNIX multiprocessing connection. The parent sends (job_id, rows), where
+job_id is the request's id; the worker runs backend.forward(rows) and replies
+(job_id, "ok", (logits, act, start_ns, end_ns)) or (job_id, "error", exception). start_ns and
+end_ns bracket the forward in the worker (time.monotonic_ns, a system-wide clock on macOS).
 
 Jobs on one device run in FIFO order, one at a time, which is how both devices behave
 anyway: the ANE serialises work, and concurrent MLX streams share one GPU.
@@ -25,7 +26,6 @@ anyway: the ANE serialises work, and concurrent MLX streams share one GPU.
 
 from __future__ import annotations
 
-import itertools
 import json
 import os
 import queue
@@ -84,9 +84,9 @@ def backend_info(kind: str, backend) -> dict:
 
 
 def _forward_timed(backend, rows):
-    t0 = time.perf_counter()
+    start_ns = time.monotonic_ns()
     logits, act = backend.forward(rows)
-    return logits, act, (time.perf_counter() - t0) * 1e3
+    return logits, act, start_ns, time.monotonic_ns()
 
 
 def _worker_main(kind: str, args: dict, conn) -> None:
@@ -132,6 +132,9 @@ class DeviceWorker:
     `snapshot()` reads the queue state in one step: the backlog (the sum of service
     estimates of queued jobs plus the remaining estimate of the running one, the queue-state
     input of scheduling.decide_queued), the number of queued jobs, and whether one is running.
+
+    A job's Future resolves to (logits, act, queue_enter_ns, dispatch_ns, service_start_ns,
+    service_end_ns, received_ns), all time.monotonic_ns().
     """
 
     def __init__(
@@ -195,8 +198,7 @@ class DeviceWorker:
         self._queued_jobs = 0
         self._running = False
         self._running_est = 0.0
-        self._running_since = 0.0
-        self._ids = itertools.count()
+        self._running_since = 0
         self._dead: BaseException | None = None
         self._thread = threading.Thread(target=self._dispatch, name=f"laya-{self.kind}-dispatch", daemon=True)
         self._thread.start()
@@ -261,14 +263,15 @@ class DeviceWorker:
         with self._lock:
             backlog = self._queued_ms
             if self._running_est:
-                backlog += max(0.0, self._running_est - (time.perf_counter() - self._running_since) * 1e3)
+                backlog += max(0.0, self._running_est - (time.monotonic_ns() - self._running_since) / 1e6)
             return QueueSnapshot(backlog, self._queued_jobs, self._running)
 
     def backlog_ms(self) -> float:
         snap = self.snapshot()
         return snap.backlog_ms if snap is not None else 0.0
 
-    def submit(self, rows, estimate_ms: float) -> Future:
+    def submit(self, rows, estimate_ms: float, job_id: int) -> Future:
+        """Queue one job; `job_id` (the request's id) names it on the worker protocol."""
         fut: Future = Future()
         if self._dead is not None:
             fut.set_exception(BackendUnavailableError(f"{self.kind} worker is not running: {self._dead}"))
@@ -276,13 +279,12 @@ class DeviceWorker:
         with self._lock:
             self._queued_ms += estimate_ms
             self._queued_jobs += 1
-        self._jobs.put((fut, rows, estimate_ms, time.perf_counter()))
+        self._jobs.put((fut, rows, estimate_ms, time.monotonic_ns(), job_id))
         return fut
 
-    def _run(self, rows):
+    def _run(self, job_id, rows):
         if self._backend is not None:
             return _forward_timed(self._backend, rows)
-        job_id = next(self._ids)
         self._conn.send((job_id, rows))
         rid, status, payload = self._conn.recv()
         if rid != job_id:
@@ -296,21 +298,21 @@ class DeviceWorker:
             job = self._jobs.get()
             if job is None:
                 return
-            fut, rows, est, enq = job
+            fut, rows, est, enq, job_id = job
+            dispatch_ns = time.monotonic_ns()
             with self._lock:
                 self._queued_ms -= est
                 self._queued_jobs -= 1
-                self._running, self._running_est, self._running_since = True, est, time.perf_counter()
+                self._running, self._running_est, self._running_since = True, est, dispatch_ns
             if not fut.set_running_or_notify_cancel():
                 with self._lock:
                     self._running, self._running_est = False, 0.0
                 continue
-            wait_ms = (time.perf_counter() - enq) * 1e3
             try:
                 if self._dead is not None:
                     raise BackendUnavailableError(f"{self.kind} worker is not running: {self._dead}")
-                logits, act, device_ms = self._run(rows)
-                fut.set_result((logits, act, wait_ms, device_ms))
+                logits, act, start_ns, end_ns = self._run(job_id, rows)
+                fut.set_result((logits, act, enq, dispatch_ns, start_ns, end_ns, time.monotonic_ns()))
             except (EOFError, OSError, BrokenPipeError) as e:
                 if self.placement != "process":  # an in-process backend error is just an error
                     fut.set_exception(e)
