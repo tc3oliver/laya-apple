@@ -12,7 +12,16 @@ laya-apple is an Apple-native inference runtime for Laya models. It covers:
 - routing and heterogeneous serving;
 - correctness validation, artifact provenance and benchmarking.
 
-Application-level or agent-level logic does not belong in this repository.
+The scope differs between production code and research:
+- **Production** (`laya_apple/`, `scripts/`, `tests/`, the published package) stays
+  inference and runtime only. Application-level or agent-level logic does not belong
+  there.
+- **Research** (`research/`) may contain disposable agent-integration spikes. They test
+  whether laya-apple's low-latency decision runtime applies to real agent workloads.
+  - A spike is never imported by `laya_apple` and never ships in the package.
+  - laya-apple does not maintain official agent plugins or adapters, for example for
+    OpenClaw, Hermes Agent or Pi. Research does not create installers or adapter
+    packages.
 
 ## Git workflow
 
