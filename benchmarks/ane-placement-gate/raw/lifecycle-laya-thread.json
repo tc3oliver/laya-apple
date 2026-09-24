@@ -1,0 +1,223 @@
+{
+ "mode": "lifecycle",
+ "requests_per_iteration": 40,
+ "iterations": [
+  {
+   "iteration": 0,
+   "startup_s": 2.694362209,
+   "close_s": 0.036794667,
+   "devices": {
+    "gpu": 20,
+    "ane": 20
+   },
+   "worker_pids": [
+    4409
+   ],
+   "workers_alive_after_close": [],
+   "live_children_after_close": [],
+   "zombie_children_after_close": [],
+   "rss_mb": 487.5625,
+   "uss_mb": 371.90625,
+   "fds": 3,
+   "threads": 7
+  },
+  {
+   "iteration": 1,
+   "startup_s": 1.856044792,
+   "close_s": 0.037842125,
+   "devices": {
+    "gpu": 20,
+    "ane": 20
+   },
+   "worker_pids": [
+    4411
+   ],
+   "workers_alive_after_close": [],
+   "live_children_after_close": [],
+   "zombie_children_after_close": [],
+   "rss_mb": 390.3125,
+   "uss_mb": 243.78125,
+   "fds": 3,
+   "threads": 7
+  },
+  {
+   "iteration": 2,
+   "startup_s": 1.85892175,
+   "close_s": 0.039158125,
+   "devices": {
+    "gpu": 20,
+    "ane": 20
+   },
+   "worker_pids": [
+    4414
+   ],
+   "workers_alive_after_close": [],
+   "live_children_after_close": [],
+   "zombie_children_after_close": [],
+   "rss_mb": 506.578125,
+   "uss_mb": 359.984375,
+   "fds": 3,
+   "threads": 7
+  },
+  {
+   "iteration": 3,
+   "startup_s": 1.848704792,
+   "close_s": 0.038326208,
+   "devices": {
+    "gpu": 20,
+    "ane": 20
+   },
+   "worker_pids": [
+    4415
+   ],
+   "workers_alive_after_close": [],
+   "live_children_after_close": [],
+   "zombie_children_after_close": [],
+   "rss_mb": 506.71875,
+   "uss_mb": 360.109375,
+   "fds": 3,
+   "threads": 7
+  },
+  {
+   "iteration": 4,
+   "startup_s": 1.852911667,
+   "close_s": 0.037916459,
+   "devices": {
+    "gpu": 20,
+    "ane": 20
+   },
+   "worker_pids": [
+    4416
+   ],
+   "workers_alive_after_close": [],
+   "live_children_after_close": [],
+   "zombie_children_after_close": [],
+   "rss_mb": 506.828125,
+   "uss_mb": 360.1875,
+   "fds": 3,
+   "threads": 7
+  },
+  {
+   "iteration": 5,
+   "startup_s": 1.84555075,
+   "close_s": 0.039877958,
+   "devices": {
+    "gpu": 20,
+    "ane": 20
+   },
+   "worker_pids": [
+    4417
+   ],
+   "workers_alive_after_close": [],
+   "live_children_after_close": [],
+   "zombie_children_after_close": [],
+   "rss_mb": 506.921875,
+   "uss_mb": 360.28125,
+   "fds": 3,
+   "threads": 7
+  },
+  {
+   "iteration": 6,
+   "startup_s": 1.8570505,
+   "close_s": 0.037852125,
+   "devices": {
+    "gpu": 20,
+    "ane": 20
+   },
+   "worker_pids": [
+    4420
+   ],
+   "workers_alive_after_close": [],
+   "live_children_after_close": [],
+   "zombie_children_after_close": [],
+   "rss_mb": 506.96875,
+   "uss_mb": 360.3125,
+   "fds": 3,
+   "threads": 7
+  },
+  {
+   "iteration": 7,
+   "startup_s": 1.858947833,
+   "close_s": 0.036884834,
+   "devices": {
+    "gpu": 20,
+    "ane": 20
+   },
+   "worker_pids": [
+    4423
+   ],
+   "workers_alive_after_close": [],
+   "live_children_after_close": [],
+   "zombie_children_after_close": [],
+   "rss_mb": 507.0625,
+   "uss_mb": 360.375,
+   "fds": 3,
+   "threads": 7
+  },
+  {
+   "iteration": 8,
+   "startup_s": 1.851327417,
+   "close_s": 0.039087334,
+   "devices": {
+    "gpu": 20,
+    "ane": 20
+   },
+   "worker_pids": [
+    4428
+   ],
+   "workers_alive_after_close": [],
+   "live_children_after_close": [],
+   "zombie_children_after_close": [],
+   "rss_mb": 507.125,
+   "uss_mb": 360.4375,
+   "fds": 3,
+   "threads": 7
+  },
+  {
+   "iteration": 9,
+   "startup_s": 1.847390083,
+   "close_s": 0.0338975,
+   "devices": {
+    "gpu": 20,
+    "ane": 20
+   },
+   "worker_pids": [
+    4429
+   ],
+   "workers_alive_after_close": [],
+   "live_children_after_close": [],
+   "zombie_children_after_close": [],
+   "rss_mb": 507.1875,
+   "uss_mb": 360.53125,
+   "fds": 3,
+   "threads": 7
+  }
+ ],
+ "model": "laya",
+ "placement": "thread",
+ "args": {
+  "mode": "lifecycle",
+  "model": "laya",
+  "placement": "thread",
+  "cycles": 2,
+  "seconds": 15.0,
+  "settle": 1.0,
+  "iterations": 10,
+  "requests": 40,
+  "out": "benchmarks/ane-placement-gate/raw/lifecycle-laya-thread.json"
+ },
+ "environment": {
+  "laya_apple": "1.0.2",
+  "platform": {
+   "soc": "Apple M4 Max",
+   "macos": "26.6.2",
+   "macos_build": "25G83",
+   "coremltools": "9.0"
+  },
+  "python": "3.12.14",
+  "mlx": "0.32.2",
+  "coremltools": "9.0",
+  "machine": "arm64",
+  "memory_gb": 64
+ }
+}
