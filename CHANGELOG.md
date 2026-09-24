@@ -5,6 +5,16 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- **Switchyard launch media.** `docs/media/switchyard-launch.gif` and `.mp4` are re-cut for
+  readability. Both are cropped to the rail yard, with the whole-round result in large type.
+  The result card is simplified to trains late and P99 decision latency. The MP4 is now 20 s
+  and opens on the result; the GIF drops the command, which the README shows above it. Same
+  run (run-003), same numbers; sources in
+  [`docs/media/switchyard-launch.md`](docs/media/switchyard-launch.md). The README states the
+  result in text under the GIF.
+
 ## [1.2.0] - 2026-09-24
 
 Adds `laya-apple switchyard`: a one-command, headless open-loop benchmark of GPU-only
