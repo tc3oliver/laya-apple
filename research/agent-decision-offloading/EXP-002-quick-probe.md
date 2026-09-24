@@ -134,7 +134,9 @@ further experiments are added to it.
 
 ## Result
 
-The pre-registration was committed in `c1fde64` before any session was read.
+The pre-registration was committed as `c1fde64` (author date 2026-09-24 15:19:16 +08:00)
+before any session was read. When the branch was rebased onto `main` it became `8a32ee3`,
+with the same author date and content.
 
 ```text
 EXP-002 Quick Probe

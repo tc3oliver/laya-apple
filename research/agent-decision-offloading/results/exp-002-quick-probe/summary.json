@@ -1,6 +1,6 @@
 {
  "experiment": "EXP-002 quick probe",
- "preregistration_commit": "c1fde64",
+ "preregistration_commit": "c1fde64 (rebased onto main as 8a32ee3; author date 2026-09-24 15:19:16 +08:00)",
  "labels_sha256": "3e42df7786144be81b536b5da7c8a5f44ccfa3778f076944db12c3d915ca3554",
  "cases": 30,
  "sessions": 2,

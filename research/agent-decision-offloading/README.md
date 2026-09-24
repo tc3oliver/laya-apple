@@ -4,15 +4,42 @@
 decisions inside real coding-agent workloads, for example deciding which parts of a
 tool's output reach the Main LLM?
 
-Agent offloading is a research track and a candidate product direction for laya-apple
-(see `AGENTS.md`, "Scope"). It becomes a product direction only after EXP-001 and the
-later value experiments pass. Everything in this directory is **research code**:
+Agent offloading is a **paused** research track in laya-apple (see `AGENTS.md`, "Scope").
+Everything in this directory is **research code**:
 - the spikes are disposable and minimal;
 - `laya_apple` never imports them;
 - they are not the production integrations.
 
 An experiment that passes its recorded criteria can later be promoted into production
 code, which is rebuilt to production standards in its own pull request.
+
+## Closure summary
+
+```text
+EXP-000   Integration feasibility       NO-GO under original scope
+EXP-000B  Ordinary tool-result seam     PASS
+EXP-001   Semantic context admission    NO-GO
+EXP-002   Main-LLM turn avoidance       NO-GO
+Status                                  PAUSED
+```
+
+- **What was shown.** Pi and Hermes Agent can replace an ordinary tool result before it
+  enters the Main LLM's context, without a fork (EXP-000B).
+- **What was not found.** Any measurable value in this repository's Claude Code sessions.
+  - An ideal chunk-level admission gate would drop 0% of qualifying tool output
+    (EXP-001).
+  - 0 of 30 post-tool Main LLM turns were only a fixed control action. Those turns
+    carried 4,608,057 input tokens, none of it in bypassable turns (EXP-002).
+- **What was not tested.**
+  - No Laya checkpoint was run.
+  - The results do not show that Laya is unsuited to these decisions, only that this
+    workload offers too little to decide.
+  - Whether Hermes Agent can short-circuit a Main LLM invocation stays UNKNOWN.
+- **Resume only if** new evidence shows a workload with measurable offloading value,
+  such as substantial redundant tool-output context or a meaningful fraction of
+  fixed-action post-tool LLM turns.
+
+Every NO-GO result, its evidence and its limitations stay recorded below.
 
 ## Experiments
 
@@ -26,10 +53,11 @@ code, which is rebuilt to production standards in its own pull request.
 **Direction status: paused.** EXP-002 is NO-GO, so under its pre-registered rule the
 agent decision offloading direction is paused and no further experiments are added.
 
-**Forward decision: GO** (from EXP-000B), for ordinary tool results only. The limitations
-recorded for EXP-000 remain in force.
+EXP-000B's forward decision was **GO** toward EXP-001, for ordinary tool results only. The
+EXP-001 and EXP-002 quick probes that followed are both NO-GO. The limitations recorded
+for EXP-000 remain in force.
 
-## Next stage
+## Full EXP-001 (not started)
 
 The EXP-001 [quick probe](EXP-001-quick-probe.md) found no upside for chunk-level
 admission in this repository's sessions, so the full EXP-001 below has not started.
