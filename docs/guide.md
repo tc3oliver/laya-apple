@@ -373,11 +373,6 @@ opens; the browser only replays the recorded requests.
 uvx laya-apple switchyard
 ```
 
-<!-- release-note:switchyard — remove this note in the release PR that ships switchyard -->
-> `switchyard` is not on PyPI yet (the current release is 1.1.0). Until the next release, run
-> it from a clone: `uv run laya-apple switchyard`.
-<!-- /release-note:switchyard -->
-
 The first run downloads the pinned `laya-typed-decisions` checkpoint (about 800 MB) and runs
 offline after that. A standard run (60 s timed window, plus a 5 s warmup, for one or two
 rounds) takes about 2–3 minutes once the checkpoint is cached.

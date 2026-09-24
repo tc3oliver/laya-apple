@@ -16,11 +16,6 @@ uvx laya-apple switchyard
 
 ![Switchyard: the same recorded timetable replayed GPU-only, where trains queue at red signals during rush hour, and GPU + ANE, where they flow into their platforms; then the result card: 1,407 of 1,422 trains late GPU-only against 0 with GPU + ANE](https://raw.githubusercontent.com/tc3oliver/laya-apple/main/docs/media/switchyard-launch.gif)
 
-<!-- release-note:switchyard — remove this note in the release PR that ships switchyard -->
-> `switchyard` is not on PyPI yet (the current release is 1.1.0). Until the next release, run
-> it from a clone: `uv run laya-apple switchyard`.
-<!-- /release-note:switchyard -->
-
 Every train is a real Laya decision.
 
 - **Train** → one request: "which platform is clear?"
