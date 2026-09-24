@@ -343,6 +343,7 @@ laya-apple artifacts import ARCHIVE.tar.gz [--force]
 laya-apple calibrate [MODEL ...] [--warmup N] [--iters N]
 laya-apple parity MODEL [--device gpu|ane] [--dtype float16|float32]
 laya-apple benchmark MODEL [--device auto|gpu|ane] [--lengths L ...] [--questions N] [--warmup N] [--iters N] [--output FILE]
+laya-apple switchyard [--seed N] [--duration S] [--out DIR] [--no-open] [--setup-ane] [--replay DIR]
 ```
 
 `--context` and `--questions` each accept inline text/JSON, `@file` to read
@@ -359,6 +360,47 @@ laya-apple --offline predict laya-typed-decisions \
 ```bash
 laya-apple --offline info laya-typed-decisions
 ```
+
+## Switchyard
+
+`laya-apple switchyard` runs the frozen `switchyard-v1` workload (bursty seeded arrivals,
+single-question routing decisions as "trains", background long-context requests loading the
+GPU) and replays it as a rail-junction game in your browser. It is headless: all measurement
+happens before anything opens, and the browser only replays the recorded run — there is no
+live mode yet.
+
+```bash
+uvx laya-apple switchyard
+```
+
+The first run downloads the pinned `laya-typed-decisions` checkpoint (about 800 MB) and runs
+offline after that. A standard run (60 s timed window, plus a 5 s warmup, for one or two
+rounds) takes about 2–3 minutes once the checkpoint is cached.
+
+What you get depends on Neural Engine state:
+
+- **No built ANE artifact:** `switchyard` measures a `gpu_only` round and prints a setup
+  command:
+
+  ```bash
+  uvx --from "laya-apple[convert]" laya-apple switchyard --setup-ane
+  ```
+
+  This builds and parity-validates the ANE artifact, calibrates this machine if needed, then
+  runs `switchyard` again. Missing ANE never fails the command — it runs `gpu_only` and shows
+  why.
+- **ANE ready:** `switchyard` measures `gpu_only` and `hybrid` (GPU + ANE) rounds on the
+  identical seeded timetable, and the result card compares them: late trains, P99 decision
+  latency, P99 queue wait.
+
+Useful flags: `--seed`, `--duration`, `--out DIR` (default:
+`./switchyard-results/<timestamp>-<soc>/`), `--no-open` (skip opening the browser),
+`--replay DIR` (rebuild `replay.html` from a previous run's `result.json` and `trace.jsonl`
+without re-measuring).
+
+The workload, measurement boundaries, round order and result schema are frozen and described
+in [`docs/switchyard.md`](switchyard.md). The official measured campaign is in
+[`benchmarks/switchyard/README.md`](../benchmarks/switchyard/README.md).
 
 ## Offline use
 

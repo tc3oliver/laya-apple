@@ -49,6 +49,45 @@ uv run python scripts/hardware_report.py --quick
 
 The linked issues and guide have the full steps, from `git clone` to the pull request, in about 10 minutes.
 
+## Switchyard: see it in one command
+
+`switchyard` is a headless benchmark of the frozen `switchyard-v1` workload, replayed as a
+rail-junction game: trains arrive on a seeded timetable and each one is a single Laya routing
+decision, while background requests load the GPU. It measures a `gpu_only` round and, when the
+Neural Engine is ready, a `hybrid` (GPU + ANE) round on the identical timetable, then opens a
+self-contained replay of the recorded run in your browser.
+
+```bash
+uvx laya-apple switchyard
+```
+
+`switchyard` ships in the first release after 1.1.0; until then, run it from a source checkout
+with `uv run laya-apple switchyard`. The first run downloads the pinned checkpoint (about 800 MB); after that, a standard run takes
+about 2–3 minutes. Without a built ANE artifact, `switchyard` measures `gpu_only` only and
+prints the setup command:
+
+```bash
+uvx --from "laya-apple[convert]" laya-apple switchyard --setup-ane
+```
+
+![Switchyard result card: GPU-only vs GPU + ANE on the same seeded timetable](https://raw.githubusercontent.com/tc3oliver/laya-apple/main/docs/media/switchyard-result.png)
+
+Official campaign, 3 runs, Apple M4 Max / macOS 26.6.2 / `laya-typed-decisions`, standard
+workload (seed 11, 60 s, bursty arrivals at 40 req/s nominal, 2,410 requests of which 1,422
+trains, 100 ms deadline):
+
+| config | late (of 1,422) | P99 decision latency | P99 queue wait |
+|---|---:|---:|---:|
+| `gpu_only` | 1,407–1,408 | 3,107.7–3,170.6 ms | 3,095.9–3,158.8 ms |
+| `hybrid` (GPU + ANE) | 0 | 54.5–54.7 ms | 39.6–42.8 ms |
+
+0 decision disagreements and 0 misrouted trains across all 3 runs. Round order is fixed by
+seed (`hybrid` ran first in all 3 runs here; `design.counterbalance` is `"none"`), and these
+numbers are not comparable with the [v1.0 open-loop table](#gpu--ane-heterogeneous-serving)
+below — different rate, measurement boundary and workload, see
+[`docs/switchyard.md`](docs/switchyard.md). Source data and method:
+[`benchmarks/switchyard/README.md`](benchmarks/switchyard/README.md).
+
 ## Why this exists
 
 Laya answers typed questions about a context (`choice`, `score`, `noul`) in one forward

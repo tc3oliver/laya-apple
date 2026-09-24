@@ -36,3 +36,6 @@ benchmarks/results/
 
 # Private planning notes (never published)
 docs/DEVELOPMENT_PLAN.md
+
+# Replays are rebuilt from result.json + trace.jsonl (laya-apple switchyard --replay DIR)
+benchmarks/switchyard/**/replay.html

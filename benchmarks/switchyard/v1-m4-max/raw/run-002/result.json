@@ -1,0 +1,909 @@
+{
+ "schema": "laya-apple/switchyard-result",
+ "schema_version": 1,
+ "tool": "laya-apple switchyard",
+ "laya_apple": "1.1.0",
+ "created_utc": "2026-09-24T14:34:28.935848+00:00",
+ "mode": "standard",
+ "standard": true,
+ "submission_eligible": true,
+ "workload": {
+  "id": "switchyard-v1",
+  "version": 1,
+  "seed": 11,
+  "duration_s": 60.0,
+  "warmup_s": 5.0,
+  "warmup_seed": 111,
+  "arrivals": "bursty",
+  "burst_period_s": 3.0,
+  "burst_on_s": 1.0,
+  "nominal_rate_req_s": 40.0,
+  "deadline_ms": 100.0,
+  "thresholds_ms": [
+   25,
+   50,
+   100,
+   250,
+   500
+  ],
+  "mix": {
+   "train": 0.6,
+   "medium_1q": 0.2,
+   "long_1q": 0.1,
+   "short_4q": 0.1
+  },
+  "lengths": {
+   "train": "<=128",
+   "medium_1q": 512,
+   "long_1q": 1024,
+   "short_4q": 128
+  },
+  "prompt_template_sha256": "a7569c1f9b8e5592b7fc1e7a14f78d099ba26cee64037fa596998db45084e7fe",
+  "schedule_sha256": "bf84ed5699072c8d561ae8c65b61bd6fd71b89c2d467f2b2c5686caad0ccf99d",
+  "offered": {
+   "requests": 2410,
+   "trains": 1422,
+   "req_s": 40.166666666666664
+  }
+ },
+ "machine": {
+  "platform": {
+   "soc": "Apple M4 Max",
+   "macos": "26.6.2",
+   "macos_build": "25G83",
+   "coremltools": "9.0",
+   "machine": "arm64"
+  },
+  "memory_gb": 64,
+  "python": "3.12.14",
+  "mlx": "0.32.2",
+  "routing_profile_validated": true,
+  "calibrated_profile": true
+ },
+ "model": {
+  "name": "laya-typed-decisions",
+  "revision": "f9ab0b228f0fc0f14d873dbc99038f135c2da1b2",
+  "weights_sha256": "4fa56de72383a9d3efa9cfa78955733c81b9fc8067a587ca4beb82c78107a24e",
+  "ane_artifacts": {
+   "64": "1273fcd304953d4eae8dccb89f52ef3f74560a742b012072f01c8d3226e720d0",
+   "96": "4145579a0a09dbad8d5d3d6ed8a2ed95f8edada8911a9a362789cccee13c16a0",
+   "128": "5db688bf78039fd5adf86766e8be98740c5f574ffa3e1dbb0ffb3bd9c55a6aa9"
+  }
+ },
+ "ane": {
+  "state": "ready",
+  "reason": null,
+  "reason_text": null,
+  "detail": null,
+  "setup_command": null,
+  "warmup_ane_requests": 143
+ },
+ "design": {
+  "ordering": "seed_parity",
+  "counterbalance": "none",
+  "sequence": [
+   "hybrid",
+   "gpu_only"
+  ]
+ },
+ "rounds": [
+  {
+   "index": 0,
+   "config": "hybrid",
+   "started_utc": "2026-09-24T14:32:20.876997+00:00",
+   "round_start_ns": 914639439392333,
+   "timetable_sha256": "d3d17d41660035d1b790e6da0f3821d1cd2bffbee9bee3ed51ae3470c526648f",
+   "ane_verified": true,
+   "conditions": {
+    "start": {
+     "utc": "2026-09-24T14:32:20.860091+00:00",
+     "loadavg": [
+      0.81640625,
+      1.0107421875,
+      1.46533203125
+     ],
+     "top_cpu": [
+      [
+       6.5,
+       "python3"
+      ],
+      [
+       5.9,
+       "WallpaperAerialsExtension"
+      ],
+      [
+       2.5,
+       "WindowServer"
+      ],
+      [
+       2.1,
+       "VTDecoderXPCService"
+      ],
+      [
+       1.8,
+       "OrbStack Helper"
+      ]
+     ],
+     "pmset_therm": [
+      "Note: No thermal warning level has been recorded",
+      "Note: No performance warning level has been recorded",
+      "Note: No CPU power status has been recorded"
+     ]
+    },
+    "end": {
+     "utc": "2026-09-24T14:33:20.665649+00:00",
+     "loadavg": [
+      0.86181640625,
+      0.990234375,
+      1.42431640625
+     ],
+     "top_cpu": [
+      [
+       7.3,
+       "python3"
+      ],
+      [
+       6.0,
+       "WallpaperAerialsExtension"
+      ],
+      [
+       2.5,
+       "WindowServer"
+      ],
+      [
+       2.0,
+       "VTDecoderXPCService"
+      ],
+      [
+       1.8,
+       "OrbStack Helper"
+      ]
+     ],
+     "pmset_therm": [
+      "Note: No thermal warning level has been recorded",
+      "Note: No performance warning level has been recorded",
+      "Note: No CPU power status has been recorded"
+     ]
+    },
+    "other_laya_processes": []
+   },
+   "game": {
+    "trains": 1422,
+    "delivered": 1422,
+    "late": 0,
+    "misrouted": 0,
+    "route_accuracy": 1.0
+   },
+   "systems": {
+    "late": {
+     "count": 0,
+     "rate": 0.0,
+     "deadline_ms": 100.0
+    },
+    "decision_latency": {
+     "n": 1422,
+     "p50_ms": 14.740049500000001,
+     "p95_ms": 41.00970885000001,
+     "p99_ms": 54.48217524999997,
+     "mean_ms": 18.191991670886075,
+     "min_ms": 8.205212,
+     "max_ms": 68.433478
+    },
+    "queue_wait": {
+     "n": 1422,
+     "p50_ms": 0.1375,
+     "p95_ms": 27.840801800000005,
+     "p99_ms": 39.63826935999999,
+     "mean_ms": 6.023820556258791,
+     "min_ms": 0.006875,
+     "max_ms": 54.343875
+    },
+    "miss_rate_at_ms": {
+     "25": 0.20956399437412096,
+     "50": 0.02250351617440225,
+     "100": 0.0,
+     "250": 0.0,
+     "500": 0.0
+    },
+    "secondary": {
+     "decisions_per_s": 23.992878299422056,
+     "completed_req_s": 40.66303565513865,
+     "makespan_s": 59.267586917,
+     "submit_lag": {
+      "n": 1422,
+      "p50_ms": 1.97886,
+      "p95_ms": 8.004826,
+      "p99_ms": 8.79595222,
+      "mean_ms": 2.8380431181434598,
+      "min_ms": 0.001664,
+      "max_ms": 13.690592
+     },
+     "submit_lag_all_requests": {
+      "n": 2410,
+      "p50_ms": 1.9289755,
+      "p95_ms": 8.05342935,
+      "p99_ms": 8.813014229999999,
+      "mean_ms": 2.8545589199170123,
+      "min_ms": 0.001664,
+      "max_ms": 16.149376
+     },
+     "inference": {
+      "n": 1422,
+      "p50_ms": 9.0407295,
+      "p95_ms": 10.2410545,
+      "p99_ms": 13.598628859999998,
+      "mean_ms": 9.198320120253165,
+      "min_ms": 8.034416,
+      "max_ms": 34.878792
+     },
+     "overhead": {
+      "n": 1422,
+      "p50_ms": 2.1139645000000007,
+      "p95_ms": 8.12460565,
+      "p99_ms": 8.903485,
+      "mean_ms": 2.9698509943741205,
+      "min_ms": 0.09672899999999984,
+      "max_ms": 13.939758000000003
+     },
+     "devices": {
+      "ane": 1418,
+      "gpu": 4
+     },
+     "routing_reasons": {
+      "validated_short_single_question_path": 1418,
+      "ane_backlog_shorter_on_gpu": 4
+     },
+     "background": {
+      "medium_1q": {
+       "decision_latency": {
+        "n": 490,
+        "p50_ms": 646.8240005,
+        "p95_ms": 1312.8591319,
+        "p99_ms": 1495.4124347100003,
+        "mean_ms": 679.498229167347,
+        "min_ms": 43.411178,
+        "max_ms": 1582.033175
+       },
+       "queue_wait": {
+        "n": 490,
+        "p50_ms": 605.3721665,
+        "p95_ms": 1274.4013713499999,
+        "p99_ms": 1459.14159625,
+        "mean_ms": 639.8738030836735,
+        "min_ms": 0.029083,
+        "max_ms": 1541.524333
+       },
+       "devices": {
+        "gpu": 490
+       }
+      },
+      "long_1q": {
+       "decision_latency": {
+        "n": 250,
+        "p50_ms": 710.177616,
+        "p95_ms": 1371.0089351999993,
+        "p99_ms": 1538.44070991,
+        "mean_ms": 716.6111251359999,
+        "min_ms": 74.063301,
+        "max_ms": 1712.017002
+       },
+       "queue_wait": {
+        "n": 250,
+        "p50_ms": 638.0725005,
+        "p95_ms": 1297.2513560999992,
+        "p99_ms": 1462.0974071699998,
+        "mean_ms": 640.696747664,
+        "min_ms": 0.014084,
+        "max_ms": 1633.538667
+       },
+       "devices": {
+        "gpu": 250
+       }
+      },
+      "short_4q": {
+       "decision_latency": {
+        "n": 248,
+        "p50_ms": 667.096996,
+        "p95_ms": 1303.1003246499997,
+        "p99_ms": 1512.79450818,
+        "mean_ms": 692.4133115927419,
+        "min_ms": 35.44465,
+        "max_ms": 1665.624059
+       },
+       "queue_wait": {
+        "n": 248,
+        "p50_ms": 625.4864795,
+        "p95_ms": 1266.3310897999997,
+        "p99_ms": 1474.13682526,
+        "mean_ms": 654.4151240080645,
+        "min_ms": 0.010792,
+        "max_ms": 1628.240792
+       },
+       "devices": {
+        "gpu": 248
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "index": 1,
+   "config": "gpu_only",
+   "started_utc": "2026-09-24T14:33:27.660230+00:00",
+   "round_start_ns": 914706221985083,
+   "timetable_sha256": "d3d17d41660035d1b790e6da0f3821d1cd2bffbee9bee3ed51ae3470c526648f",
+   "ane_verified": null,
+   "conditions": {
+    "start": {
+     "utc": "2026-09-24T14:33:27.642496+00:00",
+     "loadavg": [
+      0.80908203125,
+      0.9736328125,
+      1.4130859375
+     ],
+     "top_cpu": [
+      [
+       10.1,
+       "python3"
+      ],
+      [
+       6.3,
+       "WallpaperAerialsExtension"
+      ],
+      [
+       2.5,
+       "WindowServer"
+      ],
+      [
+       1.9,
+       "VTDecoderXPCService"
+      ],
+      [
+       1.6,
+       "OrbStack Helper"
+      ]
+     ],
+     "pmset_therm": [
+      "Note: No thermal warning level has been recorded",
+      "Note: No performance warning level has been recorded",
+      "Note: No CPU power status has been recorded"
+     ]
+    },
+    "end": {
+     "utc": "2026-09-24T14:34:28.856156+00:00",
+     "loadavg": [
+      0.6484375,
+      0.88671875,
+      1.3486328125
+     ],
+     "top_cpu": [
+      [
+       30.4,
+       "OrbStack Helper"
+      ],
+      [
+       10.9,
+       "python3"
+      ],
+      [
+       8.0,
+       "WallpaperAerialsExtension"
+      ],
+      [
+       2.7,
+       "claude"
+      ],
+      [
+       2.6,
+       "WindowServer"
+      ]
+     ],
+     "pmset_therm": [
+      "Note: No thermal warning level has been recorded",
+      "Note: No performance warning level has been recorded",
+      "Note: No CPU power status has been recorded"
+     ]
+    },
+    "other_laya_processes": []
+   },
+   "game": {
+    "trains": 1422,
+    "delivered": 14,
+    "late": 1408,
+    "misrouted": 0,
+    "route_accuracy": 1.0
+   },
+   "systems": {
+    "late": {
+     "count": 1408,
+     "rate": 0.9901547116736991,
+     "deadline_ms": 100.0
+    },
+    "decision_latency": {
+     "n": 1422,
+     "p50_ms": 1472.902739,
+     "p95_ms": 2816.4611967500005,
+     "p99_ms": 3107.7175804,
+     "mean_ms": 1524.0838411476793,
+     "min_ms": 21.958829,
+     "max_ms": 3314.136958
+    },
+    "queue_wait": {
+     "n": 1422,
+     "p50_ms": 1461.2517710000002,
+     "p95_ms": 2804.5983937500005,
+     "p99_ms": 3095.93989382,
+     "mean_ms": 1512.795816675809,
+     "min_ms": 0.114583,
+     "max_ms": 3302.505875
+    },
+    "miss_rate_at_ms": {
+     "25": 0.9978902953586498,
+     "50": 0.9943741209563994,
+     "100": 0.9901547116736991,
+     "250": 0.9690576652601969,
+     "500": 0.8945147679324894
+    },
+    "secondary": {
+     "decisions_per_s": 23.43639285641146,
+     "completed_req_s": 39.71990631782814,
+     "makespan_s": 60.674866167,
+     "submit_lag": {
+      "n": 1422,
+      "p50_ms": 0.159046,
+      "p95_ms": 0.2986504,
+      "p99_ms": 0.5544500699999996,
+      "mean_ms": 0.18391222784810127,
+      "min_ms": 0.000999,
+      "max_ms": 12.328473
+     },
+     "submit_lag_all_requests": {
+      "n": 2410,
+      "p50_ms": 0.1604125,
+      "p95_ms": 0.2993082999999999,
+      "p99_ms": 0.5879232699999988,
+      "mean_ms": 0.1915037929460581,
+      "min_ms": 0.000601,
+      "max_ms": 13.587041
+     },
+     "inference": {
+      "n": 1422,
+      "p50_ms": 11.3711245,
+      "p95_ms": 11.49437675,
+      "p99_ms": 11.577015,
+      "mean_ms": 10.9486270907173,
+      "min_ms": 9.151417,
+      "max_ms": 23.116542
+     },
+     "overhead": {
+      "n": 1422,
+      "p50_ms": 0.30808650000013316,
+      "p95_ms": 0.4651548999999025,
+      "p99_ms": 0.9983146400000243,
+      "mean_ms": 0.33939738115330287,
+      "min_ms": 0.12063700000005717,
+      "max_ms": 12.497388999999968
+     },
+     "devices": {
+      "gpu": 1422
+     },
+     "routing_reasons": {
+      "gpu_requested": 1422
+     },
+     "background": {
+      "medium_1q": {
+       "decision_latency": {
+        "n": 490,
+        "p50_ms": 1465.9048955,
+        "p95_ms": 2718.0076412,
+        "p99_ms": 3073.4891900100006,
+        "mean_ms": 1491.9704254387755,
+        "min_ms": 54.909448,
+        "max_ms": 3219.811596
+       },
+       "queue_wait": {
+        "n": 490,
+        "p50_ms": 1430.1517915,
+        "p95_ms": 2682.35448095,
+        "p99_ms": 3037.7090187500003,
+        "mean_ms": 1456.108657712245,
+        "min_ms": 15.683083,
+        "max_ms": 3184.265167
+       },
+       "devices": {
+        "gpu": 490
+       }
+      },
+      "long_1q": {
+       "decision_latency": {
+        "n": 250,
+        "p50_ms": 1572.6009005,
+        "p95_ms": 2815.6079432999995,
+        "p99_ms": 3062.910541299999,
+        "mean_ms": 1588.804876472,
+        "min_ms": 82.550343,
+        "max_ms": 3152.659628
+       },
+       "queue_wait": {
+        "n": 250,
+        "p50_ms": 1500.7285000000002,
+        "p95_ms": 2743.8193789499996,
+        "p99_ms": 2991.1881090799993,
+        "mean_ms": 1516.956163844,
+        "min_ms": 10.94925,
+        "max_ms": 3080.949166
+       },
+       "devices": {
+        "gpu": 250
+       }
+      },
+      "short_4q": {
+       "decision_latency": {
+        "n": 248,
+        "p50_ms": 1473.30098,
+        "p95_ms": 2718.7919296999994,
+        "p99_ms": 2976.00320945,
+        "mean_ms": 1496.3737274516127,
+        "min_ms": 40.221746,
+        "max_ms": 3304.518405
+       },
+       "queue_wait": {
+        "n": 248,
+        "p50_ms": 1439.396083,
+        "p95_ms": 2685.0354397999995,
+        "p99_ms": 2942.28434899,
+        "mean_ms": 1462.3548550241933,
+        "min_ms": 0.014417,
+        "max_ms": 3270.822083
+       },
+       "devices": {
+        "gpu": 248
+       }
+      }
+     }
+    }
+   }
+  }
+ ],
+ "configs": {
+  "hybrid": {
+   "device": "auto",
+   "execution": "workers",
+   "ane_placement": "thread",
+   "rounds": [
+    0
+   ],
+   "game": {
+    "trains": 1422,
+    "delivered": 1422,
+    "late": 0,
+    "misrouted": 0,
+    "route_accuracy": 1.0
+   },
+   "summary": {
+    "late": {
+     "count": 0,
+     "rate": 0.0,
+     "deadline_ms": 100.0
+    },
+    "decision_latency": {
+     "n": 1422,
+     "p50_ms": 14.740049500000001,
+     "p95_ms": 41.00970885000001,
+     "p99_ms": 54.48217524999997,
+     "mean_ms": 18.191991670886075,
+     "min_ms": 8.205212,
+     "max_ms": 68.433478
+    },
+    "queue_wait": {
+     "n": 1422,
+     "p50_ms": 0.1375,
+     "p95_ms": 27.840801800000005,
+     "p99_ms": 39.63826935999999,
+     "mean_ms": 6.023820556258791,
+     "min_ms": 0.006875,
+     "max_ms": 54.343875
+    },
+    "miss_rate_at_ms": {
+     "25": 0.20956399437412096,
+     "50": 0.02250351617440225,
+     "100": 0.0,
+     "250": 0.0,
+     "500": 0.0
+    },
+    "secondary": {
+     "decisions_per_s": 23.992878299422056,
+     "completed_req_s": 40.66303565513865,
+     "makespan_s": 59.267586917,
+     "submit_lag": {
+      "n": 1422,
+      "p50_ms": 1.97886,
+      "p95_ms": 8.004826,
+      "p99_ms": 8.79595222,
+      "mean_ms": 2.8380431181434598,
+      "min_ms": 0.001664,
+      "max_ms": 13.690592
+     },
+     "submit_lag_all_requests": {
+      "n": 2410,
+      "p50_ms": 1.9289755,
+      "p95_ms": 8.05342935,
+      "p99_ms": 8.813014229999999,
+      "mean_ms": 2.8545589199170123,
+      "min_ms": 0.001664,
+      "max_ms": 16.149376
+     },
+     "inference": {
+      "n": 1422,
+      "p50_ms": 9.0407295,
+      "p95_ms": 10.2410545,
+      "p99_ms": 13.598628859999998,
+      "mean_ms": 9.198320120253165,
+      "min_ms": 8.034416,
+      "max_ms": 34.878792
+     },
+     "overhead": {
+      "n": 1422,
+      "p50_ms": 2.1139645000000007,
+      "p95_ms": 8.12460565,
+      "p99_ms": 8.903485,
+      "mean_ms": 2.9698509943741205,
+      "min_ms": 0.09672899999999984,
+      "max_ms": 13.939758000000003
+     },
+     "devices": {
+      "ane": 1418,
+      "gpu": 4
+     },
+     "routing_reasons": {
+      "validated_short_single_question_path": 1418,
+      "ane_backlog_shorter_on_gpu": 4
+     },
+     "background": {
+      "medium_1q": {
+       "decision_latency": {
+        "n": 490,
+        "p50_ms": 646.8240005,
+        "p95_ms": 1312.8591319,
+        "p99_ms": 1495.4124347100003,
+        "mean_ms": 679.498229167347,
+        "min_ms": 43.411178,
+        "max_ms": 1582.033175
+       },
+       "queue_wait": {
+        "n": 490,
+        "p50_ms": 605.3721665,
+        "p95_ms": 1274.4013713499999,
+        "p99_ms": 1459.14159625,
+        "mean_ms": 639.8738030836735,
+        "min_ms": 0.029083,
+        "max_ms": 1541.524333
+       },
+       "devices": {
+        "gpu": 490
+       }
+      },
+      "long_1q": {
+       "decision_latency": {
+        "n": 250,
+        "p50_ms": 710.177616,
+        "p95_ms": 1371.0089351999993,
+        "p99_ms": 1538.44070991,
+        "mean_ms": 716.6111251359999,
+        "min_ms": 74.063301,
+        "max_ms": 1712.017002
+       },
+       "queue_wait": {
+        "n": 250,
+        "p50_ms": 638.0725005,
+        "p95_ms": 1297.2513560999992,
+        "p99_ms": 1462.0974071699998,
+        "mean_ms": 640.696747664,
+        "min_ms": 0.014084,
+        "max_ms": 1633.538667
+       },
+       "devices": {
+        "gpu": 250
+       }
+      },
+      "short_4q": {
+       "decision_latency": {
+        "n": 248,
+        "p50_ms": 667.096996,
+        "p95_ms": 1303.1003246499997,
+        "p99_ms": 1512.79450818,
+        "mean_ms": 692.4133115927419,
+        "min_ms": 35.44465,
+        "max_ms": 1665.624059
+       },
+       "queue_wait": {
+        "n": 248,
+        "p50_ms": 625.4864795,
+        "p95_ms": 1266.3310897999997,
+        "p99_ms": 1474.13682526,
+        "mean_ms": 654.4151240080645,
+        "min_ms": 0.010792,
+        "max_ms": 1628.240792
+       },
+       "devices": {
+        "gpu": 248
+       }
+      }
+     }
+    }
+   }
+  },
+  "gpu_only": {
+   "device": "gpu",
+   "execution": "workers",
+   "ane_placement": null,
+   "rounds": [
+    1
+   ],
+   "game": {
+    "trains": 1422,
+    "delivered": 14,
+    "late": 1408,
+    "misrouted": 0,
+    "route_accuracy": 1.0
+   },
+   "summary": {
+    "late": {
+     "count": 1408,
+     "rate": 0.9901547116736991,
+     "deadline_ms": 100.0
+    },
+    "decision_latency": {
+     "n": 1422,
+     "p50_ms": 1472.902739,
+     "p95_ms": 2816.4611967500005,
+     "p99_ms": 3107.7175804,
+     "mean_ms": 1524.0838411476793,
+     "min_ms": 21.958829,
+     "max_ms": 3314.136958
+    },
+    "queue_wait": {
+     "n": 1422,
+     "p50_ms": 1461.2517710000002,
+     "p95_ms": 2804.5983937500005,
+     "p99_ms": 3095.93989382,
+     "mean_ms": 1512.795816675809,
+     "min_ms": 0.114583,
+     "max_ms": 3302.505875
+    },
+    "miss_rate_at_ms": {
+     "25": 0.9978902953586498,
+     "50": 0.9943741209563994,
+     "100": 0.9901547116736991,
+     "250": 0.9690576652601969,
+     "500": 0.8945147679324894
+    },
+    "secondary": {
+     "decisions_per_s": 23.43639285641146,
+     "completed_req_s": 39.71990631782814,
+     "makespan_s": 60.674866167,
+     "submit_lag": {
+      "n": 1422,
+      "p50_ms": 0.159046,
+      "p95_ms": 0.2986504,
+      "p99_ms": 0.5544500699999996,
+      "mean_ms": 0.18391222784810127,
+      "min_ms": 0.000999,
+      "max_ms": 12.328473
+     },
+     "submit_lag_all_requests": {
+      "n": 2410,
+      "p50_ms": 0.1604125,
+      "p95_ms": 0.2993082999999999,
+      "p99_ms": 0.5879232699999988,
+      "mean_ms": 0.1915037929460581,
+      "min_ms": 0.000601,
+      "max_ms": 13.587041
+     },
+     "inference": {
+      "n": 1422,
+      "p50_ms": 11.3711245,
+      "p95_ms": 11.49437675,
+      "p99_ms": 11.577015,
+      "mean_ms": 10.9486270907173,
+      "min_ms": 9.151417,
+      "max_ms": 23.116542
+     },
+     "overhead": {
+      "n": 1422,
+      "p50_ms": 0.30808650000013316,
+      "p95_ms": 0.4651548999999025,
+      "p99_ms": 0.9983146400000243,
+      "mean_ms": 0.33939738115330287,
+      "min_ms": 0.12063700000005717,
+      "max_ms": 12.497388999999968
+     },
+     "devices": {
+      "gpu": 1422
+     },
+     "routing_reasons": {
+      "gpu_requested": 1422
+     },
+     "background": {
+      "medium_1q": {
+       "decision_latency": {
+        "n": 490,
+        "p50_ms": 1465.9048955,
+        "p95_ms": 2718.0076412,
+        "p99_ms": 3073.4891900100006,
+        "mean_ms": 1491.9704254387755,
+        "min_ms": 54.909448,
+        "max_ms": 3219.811596
+       },
+       "queue_wait": {
+        "n": 490,
+        "p50_ms": 1430.1517915,
+        "p95_ms": 2682.35448095,
+        "p99_ms": 3037.7090187500003,
+        "mean_ms": 1456.108657712245,
+        "min_ms": 15.683083,
+        "max_ms": 3184.265167
+       },
+       "devices": {
+        "gpu": 490
+       }
+      },
+      "long_1q": {
+       "decision_latency": {
+        "n": 250,
+        "p50_ms": 1572.6009005,
+        "p95_ms": 2815.6079432999995,
+        "p99_ms": 3062.910541299999,
+        "mean_ms": 1588.804876472,
+        "min_ms": 82.550343,
+        "max_ms": 3152.659628
+       },
+       "queue_wait": {
+        "n": 250,
+        "p50_ms": 1500.7285000000002,
+        "p95_ms": 2743.8193789499996,
+        "p99_ms": 2991.1881090799993,
+        "mean_ms": 1516.956163844,
+        "min_ms": 10.94925,
+        "max_ms": 3080.949166
+       },
+       "devices": {
+        "gpu": 250
+       }
+      },
+      "short_4q": {
+       "decision_latency": {
+        "n": 248,
+        "p50_ms": 1473.30098,
+        "p95_ms": 2718.7919296999994,
+        "p99_ms": 2976.00320945,
+        "mean_ms": 1496.3737274516127,
+        "min_ms": 40.221746,
+        "max_ms": 3304.518405
+       },
+       "queue_wait": {
+        "n": 248,
+        "p50_ms": 1439.396083,
+        "p95_ms": 2685.0354397999995,
+        "p99_ms": 2942.28434899,
+        "mean_ms": 1462.3548550241933,
+        "min_ms": 0.014417,
+        "max_ms": 3270.822083
+       },
+       "devices": {
+        "gpu": 248
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "comparison": {
+  "available": true,
+  "same_schedule_sha256": true,
+  "decision_disagreements": 0
+ },
+ "trace_file": "trace.jsonl"
+}

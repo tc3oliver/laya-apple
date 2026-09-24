@@ -108,4 +108,27 @@ def make_request(tok: Tokenizer, cfg: dict, length: int, n_questions: int = 1, s
     raise RuntimeError(f"could not build an exact {length}-token request")
 
 
-__all__ = ["QUESTION_POOL", "QTYPES", "make_request", "questions_for"]
+BURST_PERIOD_S = 3.0  # bursty arrivals: every period starts with BURST_ON_S at 3x the rate,
+BURST_ON_S = 1.0  # then nothing for the rest of the period (the same mean offered load)
+
+
+def arrivals(rate: float, seconds: float, seed: int, bursty: bool) -> list[float]:
+    """Open-loop arrival offsets (s) in [0, seconds): Poisson at `rate`, or bursty (1 s on at
+    3x the rate, 2 s off: the same mean offered load). Bit-identical to
+    scripts/bench_concurrency.arrivals, so both drive the same timetable for a seed."""
+    rng = random.Random(seed)
+    t, out = 0.0, []
+    while t < seconds:
+        r = rate
+        if bursty:
+            r = rate * 3 if (t % BURST_PERIOD_S) < BURST_ON_S else 1e-9
+        gap = rng.expovariate(r)
+        if bursty and (t % BURST_PERIOD_S) >= BURST_ON_S:
+            t = (t // BURST_PERIOD_S + 1) * BURST_PERIOD_S
+            continue
+        t += gap
+        out.append(t)
+    return [x for x in out if x < seconds]
+
+
+__all__ = ["BURST_ON_S", "BURST_PERIOD_S", "QUESTION_POOL", "QTYPES", "arrivals", "make_request", "questions_for"]
