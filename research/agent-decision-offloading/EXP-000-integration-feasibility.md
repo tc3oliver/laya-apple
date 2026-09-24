@@ -1,6 +1,6 @@
 # EXP-000: Agent integration feasibility
 
-**Status:** criteria fixed, spikes not yet run.
+**Status:** complete. **Result: GO** (Pi and Hermes Agent pass C1–C7; see [Result](#result)).
 
 ## Question
 
@@ -116,10 +116,88 @@ Filled in by each spike: repository, commit, version and date read.
 
 | Runtime | Repository | Commit / version | Date read |
 |---|---|---|---|
-| OpenClaw | | | |
-| Hermes Agent | | | |
-| Pi | | | |
+| OpenClaw | github.com/openclaw/openclaw | release `v2026.9.6`, tag commit `eb377ac59e6c9fd6c7705028034812becf00271b`; npm `openclaw@2026.9.6` | 2026-09-24 |
+| Hermes Agent | github.com/NousResearch/hermes-agent | `main` @ `7de8728cba339065329f141cf92686bf06d2c171` (v0.21.4) | 2026-09-24 |
+| Pi | github.com/earendil-works/pi (formerly badlogic/pi-mono) | tag `v0.87.1` @ `f07218c4d4bbc12bef056a7058c3dd49dfe41abe`; npm `@earendil-works/pi-coding-agent@0.87.1` | 2026-09-24 |
 
-## Results
+## Scope clarification (recorded after results)
 
-Not yet run. See [`results/integration-matrix.md`](results/integration-matrix.md).
+**When and why.** This section was added on 2026-09-24, after the spikes ran. The
+criteria above are unchanged. One Hermes Agent finding raised a question that the
+criteria had not settled: which texts count as "a tool result"?
+
+**Decision.** The project owner decided it before the GO/NO-GO call. For C1–C7, a
+**tool result** is the raw output of an ordinary tool execution, returned through the
+runtime's normal tool-result path. The following are not tool results:
+
+- **Subagent summaries.** These are text a subagent's model generates, which the runtime
+  adds to the context directly. One example is Hermes Agent's asynchronous
+  `delegate_task` completion summary, `[ASYNC DELEGATION COMPLETE …]`.
+- **Runtime-generated error and status text.** This is text from calls that never
+  executed or failed outside the tool: blocked, unknown or invalid calls, exceptions
+  outside the tool, and similar.
+
+The last category is treated the same way for all three runtimes. Paths outside this
+scope are recorded as limitations.
+
+**This clarification decides the result.** OpenClaw is PARTIAL either way. Without the
+clarification, the `delegate_task` summaries would make Hermes Agent's C1, C3 and C4
+PARTIAL. No runtime would then satisfy the "OpenClaw or Hermes" clause, and EXP-000
+would be NO-GO. They are not success criteria, and nothing new was
+added as a success criterion after the results were known.
+
+## Result
+
+**EXP-000 = GO.**
+
+| Runtime | C1–C7 | Notes |
+|---|---|---|
+| Pi 0.87.1 | **all PASS** | Extension tool, built-in `bash`, a `bash` error and a parallel batch |
+| Hermes Agent v0.21.4 | **all PASS** (ordinary tool results) | Plugin tool, built-in `terminal`, the `tool_call` bridge, concurrent calls and errors. Background terminal output is covered by `transform_terminal_output` |
+| OpenClaw 2026.9.6 | C1, C3 and C4 **PARTIAL**; the rest PASS | All seven pass for tools that OpenClaw's embedded agent loop runs. Codex-native tools under the Codex harness, CLI/ACP backends and provider-hosted tools cannot be replaced |
+
+The criteria are met:
+- two runtimes (Pi and Hermes Agent) pass all seven of C1–C7;
+- one of them is Hermes Agent.
+
+No runtime needed a fork.
+
+**Main LLM evidence.** In every filtered case, the mock received only
+`AAA [FILTERED_BY_LAYA_SPIKE] BBB` (or the plugin's deadline fallback), and
+`LAYA_SENTINEL` appeared nowhere in the request. Every negative control delivered the raw
+sentinel. Earlier messages reached the model byte-identical on the next turn.
+
+**Admission timing.** In all three runtimes, the transform runs inside the tool-execution
+finalization, before the runtime builds the tool-result message and appends it to the
+conversation. In each runtime's persisted session, the model-bound content of the tool
+result was the filtered text. OpenClaw can still persist raw text outside that content:
+in `details` when a filter replaces only `content`, and in Tool Search nested records.
+None of it is sent to the model.
+
+**Limitations a later experiment must design for.** The full list is in the matrix.
+- **Hermes and Pi fail open** when the hook raises or times out. A filter needs its own
+  deadline and its own error handling that return a safe fallback. OpenClaw fails
+  closed. In Hermes:
+  - an exception raised by an inline tool in a concurrent batch skips the transform
+    entirely;
+  - its `plugin_deadline_fallback` and `concurrent_exception_guard` cases show that a
+    plugin-side deadline and a `tool_execution` exception guard contain both problems.
+- **Hermes: asynchronous `delegate_task` completion summaries** bypass
+  `transform_tool_result`, but the subagent's own tool results are filtered. Admission of
+  subagent summaries would need a separate lifecycle seam and a separate study.
+- **Persisted `details` fields** (OpenClaw, Pi) still hold raw output unless the filter
+  replaces them too. They are not sent to the model.
+- **Streaming partial output** (OpenClaw, Pi) reaches UI and extension observers before
+  the hook, but never the model.
+
+**Candidates for EXP-001.**
+- **Pi**, as the primary adapter. It has the cleanest seam and a per-request `context`
+  hook.
+- **Hermes Agent**, as the second. Its filter needs a plugin-side deadline and a
+  `tool_execution` exception guard.
+
+OpenClaw fits only if the study is limited to its embedded runtime.
+
+The full matrix with evidence is in
+[`results/integration-matrix.md`](results/integration-matrix.md). The per-runtime
+lifecycles are in the spike READMEs.

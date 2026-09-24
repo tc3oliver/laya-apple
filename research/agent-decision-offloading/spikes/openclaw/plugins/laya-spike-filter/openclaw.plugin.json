@@ -1,0 +1,13 @@
+{
+  "id": "laya-spike-filter",
+  "name": "EXP-000 tool-result filter",
+  "description": "Research spike: replaces sentinel tool results through agent tool-result middleware.",
+  "contracts": {
+    "agentToolResultMiddleware": ["openclaw"]
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

@@ -1,0 +1,8 @@
+name: laya_spike_filter
+version: 0.0.1
+description: EXP-000 transform_tool_result spike. Keeps the raw result on a side channel and replaces it.
+provides_hooks:
+  - transform_tool_result
+  - pre_tool_call
+  - post_tool_call
+  - pre_llm_call

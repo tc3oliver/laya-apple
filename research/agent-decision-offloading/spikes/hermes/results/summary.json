@@ -1,0 +1,1794 @@
+{
+  "hermes_checkout_head": "7de8728cba339065329f141cf92686bf06d2c171",
+  "cases": {
+    "background_control": {
+      "tool_result_turns": [
+        {
+          "roles": [
+            "system",
+            "user",
+            "assistant",
+            "tool"
+          ],
+          "tool_messages": [
+            "{\"output\": \"Background process started\", \"session_id\": \"proc_69c4dd3517e3\", \"pid\": 77366, \"exit_code\": 0, \"error\": null, \"notify_on_complete\": true}"
+          ],
+          "raw_sentinel_anywhere_in_request": false,
+          "filtered_marker_anywhere_in_request": false
+        },
+        {
+          "roles": [
+            "system",
+            "user",
+            "assistant",
+            "tool",
+            "assistant",
+            "user"
+          ],
+          "tool_messages": [
+            "{\"output\": \"Background process started\", \"session_id\": \"proc_69c4dd3517e3\", \"pid\": 77366, \"exit_code\": 0, \"error\": null, \"notify_on_complete\": true}"
+          ],
+          "raw_sentinel_anywhere_in_request": true,
+          "filtered_marker_anywhere_in_request": false
+        },
+        {
+          "roles": [
+            "system",
+            "user",
+            "assistant",
+            "tool",
+            "assistant",
+            "user",
+            "assistant",
+            "user"
+          ],
+          "tool_messages": [
+            "{\"output\": \"Background process started\", \"session_id\": \"proc_69c4dd3517e3\", \"pid\": 77366, \"exit_code\": 0, \"error\": null, \"notify_on_complete\": true}"
+          ],
+          "raw_sentinel_anywhere_in_request": true,
+          "filtered_marker_anywhere_in_request": false
+        }
+      ],
+      "chat_requests_total": 5,
+      "chat_requests_with_raw_sentinel": 2,
+      "c6_history": {
+        "turn1_roles": [
+          "system",
+          "user",
+          "assistant",
+          "tool"
+        ],
+        "turn2_roles": [
+          "system",
+          "user",
+          "assistant",
+          "tool",
+          "assistant",
+          "user",
+          "assistant",
+          "user"
+        ],
+        "prefix_len_compared": 4,
+        "prefix_identical": true,
+        "per_message_equal": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "consecutive_requests": [
+          {
+            "from_roles": [
+              "system",
+              "user",
+              "assistant",
+              "tool"
+            ],
+            "to_roles": [
+              "system",
+              "user",
+              "assistant",
+              "tool",
+              "assistant",
+              "user"
+            ],
+            "prefix_identical": true
+          },
+          {
+            "from_roles": [
+              "system",
+              "user",
+              "assistant",
+              "tool",
+              "assistant",
+              "user"
+            ],
+            "to_roles": [
+              "system",
+              "user",
+              "assistant",
+              "tool",
+              "assistant",
+              "user",
+              "assistant",
+              "user"
+            ],
+            "prefix_identical": true
+          }
+        ],
+        "turn2_tool_messages": [
+          "{\"output\": \"Background process started\", \"session_id\": \"proc_69c4dd3517e3\", \"pid\": 77366, \"exit_code\": 0, \"error\": null, \"notify_on_complete\": true}"
+        ]
+      },
+      "background_notifications": [
+        {
+          "first_request_index": 3,
+          "role": "user",
+          "text": "[IMPORTANT: Background process proc_69c4dd3517e3 completed normally (exit code 0).\nCommand: sleep 1; printf 'AAA LAYA_%s BBB\\n' SENTINEL\nOutput:\nAAA LAYA_SENTINEL BBB\n]",
+          "raw_sentinel_in_text": true,
+          "raw_sentinel_anywhere_in_request": true,
+          "terminal_output_hook_ran_before_first_admission": false
+        }
+      ],
+      "hook_invocations": [
+        {
+          "event": "pre_llm_call",
+          "tool_name": null,
+          "history_roles": [
+            "user"
+          ]
+        },
+        {
+          "event": "pre_tool_call",
+          "tool_name": "terminal"
+        },
+        {
+          "event": "transform_tool_result",
+          "tool_name": "terminal",
+          "matched": false,
+          "await_ms": 0.0,
+          "thread": "hermes-hook-_on_transform_tool_result",
+          "status": "ok",
+          "replacement": null
+        },
+        {
+          "event": "post_tool_call",
+          "tool_name": "terminal",
+          "result_has_raw_sentinel": false
+        },
+        {
+          "event": "pre_llm_call",
+          "tool_name": null,
+          "history_roles": [
+            "user",
+            "assistant",
+            "tool",
+            "assistant",
+            "user"
+          ]
+        },
+        {
+          "event": "pre_llm_call",
+          "tool_name": null,
+          "history_roles": [
+            "user",
+            "assistant",
+            "tool",
+            "assistant",
+            "user",
+            "assistant",
+            "user"
+          ]
+        }
+      ],
+      "session_db": {
+        "raw_sentinel_rows": 3,
+        "filtered_rows": 0,
+        "tables_scanned": 24
+      },
+      "hermes_home_files_with_raw_sentinel": [
+        "logs/process-results/proc_69c4dd3517e3.json",
+        "state.db",
+        "state.db-wal"
+      ],
+      "agent_log": {
+        "hook_timeouts": {
+          "count": 0,
+          "first_line": null
+        },
+        "concurrent_invoke_tool_raised": {
+          "count": 0,
+          "first_line": null
+        }
+      },
+      "parallel_timing": null
+    },
+    "background_terminal": {
+      "tool_result_turns": [
+        {
+          "roles": [
+            "system",
+            "user",
+            "assistant",
+            "tool"
+          ],
+          "tool_messages": [
+            "{\"output\": \"Background process started\", \"session_id\": \"proc_eaedaf3f85eb\", \"pid\": 77666, \"exit_code\": 0, \"error\": null, \"notify_on_complete\": true}"
+          ],
+          "raw_sentinel_anywhere_in_request": false,
+          "filtered_marker_anywhere_in_request": false
+        },
+        {
+          "roles": [
+            "system",
+            "user",
+            "assistant",
+            "tool",
+            "assistant",
+            "user"
+          ],
+          "tool_messages": [
+            "{\"output\": \"Background process started\", \"session_id\": \"proc_eaedaf3f85eb\", \"pid\": 77666, \"exit_code\": 0, \"error\": null, \"notify_on_complete\": true}"
+          ],
+          "raw_sentinel_anywhere_in_request": false,
+          "filtered_marker_anywhere_in_request": true
+        },
+        {
+          "roles": [
+            "system",
+            "user",
+            "assistant",
+            "tool",
+            "assistant",
+            "user",
+            "assistant",
+            "user"
+          ],
+          "tool_messages": [
+            "{\"output\": \"Background process started\", \"session_id\": \"proc_eaedaf3f85eb\", \"pid\": 77666, \"exit_code\": 0, \"error\": null, \"notify_on_complete\": true}"
+          ],
+          "raw_sentinel_anywhere_in_request": false,
+          "filtered_marker_anywhere_in_request": true
+        }
+      ],
+      "chat_requests_total": 5,
+      "chat_requests_with_raw_sentinel": 0,
+      "c6_history": {
+        "turn1_roles": [
+          "system",
+          "user",
+          "assistant",
+          "tool"
+        ],
+        "turn2_roles": [
+          "system",
+          "user",
+          "assistant",
+          "tool",
+          "assistant",
+          "user",
+          "assistant",
+          "user"
+        ],
+        "prefix_len_compared": 4,
+        "prefix_identical": true,
+        "per_message_equal": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "consecutive_requests": [
+          {
+            "from_roles": [
+              "system",
+              "user",
+              "assistant",
+              "tool"
+            ],
+            "to_roles": [
+              "system",
+              "user",
+              "assistant",
+              "tool",
+              "assistant",
+              "user"
+            ],
+            "prefix_identical": true
+          },
+          {
+            "from_roles": [
+              "system",
+              "user",
+              "assistant",
+              "tool",
+              "assistant",
+              "user"
+            ],
+            "to_roles": [
+              "system",
+              "user",
+              "assistant",
+              "tool",
+              "assistant",
+              "user",
+              "assistant",
+              "user"
+            ],
+            "prefix_identical": true
+          }
+        ],
+        "turn2_tool_messages": [
+          "{\"output\": \"Background process started\", \"session_id\": \"proc_eaedaf3f85eb\", \"pid\": 77666, \"exit_code\": 0, \"error\": null, \"notify_on_complete\": true}"
+        ]
+      },
+      "background_notifications": [
+        {
+          "first_request_index": 3,
+          "role": "user",
+          "text": "[IMPORTANT: Background process proc_eaedaf3f85eb completed normally (exit code 0).\nCommand: sleep 1; printf 'AAA LAYA_%s BBB\\n' SENTINEL\nOutput:\nAAA [FILTERED_BY_LAYA_SPIKE] BBB]",
+          "raw_sentinel_in_text": false,
+          "raw_sentinel_anywhere_in_request": false,
+          "terminal_output_hook_ran_before_first_admission": true
+        }
+      ],
+      "hook_invocations": [
+        {
+          "event": "pre_llm_call",
+          "tool_name": null,
+          "history_roles": [
+            "user"
+          ]
+        },
+        {
+          "event": "pre_tool_call",
+          "tool_name": "terminal"
+        },
+        {
+          "event": "transform_tool_result",
+          "tool_name": "terminal",
+          "matched": false,
+          "await_ms": 0.0,
+          "thread": "hermes-hook-_on_transform_tool_result",
+          "status": "ok",
+          "replacement": null
+        },
+        {
+          "event": "post_tool_call",
+          "tool_name": "terminal",
+          "result_has_raw_sentinel": false
+        },
+        {
+          "event": "transform_terminal_output",
+          "matched": true,
+          "await_ms": 52.2,
+          "thread": "hermes-hook-_on_transform_terminal_outpu",
+          "returncode": 0,
+          "replacement": "AAA [FILTERED_BY_LAYA_SPIKE] BBB"
+        },
+        {
+          "event": "pre_llm_call",
+          "tool_name": null,
+          "history_roles": [
+            "user",
+            "assistant",
+            "tool",
+            "assistant",
+            "user"
+          ]
+        },
+        {
+          "event": "pre_llm_call",
+          "tool_name": null,
+          "history_roles": [
+            "user",
+            "assistant",
+            "tool",
+            "assistant",
+            "user",
+            "assistant",
+            "user"
+          ]
+        }
+      ],
+      "session_db": {
+        "raw_sentinel_rows": 0,
+        "filtered_rows": 3,
+        "tables_scanned": 24
+      },
+      "hermes_home_files_with_raw_sentinel": [
+        "logs/process-results/proc_eaedaf3f85eb.json"
+      ],
+      "agent_log": {
+        "hook_timeouts": {
+          "count": 0,
+          "first_line": null
+        },
+        "concurrent_invoke_tool_raised": {
+          "count": 0,
+          "first_line": null
+        }
+      },
+      "parallel_timing": null
+    },
+    "builtin_terminal": {
+      "tool_result_turns": [
+        {
+          "roles": [
+            "system",
+            "user",
+            "assistant",
+            "tool"
+          ],
+          "tool_messages": [
+            "AAA [FILTERED_BY_LAYA_SPIKE] BBB"
+          ],
+          "raw_sentinel_anywhere_in_request": false,
+          "filtered_marker_anywhere_in_request": true
+        },
+        {
+          "roles": [
+            "system",
+            "user",
+            "assistant",
+            "tool",
+            "assistant",
+            "user"
+          ],
+          "tool_messages": [
+            "AAA [FILTERED_BY_LAYA_SPIKE] BBB"
+          ],
+          "raw_sentinel_anywhere_in_request": false,
+          "filtered_marker_anywhere_in_request": true
+        }
+      ],
+      "chat_requests_total": 4,
+      "chat_requests_with_raw_sentinel": 0,
+      "c6_history": {
+        "turn1_roles": [
+          "system",
+          "user",
+          "assistant",
+          "tool"
+        ],
+        "turn2_roles": [
+          "system",
+          "user",
+          "assistant",
+          "tool",
+          "assistant",
+          "user"
+        ],
+        "prefix_len_compared": 4,
+        "prefix_identical": true,
+        "per_message_equal": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "consecutive_requests": [
+          {
+            "from_roles": [
+              "system",
+              "user",
+              "assistant",
+              "tool"
+            ],
+            "to_roles": [
+              "system",
+              "user",
+              "assistant",
+              "tool",
+              "assistant",
+              "user"
+            ],
+            "prefix_identical": true
+          }
+        ],
+        "turn2_tool_messages": [
+          "AAA [FILTERED_BY_LAYA_SPIKE] BBB"
+        ]
+      },
+      "background_notifications": [],
+      "hook_invocations": [
+        {
+          "event": "pre_llm_call",
+          "tool_name": null,
+          "history_roles": [
+            "user"
+          ]
+        },
+        {
+          "event": "pre_tool_call",
+          "tool_name": "terminal"
+        },
+        {
+          "event": "transform_tool_result",
+          "tool_name": "terminal",
+          "matched": true,
+          "await_ms": 52.1,
+          "thread": "hermes-hook-_on_transform_tool_result",
+          "status": "ok",
+          "replacement": "AAA [FILTERED_BY_LAYA_SPIKE] BBB"
+        },
+        {
+          "event": "post_tool_call",
+          "tool_name": "terminal",
+          "result_has_raw_sentinel": false
+        },
+        {
+          "event": "pre_llm_call",
+          "tool_name": null,
+          "history_roles": [
+            "user",
+            "assistant",
+            "tool",
+            "assistant",
+            "user"
+          ]
+        }
+      ],
+      "session_db": {
+        "raw_sentinel_rows": 0,
+        "filtered_rows": 8,
+        "tables_scanned": 24
+      },
+      "hermes_home_files_with_raw_sentinel": [],
+      "agent_log": {
+        "hook_timeouts": {
+          "count": 0,
+          "first_line": null
+        },
+        "concurrent_invoke_tool_raised": {
+          "count": 0,
+          "first_line": null
+        }
+      },
+      "parallel_timing": null
+    },
+    "concurrent_exception_control": {
+      "tool_result_turns": [
+        {
+          "roles": [
+            "system",
+            "user",
+            "assistant",
+            "tool",
+            "tool"
+          ],
+          "tool_messages": [
+            "{\"success\": true, \"mode\": \"discover\", \"query\": \"alpha\", \"detail\": \"adaptive\", \"results\": [], \"count\": 0, \"message\": \"No matching sessions found. FTS5 ANDs all terms by default \u2014 broaden with OR (`alpha OR beta`), exact-match with quoted phrases, exclude with NOT, or prefix-match with `deploy*`.\"}",
+            "Error executing tool 'session_search': local index read failed: AAA LAYA_SENTINEL BBB"
+          ],
+          "raw_sentinel_anywhere_in_request": true,
+          "filtered_marker_anywhere_in_request": false
+        },
+        {
+          "roles": [
+            "system",
+            "user",
+            "assistant",
+            "tool",
+            "tool",
+            "assistant",
+            "user"
+          ],
+          "tool_messages": [
+            "{\"success\": true, \"mode\": \"discover\", \"query\": \"alpha\", \"detail\": \"adaptive\", \"results\": [], \"count\": 0, \"message\": \"No matching sessions found. FTS5 ANDs all terms by default \u2014 broaden with OR (`alpha OR beta`), exact-match with quoted phrases, exclude with NOT, or prefix-match with `deploy*`.\"}",
+            "Error executing tool 'session_search': local index read failed: AAA LAYA_SENTINEL BBB"
+          ],
+          "raw_sentinel_anywhere_in_request": true,
+          "filtered_marker_anywhere_in_request": false
+        }
+      ],
+      "chat_requests_total": 4,
+      "chat_requests_with_raw_sentinel": 2,
+      "c6_history": {
+        "turn1_roles": [
+          "system",
+          "user",
+          "assistant",
+          "tool",
+          "tool"
+        ],
+        "turn2_roles": [
+          "system",
+          "user",
+          "assistant",
+          "tool",
+          "tool",
+          "assistant",
+          "user"
+        ],
+        "prefix_len_compared": 5,
+        "prefix_identical": true,
+        "per_message_equal": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "consecutive_requests": [
+          {
+            "from_roles": [
+              "system",
+              "user",
+              "assistant",
+              "tool",
+              "tool"
+            ],
+            "to_roles": [
+              "system",
+              "user",
+              "assistant",
+              "tool",
+              "tool",
+              "assistant",
+              "user"
+            ],
+            "prefix_identical": true
+          }
+        ],
+        "turn2_tool_messages": [
+          "{\"success\": true, \"mode\": \"discover\", \"query\": \"alpha\", \"detail\": \"adaptive\", \"results\": [], \"count\": 0, \"message\": \"No matching sessions found. FTS5 ANDs all terms by default \u2014 broaden with OR (`alpha OR beta`), exact-match with quoted phrases, exclude with NOT, or prefix-match with `deploy*`.\"}",
+          "Error executing tool 'session_search': local index read failed: AAA LAYA_SENTINEL BBB"
+        ]
+      },
+      "background_notifications": [],
+      "hook_invocations": [
+        {
+          "event": "pre_llm_call",
+          "tool_name": null,
+          "history_roles": [
+            "user"
+          ]
+        },
+        {
+          "event": "pre_tool_call",
+          "tool_name": "session_search"
+        },
+        {
+          "event": "pre_tool_call",
+          "tool_name": "session_search"
+        },
+        {
+          "event": "post_tool_call",
+          "tool_name": "session_search",
+          "result_has_raw_sentinel": true
+        },
+        {
+          "event": "post_tool_call",
+          "tool_name": "session_search",
+          "result_has_raw_sentinel": false
+        },
+        {
+          "event": "transform_tool_result",
+          "tool_name": "session_search",
+          "matched": false,
+          "await_ms": 0.0,
+          "thread": "hermes-hook-_on_transform_tool_result",
+          "status": "ok",
+          "replacement": null
+        },
+        {
+          "event": "pre_llm_call",
+          "tool_name": null,
+          "history_roles": [
+            "user",
+            "assistant",
+            "tool",
+            "tool",
+            "assistant",
+            "user"
+          ]
+        }
+      ],
+      "session_db": {
+        "raw_sentinel_rows": 8,
+        "filtered_rows": 0,
+        "tables_scanned": 24
+      },
+      "hermes_home_files_with_raw_sentinel": [
+        "logs/agent.log",
+        "logs/errors.log",
+        "state.db",
+        "state.db-wal"
+      ],
+      "agent_log": {
+        "hook_timeouts": {
+          "count": 0,
+          "first_line": null
+        },
+        "concurrent_invoke_tool_raised": {
+          "count": 1,
+          "first_line": "ERROR agent.tool_executor: _invoke_tool raised for session_search: local index read failed: AAA LAYA_SENTINEL BBB"
+        }
+      },
+      "parallel_timing": null
+    },
+    "concurrent_exception_guard": {
+      "tool_result_turns": [
+        {
+          "roles": [
+            "system",
+            "user",
+            "assistant",
+            "tool",
+            "tool"
+          ],
+          "tool_messages": [
+            "{\"success\": true, \"mode\": \"discover\", \"query\": \"alpha\", \"detail\": \"adaptive\", \"results\": [], \"count\": 0, \"message\": \"No matching sessions found. FTS5 ANDs all terms by default \u2014 broaden with OR (`alpha OR beta`), exact-match with quoted phrases, exclude with NOT, or prefix-match with `deploy*`.\"}",
+            "[LAYA_SPIKE_EXCEPTION_FALLBACK]"
+          ],
+          "raw_sentinel_anywhere_in_request": false,
+          "filtered_marker_anywhere_in_request": false
+        },
+        {
+          "roles": [
+            "system",
+            "user",
+            "assistant",
+            "tool",
+            "tool",
+            "assistant",
+            "user"
+          ],
+          "tool_messages": [
+            "{\"success\": true, \"mode\": \"discover\", \"query\": \"alpha\", \"detail\": \"adaptive\", \"results\": [], \"count\": 0, \"message\": \"No matching sessions found. FTS5 ANDs all terms by default \u2014 broaden with OR (`alpha OR beta`), exact-match with quoted phrases, exclude with NOT, or prefix-match with `deploy*`.\"}",
+            "[LAYA_SPIKE_EXCEPTION_FALLBACK]"
+          ],
+          "raw_sentinel_anywhere_in_request": false,
+          "filtered_marker_anywhere_in_request": false
+        }
+      ],
+      "chat_requests_total": 4,
+      "chat_requests_with_raw_sentinel": 0,
+      "c6_history": {
+        "turn1_roles": [
+          "system",
+          "user",
+          "assistant",
+          "tool",
+          "tool"
+        ],
+        "turn2_roles": [
+          "system",
+          "user",
+          "assistant",
+          "tool",
+          "tool",
+          "assistant",
+          "user"
+        ],
+        "prefix_len_compared": 5,
+        "prefix_identical": true,
+        "per_message_equal": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "consecutive_requests": [
+          {
+            "from_roles": [
+              "system",
+              "user",
+              "assistant",
+              "tool",
+              "tool"
+            ],
+            "to_roles": [
+              "system",
+              "user",
+              "assistant",
+              "tool",
+              "tool",
+              "assistant",
+              "user"
+            ],
+            "prefix_identical": true
+          }
+        ],
+        "turn2_tool_messages": [
+          "{\"success\": true, \"mode\": \"discover\", \"query\": \"alpha\", \"detail\": \"adaptive\", \"results\": [], \"count\": 0, \"message\": \"No matching sessions found. FTS5 ANDs all terms by default \u2014 broaden with OR (`alpha OR beta`), exact-match with quoted phrases, exclude with NOT, or prefix-match with `deploy*`.\"}",
+          "[LAYA_SPIKE_EXCEPTION_FALLBACK]"
+        ]
+      },
+      "background_notifications": [],
+      "hook_invocations": [
+        {
+          "event": "pre_llm_call",
+          "tool_name": null,
+          "history_roles": [
+            "user"
+          ]
+        },
+        {
+          "event": "pre_tool_call",
+          "tool_name": "session_search"
+        },
+        {
+          "event": "pre_tool_call",
+          "tool_name": "session_search"
+        },
+        {
+          "event": "tool_execution_exception",
+          "tool_name": "session_search",
+          "exception_type": "RuntimeError",
+          "raw_exception": "local index read failed: AAA LAYA_SENTINEL BBB",
+          "replacement": "[LAYA_SPIKE_EXCEPTION_FALLBACK]"
+        },
+        {
+          "event": "post_tool_call",
+          "tool_name": "session_search",
+          "result_has_raw_sentinel": false
+        },
+        {
+          "event": "transform_tool_result",
+          "tool_name": "session_search",
+          "matched": false,
+          "await_ms": 0.0,
+          "thread": "hermes-hook-_on_transform_tool_result",
+          "status": "ok",
+          "replacement": null
+        },
+        {
+          "event": "pre_llm_call",
+          "tool_name": null,
+          "history_roles": [
+            "user",
+            "assistant",
+            "tool",
+            "tool",
+            "assistant",
+            "user"
+          ]
+        }
+      ],
+      "session_db": {
+        "raw_sentinel_rows": 0,
+        "filtered_rows": 0,
+        "tables_scanned": 24
+      },
+      "hermes_home_files_with_raw_sentinel": [],
+      "agent_log": {
+        "hook_timeouts": {
+          "count": 0,
+          "first_line": null
+        },
+        "concurrent_invoke_tool_raised": {
+          "count": 0,
+          "first_line": null
+        }
+      },
+      "parallel_timing": null
+    },
+    "hook_timeout_failopen": {
+      "tool_result_turns": [
+        {
+          "roles": [
+            "system",
+            "user",
+            "assistant",
+            "tool"
+          ],
+          "tool_messages": [
+            "AAA LAYA_SENTINEL BBB"
+          ],
+          "raw_sentinel_anywhere_in_request": true,
+          "filtered_marker_anywhere_in_request": false
+        },
+        {
+          "roles": [
+            "system",
+            "user",
+            "assistant",
+            "tool",
+            "assistant",
+            "user"
+          ],
+          "tool_messages": [
+            "AAA LAYA_SENTINEL BBB"
+          ],
+          "raw_sentinel_anywhere_in_request": true,
+          "filtered_marker_anywhere_in_request": false
+        }
+      ],
+      "chat_requests_total": 4,
+      "chat_requests_with_raw_sentinel": 2,
+      "c6_history": {
+        "turn1_roles": [
+          "system",
+          "user",
+          "assistant",
+          "tool"
+        ],
+        "turn2_roles": [
+          "system",
+          "user",
+          "assistant",
+          "tool",
+          "assistant",
+          "user"
+        ],
+        "prefix_len_compared": 4,
+        "prefix_identical": true,
+        "per_message_equal": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "consecutive_requests": [
+          {
+            "from_roles": [
+              "system",
+              "user",
+              "assistant",
+              "tool"
+            ],
+            "to_roles": [
+              "system",
+              "user",
+              "assistant",
+              "tool",
+              "assistant",
+              "user"
+            ],
+            "prefix_identical": true
+          }
+        ],
+        "turn2_tool_messages": [
+          "AAA LAYA_SENTINEL BBB"
+        ]
+      },
+      "background_notifications": [],
+      "hook_invocations": [
+        {
+          "event": "pre_llm_call",
+          "tool_name": null,
+          "history_roles": [
+            "user"
+          ]
+        },
+        {
+          "event": "pre_tool_call",
+          "tool_name": "laya_sentinel"
+        },
+        {
+          "event": "post_tool_call",
+          "tool_name": "laya_sentinel",
+          "result_has_raw_sentinel": true
+        },
+        {
+          "event": "pre_llm_call",
+          "tool_name": null,
+          "history_roles": [
+            "user",
+            "assistant",
+            "tool",
+            "assistant",
+            "user"
+          ]
+        }
+      ],
+      "session_db": {
+        "raw_sentinel_rows": 8,
+        "filtered_rows": 0,
+        "tables_scanned": 24
+      },
+      "hermes_home_files_with_raw_sentinel": [
+        "state.db",
+        "state.db-wal"
+      ],
+      "agent_log": {
+        "hook_timeouts": {
+          "count": 1,
+          "first_line": "WARNING hermes_cli.plugins: Hook 'transform_tool_result' callback _on_transform_tool_result timed out after 0.01s \u2014 skipping"
+        },
+        "concurrent_invoke_tool_raised": {
+          "count": 0,
+          "first_line": null
+        }
+      },
+      "parallel_timing": null
+    },
+    "negative_control": {
+      "tool_result_turns": [
+        {
+          "roles": [
+            "system",
+            "user",
+            "assistant",
+            "tool"
+          ],
+          "tool_messages": [
+            "AAA LAYA_SENTINEL BBB"
+          ],
+          "raw_sentinel_anywhere_in_request": true,
+          "filtered_marker_anywhere_in_request": false
+        },
+        {
+          "roles": [
+            "system",
+            "user",
+            "assistant",
+            "tool",
+            "assistant",
+            "user"
+          ],
+          "tool_messages": [
+            "AAA LAYA_SENTINEL BBB"
+          ],
+          "raw_sentinel_anywhere_in_request": true,
+          "filtered_marker_anywhere_in_request": false
+        }
+      ],
+      "chat_requests_total": 4,
+      "chat_requests_with_raw_sentinel": 2,
+      "c6_history": {
+        "turn1_roles": [
+          "system",
+          "user",
+          "assistant",
+          "tool"
+        ],
+        "turn2_roles": [
+          "system",
+          "user",
+          "assistant",
+          "tool",
+          "assistant",
+          "user"
+        ],
+        "prefix_len_compared": 4,
+        "prefix_identical": true,
+        "per_message_equal": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "consecutive_requests": [
+          {
+            "from_roles": [
+              "system",
+              "user",
+              "assistant",
+              "tool"
+            ],
+            "to_roles": [
+              "system",
+              "user",
+              "assistant",
+              "tool",
+              "assistant",
+              "user"
+            ],
+            "prefix_identical": true
+          }
+        ],
+        "turn2_tool_messages": [
+          "AAA LAYA_SENTINEL BBB"
+        ]
+      },
+      "background_notifications": [],
+      "hook_invocations": [],
+      "session_db": {
+        "raw_sentinel_rows": 8,
+        "filtered_rows": 0,
+        "tables_scanned": 24
+      },
+      "hermes_home_files_with_raw_sentinel": [
+        "state.db",
+        "state.db-wal"
+      ],
+      "agent_log": {
+        "hook_timeouts": {
+          "count": 0,
+          "first_line": null
+        },
+        "concurrent_invoke_tool_raised": {
+          "count": 0,
+          "first_line": null
+        }
+      },
+      "parallel_timing": null
+    },
+    "parallel_read_file": {
+      "tool_result_turns": [
+        {
+          "roles": [
+            "system",
+            "user",
+            "assistant",
+            "tool",
+            "tool"
+          ],
+          "tool_messages": [
+            "AAA [FILTERED_BY_LAYA_SPIKE] BBB",
+            "AAA [FILTERED_BY_LAYA_SPIKE] BBB"
+          ],
+          "raw_sentinel_anywhere_in_request": false,
+          "filtered_marker_anywhere_in_request": true
+        },
+        {
+          "roles": [
+            "system",
+            "user",
+            "assistant",
+            "tool",
+            "tool",
+            "assistant",
+            "user"
+          ],
+          "tool_messages": [
+            "AAA [FILTERED_BY_LAYA_SPIKE] BBB",
+            "AAA [FILTERED_BY_LAYA_SPIKE] BBB"
+          ],
+          "raw_sentinel_anywhere_in_request": false,
+          "filtered_marker_anywhere_in_request": true
+        }
+      ],
+      "chat_requests_total": 4,
+      "chat_requests_with_raw_sentinel": 0,
+      "c6_history": {
+        "turn1_roles": [
+          "system",
+          "user",
+          "assistant",
+          "tool",
+          "tool"
+        ],
+        "turn2_roles": [
+          "system",
+          "user",
+          "assistant",
+          "tool",
+          "tool",
+          "assistant",
+          "user"
+        ],
+        "prefix_len_compared": 5,
+        "prefix_identical": true,
+        "per_message_equal": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "consecutive_requests": [
+          {
+            "from_roles": [
+              "system",
+              "user",
+              "assistant",
+              "tool",
+              "tool"
+            ],
+            "to_roles": [
+              "system",
+              "user",
+              "assistant",
+              "tool",
+              "tool",
+              "assistant",
+              "user"
+            ],
+            "prefix_identical": true
+          }
+        ],
+        "turn2_tool_messages": [
+          "AAA [FILTERED_BY_LAYA_SPIKE] BBB",
+          "AAA [FILTERED_BY_LAYA_SPIKE] BBB"
+        ]
+      },
+      "background_notifications": [],
+      "hook_invocations": [
+        {
+          "event": "pre_llm_call",
+          "tool_name": null,
+          "history_roles": [
+            "user"
+          ]
+        },
+        {
+          "event": "pre_tool_call",
+          "tool_name": "read_file"
+        },
+        {
+          "event": "pre_tool_call",
+          "tool_name": "read_file"
+        },
+        {
+          "event": "post_tool_call",
+          "tool_name": "read_file",
+          "result_has_raw_sentinel": true
+        },
+        {
+          "event": "post_tool_call",
+          "tool_name": "read_file",
+          "result_has_raw_sentinel": true
+        },
+        {
+          "event": "transform_tool_result",
+          "tool_name": "read_file",
+          "matched": true,
+          "await_ms": 52.1,
+          "thread": "hermes-hook-_on_transform_tool_result",
+          "status": "ok",
+          "replacement": "AAA [FILTERED_BY_LAYA_SPIKE] BBB"
+        },
+        {
+          "event": "transform_tool_result",
+          "tool_name": "read_file",
+          "matched": true,
+          "await_ms": 52.0,
+          "thread": "hermes-hook-_on_transform_tool_result",
+          "status": "ok",
+          "replacement": "AAA [FILTERED_BY_LAYA_SPIKE] BBB"
+        },
+        {
+          "event": "pre_llm_call",
+          "tool_name": null,
+          "history_roles": [
+            "user",
+            "assistant",
+            "tool",
+            "tool",
+            "assistant",
+            "user"
+          ]
+        }
+      ],
+      "session_db": {
+        "raw_sentinel_rows": 0,
+        "filtered_rows": 10,
+        "tables_scanned": 24
+      },
+      "hermes_home_files_with_raw_sentinel": [],
+      "agent_log": {
+        "hook_timeouts": {
+          "count": 0,
+          "first_line": null
+        },
+        "concurrent_invoke_tool_raised": {
+          "count": 0,
+          "first_line": null
+        }
+      },
+      "parallel_timing": {
+        "await_ms": [
+          52.1,
+          52.0
+        ],
+        "completion_gap_us": 171.9
+      }
+    },
+    "plugin_deadline_fallback": {
+      "tool_result_turns": [
+        {
+          "roles": [
+            "system",
+            "user",
+            "assistant",
+            "tool"
+          ],
+          "tool_messages": [
+            "[LAYA_SPIKE_DEADLINE_FALLBACK]"
+          ],
+          "raw_sentinel_anywhere_in_request": false,
+          "filtered_marker_anywhere_in_request": false
+        },
+        {
+          "roles": [
+            "system",
+            "user",
+            "assistant",
+            "tool",
+            "assistant",
+            "user"
+          ],
+          "tool_messages": [
+            "[LAYA_SPIKE_DEADLINE_FALLBACK]"
+          ],
+          "raw_sentinel_anywhere_in_request": false,
+          "filtered_marker_anywhere_in_request": false
+        }
+      ],
+      "chat_requests_total": 4,
+      "chat_requests_with_raw_sentinel": 0,
+      "c6_history": {
+        "turn1_roles": [
+          "system",
+          "user",
+          "assistant",
+          "tool"
+        ],
+        "turn2_roles": [
+          "system",
+          "user",
+          "assistant",
+          "tool",
+          "assistant",
+          "user"
+        ],
+        "prefix_len_compared": 4,
+        "prefix_identical": true,
+        "per_message_equal": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "consecutive_requests": [
+          {
+            "from_roles": [
+              "system",
+              "user",
+              "assistant",
+              "tool"
+            ],
+            "to_roles": [
+              "system",
+              "user",
+              "assistant",
+              "tool",
+              "assistant",
+              "user"
+            ],
+            "prefix_identical": true
+          }
+        ],
+        "turn2_tool_messages": [
+          "[LAYA_SPIKE_DEADLINE_FALLBACK]"
+        ]
+      },
+      "background_notifications": [],
+      "hook_invocations": [
+        {
+          "event": "transform_tool_result",
+          "tool_name": "laya_sentinel",
+          "thread": "hermes-hook-_on_transform_tool_result",
+          "outcome": "deadline_fallback",
+          "elapsed_ms": 202.3,
+          "deadline_s": 0.2,
+          "decision_s": 2.0,
+          "replacement": "[LAYA_SPIKE_DEADLINE_FALLBACK]"
+        }
+      ],
+      "session_db": {
+        "raw_sentinel_rows": 0,
+        "filtered_rows": 0,
+        "tables_scanned": 24
+      },
+      "hermes_home_files_with_raw_sentinel": [],
+      "agent_log": {
+        "hook_timeouts": {
+          "count": 0,
+          "first_line": null
+        },
+        "concurrent_invoke_tool_raised": {
+          "count": 0,
+          "first_line": null
+        }
+      },
+      "parallel_timing": null
+    },
+    "plugin_tool": {
+      "tool_result_turns": [
+        {
+          "roles": [
+            "system",
+            "user",
+            "assistant",
+            "tool"
+          ],
+          "tool_messages": [
+            "AAA [FILTERED_BY_LAYA_SPIKE] BBB"
+          ],
+          "raw_sentinel_anywhere_in_request": false,
+          "filtered_marker_anywhere_in_request": true
+        },
+        {
+          "roles": [
+            "system",
+            "user",
+            "assistant",
+            "tool",
+            "assistant",
+            "user"
+          ],
+          "tool_messages": [
+            "AAA [FILTERED_BY_LAYA_SPIKE] BBB"
+          ],
+          "raw_sentinel_anywhere_in_request": false,
+          "filtered_marker_anywhere_in_request": true
+        }
+      ],
+      "chat_requests_total": 4,
+      "chat_requests_with_raw_sentinel": 0,
+      "c6_history": {
+        "turn1_roles": [
+          "system",
+          "user",
+          "assistant",
+          "tool"
+        ],
+        "turn2_roles": [
+          "system",
+          "user",
+          "assistant",
+          "tool",
+          "assistant",
+          "user"
+        ],
+        "prefix_len_compared": 4,
+        "prefix_identical": true,
+        "per_message_equal": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "consecutive_requests": [
+          {
+            "from_roles": [
+              "system",
+              "user",
+              "assistant",
+              "tool"
+            ],
+            "to_roles": [
+              "system",
+              "user",
+              "assistant",
+              "tool",
+              "assistant",
+              "user"
+            ],
+            "prefix_identical": true
+          }
+        ],
+        "turn2_tool_messages": [
+          "AAA [FILTERED_BY_LAYA_SPIKE] BBB"
+        ]
+      },
+      "background_notifications": [],
+      "hook_invocations": [
+        {
+          "event": "pre_llm_call",
+          "tool_name": null,
+          "history_roles": [
+            "user"
+          ]
+        },
+        {
+          "event": "pre_tool_call",
+          "tool_name": "laya_sentinel"
+        },
+        {
+          "event": "transform_tool_result",
+          "tool_name": "laya_sentinel",
+          "matched": true,
+          "await_ms": 52.1,
+          "thread": "hermes-hook-_on_transform_tool_result",
+          "status": "ok",
+          "replacement": "AAA [FILTERED_BY_LAYA_SPIKE] BBB"
+        },
+        {
+          "event": "post_tool_call",
+          "tool_name": "laya_sentinel",
+          "result_has_raw_sentinel": false
+        },
+        {
+          "event": "pre_llm_call",
+          "tool_name": null,
+          "history_roles": [
+            "user",
+            "assistant",
+            "tool",
+            "assistant",
+            "user"
+          ]
+        }
+      ],
+      "session_db": {
+        "raw_sentinel_rows": 0,
+        "filtered_rows": 8,
+        "tables_scanned": 24
+      },
+      "hermes_home_files_with_raw_sentinel": [],
+      "agent_log": {
+        "hook_timeouts": {
+          "count": 0,
+          "first_line": null
+        },
+        "concurrent_invoke_tool_raised": {
+          "count": 0,
+          "first_line": null
+        }
+      },
+      "parallel_timing": null
+    },
+    "plugin_tool_bridge": {
+      "tool_result_turns": [
+        {
+          "roles": [
+            "system",
+            "user",
+            "assistant",
+            "tool"
+          ],
+          "tool_messages": [
+            "AAA [FILTERED_BY_LAYA_SPIKE] BBB"
+          ],
+          "raw_sentinel_anywhere_in_request": false,
+          "filtered_marker_anywhere_in_request": true
+        },
+        {
+          "roles": [
+            "system",
+            "user",
+            "assistant",
+            "tool",
+            "assistant",
+            "user"
+          ],
+          "tool_messages": [
+            "AAA [FILTERED_BY_LAYA_SPIKE] BBB"
+          ],
+          "raw_sentinel_anywhere_in_request": false,
+          "filtered_marker_anywhere_in_request": true
+        }
+      ],
+      "chat_requests_total": 4,
+      "chat_requests_with_raw_sentinel": 0,
+      "c6_history": {
+        "turn1_roles": [
+          "system",
+          "user",
+          "assistant",
+          "tool"
+        ],
+        "turn2_roles": [
+          "system",
+          "user",
+          "assistant",
+          "tool",
+          "assistant",
+          "user"
+        ],
+        "prefix_len_compared": 4,
+        "prefix_identical": true,
+        "per_message_equal": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "consecutive_requests": [
+          {
+            "from_roles": [
+              "system",
+              "user",
+              "assistant",
+              "tool"
+            ],
+            "to_roles": [
+              "system",
+              "user",
+              "assistant",
+              "tool",
+              "assistant",
+              "user"
+            ],
+            "prefix_identical": true
+          }
+        ],
+        "turn2_tool_messages": [
+          "AAA [FILTERED_BY_LAYA_SPIKE] BBB"
+        ]
+      },
+      "background_notifications": [],
+      "hook_invocations": [
+        {
+          "event": "pre_llm_call",
+          "tool_name": null,
+          "history_roles": [
+            "user"
+          ]
+        },
+        {
+          "event": "pre_tool_call",
+          "tool_name": "laya_sentinel"
+        },
+        {
+          "event": "transform_tool_result",
+          "tool_name": "laya_sentinel",
+          "matched": true,
+          "await_ms": 52.1,
+          "thread": "hermes-hook-_on_transform_tool_result",
+          "status": "ok",
+          "replacement": "AAA [FILTERED_BY_LAYA_SPIKE] BBB"
+        },
+        {
+          "event": "post_tool_call",
+          "tool_name": "laya_sentinel",
+          "result_has_raw_sentinel": false
+        },
+        {
+          "event": "pre_llm_call",
+          "tool_name": null,
+          "history_roles": [
+            "user",
+            "assistant",
+            "tool",
+            "assistant",
+            "user"
+          ]
+        }
+      ],
+      "session_db": {
+        "raw_sentinel_rows": 0,
+        "filtered_rows": 8,
+        "tables_scanned": 24
+      },
+      "hermes_home_files_with_raw_sentinel": [],
+      "agent_log": {
+        "hook_timeouts": {
+          "count": 0,
+          "first_line": null
+        },
+        "concurrent_invoke_tool_raised": {
+          "count": 0,
+          "first_line": null
+        }
+      },
+      "parallel_timing": null
+    },
+    "plugin_tool_error": {
+      "tool_result_turns": [
+        {
+          "roles": [
+            "system",
+            "user",
+            "assistant",
+            "tool"
+          ],
+          "tool_messages": [
+            "AAA [FILTERED_BY_LAYA_SPIKE] BBB"
+          ],
+          "raw_sentinel_anywhere_in_request": false,
+          "filtered_marker_anywhere_in_request": true
+        },
+        {
+          "roles": [
+            "system",
+            "user",
+            "assistant",
+            "tool",
+            "assistant",
+            "user"
+          ],
+          "tool_messages": [
+            "AAA [FILTERED_BY_LAYA_SPIKE] BBB"
+          ],
+          "raw_sentinel_anywhere_in_request": false,
+          "filtered_marker_anywhere_in_request": true
+        }
+      ],
+      "chat_requests_total": 4,
+      "chat_requests_with_raw_sentinel": 0,
+      "c6_history": {
+        "turn1_roles": [
+          "system",
+          "user",
+          "assistant",
+          "tool"
+        ],
+        "turn2_roles": [
+          "system",
+          "user",
+          "assistant",
+          "tool",
+          "assistant",
+          "user"
+        ],
+        "prefix_len_compared": 4,
+        "prefix_identical": true,
+        "per_message_equal": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "consecutive_requests": [
+          {
+            "from_roles": [
+              "system",
+              "user",
+              "assistant",
+              "tool"
+            ],
+            "to_roles": [
+              "system",
+              "user",
+              "assistant",
+              "tool",
+              "assistant",
+              "user"
+            ],
+            "prefix_identical": true
+          }
+        ],
+        "turn2_tool_messages": [
+          "AAA [FILTERED_BY_LAYA_SPIKE] BBB"
+        ]
+      },
+      "background_notifications": [],
+      "hook_invocations": [
+        {
+          "event": "pre_llm_call",
+          "tool_name": null,
+          "history_roles": [
+            "user"
+          ]
+        },
+        {
+          "event": "pre_tool_call",
+          "tool_name": "laya_sentinel_raise"
+        },
+        {
+          "event": "transform_tool_result",
+          "tool_name": "laya_sentinel_raise",
+          "matched": true,
+          "await_ms": 52.0,
+          "thread": "hermes-hook-_on_transform_tool_result",
+          "status": "error",
+          "replacement": "AAA [FILTERED_BY_LAYA_SPIKE] BBB"
+        },
+        {
+          "event": "post_tool_call",
+          "tool_name": "laya_sentinel_raise",
+          "result_has_raw_sentinel": false
+        },
+        {
+          "event": "pre_llm_call",
+          "tool_name": null,
+          "history_roles": [
+            "user",
+            "assistant",
+            "tool",
+            "assistant",
+            "user"
+          ]
+        }
+      ],
+      "session_db": {
+        "raw_sentinel_rows": 0,
+        "filtered_rows": 8,
+        "tables_scanned": 24
+      },
+      "hermes_home_files_with_raw_sentinel": [
+        "logs/agent.log",
+        "logs/errors.log"
+      ],
+      "agent_log": {
+        "hook_timeouts": {
+          "count": 0,
+          "first_line": null
+        },
+        "concurrent_invoke_tool_raised": {
+          "count": 0,
+          "first_line": null
+        }
+      },
+      "parallel_timing": null
+    }
+  }
+}

@@ -1,0 +1,5 @@
+{"event": "pre_llm_call", "t": 1790230427.9070442, "tool_name": null, "tool_call_id": null, "history_roles": ["user"]}
+{"event": "pre_tool_call", "t": 1790230427.983166, "tool_name": "terminal", "tool_call_id": "call_858a433f44e2"}
+{"event": "transform_tool_result", "t": 1790230428.074858, "tool_name": "terminal", "args": {"command": "printf 'AAA LAYA_%s BBB\\n' SENTINEL"}, "raw_output": "{\"output\": \"AAA LAYA_SENTINEL BBB\", \"exit_code\": 0, \"error\": null}", "matched": true, "replacement": "AAA [FILTERED_BY_LAYA_SPIKE] BBB", "tool_call_id": "call_858a433f44e2", "status": "ok", "await_ms": 52.1, "thread": "hermes-hook-_on_transform_tool_result", "loop_id": 4568839376}
+{"event": "post_tool_call", "t": 1790230428.0755908, "tool_name": "terminal", "tool_call_id": "call_858a433f44e2", "result_has_raw_sentinel": false}
+{"event": "pre_llm_call", "t": 1790230429.891944, "tool_name": null, "tool_call_id": null, "history_roles": ["user", "assistant", "tool", "assistant", "user"]}

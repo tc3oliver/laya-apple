@@ -1,0 +1,4 @@
+{"event": "pre_llm_call", "t": 1790230441.001256, "tool_name": null, "tool_call_id": null, "history_roles": ["user"]}
+{"event": "pre_tool_call", "t": 1790230441.073904, "tool_name": "laya_sentinel", "tool_call_id": "call_8503133e25d5"}
+{"event": "post_tool_call", "t": 1790230441.090661, "tool_name": "laya_sentinel", "tool_call_id": "call_8503133e25d5", "result_has_raw_sentinel": true}
+{"event": "pre_llm_call", "t": 1790230441.964414, "tool_name": null, "tool_call_id": null, "history_roles": ["user", "assistant", "tool", "assistant", "user"]}

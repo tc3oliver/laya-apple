@@ -1,0 +1,3 @@
+name: laya_spike_fault
+version: 0.0.1
+description: EXP-000 test-only fault injector. Makes one concurrent session_search call raise with the sentinel in its message.

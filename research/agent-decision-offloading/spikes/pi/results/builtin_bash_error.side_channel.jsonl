@@ -1,0 +1,6 @@
+{"kind":"context_event","t":1790230188.464,"tool_result_texts":[],"raw_present":false}
+{"kind":"tool_call_hook","t":1790230188.481,"tool_name":"bash","tool_call_id":"call_f961e50e21e9","args":{"command":"printf 'AAA LAYA_%s BBB\\n' SENTINEL; exit 3"}}
+{"kind":"tool_result_hook","t":1790230188.538,"tool_name":"bash","tool_call_id":"call_f961e50e21e9","args":{"command":"printf 'AAA LAYA_%s BBB\\n' SENTINEL; exit 3"},"raw_output":"AAA LAYA_SENTINEL BBB\n\n\nCommand exited with code 3","is_error":true,"hook_start":1790230188.485,"awaited_ms":53,"tool_result_in_session_when_hook_ran":false,"replaced":true}
+{"kind":"message_end_tool_result","t":1790230188.538,"tool_call_id":"call_f961e50e21e9","text":"AAA [FILTERED_BY_LAYA_SPIKE] BBB","is_error":true,"in_session_at_message_end":false}
+{"kind":"turn_end_tool_result","t":1790230188.538,"tool_call_id":"call_f961e50e21e9","text":"AAA [FILTERED_BY_LAYA_SPIKE] BBB","in_session_at_turn_end":true}
+{"kind":"context_event","t":1790230188.539,"tool_result_texts":["AAA [FILTERED_BY_LAYA_SPIKE] BBB"],"raw_present":false}

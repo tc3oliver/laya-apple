@@ -1,0 +1,1 @@
+{"event": "transform_tool_result", "t": 1790230444.933681, "tool_name": "laya_sentinel", "args": {}, "raw_output": "AAA LAYA_SENTINEL BBB", "replacement": "[LAYA_SPIKE_DEADLINE_FALLBACK]", "outcome": "deadline_fallback", "deadline_s": 0.2, "decision_s": 2.0, "elapsed_ms": 202.3, "thread": "hermes-hook-_on_transform_tool_result"}
