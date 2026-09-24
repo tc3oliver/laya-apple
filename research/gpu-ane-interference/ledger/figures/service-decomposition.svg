@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="448" viewBox="0 0 900 448" role="img" aria-labelledby="title" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+<title id="title">Service decomposition. device:laya-typed-decisions:process matrix:gpu_M+ane_B ane_B: e2e solo 10.17 ms, concurrent 11.80 ms; Δ dispatch+return +0.16 ms (historical Δ dispatch +0.15); device:laya-typed-decisions:process matrix:gpu_M+ane_B gpu_M: e2e solo 12.46 ms, concurrent 14.36 ms; Δ dispatch+return +0.15 ms (historical Δ dispatch +0.14); device:laya-typed-decisions:thread matrix:gpu_M+ane_B ane_B: e2e solo 9.99 ms, concurrent 10.12 ms; Δ dispatch+return +0.00 ms (historical Δ dispatch +0.00); device:laya-typed-decisions:thread matrix:gpu_M+ane_B gpu_M: e2e solo 12.28 ms, concurrent 20.34 ms; Δ dispatch+return +7.36 ms (historical Δ dispatch +7.40)</title>
+<style>
+.bg{fill:#ffffff;stroke:#d1d9e0}.t{fill:#1f2328}.m{fill:#59636e}.grid{stroke:#e6e9ec}.ax{stroke:#8c959f}
+.s1{fill:#2a78d6;stroke:#2a78d6}.s2{fill:#eb6834;stroke:#eb6834}.s3{fill:#1baf7a;stroke:#1baf7a}
+.s4{fill:#eda100;stroke:#eda100}.ln{fill:none;stroke-width:2}.ring{stroke:#ffffff;stroke-width:2}
+.c1{fill:#8c959f}.c2{fill:#2a78d6}.c3{fill:#eb6834}.c4{fill:#1baf7a}
+@media (prefers-color-scheme: dark){
+.bg{fill:#0d1117;stroke:#3d444d}.t{fill:#e6edf3}.m{fill:#9198a1}.grid{stroke:#21262d}.ax{stroke:#656c76}
+.s1{fill:#3987e5;stroke:#3987e5}.s2{fill:#d95926;stroke:#d95926}.s3{fill:#199e70;stroke:#199e70}
+.s4{fill:#c98500;stroke:#c98500}.ring{stroke:#0d1117}
+.c1{fill:#656c76}.c2{fill:#3987e5}.c3{fill:#d95926}.c4{fill:#199e70}
+}
+</style>
+<rect x="0.5" y="0.5" width="899" height="447" rx="10" class="bg"/>
+<style>.p1{fill:#8c959f}.p2{fill:#d1d9e0}.p3{fill:#eb6834}.p4{fill:#2a78d6}.p5{fill:#1baf7a}.p6{fill:#eda100}.p7{fill:#cf2e6e}.p8{fill:#8250df}@media (prefers-color-scheme: dark){.p1{fill:#656c76}.p2{fill:#3d444d}.p3{fill:#d95926}.p4{fill:#3987e5}.p5{fill:#199e70}.p6{fill:#c98500}.p7{fill:#db4f86}.p8{fill:#9a6ef0}}</style>
+<text x="24.0" y="32.0" class="t" font-size="16" font-weight="600">Where a request&#x27;s time goes: solo vs with the other device busy (mean ms)</text>
+<rect x="24" y="51" width="12" height="12" rx="2" class="p1"/>
+<text x="41.0" y="61.0" class="m" font-size="12">prepare + route + enqueue</text>
+<rect x="239.0" y="51" width="12" height="12" rx="2" class="p2"/>
+<text x="256.0" y="61.0" class="m" font-size="12">queue</text>
+<rect x="310.0" y="51" width="12" height="12" rx="2" class="p3"/>
+<text x="327.0" y="61.0" class="m" font-size="12">dispatch</text>
+<rect x="402.6" y="51" width="12" height="12" rx="2" class="p4"/>
+<text x="419.6" y="61.0" class="m" font-size="12">device exec</text>
+<rect x="24" y="71" width="12" height="12" rx="2" class="p5"/>
+<text x="41.0" y="81.0" class="m" font-size="12">host</text>
+<rect x="87.8" y="71" width="12" height="12" rx="2" class="p6"/>
+<text x="104.8" y="81.0" class="m" font-size="12">unattributed</text>
+<rect x="209.2" y="71" width="12" height="12" rx="2" class="p7"/>
+<text x="226.2" y="81.0" class="m" font-size="12">return</text>
+<rect x="287.4" y="71" width="12" height="12" rx="2" class="p8"/>
+<text x="304.4" y="81.0" class="m" font-size="12">postprocess</text>
+<text x="258.0" y="132.0" class="t" font-size="11" text-anchor="end">laya-typed-decisions:process ane_B</text>
+<text x="258.0" y="152.0" class="m" font-size="10" text-anchor="end">matrix:gpu_M+ane_B</text>
+<text x="324.0" y="132.0" class="m" font-size="10" text-anchor="end">solo</text>
+<rect x="330.0" y="120" width="2.7" height="16" class="p1"/>
+<rect x="332.9" y="120" width="0.4" height="16" class="p3"/>
+<rect x="333.3" y="120" width="214.6" height="16" class="p4"/>
+<rect x="547.9" y="120" width="4.6" height="16" class="p5"/>
+<rect x="552.6" y="120" width="0.7" height="16" class="p7"/>
+<rect x="553.3" y="120" width="0.5" height="16" class="p8"/>
+<text x="559.8" y="132.0" class="m" font-size="10">10.2 ms</text>
+<text x="324.0" y="152.0" class="m" font-size="10" text-anchor="end">concurrent</text>
+<rect x="330.0" y="140" width="9.7" height="16" class="p1"/>
+<rect x="339.7" y="140" width="0.9" height="16" class="p2"/>
+<rect x="340.6" y="140" width="1.5" height="16" class="p3"/>
+<rect x="342.2" y="140" width="226.5" height="16" class="p4"/>
+<rect x="568.6" y="140" width="15.6" height="16" class="p5"/>
+<rect x="584.3" y="140" width="0.4" height="16" class="p6"/>
+<rect x="584.6" y="140" width="3.1" height="16" class="p7"/>
+<rect x="587.7" y="140" width="2.0" height="16" class="p8"/>
+<text x="595.7" y="152.0" class="m" font-size="10">11.8 ms</text>
+<text x="330.0" y="170.0" class="m" font-size="10">Δ dispatch+return +0.16 ms (historical Δ dispatch +0.15)</text>
+<text x="258.0" y="204.0" class="t" font-size="11" text-anchor="end">laya-typed-decisions:process gpu_M</text>
+<text x="258.0" y="224.0" class="m" font-size="10" text-anchor="end">matrix:gpu_M+ane_B</text>
+<text x="324.0" y="204.0" class="m" font-size="10" text-anchor="end">solo</text>
+<rect x="330.0" y="192" width="2.8" height="16" class="p1"/>
+<rect x="333.0" y="192" width="0.4" height="16" class="p3"/>
+<rect x="333.4" y="192" width="261.0" height="16" class="p4"/>
+<rect x="594.4" y="192" width="8.6" height="16" class="p5"/>
+<rect x="603.1" y="192" width="0.6" height="16" class="p7"/>
+<rect x="603.6" y="192" width="0.5" height="16" class="p8"/>
+<text x="610.2" y="204.0" class="m" font-size="10">12.5 ms</text>
+<text x="324.0" y="224.0" class="m" font-size="10" text-anchor="end">concurrent</text>
+<rect x="330.0" y="212" width="9.9" height="16" class="p1"/>
+<rect x="339.9" y="212" width="0.9" height="16" class="p2"/>
+<rect x="340.8" y="212" width="1.5" height="16" class="p3"/>
+<rect x="342.2" y="212" width="266.8" height="16" class="p4"/>
+<rect x="609.0" y="212" width="31.9" height="16" class="p5"/>
+<rect x="641.2" y="212" width="2.9" height="16" class="p7"/>
+<rect x="644.1" y="212" width="2.0" height="16" class="p8"/>
+<text x="652.1" y="224.0" class="m" font-size="10">14.4 ms</text>
+<text x="330.0" y="242.0" class="m" font-size="10">Δ dispatch+return +0.15 ms (historical Δ dispatch +0.14)</text>
+<text x="258.0" y="276.0" class="t" font-size="11" text-anchor="end">laya-typed-decisions:thread ane_B</text>
+<text x="258.0" y="296.0" class="m" font-size="10" text-anchor="end">matrix:gpu_M+ane_B</text>
+<text x="324.0" y="276.0" class="m" font-size="10" text-anchor="end">solo</text>
+<rect x="330.0" y="264" width="3.2" height="16" class="p1"/>
+<rect x="333.5" y="264" width="210.5" height="16" class="p4"/>
+<rect x="543.9" y="264" width="5.3" height="16" class="p5"/>
+<rect x="549.4" y="264" width="0.5" height="16" class="p8"/>
+<text x="555.9" y="276.0" class="m" font-size="10">10.0 ms</text>
+<text x="324.0" y="296.0" class="m" font-size="10" text-anchor="end">concurrent</text>
+<rect x="330.0" y="284" width="3.0" height="16" class="p1"/>
+<rect x="333.0" y="284" width="0.5" height="16" class="p2"/>
+<rect x="333.5" y="284" width="212.6" height="16" class="p4"/>
+<rect x="546.1" y="284" width="6.0" height="16" class="p5"/>
+<rect x="552.2" y="284" width="0.5" height="16" class="p8"/>
+<text x="558.7" y="296.0" class="m" font-size="10">10.1 ms</text>
+<text x="330.0" y="314.0" class="m" font-size="10">Δ dispatch+return +0.00 ms (historical Δ dispatch +0.00)</text>
+<text x="258.0" y="348.0" class="t" font-size="11" text-anchor="end">laya-typed-decisions:thread gpu_M</text>
+<text x="258.0" y="368.0" class="m" font-size="10" text-anchor="end">matrix:gpu_M+ane_B</text>
+<text x="324.0" y="348.0" class="m" font-size="10" text-anchor="end">solo</text>
+<rect x="330.0" y="336" width="3.7" height="16" class="p1"/>
+<rect x="334.0" y="336" width="0.6" height="16" class="p3"/>
+<rect x="334.7" y="336" width="253.6" height="16" class="p4"/>
+<rect x="588.3" y="336" width="9.9" height="16" class="p5"/>
+<rect x="598.3" y="336" width="1.1" height="16" class="p7"/>
+<rect x="599.4" y="336" width="0.8" height="16" class="p8"/>
+<text x="606.2" y="348.0" class="m" font-size="10">12.3 ms</text>
+<text x="324.0" y="368.0" class="m" font-size="10" text-anchor="end">concurrent</text>
+<rect x="330.0" y="356" width="3.1" height="16" class="p1"/>
+<rect x="333.1" y="356" width="0.7" height="16" class="p2"/>
+<rect x="333.8" y="356" width="0.6" height="16" class="p3"/>
+<rect x="334.4" y="356" width="270.2" height="16" class="p4"/>
+<rect x="604.6" y="356" width="9.2" height="16" class="p5"/>
+<rect x="613.9" y="356" width="163.1" height="16" class="p7"/>
+<rect x="777.1" y="356" width="0.6" height="16" class="p8"/>
+<text x="783.6" y="368.0" class="m" font-size="10">20.3 ms</text>
+<text x="330.0" y="386.0" class="m" font-size="10">Δ dispatch+return +7.36 ms (historical Δ dispatch +7.40)</text>
+<text x="330.0" y="428.0" class="m" font-size="11">milliseconds (mean over in-window requests)</text>
+</svg>

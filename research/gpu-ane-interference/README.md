@@ -6,9 +6,23 @@ the short and long streams' P99 latencies still rise above their solo values
 (`benchmarks/v0.2.md`, Part A; README "Isolation is partial")? And what would a scheduler need
 to model to predict completion times under that interference?
 
-Everything here is research code. `laya_apple` is unchanged. The tracing wraps the product's
-own `DeviceWorker` and backends from the outside and only reads the clock (see
-[Instrumentation](#instrumentation)).
+Everything here is research code. `laya_apple` was unchanged when this study ran. The
+tracing wraps the product's own `DeviceWorker` and backends from the outside and only reads
+the clock (see [Instrumentation](#instrumentation)).
+
+**Runtime-trace pipeline (issue #6).** Since this study, the runtime emits its own per-request
+lifecycle trace (`laya_apple.RequestTrace`). The harness now uses it instead of its own
+lifecycle timestamps, and keeps only the backend phase hooks. [`ledger/`](ledger/README.md)
+re-runs the headline cells through that pipeline:
+- the known GPU decomposition reproduces (occupancy ×1.670 against ×1.641 here; Δ dispatch +
+  return +7.36 ms against +7.40 ms);
+- the new split shows the whole delay is in the reply leg, aligned with the end of the ANE's
+  Core ML `predict`.
+
+The sections below describe the harness as it was when this study's raw data was recorded.
+The raw files name the pre-squash commits 8140f38 and b138dc5; the same harness is on `main`
+as e0d11a7 (#39). `analyze.py`, `report.py` and `figures.py` still regenerate
+every number and figure here from the committed `raw/`.
 
 **Status [Measured].** One machine: Apple M4 Max, macOS 26.6.2 (25G83), Python 3.12.14,
 MLX 0.32.2, coremltools 9.0, laya-apple 1.0.2. Models: `laya-typed-decisions`
@@ -40,6 +54,9 @@ asks for that, and for thread vs. process placement to be explained.
 ## Methodology
 
 ### Instrumentation
+
+*As recorded (e0d11a7). The current `jobtrace.py` keeps only the backend
+phase hooks; the lifecycle comes from the runtime trace ([`ledger/`](ledger/README.md)).*
 
 `scripts/jobtrace.py` records, per request, from one system-wide monotonic clock
 (`time.perf_counter` = `mach_absolute_time()` on macOS, identical in the caller and in worker
@@ -370,6 +387,11 @@ Why the prototype did not help:
 
 ## Reproducing
 
+`interference.py` now writes the runtime-trace format that `analyze_ledger.py` reads
+([`ledger/`](ledger/README.md)). To re-record this study's raw data in its original format,
+run the commands below from commit e0d11a7. The analysis commands work on the committed
+`raw/` at any commit.
+
 ```bash
 export LAYA_APPLE_CACHE=/path/to/cache HF_HUB_OFFLINE=1   # built, validated ANE artifacts
 # the full campaign (~5 h on an M4 Max; idle machine, AC power): device, product, sparse plans
@@ -394,7 +416,8 @@ uv run python research/gpu-ane-interference/scripts/figures.py
 
 | Path | What |
 |---|---|
-| `scripts/jobtrace.py`, `scripts/hooks/sitecustomize.py` | the instrumentation |
+| `scripts/jobtrace.py`, `scripts/hooks/sitecustomize.py` | the backend phase hooks (originally also the lifecycle timestamps) |
+| `scripts/ledger.py`, `scripts/analyze_ledger.py`, `scripts/figures_ledger.py`, `scripts/overhead.py`, `scripts/equivalence.py`, `scripts/run_ledger.sh` | the runtime-trace pipeline ([`ledger/`](ledger/README.md)) |
 | `scripts/interference.py` | the measurement driver (device, product, sparse and A/B plans) |
 | `scripts/gil_probe.py` | the GIL probe |
 | `scripts/contention.py` | the scheduler prototype (research only, calibrated from `results.json`) |

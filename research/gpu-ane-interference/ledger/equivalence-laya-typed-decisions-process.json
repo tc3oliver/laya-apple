@@ -1,0 +1,49 @@
+{
+  "model": "laya-typed-decisions",
+  "ane_placement": "process",
+  "requests": 56,
+  "shapes": {
+    "S": {
+      "length": 64,
+      "questions": 1
+    },
+    "M": {
+      "length": 128,
+      "questions": 1
+    },
+    "A": {
+      "length": 128,
+      "questions": 1
+    },
+    "B": {
+      "length": 128,
+      "questions": 1
+    },
+    "L": {
+      "length": 1024,
+      "questions": 1
+    },
+    "Md": {
+      "length": 512,
+      "questions": 1
+    },
+    "S4": {
+      "length": 128,
+      "questions": 4
+    }
+  },
+  "devices_off": {
+    "gpu": 24,
+    "ane": 32
+  },
+  "reasons_off": [
+    "multiple_questions",
+    "sequence_exceeds_ane_auto_range",
+    "validated_short_single_question_path"
+  ],
+  "identical_decisions_and_answers": true,
+  "differences": [],
+  "traced_once": true,
+  "backend_joined_1to1": 56,
+  "backend_events_without_request_id": 4
+}
