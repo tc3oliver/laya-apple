@@ -1,6 +1,7 @@
 # EXP-001 quick probe: semantic tool-output admission
 
-**Status:** pre-registered. Not run yet.
+**Status:** complete. **Stage A: NO-GO** (oracle reduction 0%). Stage B was not run
+(see [Result](#result)).
 
 This is a small feasibility probe, not the full EXP-001. It answers two questions with
 the least work:
@@ -126,3 +127,80 @@ runtime, and the count of such chunks is reported.
 - Claude Code sessions stand in for Pi or Hermes Agent workloads.
 - Whether to start a Pi shadow-mode proof of concept is a recommendation based on this
   probe, not a pre-registered GO.
+
+## Result
+
+The pre-registration was committed in `18af87f` before any session was read.
+
+```text
+EXP-001 Quick Probe
+
+Samples                     10 tool results (6 search, 4 git)
+Chunks                      35
+Raw tool-output tokens      8,716
+
+Oracle reduction            0.0%
+  search (rg / grep)        0.0%   (24 chunks, 5,576 tokens)
+  git (log / status)        0.0%   (11 chunks, 3,117 tokens)
+  pytest                    no qualifying call
+  build / lint              no qualifying call
+
+Laya                        not run (Stage A < 15%)
+
+Verdict                     NO-GO
+Reason                      Even an ideal semantic gate finds nothing to drop in
+                            this workload.
+```
+
+**Labels.** Of 8,693 chunk tokens, 3,643 (42%) are REQUIRED and 5,050 (58%) are USEFUL.
+No chunk is IRRELEVANT. The labels were frozen before the verdict was computed (SHA-256
+`085adf88…abd04a`). The per-chunk records are in
+[`results/exp-001-quick-probe/`](results/exp-001-quick-probe/).
+
+**Why the ceiling is 0%.**
+- The agent in these sessions already shapes its commands: exact `grep` patterns,
+  `cut -c`, `head`, `pytest -q … | tail`. The output it gets back is mostly what it
+  asked for.
+- Every pytest and build/lint output in these sessions is under 400 tokens, so none
+  qualified.
+- The larger outputs are lists the agent wanted in full: an untracked-file list for a
+  hygiene check, metric dumps it checked number by number, and grep hits it then edited.
+  Dropping any chunk of them could hide the one line that mattered, so the conservative
+  rule keeps them all.
+
+**Context.** The 10 selected calls hold 8,716 tokens. The whole pool of this repository's
+sessions holds 1,007,031 tokens of `Bash` output and 1,223,933 tokens of tool output
+overall. Most of the volume is outside this probe's scope: file reads, scripts and `gh`
+output.
+
+### Selection as implemented
+
+These rules were applied before any chunk was labelled. They implement the
+pre-registered selection. They do not change it.
+- A call counts only if its command **runs** one of the listed tools. A Python snippet
+  that mentions `grep` does not count.
+- Commands that run in another repository were dropped. So were commands in a
+  third-party checkout, and commands that read other Claude Code session files.
+- Subagent transcripts under the same project directory were included. They are part
+  of this repository's sessions.
+- The pool had 24 qualifying calls: 20 search and 4 git. The per-type cap of 6 gives 10.
+  The pre-registered floor of 10 is met exactly.
+
+### Answers
+
+1. **Upside.** Not enough in this workload. An ideal chunk-level KEEP/DROP gate would
+   save 0% of the qualifying output.
+2. **Laya signal.** Not tested. Stage B runs only when Stage A reaches 30%.
+3. **Pi shadow-mode proof of concept.** Not recommended on this evidence. A chunk-level
+   admission gate has no measured upside here.
+
+### Limitations
+
+- Everything listed under [What this probe cannot claim](#what-this-probe-cannot-claim)
+  applies.
+- The sample is 10 calls from one developer and one repository, and has no pytest or
+  build output. A workload with long, noisy test or build logs could give a different
+  ceiling. This probe did not measure one.
+- The conservative rule keeps every USEFUL chunk. A gate that may drop or summarise
+  USEFUL content (58% of tokens here) is a different question, with a different risk,
+  and is not tested.

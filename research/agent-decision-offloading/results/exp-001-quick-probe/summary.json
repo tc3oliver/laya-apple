@@ -1,0 +1,140 @@
+{
+ "experiment": "EXP-001 quick probe",
+ "preregistration_commit": "18af87f",
+ "tokenizer": "tiktoken 0.14.0 o200k_base",
+ "source": "Claude Code sessions of this repository: 11 top-level sessions and 13 subagent transcripts",
+ "qualifying_calls": 24,
+ "qualifying_by_type": {
+  "search": 20,
+  "git": 4,
+  "pytest": 0,
+  "build_lint": 0
+ },
+ "selected_calls": 10,
+ "labels_sha256": "085adf8853fb85ca80d0df7ae4af7f098b7b9567f5f44829318de3d118abd04a",
+ "stage_a": {
+  "all": {
+   "calls": 10,
+   "chunks": 35,
+   "raw_tokens": 8716,
+   "chunk_tokens": 8693,
+   "label_tokens": {
+    "REQUIRED": 3643,
+    "USEFUL": 5050,
+    "IRRELEVANT": 0
+   },
+   "label_chunks": {
+    "REQUIRED": 13,
+    "USEFUL": 22,
+    "IRRELEVANT": 0
+   },
+   "oracle_admitted_tokens": 8693,
+   "oracle_reduction_pct": 0.0
+  },
+  "search": {
+   "calls": 6,
+   "chunks": 24,
+   "raw_tokens": 5588,
+   "chunk_tokens": 5576,
+   "label_tokens": {
+    "REQUIRED": 2499,
+    "USEFUL": 3077,
+    "IRRELEVANT": 0
+   },
+   "label_chunks": {
+    "REQUIRED": 9,
+    "USEFUL": 15,
+    "IRRELEVANT": 0
+   },
+   "oracle_admitted_tokens": 5576,
+   "oracle_reduction_pct": 0.0
+  },
+  "git": {
+   "calls": 4,
+   "chunks": 11,
+   "raw_tokens": 3128,
+   "chunk_tokens": 3117,
+   "label_tokens": {
+    "REQUIRED": 1144,
+    "USEFUL": 1973,
+    "IRRELEVANT": 0
+   },
+   "label_chunks": {
+    "REQUIRED": 4,
+    "USEFUL": 7,
+    "IRRELEVANT": 0
+   },
+   "oracle_admitted_tokens": 3117,
+   "oracle_reduction_pct": 0.0
+  }
+ },
+ "stage_a_verdict": "NO-GO",
+ "stage_b": "not run (Stage A < 15%)",
+ "context_pool_tokens": {
+  "all_tool_results": 1223933,
+  "bash_tool_results": 1007031,
+  "selected_calls": 8716
+ },
+ "calls": [
+  {
+   "call_id": "T01",
+   "tool_type": "search",
+   "tokens": 436,
+   "date": "2026-09-24"
+  },
+  {
+   "call_id": "T02",
+   "tool_type": "search",
+   "tokens": 783,
+   "date": "2026-09-24"
+  },
+  {
+   "call_id": "T03",
+   "tool_type": "search",
+   "tokens": 827,
+   "date": "2026-09-24"
+  },
+  {
+   "call_id": "T04",
+   "tool_type": "git",
+   "tokens": 574,
+   "date": "2026-09-24"
+  },
+  {
+   "call_id": "T05",
+   "tool_type": "search",
+   "tokens": 1112,
+   "date": "2026-09-24"
+  },
+  {
+   "call_id": "T06",
+   "tool_type": "search",
+   "tokens": 1098,
+   "date": "2026-09-24"
+  },
+  {
+   "call_id": "T07",
+   "tool_type": "search",
+   "tokens": 1332,
+   "date": "2026-09-24"
+  },
+  {
+   "call_id": "T08",
+   "tool_type": "git",
+   "tokens": 1411,
+   "date": "2026-09-24"
+  },
+  {
+   "call_id": "T09",
+   "tool_type": "git",
+   "tokens": 672,
+   "date": "2026-09-24"
+  },
+  {
+   "call_id": "T10",
+   "tool_type": "git",
+   "tokens": 471,
+   "date": "2026-09-23"
+  }
+ ]
+}
