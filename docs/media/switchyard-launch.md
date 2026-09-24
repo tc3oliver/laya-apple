@@ -1,72 +1,87 @@
-# Switchyard launch video
+# Switchyard launch media
 
-`switchyard-launch.mp4` (1920×1080, 30 fps, 15 s) and `switchyard-launch.gif` (800×450,
-10 fps, 10 s: the two replay shots and the first 2 s of the result card) come from one
-recorded Switchyard run on an Apple M4 Max with macOS 26.6.2:
+`switchyard-launch.mp4` (1920×1080, 30 fps, 20 s, for social posts) and
+`switchyard-launch.gif` (800×450, 10 fps, 10 s, the README figure) come from one recorded
+Switchyard run on an Apple M4 Max with macOS 26.6.2:
 [`benchmarks/switchyard/v1-m4-max/raw/run-003/`](../../benchmarks/switchyard/v1-m4-max/raw/run-003/).
 They are made with Remotion outside this repository, so the runtime has no Node dependency.
 
 | Input | SHA-256 |
 |---|---|
 | `result.json` | `d638d28e41700e7664aeee7b43609b81fd9a009831cbec241cdfa44fa5de4146` |
-| `replay.html`, result card frames | `4df6fa38e0f8e63d2031ba9d7d9eca35874687c6de1f380430519549c9aeee19` |
-| `replay.html`, all other frames | `6ba8ccc41da3414ed7677b9d28ae3200aa242d56207654de4986c36a7d04127c` |
+| `replay.html` | `4df6fa38e0f8e63d2031ba9d7d9eca35874687c6de1f380430519549c9aeee19` |
 
-The `6ba8…` page was a pre-release build of the replay page and cannot be rebuilt from
-committed code. The result card frames come from the `4df6…` page, which is the committed
-replay page built from this run (see [Result card frames](#result-card-frames)).
-
-The run was picked by rule, not by eye: of the campaign's three runs, the one whose GPU-only
-P99 decision latency is the median (3107.72, **3137.24**, 3170.55 ms). This is a different run
-from the screenshots in [`switchyard.md`](switchyard.md), which use run-001.
-
-| Time | Shows |
-|---|---|
-| 0–2 s | "Have a Mac?", then `uvx laya-apple switchyard` |
-| 2–6 s | The GPU-only round, data time 30.0–31.0 s: the rush hour that starts at 30 s |
-| 6–10 s | Hard cut to the GPU + ANE round, the same data window on the same timetable |
-| 10–13 s | The result card. The P99 queue wait and "Slower than" rows are dimmed, not removed |
-| 13–15 s | `uvx laya-apple switchyard` and the repository link |
-
-## How it was made
-
-Apart from the result card, the frames come from the run's `replay.html` at the time (the
-`6ba8…` build), opened unmodified in headless Chrome at 1600×900, device
-scale factor 1.2, with the Engines drawer open and the page's own speed of 0.25× real time
-(4 s of video = 1 s of data). `requestAnimationFrame` was replaced by a virtual clock advanced
-exactly one video frame per screenshot, so every frame is deterministic.
-
-The video covers the page's header bar (brand, round tabs, playback buttons) with a bar in the
-page's own colours holding the configuration label, and adds a light vignette. Those overlays
-contain no numbers.
-
-## Result card frames
-
-The card frames are MP4 frames 300–389 (10.0–13.0 s) and GIF frames 80–99. They show the
-PNG that the committed replay page's **Save PNG** button produces. That page was built with
+`replay.html` is not committed. The committed code rebuilds it byte for byte from the run:
 
 ```bash
 uv run laya-apple switchyard --replay benchmarks/switchyard/v1-m4-max/raw/run-003 --no-open
 ```
 
-and has SHA-256 `4df6…`. These frames replace the card of the pre-release build, which
-rounded the miss rates differently: it showed the GPU-only 25 ms and 50 ms rates, 0.997 and
-0.994 in `result.json`, as "100%" and "99%". The committed page shows 99.7% and 99.4%.
-Every other number on the card is the same in both builds.
+The run was picked by rule, not by eye: of the campaign's three runs, the one whose GPU-only
+P99 decision latency is the median (3107.72, **3137.24**, 3170.55 ms). This is a different run
+from the screenshots in [`switchyard.md`](switchyard.md), which use run-001.
 
-How the frames were redone:
-- Both cards were rendered at 2×: the committed page's, and one from a scratch copy of the page with only the old rounding restored. Both were scaled to the frame size. They differ only around those two figures.
-- In each card frame, a per-channel gain and offset was fitted between the old card and the frame over each differing region. This captures that frame's dimming and vignette.
-- That scaled difference between the new and old card was added to the frame there. All other pixels are unchanged.
-- The GIF's frames 0–79 decode pixel-identical to the previous GIF.
-- The MP4 was re-encoded (H.264 High, yuv420p, CRF 16, 30 fps, faststart). Outside the card frames it matches a plain re-encode of the previous MP4 with the same settings, a mean difference of 0.007 levels. So those frames differ from the previous file only by encoding noise.
+## Timing
+
+MP4:
+
+| Time | Shows |
+|---|---|
+| 0–2 s | "1,407 LATE TRAINS → 0", "Same Mac. Same model.", and "MLX GPU → MLX GPU + Apple Neural Engine" |
+| 2–8 s | GPU-only round, data time 29.75–31.25 s: from just before the rush hour that starts at 30 s ("Rush hour starts…") |
+| 8–14 s | Hard cut to the GPU + ANE round, the same data window on the same timetable |
+| 14–18 s | Result card: trains late and P99 decision latency for both rounds |
+| 18–20 s | "Try it on your Mac", `uvx laya-apple switchyard` and the repository link |
+
+GIF (no command; the README shows it above the GIF):
+
+| Time | Shows |
+|---|---|
+| 0–3 s | GPU-only round, data time 30.0–30.75 s: the start of the rush hour |
+| 3–6 s | GPU + ANE round, the same 30.0–30.75 s |
+| 6–10 s | Result card |
+
+## How it was made
+
+- **Footage.** The committed `replay.html` above, opened unmodified in headless Chrome with a
+  1600×900 stage, the timeline drawer closed and the page's own 0.25× speed (4 s of video =
+  1 s of data). `requestAnimationFrame` was replaced by a virtual clock advanced exactly one
+  video frame per screenshot, so every frame is deterministic. Each screenshot is clipped to
+  the rail yard (CSS px x 234–1600, y 196–836.3, all six lines, queues, signals, junctions
+  and platforms) at 1920×900. The header, status row, scrubber, column labels, line numbers
+  and legend are outside the clip. The capture is 180 frames per round from data time
+  29.75 s. The MP4 plays frames 0–179 of both rounds, the GIF frames 30–119 of both, 1:1.
+  So each pair of shots shows the same data window.
+- **Overlays.** Over each shot, a 180 px band in the page's colours names the configuration
+  (GPU amber, ANE teal, late red), shows that round's whole-run result from the first frame,
+  and says what the train colour means: red for late (no answer in 100 ms), teal for answered
+  by the ANE. A clock in the top left of the yard shows the replay's data time
+  (`window_start_s + frame / 30 × 0.25`), so the two shots visibly cover the same window. A
+  caption box sits over the empty track at the bottom left for the
+  first 2 s (MP4) or 1.2 s (GIF). The hook, result card and ending are drawn by the
+  composition. Every number in them is read from `result.json` at capture time; none is
+  typed in by hand.
+- **MP4.** H.264 High, yuv420p, CRF 16, 30 fps.
+- **GIF.** A separate 10 s composition with the same shots and card, rendered at
+  800/1920 scale. Every 3rd frame of the 30 fps render is kept (10 fps, 100 frames) and
+  encoded with one global 128-colour palette, no dithering.
 
 ## Where the numbers come from
 
-- **Replay shots:** the status row shows running values: trains late so far, and the P99 of
-  the answers received so far. The page computes them from the trains in its replay data,
-  so they are not the final round totals.
-- **Result card:** every number comes from `run-003/result.json`, as described for the card in
-  [`switchyard.md`](switchyard.md#where-the-numbers-come-from). For this run: 1,407 of 1,422
-  trains late and P99 decision latency 3,137 ms GPU-only; 0 late and 54.7 ms GPU + ANE.
-  GPU-only miss rates at 25, 50, 100, 250 and 500 ms show as 99.7%, 99.4%, 99%, 97% and 89%.
+Every number is from `run-003/result.json`. The total, 1,422 trains, is
+`workload.offered.trains`, and the 100 ms deadline is `workload.deadline_ms`.
+
+| Shown | Value in `result.json` | Field |
+|---|---|---|
+| GPU only: 1,407 / 1,422 late | 1407 | `configs.gpu_only.summary.late.count` |
+| GPU only: P99 ~3.1 s | 3137.24 ms | `configs.gpu_only.summary.decision_latency.p99_ms` |
+| GPU + ANE: 0 / 1,422 late | 0 | `configs.hybrid.summary.late.count` |
+| GPU + ANE: P99 ~55 ms | 54.68 ms | `configs.hybrid.summary.decision_latency.p99_ms` |
+
+The late counts are exact. The two P99 values are rounded for display: to one decimal
+place in seconds at or above 1 s, and to whole milliseconds below. The README table keeps the
+exact ranges over all three runs.
+
+The page's running counters (trains late so far, P99 so far) are outside the clip. The only
+other numbers on screen are the replay's own "N waiting" labels under each queue, which count
+the trains waiting at that moment.
