@@ -13,10 +13,11 @@ MOCK="$HERE/../common/mock_llm.py"
 # Two-call wrapper around the common mock (reuses its handler; only widens the reply).
 MOCK_PARALLEL="$HERE/../common/mock_llm_parallel.py"
 EXT="$HERE/laya-sentinel-extension.ts"
-RESULTS="$HERE/results"
+RESULTS="${LAYA_SPIKE_RESULTS:-$HERE/results}"   # EXP-000B writes to its own directory
 SCRATCH="${LAYA_SPIKE_SCRATCH:-$HOME/Developer/scratch/agent-offloading/pi}"
 PY=(uv run --no-project python)
 PI_TIMEOUT="${LAYA_SPIKE_PI_TIMEOUT:-60}"   # watchdog per Pi invocation, seconds
+CASES="${LAYA_SPIKE_CASES:-}"               # space-separated subset; empty runs every case
 
 NODE="$(command -v node)"   # Node comes from mise; resolve it before HOME is replaced
 INSTALL="$SCRATCH/install"
@@ -105,6 +106,7 @@ turn() {  # run one Pi turn and record its status; never aborts the script
 }
 
 run_case() {  # $1 case, $2 ext|noext, $3 filter, $4 tool, $5 args, $6 second-turn(1|0), [$7 second-call args]
+  [ -z "$CASES" ] || [[ " $CASES " == *" $1 "* ]] || return 0
   echo "== $1"
   start_mock "$1" "$4" "$5" "${7:-}"
   turn "$1" 1 "$2" "$3" "Call the $4 tool, then report its output."

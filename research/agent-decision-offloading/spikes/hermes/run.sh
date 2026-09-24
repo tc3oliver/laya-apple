@@ -20,7 +20,7 @@ set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MOCK="$HERE/../common/mock_llm.py"
 MOCK_PARALLEL="$HERE/../common/mock_llm_parallel.py"
-RESULTS="$HERE/results"
+RESULTS="${LAYA_SPIKE_RESULTS:-$HERE/results}"  # EXP-000B writes to its own directory
 SCRATCH="${LAYA_SPIKE_SCRATCH:-$HOME/Developer/scratch/agent-offloading/hermes}"
 HERMES_REPO="https://github.com/NousResearch/hermes-agent.git"
 HERMES_SHA="7de8728cba339065329f141cf92686bf06d2c171"  # main on 2026-09-24, v0.21.4 line
