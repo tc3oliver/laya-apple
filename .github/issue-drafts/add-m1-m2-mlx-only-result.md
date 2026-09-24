@@ -11,7 +11,7 @@ easiest hardware contribution in the project.
 
 | | |
 |---|---|
-| **Hardware needed** | Any M1 or M2 Mac: M1, M1 Pro, M1 Max, M1 Ultra, M2, M2 Pro, M2 Max or M2 Ultra |
+| **Hardware needed** | Any M1 or M2 Mac: M1, M1 Pro, M1 Max, M1 Ultra, M2, M2 Max or M2 Ultra. M2 Pro already has a result (#47); a second M2 Pro with a different memory size or macOS is still welcome |
 | **Estimated time** | About 10 minutes, mostly installing packages and downloading an 800 MB checkpoint |
 | **Code changes** | **None.** You add one generated directory under `hardware-results/`. |
 | **Also needed** | `git`, [uv](https://docs.astral.sh/uv/) (`brew install uv`), about 2 GB of free disk |
@@ -80,7 +80,7 @@ Without the GitHub CLI: fork the repository on GitHub, then run
 `git push` prints.
 
 In the pull request description, paste the matrix row the script printed and write
-`Closes #1`.
+`Refs #1` (the issue stays open for the other M1/M2 chips).
 
 ## What the reviewer checks
 

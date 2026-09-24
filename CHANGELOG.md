@@ -32,6 +32,17 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   and warn without stopping if the caches exceed 50 GiB. Nothing is deleted automatically;
   `docs/benchmarks.md` explains the cache and how to clean it up by hand. No runtime,
   routing or parity code changed.
+- **Community hardware result: Apple M2 Pro** (16 GB, macOS 26.6.2), in
+  `hardware-results/apple-m2-pro-macos26/` (#47), the first result outside the M4 family.
+  An MLX-only run: MLX FP16 parity passed for `laya-typed-decisions`; coremltools was not
+  installed, so `auto` stayed on MLX (`ane_runtime_unavailable`) and the ANE and
+  heterogeneous checks did not run. One change updates the M2 Pro row of
+  `docs/community-benchmarks.md` (and notes `ane_runtime_unavailable` as an expected
+  `Auto uses ANE: no` reason), a community-measurement row in `docs/support-matrix.md`,
+  the community results and the SoC cell in `docs/compatibility.md`, the README's
+  community status, and the draft of issue #1, which stays open for the other M1/M2 chips
+  and now asks for `Refs #1` instead of `Closes #1`.
+  No runtime, routing, parity or benchmark code changed.
 - **Community hardware result: Apple M4** (32 GB, macOS 26.2), in
   `hardware-results/apple-m4-macos26/` (#41). MLX and ANE parity passed for
   `laya-typed-decisions`; `laya-apple calibrate` was not run, so `auto` stayed on MLX
