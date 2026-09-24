@@ -33,7 +33,7 @@ How the game maps to the benchmark:
 The benchmark runs headless first. The browser then replays the recorded request traces;
 the animation is not part of the measurement.
 
-### Same timetable. Same model. Different runtime.
+### Same timetable. Same model. GPU + Neural Engine.
 
 | | MLX GPU only | MLX GPU + Neural Engine |
 |---|---:|---:|
