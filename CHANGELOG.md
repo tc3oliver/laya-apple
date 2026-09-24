@@ -18,11 +18,14 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   matrix row from that bundle and marks `Auto uses ANE` as coming from a local calibrated
   profile, not the shipped routing table. The M4 Pro contribution slot is removed now that
   issue #3 is closed. No runtime, routing, parity or benchmark code changed.
-- **README serving animation.** `docs/media/heterogeneous-serving.gif` (960×540, 10 fps, 20 s,
-  0.6 MB) is the first figure in the README, after the one-line description and before the
-  throughput figure. It replays one burst of the laya-typed-decisions bursty workload, GPU-only against GPU + ANE, from a
-  per-request trace of the benchmark's arrival sequence. The P99 values it shows are the
-  published v1.0 numbers.
+- **README serving animation.** `docs/media/heterogeneous-serving.gif` (800×450, 5 fps, 30 s,
+  1.7 MB) is the first figure in the README, after the one-line description and before the
+  throughput figure. It opens with a recorded Lane Runner game from
+  [laya-playground-apple](https://github.com/tc3oliver/laya-playground-apple), the same
+  model on the MLX GPU and the Apple Neural Engine, recorded separately and labelled as a
+  single-request comparison. It then turns to GPU + ANE serving: one burst of the
+  laya-typed-decisions bursty workload, GPU-only against GPU + ANE, from a per-request trace
+  of the benchmark's arrival sequence, ending on the published v1.0 short-request P99.
 - **Serving video and its data.** `docs/media/` holds the shareable benchmark media: the
   animation, a 1080p MP4, a poster frame, the per-request trace and a README that gives the
   source of every number on screen. `docs/readme/` keeps only README-specific static

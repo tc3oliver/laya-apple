@@ -10,14 +10,17 @@ for Apple silicon.** It runs the MLX GPU and the Apple Neural Engine at the same
 uses the Neural Engine only where it has been proven to give the same decisions as
 upstream Laya.
 
-![The same burst of requests served GPU-only and GPU + ANE: GPU-only short requests wait in the GPU queue for up to 1.5 s, while under GPU + ANE the router sends them to the ANE and they run as they arrive](https://raw.githubusercontent.com/tc3oliver/laya-apple/main/docs/media/heterogeneous-serving.gif)
+![The same model playing Lane Runner on the MLX GPU and on the Apple Neural Engine to the same score, then the same burst of requests served GPU-only and GPU + ANE: GPU-only short requests wait in the GPU queue for up to 1.5 s, while under GPU + ANE the router sends them to the ANE and they run as they arrive](https://raw.githubusercontent.com/tc3oliver/laya-apple/main/docs/media/heterogeneous-serving.gif)
 
 **Short requests stop waiting behind longer requests on the GPU.** laya-apple sends short,
 single-question requests with a validated artifact to the Apple Neural Engine while longer
-ones keep running on the MLX GPU. The animation replays one burst of the
-laya-typed-decisions bursty workload on an M4 Max, from a per-request trace of the
-benchmark's arrival sequence. Its P99 values are the published v1.0 numbers in
-[GPU + ANE heterogeneous serving](#gpu--ane-heterogeneous-serving).
+ones keep running on the MLX GPU. The animation first replays a recorded
+[Lane Runner](https://github.com/tc3oliver/laya-playground-apple) game on an M4 Max, the
+same model on each device, recorded separately, one request at a time. It then replays one burst of the
+laya-typed-decisions bursty workload, from a per-request trace of the benchmark's arrival
+sequence. Its P99 values are the published v1.0 numbers in
+[GPU + ANE heterogeneous serving](#gpu--ane-heterogeneous-serving); every number's source is
+in [`docs/media/README.md`](docs/media/README.md).
 
 ![Mixed-workload throughput against GPU-only serving: laya 41.9 to 122.5 req/s (2.92×), laya-multilingual 55.7 to 241.8 req/s (4.34×), laya-typed-decisions 24.0 to 109.6 req/s (4.57×)](https://raw.githubusercontent.com/tc3oliver/laya-apple/main/docs/readme/hero-throughput.svg)
 
