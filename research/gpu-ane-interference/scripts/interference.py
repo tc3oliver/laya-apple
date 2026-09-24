@@ -5,11 +5,13 @@
         --model laya-typed-decisions --ane-placement thread --plan device \
         --out research/gpu-ane-interference/raw/device-laya-typed-decisions-thread.json.gz
 
-One product `Laya(device="auto", execution="workers")` instance per run: the GPU in its
-worker process, the ANE on a thread or in a worker process (--ane-placement). Two plans:
+The GPU runs in its worker process, the ANE on a thread or in a worker process
+(--ane-placement), both in `Laya(execution="workers")` instances of this process. Two plans:
 
-device    Each stream feeds ONE device directly through the product's DeviceWorker, so the
-          experimenter, not the router, decides which device runs what. Cells:
+device    Each stream feeds ONE device through `Laya.submit` of an explicit-device instance
+          (`device="gpu"` or `device="ane"`, both in this process, so a thread-placed ANE shares
+          this interpreter with the GPU's dispatcher exactly as under `auto`). The experimenter,
+          not the router, decides which device runs what. Cells:
             solo      one stream alone (the baseline every other cell is compared with)
             matrix    one GPU and one ANE stream, both closed loop
             sweep     a closed-loop victim on one device, an open-loop Poisson aggressor on
@@ -25,10 +27,18 @@ product   Requests go through Laya.submit, so the v0.2 queue-aware router decide
           --scheduler both runs every open cell twice per cycle, once with the v0.2
           decide_queued and once with the contention.py prototype (research only).
 
-Every request records arrival, queue_enter, device_start, device_end and response
-(time.perf_counter, one system-wide monotonic clock; see jobtrace.py) plus the backend's
-own phase split (device spans vs host work). Every answer is compared with the inline answer
-for the same request on the same device; a mismatch is reported, never dropped.
+The request lifecycle comes from the runtime: every instance is created with
+`trace=callback`, and each completed request's laya_apple.RequestTrace (submit, prepare,
+route, queue, dispatch, service, response, and the queue snapshots the router used) is
+stored as it was emitted. The harness adds only what the runtime does not know: the
+workload generator's arrival time (the scheduled time in open loop), the request's shape
+class and seed, whether the answer matched the inline reference, and the backend phase
+split from jobtrace.py (device spans, host work, CPU time), tagged with the request id.
+ledger.py joins them on request_id. Every answer is compared with the inline answer for the
+same request on the same device; a mismatch is reported, never dropped. All times are
+time.monotonic_ns, the runtime's clock.
+
+--no-trace and --no-backend-hooks switch the two layers off, to measure what each costs.
 
 Windows: each cell runs `--cycles` times, in alternating cell order. Within one window the
 streams start together; the first `--warmup` seconds are discarded and only requests that
@@ -60,7 +70,7 @@ sys.path.insert(0, str(HERE))
 import contention  # noqa: E402
 import jobtrace  # noqa: E402
 
-perf = time.perf_counter
+now = time.monotonic_ns
 
 # ----------------------------------------------------------------------------- environment
 
@@ -242,42 +252,31 @@ class DeviceStream:
         return f"{self.device}_{self.shape}"
 
     def _issue(self, req, arrival):
-        """Prepare, check eligibility and submit one request (on the calling thread)."""
-        laya, service = self.run.laya, self.run.laya._service
-        prep = laya.prepare(req["state"], req["questions"])
-        if self.device == "ane":
-            buckets = laya.ane.check(prep.items)  # the product's ANE eligibility gate: raises, never pads/truncates
-            estimate = sum(service.ane_ms(b) for b in buckets)
-        else:
-            estimate = service.gpu_ms(prep.sequence_length, prep.question_count)
-        rec = self.run.jobs.open(prep.items, arrival=arrival, prepared=perf(), seed=req["seed"])
-        fut = self.run.workers[self.device].submit(prep.items, estimate)
-        return prep, rec, fut
+        """Submit one request to this device's instance (on the calling thread). An explicit
+        device="ane" instance applies the product's ANE eligibility gate before queueing."""
+        fut = self.run.lays[self.device].submit(context=req["state"], questions=req["questions"])
+        rec = {"arrival": arrival, "seed": req["seed"], "shape": self.shape}
+        fut.add_done_callback(lambda _f, rec=rec: rec.setdefault("done", now()))  # the collector may lag
+        return rec, fut
 
-    def _complete(self, req, prep, rec, fut):
-        from laya_apple.prompt import format_answers
-
+    def _complete(self, req, rec, fut):
         try:
-            logits, act, wait_ms, device_ms = fut.result()
+            r = fut.result()
         except Exception as e:  # an error is a result, not something to skip silently
             self.errors.append(repr(e))
-            self.run.jobs.close(rec)
             return
-        rec["woke"] = perf()
-        answers = format_answers(prep, logits, act, self.run.laya.calibration)
-        rec["response"] = perf()
-        rec["forward_ms"] = device_ms
-        rec["match"] = answers == self.run.work.refs[(self.shape, req["seed"], self.device)]
-        self.records.append(self.run.jobs.close(rec))
+        rec["request_id"] = r.runtime.request_id
+        rec["match"] = r.answers == self.run.work.refs[(self.shape, req["seed"], self.device)]
+        self.records.append(rec)
 
     def run_closed(self, start_at, stop_at):
         reqs = self.run.work.cycle(self.shape)
-        while perf() < start_at:
+        while now() < start_at:
             time.sleep(0.0002)
-        while perf() < stop_at:
+        while now() < stop_at:
             req = next(reqs)
-            prep, rec, fut = self._issue(req, perf())
-            self._complete(req, prep, rec, fut)
+            rec, fut = self._issue(req, now())
+            self._complete(req, rec, fut)
 
     def run_open(self, start_at, stop_at):
         reqs = self.run.work.cycle(self.shape)
@@ -291,15 +290,14 @@ class DeviceStream:
         collector.start()
         t = start_at
         while True:
-            t += self.rng.expovariate(self.rate)
+            t += int(self.rng.expovariate(self.rate) * 1e9)
             if t >= stop_at:
                 break
-            while (now := perf()) < t:
-                time.sleep(min(0.0005, t - now))
+            while (n := now()) < t:
+                time.sleep(min(0.0005, (t - n) / 1e9))
             req = next(reqs)
-            prep, rec, fut = self._issue(req, t)  # arrival = the scheduled time
-            rec["submitted"] = perf()
-            pending.put((req, prep, rec, fut))
+            rec, fut = self._issue(req, t)  # arrival = the scheduled time
+            pending.put((req, rec, fut))
         pending.put(None)
         collector.join()
 
@@ -321,10 +319,9 @@ class ProductStream:
         self.errors: list = []
 
     def _issue(self, shape, req, arrival):
-        self.run.jobs.expect_new()
         fut = self.run.laya.submit(context=req["state"], questions=req["questions"])
-        rec = self.run.jobs.last_opened()
-        rec.update(arrival=arrival, shape=shape, seed=req["seed"])
+        rec = {"arrival": arrival, "shape": shape, "seed": req["seed"]}
+        fut.add_done_callback(lambda _f, rec=rec: rec.setdefault("done", now()))  # the collector may lag
         return rec, fut
 
     def _complete(self, shape, req, rec, fut):
@@ -332,20 +329,12 @@ class ProductStream:
             r = fut.result()
         except Exception as e:
             self.errors.append(repr(e))
-            self.run.jobs.close(rec)
             return
-        # open loop: the collector may reach this late; the Future's own resolution time is the response
-        rec["response"] = rec.pop("response_cb", None) or perf()
-        rt = r.runtime
-        rec.update(
-            forward_ms=rt.device_ms,
-            reason=rt.routing_reason,
-            gpu_backlog_ms=rt.gpu_backlog_ms,
-            ane_backlog_ms=rt.ane_backlog_ms,
-            latency_ms=rt.latency_ms,
-            match=r.answers == self.run.work.refs[(shape, req["seed"], rt.device)],
-        )
-        self.records.append(self.run.jobs.close(rec))
+        rec["request_id"] = r.runtime.request_id
+        # device and reason also from RuntimeInfo: they are what a trace-off run is compared on
+        rec["device"], rec["reason"] = r.runtime.device, r.runtime.routing_reason
+        rec["match"] = r.answers == self.run.work.refs[(shape, req["seed"], r.runtime.device)]
+        self.records.append(rec)
 
     def _pick(self, cycles):
         names = [c for c, _ in self.classes]
@@ -354,12 +343,12 @@ class ProductStream:
 
     def run_window(self, start_at, stop_at):
         cycles = {c: self.run.work.cycle(c) for c, _ in self.classes}
-        while perf() < start_at:
+        while now() < start_at:
             time.sleep(0.0002)
         if self.mode == "closed":
-            while perf() < stop_at:
+            while now() < stop_at:
                 shape, req = self._pick(cycles)
-                rec, fut = self._issue(shape, req, perf())
+                rec, fut = self._issue(shape, req, now())
                 self._complete(shape, req, rec, fut)
             return
         pending: queue.Queue = queue.Queue()
@@ -376,19 +365,13 @@ class ProductStream:
         collector.start()
         t = start_at
         while True:
-            t += self.rng.expovariate(self.rate)
+            t += int(self.rng.expovariate(self.rate) * 1e9)
             if t >= stop_at:
                 break
-            while (now := perf()) < t:
-                time.sleep(min(0.0005, t - now))
+            while (n := now()) < t:
+                time.sleep(min(0.0005, (t - n) / 1e9))
             shape, req = self._pick(cycles)
             rec, fut = self._issue(shape, req, t)
-            rec["submitted"] = perf()
-
-            def stamp(_f, rec=rec):  # response = when the Future resolved (collector may lag)
-                rec["response_cb"] = perf()
-
-            fut.add_done_callback(stamp)
             pending.put((shape, req, rec, fut))
         pending.put(None)
         collector.join()
@@ -416,23 +399,34 @@ class Run:
         from laya_apple import Laya
 
         self.args = args
+        self.traces: list = []  # laya_apple.RequestTrace, as the runtime emitted them
+        trace = self.traces.append if args.trace else None
         self.trace_dir = Path(tempfile.mkdtemp(prefix="laya-trace-"))
-        os.environ["LAYA_TRACE_DIR"] = str(self.trace_dir)
-        os.environ["PYTHONPATH"] = os.pathsep.join(
-            [str(HERE / "hooks")] + [p for p in os.environ.get("PYTHONPATH", "").split(os.pathsep) if p]
-        )
-        jobtrace.install_phase_hooks()  # this process: the thread-placed ANE backend
-        t = perf()
-        self.laya = Laya.from_pretrained(
-            args.model, device="auto", execution="workers", local_files_only=True, ane_placement=args.ane_placement
-        )
-        self.load_s = perf() - t
-        if self.laya.ane is None or self.laya.ane_state.unavailable:
-            raise SystemExit(f"ANE path unavailable: {self.laya.info()['auto_ane']}")  # never measure a fallback
-        self.workers = dict(self.laya._workers)
-        self.jobs = jobtrace.JobTable()
-        for w in self.workers.values():
-            jobtrace.instrument_worker(w, self.jobs)
+        if args.backend_hooks:
+            os.environ["LAYA_TRACE_DIR"] = str(self.trace_dir)
+            os.environ["PYTHONPATH"] = os.pathsep.join(
+                [str(HERE / "hooks")] + [p for p in os.environ.get("PYTHONPATH", "").split(os.pathsep) if p]
+            )
+            jobtrace.install_phase_hooks()  # this process: a thread-placed ANE backend
+        common = dict(execution="workers", local_files_only=True, trace=trace)
+        t = now()
+        if args.plan == "device":  # one instance per device: the harness picks the device
+            self.lays = {
+                "gpu": Laya.from_pretrained(args.model, device="gpu", **common),
+                "ane": Laya.from_pretrained(args.model, device="ane", ane_placement=args.ane_placement, **common),
+            }
+            self.laya = self.lays["ane"]
+        else:
+            self.laya = Laya.from_pretrained(args.model, device="auto", ane_placement=args.ane_placement, **common)
+            if self.laya.ane is None or self.laya.ane_state.unavailable:
+                raise SystemExit(f"ANE path unavailable: {self.laya.info()['auto_ane']}")  # never measure a fallback
+            self.lays = {"auto": self.laya}
+        self.load_s = (now() - t) / 1e9
+        if args.backend_hooks:
+            for laya in self.lays.values():
+                for w in laya._workers.values():
+                    if w.placement == "thread":
+                        jobtrace.tag_dispatcher(w)
         spec = self.laya.spec
         ane_short, ane_long = spec.ane_buckets[0], max(self.laya.ane.buckets)
         gpu_long = int(self.laya.config.get("max_len", 512))
@@ -451,9 +445,19 @@ class Run:
         self.contention_params = None
         if args.scheduler != "baseline":
             self.contention_params = contention.calibrate(args.model, args.ane_placement)
-        self.t_ref = perf()
+        self.t_ref = now()
         self.windows: list = []
         self.solo: dict = {}
+        self._by_id: dict = {}
+        self._seen = 0
+
+    def trace_of(self, request_id):
+        """The runtime trace of one request (None with --no-trace)."""
+        new = self.traces[self._seen :]  # appended by the dispatcher threads; slicing is safe
+        self._seen += len(new)
+        for t in new:
+            self._by_id[t.request_id] = t
+        return self._by_id.get(request_id)
 
     # ------------------------------------------------------------- one window
 
@@ -465,10 +469,10 @@ class Run:
             g.start()
         if cell.get("sched") == "contention":
             contention.install(self.contention_params)
-        start_at = perf() + 0.3
-        measure_from, measure_to = start_at + a.warmup, start_at + a.warmup + a.seconds
-        guard = a.guard_ms / 1e3
-        stop_at = measure_to + guard
+        start_at = now() + 300_000_000
+        measure_from = start_at + int(a.warmup * 1e9)
+        measure_to = measure_from + int(a.seconds * 1e9)
+        stop_at = measure_to + int(a.guard_ms * 1e6)
         threads = [threading.Thread(target=s.run_window, args=(start_at, stop_at)) for s in streams]
         for t in threads:
             t.start()
@@ -477,56 +481,61 @@ class Run:
         for g in aggressors:
             g.stop()
         contention.uninstall()
+        rel = lambda x: (x - self.t_ref) / 1e9  # noqa: E731
         out = {
             "cell": cell["name"],
             "kind": cell["kind"],
             "cycle": cycle,
             "spec": {k: v for k, v in cell.items() if k not in ("streams", "aggressors")},
             "conditions_before": cond,
-            "t_start": start_at - self.t_ref,
-            "measure": [measure_from - self.t_ref, measure_to - self.t_ref],
-            "stop": stop_at - self.t_ref,
+            "t_start": rel(start_at),
+            "measure": [rel(measure_from), rel(measure_to)],
+            "stop": rel(stop_at),
             "aggressors": [g.describe() for g in aggressors],
             "streams": {},
         }
+        brief = {}
         for s in streams:
+            recs = [self._rel(r, measure_from, measure_to) for r in s.records]
             out["streams"][s.label] = {
                 "device": getattr(s, "device", None),
                 "shape": getattr(s, "shape", None),
                 "mode": s.mode,
                 "rate": s.rate,
                 "errors": s.errors,
-                "records": columns([self._rel(r, measure_from, measure_to) for r in s.records]),
+                "records": columns(recs),
             }
-        self.windows.append(out)
-        brief = {}
-        for label, st in out["streams"].items():
-            ms = [r for r in rows(st["records"]) if r["in_window"]]
-            svc = sorted(r["device_end"] - r["device_start"] for r in ms if "device_end" in r)
-            e2e = sorted(r["response"] - r["arrival"] for r in ms)
-            if svc:
-                brief[label] = (
+            ms = [r for r in s.records if measure_from <= r["arrival"] < measure_to]
+            occ = sorted(
+                (t.received_ns - t.dispatch_ns) / 1e6 for r in ms if (t := self.trace_of(r["request_id"])) is not None
+            )
+            e2e = sorted((r["done"] - r["arrival"]) / 1e6 for r in ms)
+            if e2e:
+                brief[s.label] = (
                     len(ms),
-                    round(svc[len(svc) // 2], 2),
+                    round(occ[len(occ) // 2], 2) if occ else None,
                     round(e2e[int(0.99 * (len(e2e) - 1))], 2),
                     sum(not r["match"] for r in ms),
                 )
-        print(f"[{cell['name']} c{cycle}] n, svc P50, e2e P99, mismatches: {brief}", flush=True)
+        self.windows.append(out)
+        print(f"[{cell['name']} c{cycle}] n, occupancy P50, client e2e P99, mismatches: {brief}", flush=True)
         return out
 
-    def _rel(self, r: dict, lo: float, hi: float) -> dict:
-        """Timestamps relative to the run's reference, in ms (3 decimals = 1 µs)."""
-        out = {}
-        for k, v in r.items():
-            if k in ("arrival", "prepared", "submitted", "queue_enter", "device_start", "device_end", "woke", "response",
-                     "response_cb"):
-                out[k] = round((v - self.t_ref) * 1e3, 3)
-            elif isinstance(v, float):
-                out[k] = round(v, 3)
-            else:
-                out[k] = v
-        out["in_window"] = lo <= r["arrival"] < hi
-        return out
+    def _us(self, ns: int) -> int:
+        """A monotonic_ns timestamp as integer µs after the run's reference."""
+        return (ns - self.t_ref) // 1000
+
+    def _rel(self, r: dict, lo: int, hi: int) -> dict:
+        return {
+            "request_id": r["request_id"],
+            "arrival_us": self._us(r["arrival"]),
+            "done_us": self._us(r["done"]),
+            "seed": r["seed"],
+            "shape": r["shape"],
+            "match": r["match"],
+            "in_window": lo <= r["arrival"] < hi,
+            **{k: r[k] for k in ("device", "reason") if k in r},
+        }
 
     # ------------------------------------------------------------- plans
 
@@ -534,11 +543,18 @@ class Run:
         return self.solo[(device, shape)]
 
     def record_solo(self, w: dict):
+        """Mean device occupancy (dispatch to result) per solo stream, from the runtime trace;
+        the client's own latency when tracing is off."""
         for st in w["streams"].values():
             ms = [r for r in rows(st["records"]) if r["in_window"]]
-            svc = [r["device_end"] - r["device_start"] for r in ms]
+            svc = []
+            for r in ms:
+                t = self.trace_of(r["request_id"])
+                svc.append((t.received_ns - t.dispatch_ns) / 1e9 if t is not None else None)
+            if None in svc:
+                svc = [(r["done_us"] - r["arrival_us"]) / 1e6 for r in ms]
             key = (st["device"], st["shape"])
-            self.solo.setdefault(key, []).append(sum(svc) / len(svc) / 1e3)
+            self.solo.setdefault(key, []).append(sum(svc) / len(svc))
 
     def device_cells(self) -> list:
         a = self.args
@@ -647,33 +663,44 @@ class Run:
                 self.window(c, cycle, self.make_streams(c), aggs)
 
     def finish(self):
-        self.laya.close()  # workers exit and dump their phase records
+        for laya in self.lays.values():
+            laya.close()  # workers exit and dump their phase records
         time.sleep(0.5)
-        phases = {"parent": jobtrace.phases()}
+        phases = list(jobtrace.phases())  # this process: a thread-placed ANE
         for f in sorted(self.trace_dir.glob("phases-*.json")):
-            phases[f.stem] = json.loads(f.read_text())
+            phases += json.loads(f.read_text())
         shutil.rmtree(self.trace_dir, ignore_errors=True)
-        rel = []
-        for src, recs in phases.items():
-            for p in recs:
-                t0 = (p["t0"] - self.t_ref) * 1e3
-                if t0 < 0:
-                    continue  # warm-up and references
-                rel.append(
-                    {
-                        "src": src,
-                        "kind": p["kind"],
-                        "L": p["max_len"],
-                        "t0": round(t0, 3),
-                        "t1": round((p["t1"] - self.t_ref) * 1e3, 3),
-                        "cpu_ms": round(p["cpu_ms"], 3),
-                        "dev": [[round((x - self.t_ref) * 1e3, 3), round((y - self.t_ref) * 1e3, 3)] for x, y in p["device_spans"]],
-                    }
-                )
-        rel.sort(key=lambda p: p["t0"])
-        rel = columns(rel)
+        us = self._us
+        backend = [
+            {
+                "request_id": p["request_id"],
+                "device": p["device"],
+                "pid": p["pid"],
+                "tid": p["tid"],
+                "rows": p["rows"],
+                "max_len": p["max_len"],
+                "t0_us": us(p["t0"]),
+                "t1_us": us(p["t1"]),
+                "cpu_us": p["cpu_ns"] // 1000,
+                "spans": [[us(x), us(y)] for x, y in p["device_spans"]],
+            }
+            for p in sorted(phases, key=lambda p: p["t0"])
+        ]
+        traces = []
+        for t in sorted(self.traces, key=lambda t: t.submit_ns):
+            row = {k: v for k, v in t.to_dict().items() if k not in ("gpu", "ane") and not k.endswith("_ns")}
+            for dev in ("gpu", "ane"):
+                snap = getattr(t, dev)
+                row[f"{dev}_backlog_ms"] = snap.backlog_ms if snap else None
+                row[f"{dev}_queued_jobs"] = snap.queued_jobs if snap else None
+                row[f"{dev}_running"] = snap.running if snap else None
+            for k in ("submit", "prepared", "routed", "queue_enter", "dispatch", "service_start", "service_end",
+                      "received", "response"):
+                row[k + "_us"] = us(getattr(t, k + "_ns"))
+            traces.append(row)
         return {
             "experiment": "gpu-ane-interference",
+            "pipeline": "runtime-trace",
             "plan": self.args.plan,
             "args": {k: v for k, v in vars(self.args).items()},
             "time": datetime.now(timezone.utc).isoformat(),
@@ -683,8 +710,10 @@ class Run:
             "service_model": {"gpu": self.laya._service.gpu, "ane": self.laya._service.ane},
             "contention_params": self.contention_params,
             "solo_mean_service_s": {f"{d}_{s}": v for (d, s), v in self.solo.items()},
+            "t_ref_ns": self.t_ref,
             "windows": self.windows,
-            "phases": rel,
+            "traces": columns(traces),
+            "backend": columns(backend),
         }
 
 
@@ -710,9 +739,18 @@ def main():
     ap.add_argument("--cycles", type=int, default=3)
     ap.add_argument("--seeds", type=int, default=8)
     ap.add_argument("--only", nargs="*", default=None, help="run only cells whose name starts with one of these")
+    ap.add_argument("--no-trace", dest="trace", action="store_false", help="trace=None (runtime tracing off)")
+    ap.add_argument("--no-backend-hooks", dest="backend_hooks", action="store_false",
+                    help="no jobtrace.py phase hooks (research instrumentation off)")
+    ap.add_argument("--cells", nargs="*", default=None,
+                    help="device plan: run only these cells, by exact name (solo cells they need are kept)")
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
     run = Run(args)
+    if args.cells:
+        keep_cells = set(args.cells)
+        orig_cells = run.device_cells
+        run.device_cells = lambda: [c for c in orig_cells() if c["name"] in keep_cells]
     if args.only:
         keep = tuple(args.only)
         for name in ("device_cells", "product_cells"):

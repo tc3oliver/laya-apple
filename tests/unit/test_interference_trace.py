@@ -6,7 +6,6 @@ from __future__ import annotations
 import importlib.util
 import sys
 import threading
-from concurrent.futures import Future
 from pathlib import Path
 
 import pytest
@@ -34,73 +33,69 @@ def analyze():
 
 
 class FakeWorker:
-    """The DeviceWorker surface the tracer wraps: submit, _run, backlog_ms, kind."""
+    """The DeviceWorker surface jobtrace.tag_dispatcher wraps: _run(job_id, rows)."""
 
-    kind = "gpu"
+    kind = "ane"
 
-    def __init__(self, fail=False):
-        self.fail = fail
-        self.submitted = []
+    def __init__(self, jobtrace, fail=False):
+        self.jobtrace, self.fail = jobtrace, fail
+        self.seen = []
 
-    def backlog_ms(self):
-        return 3.5
-
-    def submit(self, rows, estimate_ms):
-        self.submitted.append((rows, estimate_ms))
-        fut = Future()
-        fut.set_result("queued")
-        return fut
-
-    def _run(self, rows):
+    def _run(self, job_id, rows):
+        self.seen.append((job_id, rows, self.jobtrace.current_request_id()))
         if self.fail:
             raise RuntimeError("device error")
-        return ("logits", "act", 1.25)
+        return ("logits", "act", 1, 2)
 
 
-def test_tracer_records_times_and_returns_results_unchanged(jobtrace):
-    w, jobs = FakeWorker(), jobtrace.JobTable()
-    jobtrace.instrument_worker(w, jobs)
+def test_dispatcher_tag_exposes_the_job_id_and_changes_nothing(jobtrace):
+    w = FakeWorker(jobtrace)
+    jobtrace.tag_dispatcher(w)
     rows = [{"ids": [1, 2]}]
-    rec = jobs.open(rows, arrival=1.0)
-    fut = w.submit(rows, 12.0)
-    assert fut.result() == "queued"
-    assert w.submitted == [(rows, 12.0)]  # the original submit ran with the same arguments
-    assert w._run(rows) == ("logits", "act", 1.25)
-    assert rec["estimate_ms"] == 12.0 and rec["backlog_at_enter_ms"] == 3.5 and rec["device"] == "gpu"
-    assert rec["arrival"] <= rec["queue_enter"] <= rec["device_start"] <= rec["device_end"]
-    assert jobs.close(rec) is rec and jobs.get(rows) is None
+    assert w._run(41, rows) == ("logits", "act", 1, 2)  # the result is returned unchanged
+    assert w.seen == [(41, rows, 41)]  # same arguments; the forward saw its request id
+    assert jobtrace.current_request_id() is None  # cleared after the job
 
 
-def test_tracer_propagates_device_errors_and_still_stamps(jobtrace):
-    w, jobs = FakeWorker(fail=True), jobtrace.JobTable()
-    jobtrace.instrument_worker(w, jobs)
-    rows = [{}]
-    rec = jobs.open(rows)
-    w.submit(rows, 1.0)
+def test_dispatcher_tag_propagates_errors_and_clears(jobtrace):
+    w = FakeWorker(jobtrace, fail=True)
+    jobtrace.tag_dispatcher(w)
     with pytest.raises(RuntimeError, match="device error"):
-        w._run(rows)
-    assert rec["device_end"] >= rec["device_start"]
+        w._run(7, [{}])
+    assert w.seen[0][2] == 7 and jobtrace.current_request_id() is None
 
 
-def test_product_path_opens_a_fresh_record_even_when_an_id_is_reused(jobtrace):
-    w, jobs = FakeWorker(), jobtrace.JobTable()
-    jobtrace.instrument_worker(w, jobs)
-    rows = [{}]
-    stale = jobs.open(rows, arrival=0.0)  # a finished request whose record is not closed yet
-    jobs.expect_new()
-    w.submit(rows, 2.0)  # Laya.submit path: same id, new request
-    fresh = jobs.last_opened()
-    assert fresh is not stale and fresh["estimate_ms"] == 2.0 and "estimate_ms" not in stale
+def test_worker_connection_tags_received_jobs_only(jobtrace):
+    class Conn:
+        def __init__(self, msgs):
+            self.msgs, self.sent = list(msgs), []
+
+        def recv(self):
+            return self.msgs.pop(0)
+
+        def send(self, m):
+            self.sent.append(m)
+
+    conn = jobtrace._TaggingConnection(Conn([(12, ["row"]), None]))
+    assert conn.recv() == (12, ["row"]) and jobtrace.current_request_id() == 12
+    conn.send((12, "ok", ()))  # other calls pass through
+    assert conn._conn.sent == [(12, "ok", ())]
+    assert conn.recv() is None and jobtrace.current_request_id() == 12  # the close message is not a job
 
 
-def test_last_opened_is_per_thread(jobtrace):
-    jobs = jobtrace.JobTable()
-    mine = jobs.open([1])
+def test_request_id_is_per_thread(jobtrace):
+    w = FakeWorker(jobtrace)
+    jobtrace.tag_dispatcher(w)
     seen = {}
-    t = threading.Thread(target=lambda: seen.setdefault("other", jobs.last_opened()))
+
+    def other():
+        seen["other"] = jobtrace.current_request_id()
+
+    w._run(5, [])
+    t = threading.Thread(target=other)
     t.start()
     t.join()
-    assert jobs.last_opened() is mine and seen["other"] is None
+    assert seen["other"] is None
 
 
 def test_clock_is_system_wide_monotonic(jobtrace):
