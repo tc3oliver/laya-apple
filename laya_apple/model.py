@@ -391,10 +391,15 @@ class Laya:
 
     # ------------------------------------------------------------------ inference
 
+    def queue_snapshots(self):
+        """(gpu, ane) QueueSnapshot, each None without a ready worker (always None inline)."""
+        gpu, ane = self._workers.get("gpu"), self._workers.get("ane")  # "ane" may be popped concurrently
+        return (gpu.snapshot() if gpu else None), (ane.snapshot() if ane else None)
+
     def backlogs(self) -> tuple[float, float]:
         """(gpu, ane) backlog estimates in ms; zeros in inline mode."""
-        gpu, ane = self._workers.get("gpu"), self._workers.get("ane")  # "ane" may be popped concurrently
-        return (gpu.backlog_ms() if gpu else 0.0), (ane.backlog_ms() if ane else 0.0)
+        gpu, ane = self.queue_snapshots()
+        return (gpu.backlog_ms if gpu else 0.0), (ane.backlog_ms if ane else 0.0)
 
     def route(self, prepared, backlogs: tuple[float, float] | None = None) -> routing.Decision:
         if self.execution == "inline":
@@ -474,7 +479,9 @@ class Laya:
         context, questions = self._request(context, questions, state)
         t0 = time.perf_counter()
         prep = self.prepare(context, questions)
-        gpu_backlog, ane_backlog = self.backlogs()
+        gpu_q, ane_q = self.queue_snapshots()
+        gpu_backlog = gpu_q.backlog_ms if gpu_q else 0.0
+        ane_backlog = ane_q.backlog_ms if ane_q else 0.0
         decision = self.route(prep, (gpu_backlog, ane_backlog))
         backend = self.ane if decision.target == "ane" else self.mlx
         worker = self._workers.get(decision.target)

@@ -38,6 +38,7 @@ from concurrent.futures import Future
 from multiprocessing.connection import Client, Listener
 
 from .errors import BackendUnavailableError, LayaAppleError
+from .trace import QueueSnapshot
 
 PLACEMENTS = ("process", "thread")
 
@@ -128,8 +129,9 @@ class DeviceWorker:
     placement="process": the backend lives in a worker process (IPC per job).
     placement="thread": the backend lives in this process and runs on the dispatcher thread.
 
-    `backlog_ms()` is the sum of service estimates of queued jobs plus the remaining
-    estimate of the running one: the queue-state input of scheduling.decide_queued.
+    `snapshot()` reads the queue state in one step: the backlog (the sum of service
+    estimates of queued jobs plus the remaining estimate of the running one, the queue-state
+    input of scheduling.decide_queued), the number of queued jobs, and whether one is running.
     """
 
     def __init__(
@@ -190,6 +192,8 @@ class DeviceWorker:
         self._jobs: queue.Queue = queue.Queue()
         self._lock = threading.Lock()
         self._queued_ms = 0.0
+        self._queued_jobs = 0
+        self._running = False
         self._running_est = 0.0
         self._running_since = 0.0
         self._ids = itertools.count()
@@ -250,14 +254,19 @@ class DeviceWorker:
     def pid(self) -> int | None:
         return self._proc.pid if self._proc is not None else None
 
-    def backlog_ms(self) -> float:
+    def snapshot(self) -> QueueSnapshot | None:
+        """The queue state as one consistent reading, or None before the worker is ready."""
         if self.info is None:
-            return 0.0
+            return None
         with self._lock:
-            running = 0.0
+            backlog = self._queued_ms
             if self._running_est:
-                running = max(0.0, self._running_est - (time.perf_counter() - self._running_since) * 1e3)
-            return self._queued_ms + running
+                backlog += max(0.0, self._running_est - (time.perf_counter() - self._running_since) * 1e3)
+            return QueueSnapshot(backlog, self._queued_jobs, self._running)
+
+    def backlog_ms(self) -> float:
+        snap = self.snapshot()
+        return snap.backlog_ms if snap is not None else 0.0
 
     def submit(self, rows, estimate_ms: float) -> Future:
         fut: Future = Future()
@@ -266,6 +275,7 @@ class DeviceWorker:
             return fut
         with self._lock:
             self._queued_ms += estimate_ms
+            self._queued_jobs += 1
         self._jobs.put((fut, rows, estimate_ms, time.perf_counter()))
         return fut
 
@@ -289,10 +299,11 @@ class DeviceWorker:
             fut, rows, est, enq = job
             with self._lock:
                 self._queued_ms -= est
-                self._running_est, self._running_since = est, time.perf_counter()
+                self._queued_jobs -= 1
+                self._running, self._running_est, self._running_since = True, est, time.perf_counter()
             if not fut.set_running_or_notify_cancel():
                 with self._lock:
-                    self._running_est = 0.0
+                    self._running, self._running_est = False, 0.0
                 continue
             wait_ms = (time.perf_counter() - enq) * 1e3
             try:
@@ -310,7 +321,7 @@ class DeviceWorker:
                 fut.set_exception(e)
             finally:
                 with self._lock:
-                    self._running_est = 0.0
+                    self._running, self._running_est = False, 0.0
 
     def close(self, timeout: float = 10.0):
         """Finish queued jobs (up to `timeout`), then stop. Jobs still queued after that fail
