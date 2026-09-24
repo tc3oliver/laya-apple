@@ -27,7 +27,7 @@ been measured; any Mac without a result is wanted, with or without an issue.
 | M1 Max | – | – | – | – | **Wanted** — [submit a benchmark](#add-your-mac) |
 | M1 Ultra | – | – | – | – | **Wanted** — [submit a benchmark](#add-your-mac) |
 | M2 | – | – | – | – | **Wanted** — [submit a benchmark](#add-your-mac) |
-| M2 Pro | – | – | – | – | **Wanted** — [submit a benchmark](#add-your-mac) |
+| M2 Pro (16 GB, macOS 26.6.2) | ✓ | untested | no | untested | [bundle](../hardware-results/apple-m2-pro-macos26/summary.md) ([#47](https://github.com/tc3oliver/laya-apple/pull/47); `--quick`, laya-typed-decisions only; MLX-only run without coremltools, so `auto` stays on MLX (`ane_runtime_unavailable`) and the ANE and heterogeneous checks do not run) |
 | M2 Max | – | – | – | – | **Wanted** — [submit a benchmark](#add-your-mac) |
 | M2 Ultra | – | – | – | – | **Wanted** — [submit a benchmark](#add-your-mac) |
 | M3 | – | – | – | – | **Wanted** — [submit a benchmark](#add-your-mac) |
@@ -51,7 +51,8 @@ What each column means:
   no artifacts were built there.
 - **Auto uses ANE**: `device="auto"` sends at least one request to the ANE. On a profile
   that is not shipped and not calibrated, the answer is `no` with `routing_reason`
-  `platform_not_validated`. That is the runtime working as designed, not a failure.
+  `platform_not_validated`; in an MLX-only run without coremltools it is
+  `ane_runtime_unavailable`. That is the runtime working as designed, not a failure.
   `yes, local calibrated profile` means the submitter ran `laya-apple calibrate` on
   that Mac and `auto` used the resulting local profile. The shipped routing table does
   not include that profile, so on another Mac with the same SoC `auto` stays on MLX

@@ -23,18 +23,20 @@ release were all measured on one profile:
 Community hardware results are recorded separately, in
 [`community-benchmarks.md`](community-benchmarks.md) and `hardware-results/`. They do not
 change the shipped routing table or the status in this page's **Tested** column. There are
-two so far, both `--quick` runs of `laya-typed-decisions`:
+three so far, all `--quick` runs of `laya-typed-decisions`:
 
 - Apple M4 Pro (48 GB, macOS 27.0, coremltools 9.0), with a locally calibrated profile:
   [`hardware-results/apple-m4-pro-macos27/`](../hardware-results/apple-m4-pro-macos27/summary.md) ([#32](https://github.com/tc3oliver/laya-apple/pull/32)).
 - Apple M4 (32 GB, macOS 26.2, coremltools 9.0), not calibrated:
   [`hardware-results/apple-m4-macos26/`](../hardware-results/apple-m4-macos26/summary.md) ([#41](https://github.com/tc3oliver/laya-apple/pull/41)).
+- Apple M2 Pro (16 GB, macOS 26.6.2), MLX only, without coremltools:
+  [`hardware-results/apple-m2-pro-macos26/`](../hardware-results/apple-m2-pro-macos26/summary.md) ([#47](https://github.com/tc3oliver/laya-apple/pull/47)).
 
 ## Per-dimension status
 
 | Dimension | Tested | Expected | Unknown |
 |---|---|---|---|
-| SoC | Apple M4 Max | Other Apple M-series SoCs run MLX correctly (hypothesis: MLX itself is validated across Apple Silicon upstream) | ANE placement, correctness and routing thresholds on any other SoC, except one community data point: on an M4 Pro (macOS 27.0, coremltools 9.0), `laya-typed-decisions` passed MLX and ANE parity with 0 hard mismatches, a locally calibrated profile routed short requests to the ANE, and the heterogeneous check passed; on an M4 (macOS 26.2, coremltools 9.0), `laya-typed-decisions` passed MLX and ANE parity with 0 hard mismatches, and without calibration `auto` stayed on MLX ([community matrix](community-benchmarks.md#matrix)). Each covers one machine and one model, not every M4 or M4 Pro and not the shipped routing |
+| SoC | Apple M4 Max | Other Apple M-series SoCs run MLX correctly (hypothesis: MLX itself is validated across Apple Silicon upstream). One community data point outside the M4 family: on an M2 Pro (macOS 26.6.2), `laya-typed-decisions` passed MLX FP16 parity; ANE was not tested there | ANE placement, correctness and routing thresholds on any other SoC, except one community data point: on an M4 Pro (macOS 27.0, coremltools 9.0), `laya-typed-decisions` passed MLX and ANE parity with 0 hard mismatches, a locally calibrated profile routed short requests to the ANE, and the heterogeneous check passed; on an M4 (macOS 26.2, coremltools 9.0), `laya-typed-decisions` passed MLX and ANE parity with 0 hard mismatches, and without calibration `auto` stayed on MLX ([community matrix](community-benchmarks.md#matrix)). Each covers one machine and one model, not every M4 or M4 Pro and not the shipped routing |
 | macOS | 26.6.2 | macOS 15–26 run MLX correctly | ANE behaviour on any macOS other than 26.6.2; macOS 27.x specifically — prior third-party work saw different Core ML placement there (enumerated shapes moved to the GPU). The M4 Pro community result above is the only macOS 27 evidence; other SoCs, models and macOS 27 profiles are unmeasured. The M4 community result is the only ANE evidence on another macOS 26 release (26.2): artifacts built there passed placement and parity for `laya-typed-decisions` |
 | Python | 3.12.14 (benchmarks); 3.11–3.13 (install matrix) | — | Any Python outside 3.11–3.13 (unsupported, not merely untested) |
 | MLX | 0.32.2 | Other MLX versions within the package's declared constraint are expected to work for the GPU backend | Numerical or performance drift on a materially different MLX version |

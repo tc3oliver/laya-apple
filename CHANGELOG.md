@@ -32,8 +32,19 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   and warn without stopping if the caches exceed 50 GiB. Nothing is deleted automatically;
   `docs/benchmarks.md` explains the cache and how to clean it up by hand. No runtime,
   routing or parity code changed.
+- **Community hardware result: Apple M2 Pro** (16 GB, macOS 26.6.2), in
+  `hardware-results/apple-m2-pro-macos26/` (#47, thanks @bozin1990), the first result outside the M4 family.
+  An MLX-only run: MLX FP16 parity passed for `laya-typed-decisions`; coremltools was not
+  installed, so `auto` stayed on MLX (`ane_runtime_unavailable`) and the ANE and
+  heterogeneous checks did not run. One change updates the M2 Pro row of
+  `docs/community-benchmarks.md` (and notes `ane_runtime_unavailable` as an expected
+  `Auto uses ANE: no` reason), a community-measurement row in `docs/support-matrix.md`,
+  the community results and the SoC cell in `docs/compatibility.md`, the README's
+  community status, and the draft of issue #1, which stays open for the other M1/M2 chips
+  and now asks for `Refs #1` instead of `Closes #1`.
+  No runtime, routing, parity or benchmark code changed.
 - **Community hardware result: Apple M4** (32 GB, macOS 26.2), in
-  `hardware-results/apple-m4-macos26/` (#41). MLX and ANE parity passed for
+  `hardware-results/apple-m4-macos26/` (#41, thanks @ShaoAnFang). MLX and ANE parity passed for
   `laya-typed-decisions`; `laya-apple calibrate` was not run, so `auto` stayed on MLX
   (`platform_not_validated`) and the heterogeneous check did not run. One change updates
   the M4 row of `docs/community-benchmarks.md`, a community-measurement row in
@@ -43,7 +54,7 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   #41 (macOS 26.2) and narrows the open question to another coremltools release. No
   runtime, routing, parity or benchmark code changed.
 - **First community hardware result: Apple M4 Pro** (48 GB, macOS 27.0), in
-  `hardware-results/apple-m4-pro-macos27/` (#32). `docs/community-benchmarks.md` fills its
+  `hardware-results/apple-m4-pro-macos27/` (#32, thanks @AirRunner). `docs/community-benchmarks.md` fills its
   matrix row from that bundle and marks `Auto uses ANE` as coming from a local calibrated
   profile, not the shipped routing table. The M4 Pro contribution slot is removed now that
   issue #3 is closed. No runtime, routing, parity or benchmark code changed.
@@ -86,6 +97,13 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   start from a base `uv sync` and `--quick`, with a pre-PR check of the bundle. The three
   issue drafts in `.github/issue-drafts/` are rewritten as copy-and-paste walkthroughs.
   No runtime, routing, parity or benchmark code changed.
+
+### Fixed
+
+- **Hardware report on comma-decimal locales** (#38, thanks @AirRunner). `ps` printed
+  `%cpu` as e.g. `29,2` under locales such as French, which crashed the heterogeneous step
+  of `scripts/hardware_report.py --quick`. `scripts/bench_concurrency.py` now runs `ps`
+  with `LC_ALL=C`.
 
 ## [1.0.2] - 2026-09-23
 
