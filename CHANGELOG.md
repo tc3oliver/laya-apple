@@ -19,7 +19,7 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   profile, not the shipped routing table. The M4 Pro contribution slot is removed now that
   issue #3 is closed. No runtime, routing, parity or benchmark code changed.
 - **README serving animation.** `docs/media/heterogeneous-serving.gif` (800×450, 5 fps, 30 s,
-  2.8 MB) is the first figure in the README, after the one-line description and before the
+  1.7 MB) is the first figure in the README, after the one-line description and before the
   throughput figure. It opens with a recorded Lane Runner game from
   [laya-playground-apple](https://github.com/tc3oliver/laya-playground-apple), the same
   model on the MLX GPU and the Apple Neural Engine, recorded separately and labelled as a
