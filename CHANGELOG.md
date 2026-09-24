@@ -5,6 +5,15 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-09-24
+
+Adds public request lifecycle tracing for `execution="workers"` (`RequestTrace`,
+`QueueSnapshot`, `RuntimeInfo.request_id`). It is additive: `trace=None`, the default,
+changes no routing decision, answer or measured serving throughput. Also in this release:
+a disk preflight for the benchmark scripts; community hardware results for the M2 Pro,
+M4 and M4 Pro; the README serving animation and shareable benchmark media; and a fix for
+the hardware report on comma-decimal locales.
+
 ### Added
 
 - **Request lifecycle tracing** (#6, runtime part). `Laya.from_pretrained(...,
@@ -104,6 +113,12 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   `%cpu` as e.g. `29,2` under locales such as French, which crashed the heterogeneous step
   of `scripts/hardware_report.py --quick`. `scripts/bench_concurrency.py` now runs `ps`
   with `LC_ALL=C`.
+
+### Notes
+
+- The ANE placement for `execution="workers"` is unchanged: laya and laya-typed-decisions
+  run the ANE on a thread, laya-multilingual in a worker process. Moving the first two to
+  a process failed its production regression gate (`benchmarks/ane-process-isolation/`).
 
 ## [1.0.2] - 2026-09-23
 
