@@ -16,7 +16,13 @@ uvx laya-apple switchyard
 
 ![Switchyard: the same recorded timetable replayed GPU-only, where trains queue at red signals during rush hour, and GPU + ANE, where they flow into their platforms; then the result card: 1,407 of 1,422 trains late GPU-only against 0 with GPU + ANE](https://raw.githubusercontent.com/tc3oliver/laya-apple/main/docs/media/switchyard-launch.gif)
 
-Every train is a real Laya decision.
+**Every train is a real Laya decision.** Same timetable, GPU only vs GPU + ANE, on an
+Apple M4 Max:
+
+- **GPU only:** 1,407–1,408 of 1,422 trains late, P99 decision latency about 3.1 s.
+- **GPU + ANE:** 0 of 1,422 late, P99 about 54.6 ms.
+
+How the game maps to the benchmark:
 
 - **Train** → one request: "which platform is clear?"
 - **Red signal** → the train is waiting for the model's answer
