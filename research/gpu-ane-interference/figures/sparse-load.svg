@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="330" viewBox="0 0 900 330" role="img" aria-labelledby="title" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+<title id="title">Sparse load. typed-decisions GPU L128: 0.05→×1.78, 0.1→×1.64, 0.25→×1.40, 0.5→×1.22, 1→×1.00; typed-decisions GPU max length: 0.05→×1.25, 0.1→×1.19, 0.25→×1.10, 0.5→×1.05, 1→×1.00; typed-decisions ANE longest bucket: 0.05→×2.02, 0.1→×1.95, 0.25→×1.66, 0.5→×1.26, 1→×1.00; multilingual GPU L128: 0.05→×2.19, 0.1→×1.90, 0.25→×1.59, 0.5→×1.34, 1→×1.00; multilingual GPU max length: 0.05→×1.51, 0.1→×1.34, 0.25→×1.22, 0.5→×1.09, 1→×1.00; multilingual ANE longest bucket: 0.05→×2.49, 0.1→×2.38, 0.25→×1.87, 0.5→×1.29, 1→×1.00</title>
+<style>
+.bg{fill:#ffffff;stroke:#d1d9e0}.t{fill:#1f2328}.m{fill:#59636e}.grid{stroke:#e6e9ec}.ax{stroke:#8c959f}
+.s1{fill:#2a78d6;stroke:#2a78d6}.s2{fill:#eb6834;stroke:#eb6834}.s3{fill:#1baf7a;stroke:#1baf7a}
+.s4{fill:#eda100;stroke:#eda100}.ln{fill:none;stroke-width:2}.ring{stroke:#ffffff;stroke-width:2}
+.c1{fill:#8c959f}.c2{fill:#2a78d6}.c3{fill:#eb6834}.c4{fill:#1baf7a}
+@media (prefers-color-scheme: dark){
+.bg{fill:#0d1117;stroke:#3d444d}.t{fill:#e6edf3}.m{fill:#9198a1}.grid{stroke:#21262d}.ax{stroke:#656c76}
+.s1{fill:#3987e5;stroke:#3987e5}.s2{fill:#d95926;stroke:#d95926}.s3{fill:#199e70;stroke:#199e70}
+.s4{fill:#c98500;stroke:#c98500}.ring{stroke:#0d1117}
+.c1{fill:#656c76}.c2{fill:#3987e5}.c3{fill:#d95926}.c4{fill:#199e70}
+}
+</style>
+<rect x="0.5" y="0.5" width="899" height="329" rx="10" class="bg"/>
+<text x="24.0" y="32.0" class="t" font-size="16" font-weight="600">One device alone: service time rises as the machine idles (no second device running)</text>
+<rect x="24" y="51" width="12" height="12" rx="2" class="s1"/>
+<text x="41.0" y="61.0" class="m" font-size="12">GPU L128</text>
+<rect x="116.6" y="51" width="12" height="12" rx="2" class="s2"/>
+<text x="133.6" y="61.0" class="m" font-size="12">GPU max length</text>
+<rect x="252.4" y="51" width="12" height="12" rx="2" class="s3"/>
+<text x="269.4" y="61.0" class="m" font-size="12">ANE longest bucket</text>
+<rect x="417.0" y="51" width="12" height="12" rx="2" class="c1"/>
+<text x="434.0" y="61.0" class="m" font-size="12">hollow: same, one CPU-busy process</text>
+<text x="90.0" y="98.0" class="t" font-size="13" font-weight="600">typed-decisions</text>
+<line x1="90" x2="430" y1="243.3" y2="243.3" class="grid"/>
+<text x="84.0" y="247.3" class="m" font-size="11" text-anchor="end">×1.0</text>
+<line x1="90" x2="430" y1="201.7" y2="201.7" class="grid"/>
+<text x="84.0" y="205.7" class="m" font-size="11" text-anchor="end">×1.5</text>
+<line x1="90" x2="430" y1="160.0" y2="160.0" class="grid"/>
+<text x="84.0" y="164.0" class="m" font-size="11" text-anchor="end">×2.0</text>
+<line x1="90" x2="430" y1="118.3" y2="118.3" class="grid"/>
+<text x="84.0" y="122.3" class="m" font-size="11" text-anchor="end">×2.5</text>
+<text x="90.0" y="276.0" class="m" font-size="11" text-anchor="middle">0</text>
+<text x="175.0" y="276.0" class="m" font-size="11" text-anchor="middle">0.25</text>
+<text x="260.0" y="276.0" class="m" font-size="11" text-anchor="middle">0.5</text>
+<text x="345.0" y="276.0" class="m" font-size="11" text-anchor="middle">0.75</text>
+<text x="430.0" y="276.0" class="m" font-size="11" text-anchor="middle">1</text>
+<line x1="90" x2="430" y1="260" y2="260" class="ax"/>
+<text x="260.0" y="294.0" class="m" font-size="11" text-anchor="middle">offered load (fraction of closed-loop capacity)</text>
+<text x="46.0" y="185.0" class="m" font-size="11" text-anchor="middle" transform="rotate(-90 46.0 185.0)">service ÷ closed-loop solo</text>
+<polyline points="107.0,178.2 124.0,190.2 175.0,209.6 260.0,225.1 430.0,243.3" class="s1 ln" style="fill:none"/>
+<circle cx="107.0" cy="178.2" r="4" class="s1 ring"/>
+<circle cx="124.0" cy="190.2" r="4" class="s1 ring"/>
+<circle cx="175.0" cy="209.6" r="4" class="s1 ring"/>
+<circle cx="260.0" cy="225.1" r="4" class="s1 ring"/>
+<circle cx="430.0" cy="243.3" r="4" class="s1 ring"/>
+<circle cx="124.0" cy="223.0" r="5" class="s1" style="fill:none" stroke-width="2"/>
+<polyline points="107.0,222.8 124.0,227.8 175.0,234.9 260.0,239.5 430.0,243.3" class="s2 ln" style="fill:none"/>
+<circle cx="107.0" cy="222.8" r="4" class="s2 ring"/>
+<circle cx="124.0" cy="227.8" r="4" class="s2 ring"/>
+<circle cx="175.0" cy="234.9" r="4" class="s2 ring"/>
+<circle cx="260.0" cy="239.5" r="4" class="s2 ring"/>
+<circle cx="430.0" cy="243.3" r="4" class="s2 ring"/>
+<polyline points="107.0,158.3 124.0,164.3 175.0,188.6 260.0,221.7 430.0,243.3" class="s3 ln" style="fill:none"/>
+<circle cx="107.0" cy="158.3" r="4" class="s3 ring"/>
+<circle cx="124.0" cy="164.3" r="4" class="s3 ring"/>
+<circle cx="175.0" cy="188.6" r="4" class="s3 ring"/>
+<circle cx="260.0" cy="221.7" r="4" class="s3 ring"/>
+<circle cx="430.0" cy="243.3" r="4" class="s3 ring"/>
+<circle cx="124.0" cy="233.1" r="5" class="s3" style="fill:none" stroke-width="2"/>
+<text x="510.0" y="98.0" class="t" font-size="13" font-weight="600">multilingual</text>
+<line x1="510" x2="850" y1="243.3" y2="243.3" class="grid"/>
+<text x="504.0" y="247.3" class="m" font-size="11" text-anchor="end">×1.0</text>
+<line x1="510" x2="850" y1="201.7" y2="201.7" class="grid"/>
+<text x="504.0" y="205.7" class="m" font-size="11" text-anchor="end">×1.5</text>
+<line x1="510" x2="850" y1="160.0" y2="160.0" class="grid"/>
+<text x="504.0" y="164.0" class="m" font-size="11" text-anchor="end">×2.0</text>
+<line x1="510" x2="850" y1="118.3" y2="118.3" class="grid"/>
+<text x="504.0" y="122.3" class="m" font-size="11" text-anchor="end">×2.5</text>
+<text x="510.0" y="276.0" class="m" font-size="11" text-anchor="middle">0</text>
+<text x="595.0" y="276.0" class="m" font-size="11" text-anchor="middle">0.25</text>
+<text x="680.0" y="276.0" class="m" font-size="11" text-anchor="middle">0.5</text>
+<text x="765.0" y="276.0" class="m" font-size="11" text-anchor="middle">0.75</text>
+<text x="850.0" y="276.0" class="m" font-size="11" text-anchor="middle">1</text>
+<line x1="510" x2="850" y1="260" y2="260" class="ax"/>
+<text x="680.0" y="294.0" class="m" font-size="11" text-anchor="middle">offered load (fraction of closed-loop capacity)</text>
+<text x="466.0" y="185.0" class="m" font-size="11" text-anchor="middle" transform="rotate(-90 466.0 185.0)">service ÷ closed-loop solo</text>
+<polyline points="527.0,144.3 544.0,168.7 595.0,194.6 680.0,215.4 850.0,243.3" class="s1 ln" style="fill:none"/>
+<circle cx="527.0" cy="144.3" r="4" class="s1 ring"/>
+<circle cx="544.0" cy="168.7" r="4" class="s1 ring"/>
+<circle cx="595.0" cy="194.6" r="4" class="s1 ring"/>
+<circle cx="680.0" cy="215.4" r="4" class="s1 ring"/>
+<circle cx="850.0" cy="243.3" r="4" class="s1 ring"/>
+<circle cx="544.0" cy="216.7" r="5" class="s1" style="fill:none" stroke-width="2"/>
+<polyline points="527.0,201.1 544.0,215.3 595.0,224.7 680.0,235.6 850.0,243.3" class="s2 ln" style="fill:none"/>
+<circle cx="527.0" cy="201.1" r="4" class="s2 ring"/>
+<circle cx="544.0" cy="215.3" r="4" class="s2 ring"/>
+<circle cx="595.0" cy="224.7" r="4" class="s2 ring"/>
+<circle cx="680.0" cy="235.6" r="4" class="s2 ring"/>
+<circle cx="850.0" cy="243.3" r="4" class="s2 ring"/>
+<polyline points="527.0,119.0 544.0,128.7 595.0,170.8 680.0,219.3 850.0,243.3" class="s3 ln" style="fill:none"/>
+<circle cx="527.0" cy="119.0" r="4" class="s3 ring"/>
+<circle cx="544.0" cy="128.7" r="4" class="s3 ring"/>
+<circle cx="595.0" cy="170.8" r="4" class="s3 ring"/>
+<circle cx="680.0" cy="219.3" r="4" class="s3 ring"/>
+<circle cx="850.0" cy="243.3" r="4" class="s3 ring"/>
+<circle cx="544.0" cy="230.6" r="5" class="s3" style="fill:none" stroke-width="2"/>
+</svg>
