@@ -1,6 +1,7 @@
 # EXP-002 quick probe: Main-LLM turn avoidance
 
-**Status:** pre-registered. Not run yet.
+**Status:** complete. **Stage A: NO-GO** (0 of 30 turns bypassable). Stage B was not
+run. **Overall: NO-GO** (see [Result](#result)).
 
 [EXP-001's quick probe](EXP-001-quick-probe.md) is NO-GO, and tool-output admission is
 closed for the current workload. This probe does not extend it. It asks a different
@@ -130,3 +131,75 @@ further experiments are added to it.
 - Claude Code turns stand in for Hermes Agent or Pi turns.
 - A Stage B PASS shows that the seam exists. It says nothing about the quality of the
   decisions.
+
+## Result
+
+The pre-registration was committed in `c1fde64` before any session was read.
+
+```text
+EXP-002 Quick Probe
+
+Stage A: How much theoretical value exists?
+  Post-tool model turns          30 (2 sessions, 4 session files)
+  BYPASSABLE turns               0
+  Bypassable turn %              0%
+  Input tokens, all 30 turns     4,608,057
+  Input tokens, bypassable       0 (0%)
+  Verdict                        NO-GO (< 10%)
+
+Stage B: Can Hermes actually avoid the model invocation?
+  Not run (Stage A < 10%). The Hermes llm_execution seam stays UNKNOWN.
+
+Overall                          NO-GO
+```
+
+**Action distribution.** The next turn called `Bash` in 23 cases, `Bash` twice in 1,
+`Edit` twice in 1 and `Read` in 1. It wrote only text in 4 cases: 3 final reports and 1
+verification report.
+
+**Closest candidates.** In 5 turns the intent matches a fixed action, but the turn still
+generated its own arguments:
+
+| Intent | Turns | Why not BYPASSABLE |
+|---|---|---|
+| `RUN_TARGETED_TEST` | 2 | One turn ran the two checks named in its task prompt, but it combined them and added `2>&1 \| tail`. The other ran `ruff` on files it chose |
+| `INSPECT_FAILURE` | 2 | After a failed patch, the turn chose a new grep pattern, or a file offset and length, to find the cause |
+| `RETRY` | 1 | An empty grep was retried with a different command, not the same one |
+
+Every other turn wrote new code, a new command or a report.
+
+The labels were frozen before the verdict was computed (SHA-256 `3e42df77…ca3554`). The
+per-case metadata is in [`results/exp-002-quick-probe/`](results/exp-002-quick-probe/).
+
+### Selection as implemented
+
+- The first extraction treated each tool result as a case. Claude Code writes the
+  several tool calls of one response as separate entries, with results in between. So
+  some "next turns" were the same model response.
+- Before any case was labelled, the extraction was fixed to the pre-registered unit: all
+  results of one response, followed by the next response with a different message id and
+  no new user message in between.
+- The pool had 790 cases, after excluding this probe's own session and the EXP-001
+  exclusions. The 30 newest were taken, at most 10 per session file.
+
+### Answers
+
+- **Stage A.** In this workload, almost no post-tool Main LLM turn only makes a small
+  control decision. Each one writes a new command, code or a report. An ideal fixed-action
+  offloader would avoid 0 of 30 turns.
+- **Stage B.** Not tested. Whether Hermes can short-circuit a model invocation stays
+  UNKNOWN, as EXP-000 recorded it.
+- **Overall: NO-GO.** Under the rule fixed in advance, the Agent Decision Offloading
+  direction is paused. No further experiments are added to it.
+
+### Limitations
+
+- Everything under [What this probe cannot claim](#what-this-probe-cannot-claim) applies.
+- The 30 cases come from 2 sessions. Most are from one editing burst and two verifier
+  subagents, so they are not independent.
+- The agent here is Claude Code on a frontier model, which tends to combine steps into
+  one rich command. An agent that takes smaller steps, such as polling loops, CI waits
+  or retry-heavy workflows, could have more control-only turns. This probe did not
+  measure one.
+- `previous_tool_type` is a coarse classification of the command text. It is descriptive
+  only and does not enter the verdict.

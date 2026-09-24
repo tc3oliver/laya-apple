@@ -1,0 +1,41 @@
+{
+ "experiment": "EXP-002 quick probe",
+ "preregistration_commit": "c1fde64",
+ "labels_sha256": "3e42df7786144be81b536b5da7c8a5f44ccfa3778f076944db12c3d915ca3554",
+ "cases": 30,
+ "sessions": 2,
+ "session_files": 4,
+ "bypassable": 0,
+ "bypassable_pct": 0.0,
+ "input_tokens_total": 4608057,
+ "input_tokens_bypassable": 0,
+ "input_tokens_bypassable_pct": 0.0,
+ "fixed_action_intent": {
+  "NONE": 25,
+  "INSPECT_FAILURE": 2,
+  "RUN_TARGETED_TEST": 2,
+  "RETRY": 1
+ },
+ "next_action_type": {
+  "Bash": 23,
+  "Edit+Edit": 1,
+  "Read": 1,
+  "final_text": 4,
+  "Bash+Bash": 1
+ },
+ "previous_tool_type": {
+  "Bash:build_lint": 5,
+  "Bash:search": 10,
+  "Edit+Edit": 1,
+  "Read": 1,
+  "Bash:script": 6,
+  "Bash:file_read": 4,
+  "Bash:search+Bash:search": 1,
+  "Bash:test": 1,
+  "Bash:git": 1
+ },
+ "stage_a_verdict": "NO-GO",
+ "stage_b": "not run (Stage A < 10%)",
+ "overall": "NO-GO",
+ "candidate_cases_in_pool": 790
+}
