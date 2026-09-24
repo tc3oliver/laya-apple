@@ -1,0 +1,569 @@
+{
+ "format": "laya-apple-hardware-report",
+ "format_version": 1,
+ "started_at": "2026-09-24T05:55:15.663454+00:00",
+ "environment": {
+  "soc": "Apple M2 Pro",
+  "hw_model": "Mac14,12",
+  "memory_bytes": 17179869184,
+  "memory_gb": 16,
+  "macos": "26.6.2",
+  "macos_build": "25G83",
+  "python": "3.12.8",
+  "packages": {
+   "mlx": "0.32.2",
+   "coremltools": null,
+   "numpy": "2.1.3"
+  },
+  "laya_apple": {
+   "version": "1.0.2",
+   "source": "./laya_apple",
+   "git": {
+    "revision": "0ae219ea05b884b546ed2a7f54ae724b7a4e9a84",
+    "dirty": false
+   }
+  }
+ },
+ "platform": {
+  "profile": {
+   "soc": "Apple M2 Pro",
+   "macos": "26.6.2",
+   "macos_build": "25G83",
+   "coremltools": null
+  },
+  "shipped_profile_matches": false,
+  "local_profile": null
+ },
+ "configuration": {
+  "models": [
+   "laya-typed-decisions"
+  ],
+  "quick": true,
+  "offline": false,
+  "warmup": 3,
+  "iters": 20,
+  "mlx_latency": [
+   {
+    "lengths": [
+     64,
+     128,
+     512
+    ],
+    "questions": 1
+   },
+   {
+    "lengths": [
+     128
+    ],
+    "questions": 4
+   }
+  ],
+  "ane_latency": "every registered ANE bucket, 1 question",
+  "routing_shapes": [
+   {
+    "length": 64,
+    "questions": 1
+   },
+   {
+    "length": 96,
+    "questions": 1
+   },
+   {
+    "length": 128,
+    "questions": 1
+   },
+   {
+    "length": 256,
+    "questions": 1
+   },
+   {
+    "length": 512,
+    "questions": 1
+   },
+   {
+    "length": 1024,
+    "questions": 1
+   },
+   {
+    "length": 64,
+    "questions": 4
+   },
+   {
+    "length": 128,
+    "questions": 4
+   }
+  ],
+  "heterogeneous_seconds": 5.0,
+  "latency_process": "in-process (one process for every configuration)"
+ },
+ "models": {
+  "laya-typed-decisions": {
+   "model": "laya-typed-decisions",
+   "repo": "convaiinnovations/laya-typed-decisions",
+   "revision": "f9ab0b228f0fc0f14d873dbc99038f135c2da1b2",
+   "weights_sha256_pinned": "4fa56de72383a9d3efa9cfa78955733c81b9fc8067a587ca4beb82c78107a24e",
+   "ane_buckets": [
+    64,
+    96,
+    128
+   ],
+   "shipped_auto_ane_buckets": [
+    64,
+    96,
+    128
+   ],
+   "weights_sha256_verified": "4fa56de72383a9d3efa9cfa78955733c81b9fc8067a587ca4beb82c78107a24e",
+   "mlx_parity": {
+    "status": "ok",
+    "precision": "float16",
+    "tolerance": 0.02,
+    "rows": 187,
+    "skipped_rows": 0,
+    "token_mismatch_cases": 0,
+    "prob_max_abs": 0.0014164014539976844,
+    "action_prob_max_abs": 0.0,
+    "logit_max_abs": 0.009752079844474792,
+    "hard_mismatches": 0,
+    "near_tie_flips": [],
+    "all_finite": true,
+    "repeat_identical": true,
+    "passed": true
+   },
+   "mlx_latency": [
+    {
+     "tool": "laya-apple benchmark",
+     "laya_apple": "1.0.2",
+     "model": "laya-typed-decisions",
+     "device_requested": "gpu",
+     "dtype": "float16",
+     "length": 64,
+     "questions": 1,
+     "load_s": 1.6670674085617065e-07,
+     "platform": {
+      "soc": "Apple M2 Pro",
+      "macos": "26.6.2",
+      "macos_build": "25G83",
+      "coremltools": null,
+      "python": "3.12.8"
+     },
+     "status": "ok",
+     "backend": "mlx",
+     "device": "gpu",
+     "routing_reason": "gpu_requested",
+     "artifact_revision": "mlx:4fa56de72383:float16",
+     "buckets": [],
+     "forward": {
+      "n": 20,
+      "p50_ms": 16.046146163716912,
+      "p95_ms": 16.6329484898597,
+      "p99_ms": 16.961489701643586,
+      "mean_ms": 16.173083381727338,
+      "min_ms": 15.846374910324812,
+      "max_ms": 17.043625004589558
+     },
+     "predict": {
+      "n": 20,
+      "p50_ms": 16.75337483175099,
+      "p95_ms": 17.741256300359964,
+      "p99_ms": 18.00925115123391,
+      "mean_ms": 16.90976673271507,
+      "min_ms": 16.161167062819004,
+      "max_ms": 18.0762498639524
+     },
+     "samples": {
+      "forward_ms": [
+       15.902834013104439,
+       16.01079199463129,
+       15.993958339095116,
+       15.956457704305649,
+       15.846374910324812,
+       15.91379102319479,
+       16.03441732004285,
+       15.962000004947186,
+       16.13924978300929,
+       16.057875007390976,
+       15.912791714072227,
+       15.963749960064888,
+       16.23337483033538,
+       16.147457994520664,
+       16.167249996215105,
+       16.611333936452866,
+       16.592875123023987,
+       16.594416927546263,
+       17.043625004589558,
+       16.377042047679424
+      ],
+      "predict_ms": [
+       16.637917142361403,
+       16.591500025242567,
+       16.74562506377697,
+       16.55249996110797,
+       16.68820809572935,
+       16.877000220119953,
+       16.57329173758626,
+       17.72362506017089,
+       16.735624987632036,
+       17.00795814394951,
+       16.741459257900715,
+       16.586333978921175,
+       16.161167062819004,
+       16.761124599725008,
+       17.10291625931859,
+       18.0762498639524,
+       17.178999725729227,
+       16.909416764974594,
+       17.25379191339016,
+       17.290624789893627
+      ]
+     }
+    },
+    {
+     "tool": "laya-apple benchmark",
+     "laya_apple": "1.0.2",
+     "model": "laya-typed-decisions",
+     "device_requested": "gpu",
+     "dtype": "float16",
+     "length": 128,
+     "questions": 1,
+     "load_s": 1.6670674085617065e-07,
+     "platform": {
+      "soc": "Apple M2 Pro",
+      "macos": "26.6.2",
+      "macos_build": "25G83",
+      "coremltools": null,
+      "python": "3.12.8"
+     },
+     "status": "ok",
+     "backend": "mlx",
+     "device": "gpu",
+     "routing_reason": "gpu_requested",
+     "artifact_revision": "mlx:4fa56de72383:float16",
+     "buckets": [],
+     "forward": {
+      "n": 20,
+      "p50_ms": 28.06797926314175,
+      "p95_ms": 31.389500061050057,
+      "p99_ms": 31.533900098875165,
+      "mean_ms": 28.512216825038195,
+      "min_ms": 26.736041996628046,
+      "max_ms": 31.570000108331442
+     },
+     "predict": {
+      "n": 20,
+      "p50_ms": 29.258250258862972,
+      "p95_ms": 31.94754517171532,
+      "p99_ms": 32.74687555152923,
+      "mean_ms": 29.574047890491784,
+      "min_ms": 27.57666725665331,
+      "max_ms": 32.946708146482706
+     },
+     "samples": {
+      "forward_ms": [
+       26.736041996628046,
+       26.889417320489883,
+       27.157042175531387,
+       26.960957795381546,
+       27.192874811589718,
+       27.338291984051466,
+       27.474625036120415,
+       28.05774984881282,
+       28.091249987483025,
+       31.570000108331442,
+       30.679000075906515,
+       28.549958020448685,
+       29.068250209093094,
+       30.677916947752237,
+       29.25504231825471,
+       27.327791787683964,
+       31.380000058561563,
+       29.744999948889017,
+       28.078208677470684,
+       28.014917392283678
+      ],
+      "predict_ms": [
+       29.75170873105526,
+       29.65708402916789,
+       29.255584347993135,
+       29.464916791766882,
+       29.26091616973281,
+       29.89695779979229,
+       28.014833107590675,
+       28.07012479752302,
+       30.355750117450953,
+       30.930332839488983,
+       28.896874748170376,
+       28.986750170588493,
+       31.863083131611347,
+       28.94858317449689,
+       32.946708146482706,
+       28.724334202706814,
+       28.88599969446659,
+       31.894957646727562,
+       28.098790906369686,
+       27.57666725665331
+      ]
+     }
+    },
+    {
+     "tool": "laya-apple benchmark",
+     "laya_apple": "1.0.2",
+     "model": "laya-typed-decisions",
+     "device_requested": "gpu",
+     "dtype": "float16",
+     "length": 512,
+     "questions": 1,
+     "load_s": 1.6670674085617065e-07,
+     "platform": {
+      "soc": "Apple M2 Pro",
+      "macos": "26.6.2",
+      "macos_build": "25G83",
+      "coremltools": null,
+      "python": "3.12.8"
+     },
+     "status": "ok",
+     "backend": "mlx",
+     "device": "gpu",
+     "routing_reason": "gpu_requested",
+     "artifact_revision": "mlx:4fa56de72383:float16",
+     "buckets": [],
+     "forward": {
+      "n": 20,
+      "p50_ms": 96.29687503911555,
+      "p95_ms": 97.02200228348374,
+      "p99_ms": 97.25890042260289,
+      "mean_ms": 96.29947296343744,
+      "min_ms": 95.66891705617309,
+      "max_ms": 97.31812495738268
+     },
+     "predict": {
+      "n": 20,
+      "p50_ms": 96.9559580553323,
+      "p95_ms": 97.47954914346337,
+      "p99_ms": 97.53097685053945,
+      "mean_ms": 97.02171669341624,
+      "min_ms": 96.65366681292653,
+      "max_ms": 97.54383377730846
+     },
+     "samples": {
+      "forward_ms": [
+       96.37295827269554,
+       95.86300002411008,
+       96.12812520936131,
+       95.85466608405113,
+       96.1077082902193,
+       96.31370799615979,
+       96.00987518206239,
+       96.17008408531547,
+       96.34750010445714,
+       95.99724970757961,
+       96.78591601550579,
+       97.31812495738268,
+       96.2800420820713,
+       95.82962514832616,
+       96.74787521362305,
+       97.00641687959433,
+       96.39845788478851,
+       96.3634168729186,
+       95.66891705617309,
+       96.42579220235348
+      ],
+      "predict_ms": [
+       97.09445899352431,
+       97.47616574168205,
+       96.79816709831357,
+       97.54383377730846,
+       96.83154104277492,
+       97.12141705676913,
+       97.03020798042417,
+       96.84462519362569,
+       96.88166715204716,
+       96.92583326250315,
+       97.40366693586111,
+       97.20354061573744,
+       96.96445800364017,
+       96.94358380511403,
+       96.8004590831697,
+       97.29704214259982,
+       96.94745810702443,
+       97.01483324170113,
+       96.65770782157779,
+       96.65366681292653
+      ]
+     }
+    },
+    {
+     "tool": "laya-apple benchmark",
+     "laya_apple": "1.0.2",
+     "model": "laya-typed-decisions",
+     "device_requested": "gpu",
+     "dtype": "float16",
+     "length": 128,
+     "questions": 4,
+     "load_s": 4.0978193283081055e-08,
+     "platform": {
+      "soc": "Apple M2 Pro",
+      "macos": "26.6.2",
+      "macos_build": "25G83",
+      "coremltools": null,
+      "python": "3.12.8"
+     },
+     "status": "ok",
+     "backend": "mlx",
+     "device": "gpu",
+     "routing_reason": "gpu_requested",
+     "artifact_revision": "mlx:4fa56de72383:float16",
+     "buckets": [],
+     "forward": {
+      "n": 20,
+      "p50_ms": 90.46510397456586,
+      "p95_ms": 90.86781789083034,
+      "p99_ms": 90.99363061133772,
+      "mean_ms": 90.45534173492342,
+      "min_ms": 89.81862524524331,
+      "max_ms": 91.02508379146457
+     },
+     "predict": {
+      "n": 20,
+      "p50_ms": 91.16485458798707,
+      "p95_ms": 91.76094811409712,
+      "p99_ms": 91.86275597661734,
+      "mean_ms": 91.21822081506252,
+      "min_ms": 90.59587493538857,
+      "max_ms": 91.88820794224739
+     },
+     "samples": {
+      "forward_ms": [
+       90.13033378869295,
+       90.22479224950075,
+       89.99812509864569,
+       90.35195829346776,
+       90.3329998254776,
+       90.66770784556866,
+       90.85954073816538,
+       90.72983311489224,
+       90.66337486729026,
+       90.02816583961248,
+       89.81862524524331,
+       91.02508379146457,
+       90.20495880395174,
+       90.24370880797505,
+       90.77849984169006,
+       90.82354186102748,
+       90.58541711419821,
+       90.8418339677155,
+       90.57824965566397,
+       90.22008394822478
+      ],
+      "predict_ms": [
+       90.98683390766382,
+       91.22108295559883,
+       90.7434169203043,
+       91.61933278664947,
+       91.6053750552237,
+       91.09074994921684,
+       91.88820794224739,
+       91.33474994450808,
+       91.754250228405,
+       91.1358748562634,
+       90.59587493538857,
+       90.93425003811717,
+       90.98833287134767,
+       91.517667286098,
+       91.2489159964025,
+       91.02745819836855,
+       90.87133314460516,
+       91.19383431971073,
+       91.12662496045232,
+       91.48025000467896
+      ]
+     }
+    }
+   ],
+   "ane_parity": {
+    "status": "unavailable",
+    "reason": "BackendUnavailableError: device='ane' needs coremltools: install the [ane] extra (uv sync --extra ane)",
+    "build_command": "uv run laya-apple artifacts build laya-typed-decisions"
+   },
+   "routing": {
+    "status": "ok",
+    "routing_profile": null,
+    "auto_ane": {
+     "unavailable": "ane_runtime_unavailable",
+     "buckets": [],
+     "tie_buckets": []
+    },
+    "requests": [
+     {
+      "length": 64,
+      "questions": 1,
+      "backend": "mlx",
+      "device": "gpu",
+      "routing_reason": "ane_runtime_unavailable"
+     },
+     {
+      "length": 96,
+      "questions": 1,
+      "backend": "mlx",
+      "device": "gpu",
+      "routing_reason": "ane_runtime_unavailable"
+     },
+     {
+      "length": 128,
+      "questions": 1,
+      "backend": "mlx",
+      "device": "gpu",
+      "routing_reason": "ane_runtime_unavailable"
+     },
+     {
+      "length": 256,
+      "questions": 1,
+      "backend": "mlx",
+      "device": "gpu",
+      "routing_reason": "ane_runtime_unavailable"
+     },
+     {
+      "length": 512,
+      "questions": 1,
+      "backend": "mlx",
+      "device": "gpu",
+      "routing_reason": "ane_runtime_unavailable"
+     },
+     {
+      "length": 1024,
+      "questions": 1,
+      "backend": "mlx",
+      "device": "gpu",
+      "routing_reason": "ane_runtime_unavailable"
+     },
+     {
+      "length": 64,
+      "questions": 4,
+      "backend": "mlx",
+      "device": "gpu",
+      "routing_reason": "ane_runtime_unavailable"
+     },
+     {
+      "length": 128,
+      "questions": 4,
+      "backend": "mlx",
+      "device": "gpu",
+      "routing_reason": "ane_runtime_unavailable"
+     }
+    ],
+    "uses_ane": false
+   },
+   "heterogeneous": {
+    "status": "skipped",
+    "reason": "no validated ANE artifacts on this machine"
+   }
+  }
+ },
+ "matrix": {
+  "mlx": "✓",
+  "ane": "untested",
+  "auto_uses_ane": "no",
+  "heterogeneous": "untested"
+ },
+ "matrix_row": "| Apple M2 Pro (16 GB, macOS 26.6.2) | ✓ | untested | no | untested |",
+ "wall_time_s": 31.362687916029245
+}
