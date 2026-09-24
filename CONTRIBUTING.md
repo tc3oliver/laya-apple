@@ -135,6 +135,10 @@ hard mismatches, near-tie flips and max probability error against the tolerances
   layout are in [`docs/reproducibility.md`](docs/reproducibility.md). This is what
   produces a report like `benchmarks/v1.0.md`; it takes significant wall-clock time and
   is for release reports, not routine PRs (see "Which tests a PR needs" above).
+- **Disk space:** the full benchmark starts with `scripts/bench_preflight.py`, which stops
+  the run if free disk is below 200 GiB. It warns, without stopping the run, if the Core ML
+  E5 caches under `~/Library/Caches` exceed 50 GiB. It never deletes a cache; see
+  [`docs/benchmarks.md`](docs/benchmarks.md#disk-space-and-the-core-ml-e5-cache).
 
 ## How to add a hardware result
 

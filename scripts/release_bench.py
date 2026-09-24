@@ -14,6 +14,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import bench_preflight  # scripts/ is on sys.path when this file runs as a script
+
 ROOT = Path(__file__).resolve().parents[1]
 CLI = [str(ROOT / ".venv/bin/laya-apple"), "--offline", "benchmark"]
 LENGTHS = {
@@ -41,6 +43,8 @@ def plan():
 def main():
     target = Path(sys.argv[1])
     iters = sys.argv[2] if len(sys.argv) > 2 else "50"
+    if bench_preflight.check(target.parent.resolve()) != 0:
+        sys.exit(1)
     target.parent.mkdir(parents=True, exist_ok=True)
     configs = plan()
     for pass_no, order in ((1, configs), (2, list(reversed(configs)))):

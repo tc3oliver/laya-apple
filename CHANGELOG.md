@@ -7,6 +7,12 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- **Benchmark disk preflight** (`scripts/bench_preflight.py`). `release_bench.py` and
+  `bench_v1.sh` now stop before loading any model if free disk on the output filesystem is
+  below 200 GiB. They print each Core ML E5 cache under `~/Library/Caches` with its size,
+  and warn without stopping if the caches exceed 50 GiB. Nothing is deleted automatically;
+  `docs/benchmarks.md` explains the cache and how to clean it up by hand. No runtime,
+  routing or parity code changed.
 - **First community hardware result: Apple M4 Pro** (48 GB, macOS 27.0), in
   `hardware-results/apple-m4-pro-macos27/` (#32). `docs/community-benchmarks.md` fills its
   matrix row from that bundle and marks `Auto uses ANE` as coming from a local calibrated

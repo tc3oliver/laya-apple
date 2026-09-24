@@ -58,7 +58,10 @@ from running the Quickstart; re-run it to see the values on your machine.
 ## Re-running everything
 
 Run on a quiet machine on AC power, with nothing else using the GPU or ANE, after the
-[setup](benchmarks.md#setup) steps. From the repository root:
+[setup](benchmarks.md#setup) steps. Steps 1 and 3 stop early if free disk is below the
+minimum, and warn if the Core ML E5 caches are large; see
+[Disk space and the Core ML E5 cache](benchmarks.md#disk-space-and-the-core-ml-e5-cache).
+From the repository root:
 
 ```bash
 export LAYA_APPLE_CACHE=/path/to/cache

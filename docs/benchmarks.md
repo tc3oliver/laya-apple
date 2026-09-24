@@ -39,6 +39,61 @@ Prerequisites before any benchmark script:
    Each bucket only becomes usable after it passes the layout, placement and parity
    gates on this machine (README, "The ANE path: building artifacts").
 
+## Disk space and the Core ML E5 cache
+
+`scripts/release_bench.py` and `scripts/bench_v1.sh` start with a preflight check
+(`scripts/bench_preflight.py`, also runnable on its own). It prints the free space on the
+filesystem that holds the benchmark output, and the size of every Core ML E5 cache under
+`~/Library/Caches`. It never deletes anything.
+
+- **Free disk below 200 GiB: failure.** The run stops before any model is loaded.
+  Available disk is the actual safety condition.
+- **E5 caches above 50 GiB: warning only.** The paths and sizes are reported, and the run
+  continues as long as free disk is above the minimum. A large cache is useful
+  diagnostic information, but it does not by itself make the next run unsafe.
+
+**What the cache is.** When a process loads a Core ML model, macOS compiles it for the
+selected compute units into an E5 bundle and keeps compiled bundles for subsequent model
+loads, in `~/Library/Caches/<process name>/com.apple.e5rt.e5bundlecache/<macOS build>/`.
+Whether loading an identical laya-apple artifact again consistently reuses the same
+bundle is being verified separately. For a Python process, `<process name>` is the
+executable's name (`python3`, `python`, `python3.12`, `org.python.python`), not the
+project, so every virtual environment on the machine with that interpreter name writes to
+the same directory.
+
+**Why benchmark matrices make it large.** Distinct models and compute-unit configurations
+are compiled separately, and these caches can persist and grow substantially across
+benchmark runs. For each model, `bench_v1.sh` loads the ordinary Core ML graph fixed-shape
+at every supported length on `CPU_AND_NE` and `CPU_AND_GPU`, the enumerated-shape export
+on `CPU_AND_GPU` at L128 and L512, and, for parity, `CPU_AND_NE`, `CPU_AND_GPU` and `ALL`
+again. That is dozens of distinct Core ML models from one run. Other projects that use
+Core ML, and a macOS update (a new build directory), add to the same caches.
+
+**Cleaning it up is manual.** Deleting an E5 cache directory is safe for correctness, but
+the next load of each model compiles it again. The first load after a cleanup is slower,
+so cold-start timings taken then are not comparable to warm ones. The preflight does not
+delete it for you. A directory named after the Python executable is shared with every
+other Core ML workload that uses that interpreter, and deleting it while one of them is
+running can interfere with that workload. To clean up:
+
+1. Stop every process that uses Core ML from that interpreter: benchmarks, test runs,
+   and unrelated projects. Leave the caches of macOS services alone.
+2. Look at the paths the preflight printed, and delete the ones you choose yourself.
+3. Run `uv run python scripts/bench_preflight.py` again to confirm.
+
+Free space is what the filesystem reports as available now. APFS purgeable space, which
+Finder counts as available, is not included, so the preflight can report less than Finder.
+
+The levels are in GiB, and `0` disables a check. On a machine with a smaller disk, lower
+the minimum for that run:
+
+```bash
+LAYA_APPLE_PREFLIGHT_MIN_FREE_GIB=60 \
+  uv run python scripts/release_bench.py benchmarks/v1.0/raw.jsonl
+```
+
+`LAYA_APPLE_PREFLIGHT_WARN_E5_GIB` sets the E5 warning level (default 50).
+
 ## v0.1 — single-request latency
 
 Driver: [`scripts/release_bench.py`](../scripts/release_bench.py).

@@ -18,6 +18,8 @@ OUT=$ROOT/benchmarks/v1.0
 RESEARCH=$ROOT/research/phase-0-feasibility
 MODELS=(${=MODELS:-laya-typed-decisions laya-multilingual laya})
 mkdir -p $OUT
+# Stop before the Core ML matrix starts if free disk is below the minimum (a large E5 cache only warns).
+$ROOT/.venv/bin/python $ROOT/scripts/bench_preflight.py --workspace $OUT
 
 cd $RESEARCH
 for spec in '{"backend":"torch","device":"cpu"}' '{"backend":"torch","device":"mps"}' \
