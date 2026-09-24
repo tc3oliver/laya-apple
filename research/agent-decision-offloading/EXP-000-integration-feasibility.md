@@ -1,6 +1,11 @@
 # EXP-000: Agent integration feasibility
 
-**Status:** complete. **Result: GO** (Pi and Hermes Agent pass C1–C7; see [Result](#result)).
+**Status:** complete. **Result: NO-GO** under the pre-registered interpretation (see
+[Result](#result)).
+
+A post-hoc finding restricted to ordinary tool results was then pre-registered and
+confirmed as [EXP-000B](EXP-000B-ordinary-tool-results.md). The track's forward decision
+is recorded there, not here.
 
 ## Question
 
@@ -120,47 +125,44 @@ Filled in by each spike: repository, commit, version and date read.
 | Hermes Agent | github.com/NousResearch/hermes-agent | `main` @ `7de8728cba339065329f141cf92686bf06d2c171` (v0.21.4) | 2026-09-24 |
 | Pi | github.com/earendil-works/pi (formerly badlogic/pi-mono) | tag `v0.87.1` @ `f07218c4d4bbc12bef056a7058c3dd49dfe41abe`; npm `@earendil-works/pi-coding-agent@0.87.1` | 2026-09-24 |
 
-## Scope clarification (recorded after results)
-
-**When and why.** This section was added on 2026-09-24, after the spikes ran. The
-criteria above are unchanged. One Hermes Agent finding raised a question that the
-criteria had not settled: which texts count as "a tool result"?
-
-**Decision.** The project owner decided it before the GO/NO-GO call. For C1–C7, a
-**tool result** is the raw output of an ordinary tool execution, returned through the
-runtime's normal tool-result path. The following are not tool results:
-
-- **Subagent summaries.** These are text a subagent's model generates, which the runtime
-  adds to the context directly. One example is Hermes Agent's asynchronous
-  `delegate_task` completion summary, `[ASYNC DELEGATION COMPLETE …]`.
-- **Runtime-generated error and status text.** This is text from calls that never
-  executed or failed outside the tool: blocked, unknown or invalid calls, exceptions
-  outside the tool, and similar.
-
-The last category is treated the same way for all three runtimes. Paths outside this
-scope are recorded as limitations.
-
-**This clarification decides the result.** OpenClaw is PARTIAL either way. Without the
-clarification, the `delegate_task` summaries would make Hermes Agent's C1, C3 and C4
-PARTIAL. No runtime would then satisfy the "OpenClaw or Hermes" clause, and EXP-000
-would be NO-GO. They are not success criteria, and nothing new was
-added as a success criterion after the results were known.
-
 ## Result
 
-**EXP-000 = GO.**
+**EXP-000 = NO-GO** under the pre-registered interpretation.
 
-| Runtime | C1–C7 | Notes |
+The criteria did not restrict which runtime outputs count as a tool result. Read as
+written, every text that enters the Main LLM's context as the outcome of a tool call is
+in the evaluation population.
+
+| Runtime | C1–C7 | Why |
 |---|---|---|
 | Pi 0.87.1 | **all PASS** | Extension tool, built-in `bash`, a `bash` error and a parallel batch |
-| Hermes Agent v0.21.4 | **all PASS** (ordinary tool results) | Plugin tool, built-in `terminal`, the `tool_call` bridge, concurrent calls and errors. Background terminal output is covered by `transform_terminal_output` |
+| Hermes Agent v0.21.4 | C1, C3 and C4 **PARTIAL**; the rest PASS | Asynchronous `delegate_task` completion summaries (`[ASYNC DELEGATION COMPLETE …]`) enter the context without passing `transform_tool_result` |
 | OpenClaw 2026.9.6 | C1, C3 and C4 **PARTIAL**; the rest PASS | All seven pass for tools that OpenClaw's embedded agent loop runs. Codex-native tools under the Codex harness, CLI/ACP backends and provider-hosted tools cannot be replaced |
 
-The criteria are met:
-- two runtimes (Pi and Hermes Agent) pass all seven of C1–C7;
-- one of them is Hermes Agent.
+The GO condition is not met:
+- only one runtime (Pi) passes all seven of C1–C7, and two are required;
+- neither OpenClaw nor Hermes Agent passes.
+
+Runtime-generated text for calls that never execute (blocked, unknown or invalid calls)
+is judged the same way for all three runtimes. It does not decide any verdict above.
 
 No runtime needed a fork.
+
+## Post-hoc finding (exploratory, not the verdict)
+
+**When.** Recorded on 2026-09-24, after the spikes ran. The criteria above are unchanged.
+
+**Finding.** Suppose the population is restricted to **ordinary tool results**: the
+output of an ordinary tool execution, returned through the runtime's normal tool-result
+path. Then subagent summaries and runtime-generated error or status text are excluded,
+and Pi and Hermes Agent both pass all seven of C1–C7 in the cases above. OpenClaw stays
+PARTIAL.
+
+Choosing this scope changes the evaluation population, and it was chosen after the
+results were known. So this finding is exploratory. It is **not** EXP-000's verdict.
+
+It was pre-registered as a separate experiment with the scope fixed before running:
+[EXP-000B](EXP-000B-ordinary-tool-results.md).
 
 **Main LLM evidence.** In every filtered case, the mock received only
 `AAA [FILTERED_BY_LAYA_SPIKE] BBB` (or the plugin's deadline fallback), and
@@ -190,13 +192,11 @@ None of it is sent to the model.
 - **Streaming partial output** (OpenClaw, Pi) reaches UI and extension observers before
   the hook, but never the model.
 
-**Candidates for EXP-001.**
-- **Pi**, as the primary adapter. It has the cleanest seam and a per-request `context`
-  hook.
-- **Hermes Agent**, as the second. Its filter needs a plugin-side deadline and a
-  `tool_execution` exception guard.
-
-OpenClaw fits only if the study is limited to its embedded runtime.
+**Runtime notes for any later experiment.**
+- **Pi** has the cleanest seam and a per-request `context` hook.
+- **Hermes Agent**'s filter needs a plugin-side deadline and a `tool_execution` exception
+  guard.
+- **OpenClaw** fits only if a study is limited to its embedded runtime.
 
 The full matrix with evidence is in
 [`results/integration-matrix.md`](results/integration-matrix.md). The per-runtime

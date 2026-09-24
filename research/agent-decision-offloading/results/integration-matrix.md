@@ -1,8 +1,12 @@
 # EXP-000 integration matrix
 
-The verdict rules are in [EXP-000](../EXP-000-integration-feasibility.md#verdict-rules),
-and the scope of C1–C7 is in
-[Scope clarification](../EXP-000-integration-feasibility.md#scope-clarification-recorded-after-results).
+The verdict rules are in [EXP-000](../EXP-000-integration-feasibility.md#verdict-rules).
+
+The matrix gives the **pre-registered** verdicts: every text that enters the context as a
+tool call's outcome counts. Where a cell differs for ordinary tool results only, the
+cell shows it in brackets. That narrower result is a post-hoc finding of EXP-000. It is
+confirmed by the separately pre-registered
+[EXP-000B](../EXP-000B-ordinary-tool-results.md).
 
 Every PASS and PARTIAL cites an API, an upstream source reference and a spike result. The
 spike READMEs hold the full evidence:
@@ -21,11 +25,11 @@ spike READMEs hold the full evidence:
 
 | Capability | OpenClaw | Hermes | Pi |
 |---|---|---|---|
-| Intercept raw tool result (C1) | PARTIAL | PASS | PASS |
-| Access tool name/args (C1) | PARTIAL | PASS | PASS |
+| Intercept raw tool result (C1) | PARTIAL | PARTIAL (ordinary: PASS) | PASS |
+| Access tool name/args (C1) | PARTIAL | PARTIAL (ordinary: PASS) | PASS |
 | Async processing (C2) | PASS | PASS | PASS |
-| Replace model-bound result (C3) | PARTIAL | PASS | PASS |
-| Before first context admission (C4) | PARTIAL | PASS | PASS |
+| Replace model-bound result (C3) | PARTIAL | PARTIAL (ordinary: PASS) | PASS |
+| Before first context admission (C4) | PARTIAL | PARTIAL (ordinary: PASS) | PASS |
 | Preserve raw result separately (C5) | PASS | PASS | PASS |
 | No historical rewrite (C6) | PASS | PASS | PASS |
 | No runtime fork (C7) | PASS | PASS | PASS |
@@ -33,8 +37,10 @@ spike READMEs hold the full evidence:
 | Pre-LLM hook | PARTIAL | PARTIAL | PARTIAL |
 | Potential LLM-turn bypass | PARTIAL | UNKNOWN | PARTIAL |
 
-**All seven of C1–C7 pass for:** Hermes Agent and Pi. OpenClaw passes all seven only in
-its embedded runtime (see below).
+**All seven of C1–C7 pass for:** Pi only, under the pre-registered interpretation
+(EXP-000 is NO-GO).
+- For ordinary tool results only: Pi and Hermes Agent (EXP-000B PASS).
+- OpenClaw passes all seven only in its embedded runtime (see below).
 
 ## Evidence
 
@@ -110,7 +116,8 @@ literal never appears in the model's own tool-call arguments.
   result.
 
 ### Hermes Agent
-- **Ordinary tool results:** C1–C7 PASS.
+- **C1, C3 and C4 are PARTIAL under the pre-registered interpretation,** because of the
+  `delegate_task` summaries below. For ordinary tool results, C1–C7 PASS (EXP-000B).
 - **Async `delegate_task` completion summaries** (`[ASYNC DELEGATION COMPLETE …]`) bypass
   `transform_tool_result`. The runtime adds them to the context directly.
   - The subagent's own tool results still go through the filter.

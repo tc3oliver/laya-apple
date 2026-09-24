@@ -538,8 +538,13 @@ came from exactly that inline executor.
 ## Runtime fork needed?
 
 **No.** Everything runs through directory plugins and `hermes plugins enable` against
-an unmodified checkout at `7de8728c`. For GO purposes, all seven criteria C1–C7 are
-**PASS** on the tool-result channel. The three follow-up gaps are closed:
+an unmodified checkout at `7de8728c`.
+
+Under EXP-000's pre-registered interpretation, C1, C3 and C4 are **PARTIAL** because of
+the `delegate_task` summaries, and the rest PASS. For ordinary tool results, all seven
+criteria C1–C7 are **PASS**. That is a post-hoc finding of EXP-000, confirmed by the
+pre-registered [EXP-000B](../../EXP-000B-ordinary-tool-results.md). The three follow-up
+gaps are closed:
 - **Background terminal output** is covered, with the same properties, by also
   registering `transform_terminal_output` (`background_terminal`).
 - **Hermes's fail-open** is avoided by a plugin-side deadline and fallback

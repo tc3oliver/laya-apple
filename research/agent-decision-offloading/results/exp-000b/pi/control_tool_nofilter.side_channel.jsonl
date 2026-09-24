@@ -1,0 +1,6 @@
+{"kind":"context_event","t":1790231141.336,"tool_result_texts":[],"raw_present":false}
+{"kind":"tool_call_hook","t":1790231141.354,"tool_name":"laya_sentinel","tool_call_id":"call_5c6b84504b67","args":{}}
+{"kind":"tool_result_hook","t":1790231141.406,"tool_name":"laya_sentinel","tool_call_id":"call_5c6b84504b67","args":{},"raw_output":"AAA LAYA_SENTINEL BBB","is_error":false,"hook_start":1790231141.354,"awaited_ms":52,"tool_result_in_session_when_hook_ran":false,"replaced":false}
+{"kind":"message_end_tool_result","t":1790231141.407,"tool_call_id":"call_5c6b84504b67","text":"AAA LAYA_SENTINEL BBB","is_error":false,"in_session_at_message_end":false}
+{"kind":"turn_end_tool_result","t":1790231141.407,"tool_call_id":"call_5c6b84504b67","text":"AAA LAYA_SENTINEL BBB","in_session_at_turn_end":true}
+{"kind":"context_event","t":1790231141.408,"tool_result_texts":["AAA LAYA_SENTINEL BBB"],"raw_present":true}

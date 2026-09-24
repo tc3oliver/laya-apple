@@ -1,0 +1,1 @@
+{"t": 1790231141.4102, "path": "/v1/chat/completions", "n_messages": 4, "message_roles": ["system", "user", "assistant", "tool"], "message_digests": ["94d0ff0ff34e6765", "93686833c20ac005", "796479ea90e1f520", "3c691bfdd9896acb"], "tool_messages": ["AAA LAYA_SENTINEL BBB"], "raw_sentinel_anywhere_in_request": true, "filtered_marker_anywhere_in_request": false}

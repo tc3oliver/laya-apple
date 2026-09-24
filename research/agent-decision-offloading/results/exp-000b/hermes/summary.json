@@ -1,0 +1,243 @@
+{
+  "hermes_checkout_head": "7de8728cba339065329f141cf92686bf06d2c171",
+  "cases": {
+    "negative_control": {
+      "tool_result_turns": [
+        {
+          "roles": [
+            "system",
+            "user",
+            "assistant",
+            "tool"
+          ],
+          "tool_messages": [
+            "AAA LAYA_SENTINEL BBB"
+          ],
+          "raw_sentinel_anywhere_in_request": true,
+          "filtered_marker_anywhere_in_request": false
+        },
+        {
+          "roles": [
+            "system",
+            "user",
+            "assistant",
+            "tool",
+            "assistant",
+            "user"
+          ],
+          "tool_messages": [
+            "AAA LAYA_SENTINEL BBB"
+          ],
+          "raw_sentinel_anywhere_in_request": true,
+          "filtered_marker_anywhere_in_request": false
+        }
+      ],
+      "chat_requests_total": 4,
+      "chat_requests_with_raw_sentinel": 2,
+      "c6_history": {
+        "turn1_roles": [
+          "system",
+          "user",
+          "assistant",
+          "tool"
+        ],
+        "turn2_roles": [
+          "system",
+          "user",
+          "assistant",
+          "tool",
+          "assistant",
+          "user"
+        ],
+        "prefix_len_compared": 4,
+        "prefix_identical": true,
+        "per_message_equal": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "consecutive_requests": [
+          {
+            "from_roles": [
+              "system",
+              "user",
+              "assistant",
+              "tool"
+            ],
+            "to_roles": [
+              "system",
+              "user",
+              "assistant",
+              "tool",
+              "assistant",
+              "user"
+            ],
+            "prefix_identical": true
+          }
+        ],
+        "turn2_tool_messages": [
+          "AAA LAYA_SENTINEL BBB"
+        ]
+      },
+      "background_notifications": [],
+      "hook_invocations": [],
+      "session_db": {
+        "raw_sentinel_rows": 8,
+        "filtered_rows": 0,
+        "tables_scanned": 24
+      },
+      "hermes_home_files_with_raw_sentinel": [
+        "state.db",
+        "state.db-wal"
+      ],
+      "agent_log": {
+        "hook_timeouts": {
+          "count": 0,
+          "first_line": null
+        },
+        "concurrent_invoke_tool_raised": {
+          "count": 0,
+          "first_line": null
+        }
+      },
+      "parallel_timing": null
+    },
+    "plugin_tool": {
+      "tool_result_turns": [
+        {
+          "roles": [
+            "system",
+            "user",
+            "assistant",
+            "tool"
+          ],
+          "tool_messages": [
+            "AAA [FILTERED_BY_LAYA_SPIKE] BBB"
+          ],
+          "raw_sentinel_anywhere_in_request": false,
+          "filtered_marker_anywhere_in_request": true
+        },
+        {
+          "roles": [
+            "system",
+            "user",
+            "assistant",
+            "tool",
+            "assistant",
+            "user"
+          ],
+          "tool_messages": [
+            "AAA [FILTERED_BY_LAYA_SPIKE] BBB"
+          ],
+          "raw_sentinel_anywhere_in_request": false,
+          "filtered_marker_anywhere_in_request": true
+        }
+      ],
+      "chat_requests_total": 4,
+      "chat_requests_with_raw_sentinel": 0,
+      "c6_history": {
+        "turn1_roles": [
+          "system",
+          "user",
+          "assistant",
+          "tool"
+        ],
+        "turn2_roles": [
+          "system",
+          "user",
+          "assistant",
+          "tool",
+          "assistant",
+          "user"
+        ],
+        "prefix_len_compared": 4,
+        "prefix_identical": true,
+        "per_message_equal": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "consecutive_requests": [
+          {
+            "from_roles": [
+              "system",
+              "user",
+              "assistant",
+              "tool"
+            ],
+            "to_roles": [
+              "system",
+              "user",
+              "assistant",
+              "tool",
+              "assistant",
+              "user"
+            ],
+            "prefix_identical": true
+          }
+        ],
+        "turn2_tool_messages": [
+          "AAA [FILTERED_BY_LAYA_SPIKE] BBB"
+        ]
+      },
+      "background_notifications": [],
+      "hook_invocations": [
+        {
+          "event": "pre_llm_call",
+          "tool_name": null,
+          "history_roles": [
+            "user"
+          ]
+        },
+        {
+          "event": "pre_tool_call",
+          "tool_name": "laya_sentinel"
+        },
+        {
+          "event": "transform_tool_result",
+          "tool_name": "laya_sentinel",
+          "matched": true,
+          "await_ms": 52.1,
+          "thread": "hermes-hook-_on_transform_tool_result",
+          "status": "ok",
+          "replacement": "AAA [FILTERED_BY_LAYA_SPIKE] BBB"
+        },
+        {
+          "event": "post_tool_call",
+          "tool_name": "laya_sentinel",
+          "result_has_raw_sentinel": false
+        },
+        {
+          "event": "pre_llm_call",
+          "tool_name": null,
+          "history_roles": [
+            "user",
+            "assistant",
+            "tool",
+            "assistant",
+            "user"
+          ]
+        }
+      ],
+      "session_db": {
+        "raw_sentinel_rows": 0,
+        "filtered_rows": 8,
+        "tables_scanned": 24
+      },
+      "hermes_home_files_with_raw_sentinel": [],
+      "agent_log": {
+        "hook_timeouts": {
+          "count": 0,
+          "first_line": null
+        },
+        "concurrent_invoke_tool_raised": {
+          "count": 0,
+          "first_line": null
+        }
+      },
+      "parallel_timing": null
+    }
+  }
+}

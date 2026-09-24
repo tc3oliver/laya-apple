@@ -7,12 +7,17 @@ release policy. These rules summarise it and do not replace it.
 
 ## Scope
 
-laya-apple is one repository with three product directions:
-- **Fast Laya runtime:** loading, the MLX GPU and Core ML / ANE backends, parity and
-  provenance.
-- **GPU + ANE serving:** routing, heterogeneous serving and benchmarking.
-- **Agent offloading:** local Laya decisions inside coding agents (OpenClaw, Hermes
-  Agent, Pi). Integrations, adapters, hooks, installers and CLI integration belong here.
+laya-apple is one repository. It covers:
+- **Fast Laya runtime** (product direction): loading, the MLX GPU and Core ML / ANE
+  backends, parity and provenance.
+- **GPU + ANE serving** (product direction): routing, heterogeneous serving and
+  benchmarking.
+- **Agent offloading** (research, candidate product direction): local Laya decisions
+  inside coding agents (OpenClaw, Hermes Agent, Pi).
+  - It becomes a product direction once EXP-001 and the later value experiments pass
+    (`research/agent-decision-offloading/`).
+  - Integrations, adapters, hooks, installers and CLI integration belong here when that
+    work is promoted.
 
 Rules:
 - **Research vs production.** Research lives in `research/<track>/`. The `laya_apple`
