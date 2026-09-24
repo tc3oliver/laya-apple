@@ -13,6 +13,16 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   and warn without stopping if the caches exceed 50 GiB. Nothing is deleted automatically;
   `docs/benchmarks.md` explains the cache and how to clean it up by hand. No runtime,
   routing or parity code changed.
+- **Community hardware result: Apple M4** (32 GB, macOS 26.2), in
+  `hardware-results/apple-m4-macos26/` (#41). MLX and ANE parity passed for
+  `laya-typed-decisions`; `laya-apple calibrate` was not run, so `auto` stayed on MLX
+  (`platform_not_validated`) and the heterogeneous check did not run. One change updates
+  the M4 row of `docs/community-benchmarks.md`, a community-measurement row in
+  `docs/support-matrix.md`, the community results and the SoC and macOS cells in
+  `docs/compatibility.md`, and the README's community status. The draft of issue #17 no
+  longer says nobody has run the pipeline on another macOS: it cites #32 (macOS 27.0) and
+  #41 (macOS 26.2) and narrows the open question to another coremltools release. No
+  runtime, routing, parity or benchmark code changed.
 - **First community hardware result: Apple M4 Pro** (48 GB, macOS 27.0), in
   `hardware-results/apple-m4-pro-macos27/` (#32). `docs/community-benchmarks.md` fills its
   matrix row from that bundle and marks `Auto uses ANE` as coming from a local calibrated
