@@ -5,6 +5,12 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-09-24
+
+Adds `laya-apple switchyard`: a one-command, headless open-loop benchmark of GPU-only
+against GPU + ANE serving, replayed in the browser as a rail-yard game from the recorded
+request traces. The runtime, routing and published v1.0 measurements are unchanged.
+
 ### Added
 
 - **`laya-apple switchyard`.** A headless benchmark of the frozen `switchyard-v1` workload
