@@ -6,7 +6,6 @@ from __future__ import annotations
 import importlib.util
 import sys
 import threading
-from concurrent.futures import Future
 from pathlib import Path
 
 import pytest
@@ -34,73 +33,69 @@ def analyze():
 
 
 class FakeWorker:
-    """The DeviceWorker surface the tracer wraps: submit, _run, backlog_ms, kind."""
+    """The DeviceWorker surface jobtrace.tag_dispatcher wraps: _run(job_id, rows)."""
 
-    kind = "gpu"
+    kind = "ane"
 
-    def __init__(self, fail=False):
-        self.fail = fail
-        self.submitted = []
+    def __init__(self, jobtrace, fail=False):
+        self.jobtrace, self.fail = jobtrace, fail
+        self.seen = []
 
-    def backlog_ms(self):
-        return 3.5
-
-    def submit(self, rows, estimate_ms):
-        self.submitted.append((rows, estimate_ms))
-        fut = Future()
-        fut.set_result("queued")
-        return fut
-
-    def _run(self, rows):
+    def _run(self, job_id, rows):
+        self.seen.append((job_id, rows, self.jobtrace.current_request_id()))
         if self.fail:
             raise RuntimeError("device error")
-        return ("logits", "act", 1.25)
+        return ("logits", "act", 1, 2)
 
 
-def test_tracer_records_times_and_returns_results_unchanged(jobtrace):
-    w, jobs = FakeWorker(), jobtrace.JobTable()
-    jobtrace.instrument_worker(w, jobs)
+def test_dispatcher_tag_exposes_the_job_id_and_changes_nothing(jobtrace):
+    w = FakeWorker(jobtrace)
+    jobtrace.tag_dispatcher(w)
     rows = [{"ids": [1, 2]}]
-    rec = jobs.open(rows, arrival=1.0)
-    fut = w.submit(rows, 12.0)
-    assert fut.result() == "queued"
-    assert w.submitted == [(rows, 12.0)]  # the original submit ran with the same arguments
-    assert w._run(rows) == ("logits", "act", 1.25)
-    assert rec["estimate_ms"] == 12.0 and rec["backlog_at_enter_ms"] == 3.5 and rec["device"] == "gpu"
-    assert rec["arrival"] <= rec["queue_enter"] <= rec["device_start"] <= rec["device_end"]
-    assert jobs.close(rec) is rec and jobs.get(rows) is None
+    assert w._run(41, rows) == ("logits", "act", 1, 2)  # the result is returned unchanged
+    assert w.seen == [(41, rows, 41)]  # same arguments; the forward saw its request id
+    assert jobtrace.current_request_id() is None  # cleared after the job
 
 
-def test_tracer_propagates_device_errors_and_still_stamps(jobtrace):
-    w, jobs = FakeWorker(fail=True), jobtrace.JobTable()
-    jobtrace.instrument_worker(w, jobs)
-    rows = [{}]
-    rec = jobs.open(rows)
-    w.submit(rows, 1.0)
+def test_dispatcher_tag_propagates_errors_and_clears(jobtrace):
+    w = FakeWorker(jobtrace, fail=True)
+    jobtrace.tag_dispatcher(w)
     with pytest.raises(RuntimeError, match="device error"):
-        w._run(rows)
-    assert rec["device_end"] >= rec["device_start"]
+        w._run(7, [{}])
+    assert w.seen[0][2] == 7 and jobtrace.current_request_id() is None
 
 
-def test_product_path_opens_a_fresh_record_even_when_an_id_is_reused(jobtrace):
-    w, jobs = FakeWorker(), jobtrace.JobTable()
-    jobtrace.instrument_worker(w, jobs)
-    rows = [{}]
-    stale = jobs.open(rows, arrival=0.0)  # a finished request whose record is not closed yet
-    jobs.expect_new()
-    w.submit(rows, 2.0)  # Laya.submit path: same id, new request
-    fresh = jobs.last_opened()
-    assert fresh is not stale and fresh["estimate_ms"] == 2.0 and "estimate_ms" not in stale
+def test_worker_connection_tags_received_jobs_only(jobtrace):
+    class Conn:
+        def __init__(self, msgs):
+            self.msgs, self.sent = list(msgs), []
+
+        def recv(self):
+            return self.msgs.pop(0)
+
+        def send(self, m):
+            self.sent.append(m)
+
+    conn = jobtrace._TaggingConnection(Conn([(12, ["row"]), None]))
+    assert conn.recv() == (12, ["row"]) and jobtrace.current_request_id() == 12
+    conn.send((12, "ok", ()))  # other calls pass through
+    assert conn._conn.sent == [(12, "ok", ())]
+    assert conn.recv() is None and jobtrace.current_request_id() == 12  # the close message is not a job
 
 
-def test_last_opened_is_per_thread(jobtrace):
-    jobs = jobtrace.JobTable()
-    mine = jobs.open([1])
+def test_request_id_is_per_thread(jobtrace):
+    w = FakeWorker(jobtrace)
+    jobtrace.tag_dispatcher(w)
     seen = {}
-    t = threading.Thread(target=lambda: seen.setdefault("other", jobs.last_opened()))
+
+    def other():
+        seen["other"] = jobtrace.current_request_id()
+
+    w._run(5, [])
+    t = threading.Thread(target=other)
     t.start()
     t.join()
-    assert jobs.last_opened() is mine and seen["other"] is None
+    assert seen["other"] is None
 
 
 def test_clock_is_system_wide_monotonic(jobtrace):
@@ -182,3 +177,291 @@ def test_contention_fit_separates_additive_from_proportional():
     assert a == pytest.approx(0.1) and d == pytest.approx(0.0)
     a, d = contention._fit([(10.0, 9.9), (70.0, 69.0)])  # faster: clamped, never negative
     assert a == 0.0 and d == 0.0
+
+
+# ----------------------------------------------------------------------------- request ledger analysis
+
+
+@pytest.fixture(scope="module")
+def ledger():
+    return _load("ledger")
+
+
+@pytest.fixture(scope="module")
+def analyze_ledger():
+    return _load("analyze_ledger")
+
+
+# phase durations (us) per stream: dispatch, service, return; every request also has prepare 500,
+# route 50, enqueue 20, queue 0, postprocess 300
+_PHASES = {
+    "solo_gpu": (100, 12000, 100),
+    "solo_ane": (50, 10000, 50),
+    "conc_gpu": (3000, 12500, 2000),
+    "conc_ane": (50, 10000, 50),
+}
+
+
+def _trace(rid, target, submit, phases, other_busy):
+    d, s, r = phases
+    t = {"submit_us": submit}
+    t["prepared_us"] = submit + 500
+    t["routed_us"] = t["prepared_us"] + 50
+    t["queue_enter_us"] = t["routed_us"] + 20
+    t["dispatch_us"] = t["queue_enter_us"]
+    t["service_start_us"] = t["dispatch_us"] + d
+    t["service_end_us"] = t["service_start_us"] + s
+    t["received_us"] = t["service_end_us"] + r
+    t["response_us"] = t["received_us"] + 300
+    other = "ane" if target == "gpu" else "gpu"
+    snap = {f"{target}_backlog_ms": 1.0, f"{target}_queued_jobs": 0, f"{target}_running": False}
+    snap.update(
+        {
+            f"{other}_backlog_ms": 9.0 if other_busy else None,
+            f"{other}_queued_jobs": 1 if other_busy else None,
+            f"{other}_running": True if other_busy else None,
+        }
+    )
+    return {
+        "request_id": rid,
+        "sequence_length": 128,
+        "question_count": 1,
+        "target": target,
+        "routing_reason": f"{target}_requested",
+        "service_estimate_ms": 12.0 if target == "gpu" else 10.0,
+        **snap,
+        **t,
+    }
+
+
+def _columns(rows):
+    keys = list(dict.fromkeys(k for r in rows for k in r))
+    return {k: [r.get(k) for r in rows] for k in keys}
+
+
+def _synthetic_run():
+    """solo:gpu_M (ids 1,2), solo:ane_B (3,4; 4 has no backend event), matrix:gpu_M+ane_B (5-8),
+    and one backend forward without a request_id before the first submit."""
+    plan = [  # id, device, submit us, phases, window index, stream
+        (1, "gpu", 100_000, "solo_gpu", 0, "gpu_M"),
+        (2, "gpu", 200_000, "solo_gpu", 0, "gpu_M"),
+        (3, "ane", 1_100_000, "solo_ane", 1, "ane_B"),
+        (4, "ane", 1_200_000, "solo_ane", 1, "ane_B"),
+        (5, "gpu", 2_400_000, "conc_gpu", 2, "gpu_M"),
+        (6, "gpu", 2_450_000, "conc_gpu", 2, "gpu_M"),
+        (7, "ane", 2_405_000, "conc_ane", 2, "ane_B"),
+        (8, "ane", 2_430_000, "conc_ane", 2, "ane_B"),
+    ]
+    windows = [
+        {"cell": "solo:gpu_M", "kind": "solo", "measure": [0.0, 1.0]},
+        {"cell": "solo:ane_B", "kind": "solo", "measure": [1.0, 2.0]},
+        {"cell": "matrix:gpu_M+ane_B", "kind": "matrix", "measure": [2.0, 3.0]},
+    ]
+    for w in windows:
+        w.update(
+            cycle=0,
+            t_start=w["measure"][0],
+            stop=w["measure"][1],
+            spec={},
+            conditions_before={},
+            aggressors=[],
+            streams={},
+        )
+    traces, backend = (
+        [],
+        [
+            {
+                "request_id": None,
+                "device": "gpu",
+                "pid": 1,
+                "tid": 1,
+                "rows": 1,
+                "max_len": 128,
+                "t0_us": 50_000,
+                "t1_us": 60_000,
+                "cpu_us": 900,
+                "spans": [[51_000, 59_000]],
+            }
+        ],
+    )
+    for rid, dev, submit, ph, wi, label in plan:
+        t = _trace(rid, dev, submit, _PHASES[ph], other_busy=ph.startswith("conc"))
+        traces.append(t)
+        if rid != 4:
+            t0, t1 = t["service_start_us"] + 10, t["service_end_us"] - 10
+            backend.append(
+                {
+                    "request_id": rid,
+                    "device": dev,
+                    "pid": 2,
+                    "tid": 3,
+                    "rows": 1,
+                    "max_len": 128,
+                    "t0_us": t0,
+                    "t1_us": t1,
+                    "cpu_us": 1500,
+                    "spans": [[t0 + 100, t1 - 400]],
+                }
+            )
+        st = windows[wi]["streams"].setdefault(
+            label, {"device": dev, "shape": label[-1], "mode": "closed", "rate": 0.0, "errors": [], "records": []}
+        )
+        st["records"].append(
+            {
+                "request_id": rid,
+                "arrival_us": submit,
+                "seed": rid,
+                "shape": label[-1],
+                "match": True,
+                "in_window": True,
+                "done_us": t["response_us"],
+            }
+        )
+    for w in windows:
+        for st in w["streams"].values():
+            st["records"] = _columns(st["records"])
+    return {
+        "experiment": "gpu-ane-interference",
+        "pipeline": "runtime-trace",
+        "plan": "device",
+        "args": {"model": "laya-typed-decisions", "ane_placement": "thread"},
+        "environment": {},
+        "t_ref_ns": 0,
+        "windows": windows,
+        "traces": _columns(traces),
+        "backend": _columns(backend),
+    }
+
+
+def test_ledger_join_report_counts(ledger, analyze_ledger):
+    records, rep = ledger.build(_synthetic_run())
+    assert len(records) == rep["traces"] == 8
+    assert rep["backend_events"] == 8 and rep["traces_joined_1to1"] == 7
+    assert rep["traces_without_backend_event"] == 1 and rep["traces_with_several_backend_events"] == 0
+    assert rep["backend_events_without_request_id"] == {"before first request": 1}
+    assert rep["backend_events_without_trace"] == 0 and rep["backend_event_outside_service_window"] == 0
+    assert rep["backend_device_mismatch"] == 0 and rep["join_rate"] == pytest.approx(7 / 8)
+    join = analyze_ledger.join_section(rep)
+    assert join["pass"] is False and join["checks"]["join_rate_is_1"] is False
+
+
+def test_ledger_identities_and_unattributed(ledger):
+    records, _ = ledger.build(_synthetic_run())
+    for r in records:
+        t = r["timing_ms"]
+        assert t["occupancy"] == pytest.approx(t["dispatch"] + t["service"] + t["return"])
+        parts = t["prepare"] + t["route"] + t["enqueue"] + t["queue"] + t["occupancy"] + t["postprocess"]
+        assert t["e2e"] == pytest.approx(parts)
+        if r["backend"] is not None:
+            assert t["service"] == pytest.approx(t["device_exec"] + t["host"] + t["unattributed"])
+            assert t["unattributed"] == pytest.approx(0.02)  # the hook's span is 10 us inside each end
+    (no_be,) = [r for r in records if r["request_id"] == 4]
+    assert no_be["timing_ms"]["forward"] is None and no_be["timing_ms"]["unattributed"] == no_be["timing_ms"]["service"]
+
+
+def test_prediction_error_splits_exactly(ledger, analyze_ledger):
+    records, _ = ledger.build(_synthetic_run())
+    ledger.annotate_overlap(records)
+    for r in records:
+        e = analyze_ledger.prediction_errors(r)
+        assert e["signed"] == pytest.approx(e["queue_error"] + e["service_error"], abs=1e-9)
+    (r5,) = [r for r in records if r["request_id"] == 5]
+    e = analyze_ledger.prediction_errors(r5)
+    assert e["actual"] == pytest.approx(0.02 + 3.0 + 12.5 + 2.0)  # routed -> received
+    assert e["predicted"] == pytest.approx(13.0) and e["signed"] == pytest.approx(4.52)
+    assert e["queue_error"] == pytest.approx(0.02 - 1.0) and e["service_error"] == pytest.approx(17.5 - 12.0)
+    assert analyze_ledger.group_values(r5)["target|other_device"] == "gpu|busy"
+    pred = analyze_ledger.prediction_section({"x": {"plan": "device", "raw_files": ["x"], "records": records}})
+    assert pred["identity"]["n"] == 8 and pred["identity"]["max_abs_residual_ms"] < 1e-6
+    assert pred["scopes"]["x"]["groups"]["target|other_device"]["gpu|busy"]["n"] == 2
+
+
+def test_decomposition_delta_and_timeline(analyze_ledger):
+    hist = {
+        "runs": {
+            "device:laya-typed-decisions:thread": {
+                "inflation": {
+                    "matrix:gpu_M+ane_B": {
+                        "gpu_M": {"dispatch_delta_ms": 7.4, "host_delta_ms": 0.02, "service": {"mean": {"ratio": 1.64}}}
+                    }
+                }
+            }
+        }
+    }
+    entry, inwin = analyze_ledger.analyse_run(_synthetic_run(), hist)
+    assert len(inwin) == 8
+    d = entry["decomposition"]["matrix:gpu_M+ane_B"]["gpu_M"]
+    c = d["components"]
+    assert c["dispatch"]["delta"]["delta_ms"] == pytest.approx(2.9)
+    assert c["return"]["delta"]["delta_ms"] == pytest.approx(1.9)
+    assert c["dispatch_plus_return"]["delta"]["delta_ms"] == pytest.approx(4.8)
+    assert c["occupancy"]["delta"]["delta_ms"] == pytest.approx(5.3)
+    assert c["device_exec"]["delta"]["delta_ms"] == pytest.approx(0.5)  # 11.48 -> 11.98 ms of spans
+    assert c["occupancy"]["ratio"]["ratio"] == pytest.approx(17.5 / 12.2)
+    assert d["share_of_occupancy_inflation"]["dispatch"] == pytest.approx(2.9 / 5.3)
+    assert d["share_of_occupancy_inflation"]["sum"] == pytest.approx(1.0)
+    assert d["comparison"]["dispatch"] == {
+        "historical_dispatch_delta_ms": 7.4,
+        "new_dispatch_plus_return_delta_ms": pytest.approx(4.8),
+    }
+    assert d["comparison"]["service_ratio"]["historical_service_mean_ratio"] == 1.64
+    ane = entry["decomposition"]["matrix:gpu_M+ane_B"]["ane_B"]
+    assert ane["excluded_without_backend"] == {"solo": 1, "concurrent": 0}  # request 4: no backend record
+    assert ane["components"]["unattributed"]["solo_mean"] == pytest.approx(0.02)
+    assert ane["share_of_occupancy_inflation"]["dispatch"] is None  # occupancy did not change
+    assert entry["validation"]["ane"]["n_with_backend"] == 3 and entry["validation"]["gpu"]["forward_gt_service"] == 0
+    tl = entry["timeline"]
+    assert tl["cell"] == "matrix:gpu_M+ane_B" and tl["selection"] == "first matrix window"
+    assert tl["t0_ms"] == pytest.approx(2350.0)
+    assert [q["request_id"] for q in tl["lanes"]["gpu"]] == [5, 6]
+    assert [q["request_id"] for q in tl["lanes"]["ane"]] == [7, 8]
+    q5 = tl["lanes"]["gpu"][0]
+    assert q5["start_ms"] == pytest.approx(50.0) and dict(q5["segments"])["dispatch"] == pytest.approx(3.0)
+
+
+def test_ledger_outputs_and_figures_render(analyze_ledger, tmp_path):
+    import gzip
+    import json
+
+    path = tmp_path / "device-laya-typed-decisions-thread.json.gz"
+    with gzip.open(path, "wt") as f:
+        json.dump(_synthetic_run(), f)
+    res = analyze_ledger.analyse_all([path], None)
+    res = json.loads(json.dumps(res, sort_keys=True))  # what figures_ledger reads back
+    assert set(res["runs"]) == {"device:laya-typed-decisions:thread"}
+    assert "join" in res["runs"]["device:laya-typed-decisions:thread"]
+    tables, table_csv = analyze_ledger.render_tables(res), analyze_ledger.render_csv(res)
+    assert path.name in tables and "gpu|busy" in table_csv
+    figures = _load("figures_ledger")
+    for fn in figures.FIGURES.values():
+        out = fn(res)
+        assert out.startswith("<svg") and "<title" in out
+
+
+def test_return_alignment_measures_the_wait_for_the_ane_predict(analyze_ledger):
+    """GPU forward 1 ends 4 ms before an ANE predict ends and gets its result 0.1 ms after it;
+    GPU forward 2 ends while no predict runs."""
+    ane = {
+        "request_id": 9,
+        "device": "ane",
+        "pid": 1,
+        "tid": 1,
+        "rows": 1,
+        "max_len": 128,
+        "t0_us": 0,
+        "t1_us": 20_000,
+        "cpu_us": 0,
+        "spans": [[1_000, 10_000]],
+    }
+    run = {"backend": _columns([ane])}
+    cell = "matrix:gpu_M+ane_B"
+    recs = [
+        {"device": "gpu", "cell": cell, "t_ms": {"service_end": 6.0, "received": 10.1}},
+        {"device": "gpu", "cell": cell, "t_ms": {"service_end": 15.0, "received": 15.2}},
+        {"device": "ane", "cell": cell, "t_ms": {"service_end": 10.0, "received": 10.0}},
+    ]
+    e = analyze_ledger.return_alignment_section(run, recs)[cell]
+    assert e["gpu_requests"] == 2 and e["ended_inside_ane_predict"] == 1
+    assert e["received_minus_predict_end_ms"]["50"] == pytest.approx(0.1)
+    assert e["return_mean_ms"] == pytest.approx(4.1) and e["predict_remaining_mean_ms"] == pytest.approx(4.0)
+    assert e["return_mean_ms_when_no_predict_running"] == pytest.approx(0.2)
