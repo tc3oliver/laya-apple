@@ -16,7 +16,7 @@ upstream Laya.
 single-question requests with a validated artifact to the Apple Neural Engine while longer
 ones keep running on the MLX GPU. The animation first replays a recorded
 [Lane Runner](https://github.com/tc3oliver/laya-playground-apple) game on an M4 Max, the
-same model on each device, one request at a time. It then replays one burst of the
+same model on each device, recorded separately, one request at a time. It then replays one burst of the
 laya-typed-decisions bursty workload, from a per-request trace of the benchmark's arrival
 sequence. Its P99 values are the published v1.0 numbers in
 [GPU + ANE heterogeneous serving](#gpu--ane-heterogeneous-serving); every number's source is
