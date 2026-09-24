@@ -9,7 +9,7 @@ A Mac without a usable Neural Engine path runs the GPU-only round and exits 0.
 from __future__ import annotations
 
 import argparse
-import webbrowser
+import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -34,7 +34,18 @@ def _open(path: Path, no_open: bool) -> None:
         say("replay_path", path=path)
         return
     say("replay")
-    webbrowser.open(path.resolve().as_uri())
+    if not _launch(path.resolve()):
+        say("replay_open_failed", path=path)
+
+
+def _launch(path: Path) -> bool:
+    """Open a local file in the default browser with /usr/bin/open. webbrowser.open() goes
+    through AppleScript `open location`, which reports success for a file:// URL without
+    opening anything."""
+    try:
+        return subprocess.run(["/usr/bin/open", str(path)], capture_output=True).returncode == 0
+    except OSError:
+        return False
 
 
 def _summary(result: dict) -> None:

@@ -57,6 +57,7 @@ MESSAGES = {
     ),
     "replay": "Opening the replay in your browser…",
     "replay_path": "Replay saved: {path} (open it in a browser)",
+    "replay_open_failed": "Could not open a browser. Open the replay yourself: {path}",
     "rebuilt": "Rebuilt the replay: {path}",
     "no_result": "No result.json in {path}. Pass the folder a previous `laya-apple switchyard` run created.",
 }
