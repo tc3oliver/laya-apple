@@ -7,21 +7,24 @@ release policy. These rules summarise it and do not replace it.
 
 ## Scope
 
-laya-apple is an Apple-native inference runtime for Laya models. It covers:
-- model loading and the MLX GPU and Core ML / ANE backends;
-- routing and heterogeneous serving;
-- correctness validation, artifact provenance and benchmarking.
+laya-apple is one repository with three product directions:
+- **Fast Laya runtime:** loading, the MLX GPU and Core ML / ANE backends, parity and
+  provenance.
+- **GPU + ANE serving:** routing, heterogeneous serving and benchmarking.
+- **Agent offloading:** local Laya decisions inside coding agents (OpenClaw, Hermes
+  Agent, Pi). Integrations, adapters, hooks, installers and CLI integration belong here.
 
-The scope differs between production code and research:
-- **Production** (`laya_apple/`, `scripts/`, `tests/`, the published package) stays
-  inference and runtime only. Application-level or agent-level logic does not belong
-  there.
-- **Research** (`research/`) may contain disposable agent-integration spikes. They test
-  whether laya-apple's low-latency decision runtime applies to real agent workloads.
-  - A spike is never imported by `laya_apple` and never ships in the package.
-  - laya-apple does not maintain official agent plugins or adapters, for example for
-    OpenClaw, Hermes Agent or Pi. Research does not create installers or adapter
-    packages.
+Rules:
+- **Research vs production.** Research lives in `research/<track>/`. The `laya_apple`
+  package never imports it, and it never ships.
+  - A result is promoted to production only after its experiment passes its recorded
+    criteria.
+  - The promoted code is rebuilt with tests in its own pull request, for example under
+    `integrations/<agent>/`.
+- **Agent integrations** use the agent's official plugin, hook or extension API.
+  - Never fork, vendor, patch or rewrite a third-party agent framework.
+  - Record the upstream version you verified against.
+- **Claude Code** integration is not currently planned.
 
 ## Git workflow
 
@@ -38,7 +41,7 @@ The scope differs between production code and research:
     `bench`.
   - Scope: optional, short and lowercase, for example `runtime`, `routing`,
     `scheduler`, `mlx`, `ane`, `parity`, `artifacts`, `benchmarks`, `hardware`,
-    `community`, `readme` or `media`.
+    `community`, `readme`, `media`, `offloading` or `integrations`.
   - Summary: concise and imperative, lowercase after the colon, no trailing period.
   - Examples:
     - `feat(routing): add calibrated profile selection`
