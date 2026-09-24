@@ -26,6 +26,16 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     open-loop table (different rate, measurement boundary and workload) — see
     [`docs/switchyard.md`](docs/switchyard.md). Report:
     [`benchmarks/switchyard/README.md`](benchmarks/switchyard/README.md).
+- **Switchyard launch media.** `docs/media/switchyard-launch.gif` (README) and
+  `docs/media/switchyard-launch.mp4`, a capture of the recorded replay of campaign run-003;
+  sources in [`docs/media/switchyard-launch.md`](docs/media/switchyard-launch.md). The README
+  now opens with Switchyard.
+
+### Fixed
+
+- **`laya-apple switchyard` opens the replay on macOS.** `webbrowser.open()` reports success
+  for a `file://` URL without opening anything, so the replay never appeared. It is now
+  opened with `/usr/bin/open`, and the path is printed if no browser opens.
 
 ## [1.1.0] - 2026-09-24
 

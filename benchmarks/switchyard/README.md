@@ -62,6 +62,11 @@ running `--update-readme` for it the first time.
 
 ### v1-m4-max
 
+Apple M4 Max, macOS 26.6.2, on AC power, 2026-09-24. Three standard runs, one after another,
+with `benchmarks/switchyard/run.sh`. The local model server was stopped and no browser was
+open; the busiest processes and load average at the start and end of every round are in each
+`result.json` under `rounds[].conditions` (load average 0.5–0.9 at round start).
+
 <!-- switchyard-report:begin v1-m4-max -->
 
 ## Switchyard-v1 report

@@ -498,7 +498,7 @@ def cli_env(fake, static, monkeypatch):
     monkeypatch.setattr(result, "machine", lambda: MACHINE)
     monkeypatch.setattr(result, "model_info", lambda artifacts: MODEL)
     opened = []
-    monkeypatch.setattr(cli.webbrowser, "open", opened.append)
+    monkeypatch.setattr(cli, "_launch", lambda path: opened.append(path.as_uri()) or True)
     monkeypatch.setattr(world, "whole_burst_cycles", lambda d: True)  # the fake rounds are shorter than one cycle
     return SimpleNamespace(opened=opened, fake=fake)
 
@@ -728,3 +728,32 @@ def test_setup_failure_is_reported_and_the_gpu_round_still_runs(cli_env, monkeyp
     out = capsys.readouterr().out
     assert "Neural Engine setup did not finish: The Neural Engine build tools (laya-apple[convert])" in out
     assert json.loads((tmp_path / "o" / "result.json").read_text())["ane"]["reason"] == ane_state.NO_CONVERT
+
+
+def test_launch_uses_usr_bin_open(monkeypatch, tmp_path):
+    from laya_apple.demos.switchyard import cli
+
+    calls = []
+    monkeypatch.setattr(cli.subprocess, "run", lambda args, **kw: calls.append(args) or SimpleNamespace(returncode=0))
+    page = tmp_path / "replay.html"
+    assert cli._launch(page)
+    assert calls == [["/usr/bin/open", str(page)]]
+
+
+def test_launch_reports_failure_without_open(monkeypatch, tmp_path):
+    from laya_apple.demos.switchyard import cli
+
+    def missing(*a, **kw):
+        raise FileNotFoundError("/usr/bin/open")
+
+    monkeypatch.setattr(cli.subprocess, "run", missing)
+    assert not cli._launch(tmp_path / "replay.html")
+
+
+def test_open_prints_the_path_when_no_browser_opens(monkeypatch, capsys, tmp_path):
+    from laya_apple.demos.switchyard import cli
+
+    monkeypatch.setattr(cli, "_launch", lambda path: False)
+    cli._open(tmp_path / "replay.html", no_open=False)
+    out = capsys.readouterr().out
+    assert "Could not open a browser" in out and "replay.html" in out
