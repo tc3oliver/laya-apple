@@ -61,7 +61,8 @@ class RequestTrace:
       dispatch_ns       the device's dispatcher took the job from the queue
       service_start_ns  the backend's forward started, in the process that runs it
       service_end_ns    the backend's forward returned, in that process
-      received_ns       the dispatcher had the result back (after the reply IPC, if any)
+      received_ns       the dispatcher resolved the device job with the result (after the
+                        reply IPC, if any)
       response_ns       answers formatted; the Future is about to resolve
     """
 

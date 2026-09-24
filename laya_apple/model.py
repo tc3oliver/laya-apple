@@ -40,7 +40,7 @@ from .hub import checkpoint_path, verify_weights
 from .prompt import Calibration, Tokenizer, format_answers, prepare
 from .registry import ANE_COMPUTE_UNITS, ANE_PRECISION, DTYPES, ModelSpec, resolve, routing_table
 from .result import Result, RuntimeInfo
-from .trace import RequestTrace, TraceCallback
+from .trace import QueueSnapshot, RequestTrace, TraceCallback
 
 EXECUTIONS = ("inline", "workers")
 ANE_PLACEMENTS = ("auto", "thread", "process")
@@ -498,10 +498,12 @@ class Laya:
         trace = self._trace
         prep = self.prepare(context, questions)
         prepared_ns = time.monotonic_ns() if trace is not None else 0
-        # One snapshot per device: the router decides on it and the trace records the same objects.
-        gpu_q, ane_q = self.queue_snapshots()
-        gpu_backlog = gpu_q.backlog_ms if gpu_q else 0.0
-        ane_backlog = ane_q.backlog_ms if ane_q else 0.0
+        # One reading per device: the router decides on it and the trace records the same values.
+        gpu_w, ane_w = self._workers.get("gpu"), self._workers.get("ane")  # "ane" may be popped concurrently
+        gpu_q = gpu_w.read_queue() if gpu_w else None
+        ane_q = ane_w.read_queue() if ane_w else None
+        gpu_backlog = gpu_q[0] if gpu_q else 0.0
+        ane_backlog = ane_q[0] if ane_q else 0.0
         decision = self.route(prep, (gpu_backlog, ane_backlog))
         routed_ns = time.monotonic_ns() if trace is not None else 0
         backend = self.ane if decision.target == "ane" else self.mlx
@@ -516,9 +518,10 @@ class Laya:
             estimate = self._service.gpu_ms(prep.sequence_length, prep.question_count)
         out: Future = Future()
 
-        def finish(done: Future):
+        def finish(done: Future):  # runs on the dispatcher thread as it resolves the device job
+            received_ns = time.monotonic_ns() if trace is not None else 0
             try:
-                logits, act, enq_ns, dispatch_ns, start_ns, end_ns, received_ns = done.result()
+                logits, act, enq_ns, dispatch_ns, start_ns, end_ns = done.result()
                 answers = format_answers(prep, logits, act, self.calibration)
                 response_ns = time.monotonic_ns()
                 result = self._result(
@@ -545,8 +548,8 @@ class Laya:
                             target=decision.target,
                             routing_reason=decision.reason,
                             service_estimate_ms=estimate,
-                            gpu=gpu_q,
-                            ane=ane_q,
+                            gpu=QueueSnapshot._make(gpu_q) if gpu_q else None,
+                            ane=QueueSnapshot._make(ane_q) if ane_q else None,
                             submit_ns=t0,
                             prepared_ns=prepared_ns,
                             routed_ns=routed_ns,

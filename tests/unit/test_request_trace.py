@@ -128,8 +128,8 @@ def test_snapshot_reads_backlog_depth_and_running_together(fake_backends):
         assert 50.0 <= snap.backlog_ms <= 100.0  # 20 + 30 queued, plus what is left of 50
         assert w.backlog_ms() <= snap.backlog_ms  # the running estimate only drains
         backend.gate.set()
-        logits, act, enq, dispatch, start, end, received = first.result(5)
-        assert logits == [1] and enq <= dispatch <= start <= end <= received
+        logits, act, enq, dispatch, start, end = first.result(5)
+        assert logits == [1] and enq <= dispatch <= start <= end
     finally:
         w.close()
     assert w.snapshot().queued_jobs == 0 and not w.snapshot().running
@@ -189,21 +189,21 @@ def test_one_trace_per_request_in_lifecycle_order(fake_backends):
 
 def test_router_and_trace_share_one_snapshot(fake_backends, monkeypatch):
     """GPU running with jobs queued, ANE idle: the backlogs the router decided on are the
-    ones recorded, from the same snapshot objects the workers returned."""
+    ones recorded, from the one reading per worker the router took."""
     seen, snaps, traces = [], [], []
-    real_decide, real_snapshot = scheduling.decide_queued, DeviceWorker.snapshot
+    real_decide, real_read = scheduling.decide_queued, DeviceWorker.read_queue
 
     def spy_decide(*args, **kwargs):
         seen.append((kwargs["gpu_backlog_ms"], kwargs["ane_backlog_ms"]))
         return real_decide(*args, **kwargs)
 
-    def spy_snapshot(self):
-        snap = real_snapshot(self)
-        snaps.append((self.kind, snap))
-        return snap
+    def spy_read(self):
+        state = real_read(self)
+        snaps.append((self.kind, state))
+        return state
 
     monkeypatch.setattr(scheduling, "decide_queued", spy_decide)
-    monkeypatch.setattr(DeviceWorker, "snapshot", spy_snapshot)
+    monkeypatch.setattr(DeviceWorker, "read_queue", spy_read)
     laya = make_laya(traces.append)
     gpu = fake_backends["gpu"]
     gpu.gate = threading.Event()
@@ -213,13 +213,14 @@ def test_router_and_trace_share_one_snapshot(fake_backends, monkeypatch):
         futs += [laya.submit(questions=Prep(1024)) for _ in range(2)]
         snaps.clear()
         futs.append(laya.submit(questions=Prep(128)))  # the request under test
-        (gk, g), (ak, a) = snaps
+        (gk, g), (ak, a) = snaps  # exactly one reading per worker
+        g, a = QueueSnapshot._make(g), QueueSnapshot._make(a)
         assert (gk, ak) == ("gpu", "ane")
         assert g.running and g.queued_jobs == 2 and g.backlog_ms > 0
         assert a == QueueSnapshot(0.0, 0, False)
         futs[-1].result(5)  # the ANE is idle: it completes while the GPU is still held
         t = traces[-1]
-        assert t.gpu is g and t.ane is a  # the very objects the router read
+        assert t.gpu == g and t.ane == a  # the very values the router read
         assert seen[-1] == (t.gpu_backlog_ms, t.ane_backlog_ms) == (g.backlog_ms, 0.0)
         assert t.target == "ane" and t.routing_reason == routing.ANE_AUTO
         gpu.gate.set()

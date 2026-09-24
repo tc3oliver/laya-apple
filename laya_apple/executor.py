@@ -134,7 +134,7 @@ class DeviceWorker:
     input of scheduling.decide_queued), the number of queued jobs, and whether one is running.
 
     A job's Future resolves to (logits, act, queue_enter_ns, dispatch_ns, service_start_ns,
-    service_end_ns, received_ns), all time.monotonic_ns().
+    service_end_ns), all time.monotonic_ns().
     """
 
     def __init__(
@@ -256,15 +256,21 @@ class DeviceWorker:
     def pid(self) -> int | None:
         return self._proc.pid if self._proc is not None else None
 
-    def snapshot(self) -> QueueSnapshot | None:
-        """The queue state as one consistent reading, or None before the worker is ready."""
+    def read_queue(self) -> tuple | None:
+        """(backlog_ms, queued_jobs, running) read in one step under the lock, or None before
+        the worker is ready. A plain tuple: the router's hot path builds no object."""
         if self.info is None:
             return None
         with self._lock:
             backlog = self._queued_ms
             if self._running_est:
                 backlog += max(0.0, self._running_est - (time.monotonic_ns() - self._running_since) / 1e6)
-            return QueueSnapshot(backlog, self._queued_jobs, self._running)
+            return backlog, self._queued_jobs, self._running
+
+    def snapshot(self) -> QueueSnapshot | None:
+        """The queue state as one consistent reading (read_queue), or None before ready."""
+        state = self.read_queue()
+        return QueueSnapshot._make(state) if state is not None else None
 
     def backlog_ms(self) -> float:
         snap = self.snapshot()
@@ -312,7 +318,7 @@ class DeviceWorker:
                 if self._dead is not None:
                     raise BackendUnavailableError(f"{self.kind} worker is not running: {self._dead}")
                 logits, act, start_ns, end_ns = self._run(job_id, rows)
-                fut.set_result((logits, act, enq, dispatch_ns, start_ns, end_ns, time.monotonic_ns()))
+                fut.set_result((logits, act, enq, dispatch_ns, start_ns, end_ns))
             except (EOFError, OSError, BrokenPipeError) as e:
                 if self.placement != "process":  # an in-process backend error is just an error
                     fut.set_exception(e)
