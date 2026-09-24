@@ -1,0 +1,5 @@
+name: laya_spike_deadline
+version: 0.0.1
+description: EXP-000 transform_tool_result spike with a plugin-side deadline and a safe fallback.
+provides_hooks:
+  - transform_tool_result

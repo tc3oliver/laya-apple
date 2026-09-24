@@ -1,0 +1,6 @@
+name: laya_sentinel_tool
+version: 0.0.1
+description: EXP-000 sentinel tool. Returns a fixed string; used as the plugin-registered tool case.
+provides_tools:
+  - laya_sentinel
+  - laya_sentinel_raise

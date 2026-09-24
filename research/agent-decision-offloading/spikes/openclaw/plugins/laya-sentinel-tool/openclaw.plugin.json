@@ -1,0 +1,13 @@
+{
+  "id": "laya-sentinel-tool",
+  "name": "EXP-000 sentinel tool",
+  "description": "Research spike: a plugin tool that returns the EXP-000 sentinel string.",
+  "contracts": {
+    "tools": ["laya_sentinel", "laya_sentinel_error"]
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

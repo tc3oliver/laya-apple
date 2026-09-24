@@ -1,0 +1,5 @@
+{"event": "pre_llm_call", "t": 1790230424.18261, "tool_name": null, "tool_call_id": null, "history_roles": ["user"]}
+{"event": "pre_tool_call", "t": 1790230424.2587771, "tool_name": "laya_sentinel", "tool_call_id": "call_bb1be9d055f9"}
+{"event": "transform_tool_result", "t": 1790230424.3121831, "tool_name": "laya_sentinel", "args": {}, "raw_output": "AAA LAYA_SENTINEL BBB", "matched": true, "replacement": "AAA [FILTERED_BY_LAYA_SPIKE] BBB", "tool_call_id": "call_bb1be9d055f9", "status": "ok", "await_ms": 52.1, "thread": "hermes-hook-_on_transform_tool_result", "loop_id": 4530655824}
+{"event": "post_tool_call", "t": 1790230424.312683, "tool_name": "laya_sentinel", "tool_call_id": "call_bb1be9d055f9", "result_has_raw_sentinel": false}
+{"event": "pre_llm_call", "t": 1790230425.196856, "tool_name": null, "tool_call_id": null, "history_roles": ["user", "assistant", "tool", "assistant", "user"]}

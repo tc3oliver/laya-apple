@@ -7,12 +7,29 @@ release policy. These rules summarise it and do not replace it.
 
 ## Scope
 
-laya-apple is an Apple-native inference runtime for Laya models. It covers:
-- model loading and the MLX GPU and Core ML / ANE backends;
-- routing and heterogeneous serving;
-- correctness validation, artifact provenance and benchmarking.
+laya-apple is one repository. It covers:
+- **Fast Laya runtime** (product direction): loading, the MLX GPU and Core ML / ANE
+  backends, parity and provenance.
+- **GPU + ANE serving** (product direction): routing, heterogeneous serving and
+  benchmarking.
+- **Agent offloading** (research, candidate product direction): local Laya decisions
+  inside coding agents (OpenClaw, Hermes Agent, Pi).
+  - It becomes a product direction once EXP-001 and the later value experiments pass
+    (`research/agent-decision-offloading/`).
+  - Integrations, adapters, hooks, installers and CLI integration belong here when that
+    work is promoted.
 
-Application-level or agent-level logic does not belong in this repository.
+Rules:
+- **Research vs production.** Research lives in `research/<track>/`. The `laya_apple`
+  package never imports it, and it never ships.
+  - A result is promoted to production only after its experiment passes its recorded
+    criteria.
+  - The promoted code is rebuilt with tests in its own pull request, for example under
+    `integrations/<agent>/`.
+- **Agent integrations** use the agent's official plugin, hook or extension API.
+  - Never fork, vendor, patch or rewrite a third-party agent framework.
+  - Record the upstream version you verified against.
+- **Claude Code** integration is not currently planned.
 
 ## Git workflow
 
@@ -29,7 +46,7 @@ Application-level or agent-level logic does not belong in this repository.
     `bench`.
   - Scope: optional, short and lowercase, for example `runtime`, `routing`,
     `scheduler`, `mlx`, `ane`, `parity`, `artifacts`, `benchmarks`, `hardware`,
-    `community`, `readme` or `media`.
+    `community`, `readme`, `media`, `offloading` or `integrations`.
   - Summary: concise and imperative, lowercase after the colon, no trailing period.
   - Examples:
     - `feat(routing): add calibrated profile selection`

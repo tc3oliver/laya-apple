@@ -1,0 +1,7 @@
+{"event": "pre_llm_call", "t": 1790230460.357208, "tool_name": null, "tool_call_id": null, "history_roles": ["user"]}
+{"event": "pre_tool_call", "t": 1790230460.433109, "tool_name": "session_search", "tool_call_id": "call_ef628306e118"}
+{"event": "pre_tool_call", "t": 1790230460.4333591, "tool_name": "session_search", "tool_call_id": "call_8149245a72bd"}
+{"event": "post_tool_call", "t": 1790230460.434505, "tool_name": "session_search", "tool_call_id": "call_ef628306e118", "result_has_raw_sentinel": true}
+{"event": "post_tool_call", "t": 1790230460.435691, "tool_name": "session_search", "tool_call_id": "call_8149245a72bd", "result_has_raw_sentinel": false}
+{"event": "transform_tool_result", "t": 1790230460.442044, "tool_name": "session_search", "args": {"query": "alpha"}, "raw_output": "{\"success\": true, \"mode\": \"discover\", \"query\": \"alpha\", \"detail\": \"adaptive\", \"results\": [], \"count\": 0, \"message\": \"No matching sessions found. FTS5 ANDs all terms by default \u2014 broaden with OR (`alpha OR beta`), exact-match with quoted phrases, exclude with NOT, or prefix-match with `deploy*`.\"}", "matched": false, "replacement": null, "tool_call_id": "call_8149245a72bd", "status": "ok", "await_ms": 0.0, "thread": "hermes-hook-_on_transform_tool_result", "loop_id": 4491111712}
+{"event": "pre_llm_call", "t": 1790230461.3258939, "tool_name": null, "tool_call_id": null, "history_roles": ["user", "assistant", "tool", "tool", "assistant", "user"]}

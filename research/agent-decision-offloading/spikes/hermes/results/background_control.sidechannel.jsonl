@@ -1,0 +1,6 @@
+{"event": "pre_llm_call", "t": 1790230448.548216, "tool_name": null, "tool_call_id": null, "history_roles": ["user"]}
+{"event": "pre_tool_call", "t": 1790230448.623946, "tool_name": "terminal", "tool_call_id": "call_9675e0e87bad"}
+{"event": "transform_tool_result", "t": 1790230448.652409, "tool_name": "terminal", "args": {"command": "sleep 1; printf 'AAA LAYA_%s BBB\\n' SENTINEL", "background": true, "notify_on_complete": true}, "raw_output": "{\"output\": \"Background process started\", \"session_id\": \"proc_69c4dd3517e3\", \"pid\": 77366, \"exit_code\": 0, \"error\": null, \"notify_on_complete\": true}", "matched": false, "replacement": null, "tool_call_id": "call_9675e0e87bad", "status": "ok", "await_ms": 0.0, "thread": "hermes-hook-_on_transform_tool_result", "loop_id": 4493406048}
+{"event": "post_tool_call", "t": 1790230448.653013, "tool_name": "terminal", "tool_call_id": "call_9675e0e87bad", "result_has_raw_sentinel": false}
+{"event": "pre_llm_call", "t": 1790230449.681654, "tool_name": null, "tool_call_id": null, "history_roles": ["user", "assistant", "tool", "assistant", "user"]}
+{"event": "pre_llm_call", "t": 1790230451.530473, "tool_name": null, "tool_call_id": null, "history_roles": ["user", "assistant", "tool", "assistant", "user", "assistant", "user"]}

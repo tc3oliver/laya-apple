@@ -1,0 +1,5 @@
+name: laya_spike_terminal_filter
+version: 0.0.1
+description: EXP-000 transform_terminal_output spike for foreground and background terminal output.
+provides_hooks:
+  - transform_terminal_output

@@ -1,0 +1,527 @@
+{
+  "builtin_bash": {
+    "status": "ok",
+    "turns": [
+      {
+        "turn": 1,
+        "status": "ok",
+        "exit_code": 0,
+        "mock_requests": 2,
+        "timeout_s": 60
+      },
+      {
+        "turn": 2,
+        "status": "ok",
+        "exit_code": 0,
+        "mock_requests": 1,
+        "timeout_s": 60
+      }
+    ],
+    "mock_tool_messages_turn1": [
+      "AAA [FILTERED_BY_LAYA_SPIKE] BBB"
+    ],
+    "raw_sentinel_anywhere_in_request_turn1": false,
+    "filtered_marker_anywhere_in_request_turn1": true,
+    "raw_sentinel_anywhere_in_request_all_turns": [
+      false,
+      false
+    ],
+    "pi_event_stream_raw_hits": {
+      "turn1": {
+        "tool_execution_update": 1
+      },
+      "turn2": {}
+    },
+    "session": {
+      "session_files": 1,
+      "tool_result_entries": [
+        {
+          "content_text": "AAA [FILTERED_BY_LAYA_SPIKE] BBB",
+          "is_error": false,
+          "details_has_raw": false
+        }
+      ],
+      "raw_sentinel_in": []
+    },
+    "c6_prefix": {
+      "turn1_n_messages": 4,
+      "turn2_n_messages": 6,
+      "turn1_roles": [
+        "system",
+        "user",
+        "assistant",
+        "tool"
+      ],
+      "turn2_roles": [
+        "system",
+        "user",
+        "assistant",
+        "tool",
+        "assistant",
+        "user"
+      ],
+      "prefix_identical": true,
+      "differing_indices": [],
+      "turn2_tool_messages": [
+        "AAA [FILTERED_BY_LAYA_SPIKE] BBB"
+      ]
+    },
+    "parallel": null,
+    "pi_stderr_nonempty": false
+  },
+  "builtin_bash_error": {
+    "status": "ok",
+    "turns": [
+      {
+        "turn": 1,
+        "status": "ok",
+        "exit_code": 0,
+        "mock_requests": 2,
+        "timeout_s": 60
+      }
+    ],
+    "mock_tool_messages_turn1": [
+      "AAA [FILTERED_BY_LAYA_SPIKE] BBB"
+    ],
+    "raw_sentinel_anywhere_in_request_turn1": false,
+    "filtered_marker_anywhere_in_request_turn1": true,
+    "raw_sentinel_anywhere_in_request_all_turns": [
+      false
+    ],
+    "pi_event_stream_raw_hits": {
+      "turn1": {
+        "tool_execution_update": 1
+      }
+    },
+    "session": {
+      "session_files": 1,
+      "tool_result_entries": [
+        {
+          "content_text": "AAA [FILTERED_BY_LAYA_SPIKE] BBB",
+          "is_error": true,
+          "details_has_raw": false
+        }
+      ],
+      "raw_sentinel_in": []
+    },
+    "c6_prefix": null,
+    "parallel": null,
+    "pi_stderr_nonempty": false
+  },
+  "builtin_bash_literal": {
+    "status": "ok",
+    "turns": [
+      {
+        "turn": 1,
+        "status": "ok",
+        "exit_code": 0,
+        "mock_requests": 2,
+        "timeout_s": 60
+      }
+    ],
+    "mock_tool_messages_turn1": [
+      "AAA [FILTERED_BY_LAYA_SPIKE] BBB"
+    ],
+    "raw_sentinel_anywhere_in_request_turn1": true,
+    "filtered_marker_anywhere_in_request_turn1": true,
+    "raw_sentinel_anywhere_in_request_all_turns": [
+      true
+    ],
+    "pi_event_stream_raw_hits": {
+      "turn1": {
+        "message_start:assistant:tool_call_arguments": 1,
+        "message_update": 2,
+        "message_end:assistant:tool_call_arguments": 1,
+        "tool_execution_start": 1,
+        "tool_execution_update": 2,
+        "turn_end:assistant": 1,
+        "agent_end": 1
+      }
+    },
+    "session": {
+      "session_files": 1,
+      "tool_result_entries": [
+        {
+          "content_text": "AAA [FILTERED_BY_LAYA_SPIKE] BBB",
+          "is_error": false,
+          "details_has_raw": false
+        }
+      ],
+      "raw_sentinel_in": [
+        "message:assistant"
+      ]
+    },
+    "c6_prefix": null,
+    "parallel": null,
+    "pi_stderr_nonempty": false
+  },
+  "control_bash_noext": {
+    "status": "ok",
+    "turns": [
+      {
+        "turn": 1,
+        "status": "ok",
+        "exit_code": 0,
+        "mock_requests": 2,
+        "timeout_s": 60
+      }
+    ],
+    "mock_tool_messages_turn1": [
+      "AAA LAYA_SENTINEL BBB\n"
+    ],
+    "raw_sentinel_anywhere_in_request_turn1": true,
+    "filtered_marker_anywhere_in_request_turn1": false,
+    "raw_sentinel_anywhere_in_request_all_turns": [
+      true
+    ],
+    "pi_event_stream_raw_hits": {
+      "turn1": {
+        "tool_execution_update": 1,
+        "tool_execution_end": 1,
+        "message_start:toolResult": 1,
+        "message_end:toolResult": 1,
+        "turn_end:assistant": 2,
+        "message_start:assistant:tool_call_arguments": 1,
+        "message_update": 2,
+        "message_end:assistant:tool_call_arguments": 1,
+        "agent_end": 1
+      }
+    },
+    "session": {
+      "session_files": 1,
+      "tool_result_entries": [
+        {
+          "content_text": "AAA LAYA_SENTINEL BBB\n",
+          "is_error": false,
+          "details_has_raw": false
+        }
+      ],
+      "raw_sentinel_in": [
+        "message:toolResult",
+        "message:assistant"
+      ]
+    },
+    "c6_prefix": null,
+    "parallel": null,
+    "pi_stderr_nonempty": false
+  },
+  "control_parallel_nofilter": {
+    "status": "ok",
+    "turns": [
+      {
+        "turn": 1,
+        "status": "ok",
+        "exit_code": 0,
+        "mock_requests": 2,
+        "timeout_s": 60
+      }
+    ],
+    "mock_tool_messages_turn1": [
+      "AAA LAYA_SENTINEL BBB",
+      "AAA LAYA_SENTINEL BBB"
+    ],
+    "raw_sentinel_anywhere_in_request_turn1": true,
+    "filtered_marker_anywhere_in_request_turn1": false,
+    "raw_sentinel_anywhere_in_request_all_turns": [
+      true
+    ],
+    "pi_event_stream_raw_hits": {
+      "turn1": {
+        "tool_execution_end": 2,
+        "message_start:toolResult": 2,
+        "message_end:toolResult": 2,
+        "turn_end:assistant": 2,
+        "message_update": 2,
+        "message_end:assistant:tool_call_arguments": 1,
+        "agent_end": 1
+      }
+    },
+    "session": {
+      "session_files": 1,
+      "tool_result_entries": [
+        {
+          "content_text": "AAA LAYA_SENTINEL BBB",
+          "is_error": false,
+          "details_has_raw": false
+        },
+        {
+          "content_text": "AAA LAYA_SENTINEL BBB",
+          "is_error": false,
+          "details_has_raw": false
+        }
+      ],
+      "raw_sentinel_in": [
+        "message:toolResult",
+        "message:toolResult",
+        "message:assistant"
+      ]
+    },
+    "c6_prefix": null,
+    "parallel": {
+      "tool_call_hook_order": [
+        "first",
+        "second"
+      ],
+      "hook_intervals": [
+        {
+          "tag": "second",
+          "start": 1790230188.885,
+          "end": 1790230188.937
+        },
+        {
+          "tag": "first",
+          "start": 1790230188.907,
+          "end": 1790230188.959
+        }
+      ],
+      "hooks_overlap": true,
+      "hook_completion_order": [
+        "second",
+        "first"
+      ],
+      "message_end_order": [
+        "first",
+        "second"
+      ],
+      "assistant_tool_call_order_in_request": [
+        "first",
+        "second"
+      ],
+      "tool_message_order_in_request": [
+        "first",
+        "second"
+      ],
+      "admitted_in_source_order": true
+    },
+    "pi_stderr_nonempty": false
+  },
+  "control_tool_nofilter": {
+    "status": "ok",
+    "turns": [
+      {
+        "turn": 1,
+        "status": "ok",
+        "exit_code": 0,
+        "mock_requests": 2,
+        "timeout_s": 60
+      }
+    ],
+    "mock_tool_messages_turn1": [
+      "AAA LAYA_SENTINEL BBB"
+    ],
+    "raw_sentinel_anywhere_in_request_turn1": true,
+    "filtered_marker_anywhere_in_request_turn1": false,
+    "raw_sentinel_anywhere_in_request_all_turns": [
+      true
+    ],
+    "pi_event_stream_raw_hits": {
+      "turn1": {
+        "tool_execution_end": 1,
+        "message_start:toolResult": 1,
+        "message_end:toolResult": 1,
+        "turn_end:assistant": 2,
+        "message_start:assistant:tool_call_arguments": 1,
+        "message_update": 2,
+        "message_end:assistant:tool_call_arguments": 1,
+        "agent_end": 1
+      }
+    },
+    "session": {
+      "session_files": 1,
+      "tool_result_entries": [
+        {
+          "content_text": "AAA LAYA_SENTINEL BBB",
+          "is_error": false,
+          "details_has_raw": false
+        }
+      ],
+      "raw_sentinel_in": [
+        "message:toolResult",
+        "message:assistant"
+      ]
+    },
+    "c6_prefix": null,
+    "parallel": null,
+    "pi_stderr_nonempty": false
+  },
+  "ext_tool": {
+    "status": "ok",
+    "turns": [
+      {
+        "turn": 1,
+        "status": "ok",
+        "exit_code": 0,
+        "mock_requests": 2,
+        "timeout_s": 60
+      },
+      {
+        "turn": 2,
+        "status": "ok",
+        "exit_code": 0,
+        "mock_requests": 1,
+        "timeout_s": 60
+      }
+    ],
+    "mock_tool_messages_turn1": [
+      "AAA [FILTERED_BY_LAYA_SPIKE] BBB"
+    ],
+    "raw_sentinel_anywhere_in_request_turn1": false,
+    "filtered_marker_anywhere_in_request_turn1": true,
+    "raw_sentinel_anywhere_in_request_all_turns": [
+      false,
+      false
+    ],
+    "pi_event_stream_raw_hits": {
+      "turn1": {},
+      "turn2": {}
+    },
+    "session": {
+      "session_files": 1,
+      "tool_result_entries": [
+        {
+          "content_text": "AAA [FILTERED_BY_LAYA_SPIKE] BBB",
+          "is_error": false,
+          "details_has_raw": false
+        }
+      ],
+      "raw_sentinel_in": []
+    },
+    "c6_prefix": {
+      "turn1_n_messages": 4,
+      "turn2_n_messages": 6,
+      "turn1_roles": [
+        "system",
+        "user",
+        "assistant",
+        "tool"
+      ],
+      "turn2_roles": [
+        "system",
+        "user",
+        "assistant",
+        "tool",
+        "assistant",
+        "user"
+      ],
+      "prefix_identical": true,
+      "differing_indices": [],
+      "turn2_tool_messages": [
+        "AAA [FILTERED_BY_LAYA_SPIKE] BBB"
+      ]
+    },
+    "parallel": null,
+    "pi_stderr_nonempty": false
+  },
+  "parallel_ext_tool": {
+    "status": "ok",
+    "turns": [
+      {
+        "turn": 1,
+        "status": "ok",
+        "exit_code": 0,
+        "mock_requests": 2,
+        "timeout_s": 60
+      },
+      {
+        "turn": 2,
+        "status": "ok",
+        "exit_code": 0,
+        "mock_requests": 1,
+        "timeout_s": 60
+      }
+    ],
+    "mock_tool_messages_turn1": [
+      "AAA [FILTERED_BY_LAYA_SPIKE] BBB",
+      "AAA [FILTERED_BY_LAYA_SPIKE] BBB"
+    ],
+    "raw_sentinel_anywhere_in_request_turn1": false,
+    "filtered_marker_anywhere_in_request_turn1": true,
+    "raw_sentinel_anywhere_in_request_all_turns": [
+      false,
+      false
+    ],
+    "pi_event_stream_raw_hits": {
+      "turn1": {},
+      "turn2": {}
+    },
+    "session": {
+      "session_files": 1,
+      "tool_result_entries": [
+        {
+          "content_text": "AAA [FILTERED_BY_LAYA_SPIKE] BBB",
+          "is_error": false,
+          "details_has_raw": false
+        },
+        {
+          "content_text": "AAA [FILTERED_BY_LAYA_SPIKE] BBB",
+          "is_error": false,
+          "details_has_raw": false
+        }
+      ],
+      "raw_sentinel_in": []
+    },
+    "c6_prefix": {
+      "turn1_n_messages": 5,
+      "turn2_n_messages": 7,
+      "turn1_roles": [
+        "system",
+        "user",
+        "assistant",
+        "tool",
+        "tool"
+      ],
+      "turn2_roles": [
+        "system",
+        "user",
+        "assistant",
+        "tool",
+        "tool",
+        "assistant",
+        "user"
+      ],
+      "prefix_identical": true,
+      "differing_indices": [],
+      "turn2_tool_messages": [
+        "AAA [FILTERED_BY_LAYA_SPIKE] BBB",
+        "AAA [FILTERED_BY_LAYA_SPIKE] BBB"
+      ]
+    },
+    "parallel": {
+      "tool_call_hook_order": [
+        "first",
+        "second"
+      ],
+      "hook_intervals": [
+        {
+          "tag": "second",
+          "start": 1790230189.319,
+          "end": 1790230189.372
+        },
+        {
+          "tag": "first",
+          "start": 1790230189.342,
+          "end": 1790230189.391
+        }
+      ],
+      "hooks_overlap": true,
+      "hook_completion_order": [
+        "second",
+        "first"
+      ],
+      "message_end_order": [
+        "first",
+        "second"
+      ],
+      "assistant_tool_call_order_in_request": [
+        "first",
+        "second"
+      ],
+      "tool_message_order_in_request": [
+        "first",
+        "second"
+      ],
+      "admitted_in_source_order": true
+    },
+    "pi_stderr_nonempty": false
+  }
+}
