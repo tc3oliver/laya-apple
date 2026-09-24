@@ -1,9 +1,34 @@
 # Heterogeneous serving video
 
-`heterogeneous-serving.mp4` (1920×1080, 20 s), `heterogeneous-serving.gif` (960×540) and
-the poster frame `heterogeneous-serving.png` show one burst of the v1.0 open-loop bursty
-workload for laya-typed-decisions on the tested Apple M4 Max (macOS 26.6.2). The same 102
-requests, with the same arrival times, are served GPU-only and then GPU + ANE.
+`heterogeneous-serving.mp4` (1920×1080, 30 s), `heterogeneous-serving.gif` (800×450,
+5 fps, 30 s) and the poster frame `heterogeneous-serving.png` are cut from two recordings
+on the tested Apple M4 Max (macOS 26.6.2):
+
+| Time | Shows |
+|---|---|
+| 0–13 s | One recorded Lane Runner game played by the same model on the MLX GPU and on the Apple Neural Engine, side by side, then the results of all ten recorded runs per device |
+| 13–30 s | One burst of the v1.0 open-loop bursty workload for laya-typed-decisions. The same 102 requests, with the same arrival times, are served GPU-only and then GPU + ANE |
+
+The poster frame is from the second part.
+
+## 0–13 s: Lane Runner, MLX GPU vs Apple Neural Engine
+
+The game runs in [laya-playground-apple](https://github.com/tc3oliver/laya-playground-apple),
+a fork of [laya-playground](https://github.com/wdobry/laya-playground) with laya-apple as its
+backend. The model is upstream's checkpoint for that game, `convaiinnovations/laya`, not
+laya-typed-decisions. Each device was measured alone; the video replays recorded run 1 of
+10 per device, and part of the game is fast-forwarded 8×, labelled on screen.
+
+| On screen | Source |
+|---|---|
+| The game, each decision and its latency | [`results/english/gpu-run-001.json` and `ane-run-001.json`](https://github.com/tc3oliver/laya-playground-apple/tree/6e0aa6718937e62ea58bc04f16b529f6089709ed/results/english) |
+| Latency P50 9.2 / 8.2 ms, P95 9.7 / 8.3 ms, 185 rows cleared, 0 crashes | [`results/english/SUMMARY.md`](https://github.com/tc3oliver/laya-playground-apple/blob/6e0aa6718937e62ea58bc04f16b529f6089709ed/results/english/SUMMARY.md): 10 runs per device, 36,000 decisions each |
+
+This part compares one request at a time. On all 10 seeds both devices ended the game
+identically (rows cleared, crashes, score); 9 of 10 also played the same action sequence,
+and the run shown is the one that did not. It says nothing about serving under load.
+
+## 13–30 s: GPU-only vs GPU + ANE serving
 
 | On screen | Source |
 |---|---|
