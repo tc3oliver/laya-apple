@@ -1,0 +1,233 @@
+{
+ "mode": "lifecycle",
+ "requests_per_iteration": 40,
+ "iterations": [
+  {
+   "iteration": 0,
+   "startup_s": 3.546697458,
+   "close_s": 0.219897416,
+   "devices": {
+    "ane": 20,
+    "gpu": 20
+   },
+   "worker_pids": [
+    5327,
+    5328
+   ],
+   "workers_alive_after_close": [],
+   "live_children_after_close": [],
+   "zombie_children_after_close": [],
+   "rss_mb": 699.484375,
+   "uss_mb": 400.359375,
+   "fds": 3,
+   "threads": 1
+  },
+  {
+   "iteration": 1,
+   "startup_s": 2.706995333,
+   "close_s": 0.221666,
+   "devices": {
+    "ane": 20,
+    "gpu": 20
+   },
+   "worker_pids": [
+    5392,
+    5393
+   ],
+   "workers_alive_after_close": [],
+   "live_children_after_close": [],
+   "zombie_children_after_close": [],
+   "rss_mb": 705.546875,
+   "uss_mb": 382.34375,
+   "fds": 3,
+   "threads": 1
+  },
+  {
+   "iteration": 2,
+   "startup_s": 2.688063625,
+   "close_s": 0.231467041,
+   "devices": {
+    "ane": 20,
+    "gpu": 20
+   },
+   "worker_pids": [
+    5468,
+    5469
+   ],
+   "workers_alive_after_close": [],
+   "live_children_after_close": [],
+   "zombie_children_after_close": [],
+   "rss_mb": 757.671875,
+   "uss_mb": 410.734375,
+   "fds": 3,
+   "threads": 1
+  },
+  {
+   "iteration": 3,
+   "startup_s": 2.682390041,
+   "close_s": 0.231494333,
+   "devices": {
+    "ane": 20,
+    "gpu": 20
+   },
+   "worker_pids": [
+    5487,
+    5488
+   ],
+   "workers_alive_after_close": [],
+   "live_children_after_close": [],
+   "zombie_children_after_close": [],
+   "rss_mb": 757.828125,
+   "uss_mb": 410.890625,
+   "fds": 3,
+   "threads": 1
+  },
+  {
+   "iteration": 4,
+   "startup_s": 2.705648417,
+   "close_s": 0.224509541,
+   "devices": {
+    "ane": 20,
+    "gpu": 20
+   },
+   "worker_pids": [
+    5549,
+    5550
+   ],
+   "workers_alive_after_close": [],
+   "live_children_after_close": [],
+   "zombie_children_after_close": [],
+   "rss_mb": 757.921875,
+   "uss_mb": 410.984375,
+   "fds": 3,
+   "threads": 1
+  },
+  {
+   "iteration": 5,
+   "startup_s": 2.683482417,
+   "close_s": 0.2234915,
+   "devices": {
+    "ane": 20,
+    "gpu": 20
+   },
+   "worker_pids": [
+    5715,
+    5716
+   ],
+   "workers_alive_after_close": [],
+   "live_children_after_close": [],
+   "zombie_children_after_close": [],
+   "rss_mb": 757.953125,
+   "uss_mb": 411.03125,
+   "fds": 3,
+   "threads": 1
+  },
+  {
+   "iteration": 6,
+   "startup_s": 2.674267958,
+   "close_s": 0.229635375,
+   "devices": {
+    "ane": 20,
+    "gpu": 20
+   },
+   "worker_pids": [
+    5787,
+    5788
+   ],
+   "workers_alive_after_close": [],
+   "live_children_after_close": [],
+   "zombie_children_after_close": [],
+   "rss_mb": 738.1875,
+   "uss_mb": 385.765625,
+   "fds": 3,
+   "threads": 1
+  },
+  {
+   "iteration": 7,
+   "startup_s": 2.675031416,
+   "close_s": 0.23147925,
+   "devices": {
+    "ane": 20,
+    "gpu": 20
+   },
+   "worker_pids": [
+    5792,
+    5793
+   ],
+   "workers_alive_after_close": [],
+   "live_children_after_close": [],
+   "zombie_children_after_close": [],
+   "rss_mb": 764.890625,
+   "uss_mb": 414.625,
+   "fds": 3,
+   "threads": 1
+  },
+  {
+   "iteration": 8,
+   "startup_s": 2.669474667,
+   "close_s": 0.213505125,
+   "devices": {
+    "ane": 20,
+    "gpu": 20
+   },
+   "worker_pids": [
+    5799,
+    5800
+   ],
+   "workers_alive_after_close": [],
+   "live_children_after_close": [],
+   "zombie_children_after_close": [],
+   "rss_mb": 764.9375,
+   "uss_mb": 414.671875,
+   "fds": 3,
+   "threads": 1
+  },
+  {
+   "iteration": 9,
+   "startup_s": 2.677552375,
+   "close_s": 0.230417709,
+   "devices": {
+    "ane": 20,
+    "gpu": 20
+   },
+   "worker_pids": [
+    5805,
+    5806
+   ],
+   "workers_alive_after_close": [],
+   "live_children_after_close": [],
+   "zombie_children_after_close": [],
+   "rss_mb": 752.53125,
+   "uss_mb": 405.0625,
+   "fds": 3,
+   "threads": 1
+  }
+ ],
+ "model": "laya-multilingual",
+ "placement": "process",
+ "args": {
+  "mode": "lifecycle",
+  "model": "laya-multilingual",
+  "placement": "process",
+  "cycles": 2,
+  "seconds": 15.0,
+  "settle": 1.0,
+  "iterations": 10,
+  "requests": 40,
+  "out": "benchmarks/ane-placement-gate/raw/lifecycle-laya-multilingual-process.json"
+ },
+ "environment": {
+  "laya_apple": "1.0.2",
+  "platform": {
+   "soc": "Apple M4 Max",
+   "macos": "26.6.2",
+   "macos_build": "25G83",
+   "coremltools": "9.0"
+  },
+  "python": "3.12.14",
+  "mlx": "0.32.2",
+  "coremltools": "9.0",
+  "machine": "arm64",
+  "memory_gb": 64
+ }
+}

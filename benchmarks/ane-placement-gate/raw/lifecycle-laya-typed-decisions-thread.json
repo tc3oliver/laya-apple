@@ -1,0 +1,223 @@
+{
+ "mode": "lifecycle",
+ "requests_per_iteration": 40,
+ "iterations": [
+  {
+   "iteration": 0,
+   "startup_s": 2.774512458,
+   "close_s": 0.039600417,
+   "devices": {
+    "gpu": 20,
+    "ane": 20
+   },
+   "worker_pids": [
+    4608
+   ],
+   "workers_alive_after_close": [],
+   "live_children_after_close": [],
+   "zombie_children_after_close": [],
+   "rss_mb": 489.234375,
+   "uss_mb": 372.5625,
+   "fds": 3,
+   "threads": 7
+  },
+  {
+   "iteration": 1,
+   "startup_s": 1.892065917,
+   "close_s": 0.039669375,
+   "devices": {
+    "gpu": 20,
+    "ane": 20
+   },
+   "worker_pids": [
+    4610
+   ],
+   "workers_alive_after_close": [],
+   "live_children_after_close": [],
+   "zombie_children_after_close": [],
+   "rss_mb": 496.921875,
+   "uss_mb": 351.796875,
+   "fds": 3,
+   "threads": 7
+  },
+  {
+   "iteration": 2,
+   "startup_s": 1.908553958,
+   "close_s": 0.039480875,
+   "devices": {
+    "gpu": 20,
+    "ane": 20
+   },
+   "worker_pids": [
+    4611
+   ],
+   "workers_alive_after_close": [],
+   "live_children_after_close": [],
+   "zombie_children_after_close": [],
+   "rss_mb": 501.875,
+   "uss_mb": 356.71875,
+   "fds": 3,
+   "threads": 7
+  },
+  {
+   "iteration": 3,
+   "startup_s": 1.891640541,
+   "close_s": 0.039345542,
+   "devices": {
+    "gpu": 20,
+    "ane": 20
+   },
+   "worker_pids": [
+    4612
+   ],
+   "workers_alive_after_close": [],
+   "live_children_after_close": [],
+   "zombie_children_after_close": [],
+   "rss_mb": 502.453125,
+   "uss_mb": 357.328125,
+   "fds": 3,
+   "threads": 7
+  },
+  {
+   "iteration": 4,
+   "startup_s": 1.892979334,
+   "close_s": 0.040546583,
+   "devices": {
+    "gpu": 20,
+    "ane": 20
+   },
+   "worker_pids": [
+    4613
+   ],
+   "workers_alive_after_close": [],
+   "live_children_after_close": [],
+   "zombie_children_after_close": [],
+   "rss_mb": 502.53125,
+   "uss_mb": 357.390625,
+   "fds": 3,
+   "threads": 7
+  },
+  {
+   "iteration": 5,
+   "startup_s": 1.89844275,
+   "close_s": 0.039446875,
+   "devices": {
+    "gpu": 20,
+    "ane": 20
+   },
+   "worker_pids": [
+    4614
+   ],
+   "workers_alive_after_close": [],
+   "live_children_after_close": [],
+   "zombie_children_after_close": [],
+   "rss_mb": 502.59375,
+   "uss_mb": 357.453125,
+   "fds": 3,
+   "threads": 7
+  },
+  {
+   "iteration": 6,
+   "startup_s": 1.893798375,
+   "close_s": 0.036478792,
+   "devices": {
+    "gpu": 20,
+    "ane": 20
+   },
+   "worker_pids": [
+    4617
+   ],
+   "workers_alive_after_close": [],
+   "live_children_after_close": [],
+   "zombie_children_after_close": [],
+   "rss_mb": 502.6875,
+   "uss_mb": 357.578125,
+   "fds": 3,
+   "threads": 7
+  },
+  {
+   "iteration": 7,
+   "startup_s": 1.908834542,
+   "close_s": 0.040389417,
+   "devices": {
+    "gpu": 20,
+    "ane": 20
+   },
+   "worker_pids": [
+    4619
+   ],
+   "workers_alive_after_close": [],
+   "live_children_after_close": [],
+   "zombie_children_after_close": [],
+   "rss_mb": 502.78125,
+   "uss_mb": 357.65625,
+   "fds": 3,
+   "threads": 7
+  },
+  {
+   "iteration": 8,
+   "startup_s": 1.902006541,
+   "close_s": 0.039230333,
+   "devices": {
+    "gpu": 20,
+    "ane": 20
+   },
+   "worker_pids": [
+    4621
+   ],
+   "workers_alive_after_close": [],
+   "live_children_after_close": [],
+   "zombie_children_after_close": [],
+   "rss_mb": 504.359375,
+   "uss_mb": 359.234375,
+   "fds": 3,
+   "threads": 7
+  },
+  {
+   "iteration": 9,
+   "startup_s": 1.891399416,
+   "close_s": 0.0361975,
+   "devices": {
+    "gpu": 20,
+    "ane": 20
+   },
+   "worker_pids": [
+    4622
+   ],
+   "workers_alive_after_close": [],
+   "live_children_after_close": [],
+   "zombie_children_after_close": [],
+   "rss_mb": 504.453125,
+   "uss_mb": 359.3125,
+   "fds": 3,
+   "threads": 7
+  }
+ ],
+ "model": "laya-typed-decisions",
+ "placement": "thread",
+ "args": {
+  "mode": "lifecycle",
+  "model": "laya-typed-decisions",
+  "placement": "thread",
+  "cycles": 2,
+  "seconds": 15.0,
+  "settle": 1.0,
+  "iterations": 10,
+  "requests": 40,
+  "out": "benchmarks/ane-placement-gate/raw/lifecycle-laya-typed-decisions-thread.json"
+ },
+ "environment": {
+  "laya_apple": "1.0.2",
+  "platform": {
+   "soc": "Apple M4 Max",
+   "macos": "26.6.2",
+   "macos_build": "25G83",
+   "coremltools": "9.0"
+  },
+  "python": "3.12.14",
+  "mlx": "0.32.2",
+  "coremltools": "9.0",
+  "machine": "arm64",
+  "memory_gb": 64
+ }
+}

@@ -1,0 +1,45 @@
+{
+ "mode": "orphan",
+ "exception_in_with": {
+  "worker_pids": [
+   4755,
+   4756
+  ],
+  "alive_after": []
+ },
+ "parent_sigkill": {
+  "worker_pids": [
+   4763,
+   4764
+  ],
+  "alive_after_30s": [],
+  "seconds_to_exit": 0.217479
+ },
+ "model": "laya-typed-decisions",
+ "placement": "process",
+ "args": {
+  "mode": "orphan",
+  "model": "laya-typed-decisions",
+  "placement": "process",
+  "cycles": 2,
+  "seconds": 15.0,
+  "settle": 1.0,
+  "iterations": 10,
+  "requests": 40,
+  "out": "benchmarks/ane-placement-gate/raw/orphan-laya-typed-decisions.json"
+ },
+ "environment": {
+  "laya_apple": "1.0.2",
+  "platform": {
+   "soc": "Apple M4 Max",
+   "macos": "26.6.2",
+   "macos_build": "25G83",
+   "coremltools": "9.0"
+  },
+  "python": "3.12.14",
+  "mlx": "0.32.2",
+  "coremltools": "9.0",
+  "machine": "arm64",
+  "memory_gb": 64
+ }
+}
