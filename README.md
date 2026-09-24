@@ -153,6 +153,20 @@ with Laya.from_pretrained("convaiinnovations/laya-typed-decisions", execution="w
 - Each request runs on one device, chosen by the router.
 - Under load, the router also compares queue backlogs.
 
+To see why a request was slow, pass a callback. It receives one `RequestTrace` per
+completed request: the queue snapshot the router decided on, the device and reason it chose,
+and monotonic timestamps from submit through queue, service and response.
+
+```python
+def on_trace(trace):
+    print(trace.request_id, trace.target, trace.routing_reason, trace.queue_ms, trace.e2e_ms)
+
+model = Laya.from_pretrained("convaiinnovations/laya-typed-decisions", execution="workers", trace=on_trace)
+```
+
+With the default `trace=None` nothing is recorded. The callback runs on the device's
+dispatcher thread, so keep it cheap.
+
 **Short-request P99 under open-loop bursty arrivals**, measured from arrival with queueing
 included (v1.0, same arrival sequence for both):
 

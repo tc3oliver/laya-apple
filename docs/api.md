@@ -12,7 +12,7 @@ Import these from the top-level `laya_apple` package:
 
 | Name | Contract |
 |---|---|
-| `Laya.from_pretrained(model_id, device="auto", *, dtype="float16", local_files_only=False, batch_size=16, execution="inline", ane_placement="auto", ane_startup="wait")` | Loads a pinned checkpoint. Invalid arguments raise `ValueError`. Every other failure raises a `LayaAppleError` subclass |
+| `Laya.from_pretrained(model_id, device="auto", *, dtype="float16", local_files_only=False, batch_size=16, execution="inline", ane_placement="auto", ane_startup="wait", trace=None)` | Loads a pinned checkpoint. Invalid arguments raise `ValueError`. Every other failure raises a `LayaAppleError` subclass |
 | `Laya.predict(context=None, questions=None, *, state=None) -> Result` | Blocking and thread-safe |
 | `Laya.submit(...) -> concurrent.futures.Future[Result]` | Same arguments as `predict` |
 | `await Laya.apredict(...) -> Result` | Same arguments as `predict` |
@@ -21,6 +21,7 @@ Import these from the top-level `laya_apple` package:
 | `Laya.info() -> dict` | The keys below are stable. New keys may be added |
 | `Result` | Fields `answers`, `usage`, `runtime`, `model`, `extra`, and `to_dict()` |
 | `RuntimeInfo` | Every field listed in `laya_apple/result.py` at 1.0.0. New optional fields may be added |
+| `RequestTrace`, `QueueSnapshot` | The fields and duration properties in `laya_apple/trace.py`. `trace=` (workers only) calls the callback once per completed request, before its Future resolves; a callback exception is warned once and never fails the request. New fields may be added |
 | The exception classes in `laya_apple.errors`, re-exported at top level | Their hierarchy: every one derives from `LayaAppleError`, and the artifact errors from `ArtifactError` |
 | `laya_apple.__version__` | |
 
@@ -84,7 +85,8 @@ CLI or the manifest, not paths.
 ## Internal (no compatibility promise)
 
 These are not covered by SemVer:
-- `Laya.prepare`, `Laya.route`, `Laya.backlogs`, and the `mlx` / `ane` attributes;
+- `Laya.prepare`, `Laya.route`, `Laya.backlogs`, `Laya.queue_snapshots`, and the `mlx` / `ane`
+  attributes;
 - every submodule other than `laya_apple.errors`: `laya_apple.routing`, `scheduling`,
   `executor`, `artifacts`, `lifecycle`, `profiles`, `derivation`, `backends`,
   `conversion`, `parity`, `schema`, `workload`, `benchmark`;

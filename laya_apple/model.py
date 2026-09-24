@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import asyncio
 import dataclasses
+import itertools
 import json
 import threading
 import time
@@ -39,10 +40,14 @@ from .hub import checkpoint_path, verify_weights
 from .prompt import Calibration, Tokenizer, format_answers, prepare
 from .registry import ANE_COMPUTE_UNITS, ANE_PRECISION, DTYPES, ModelSpec, resolve, routing_table
 from .result import Result, RuntimeInfo
+from .trace import QueueSnapshot, RequestTrace, TraceCallback
 
 EXECUTIONS = ("inline", "workers")
 ANE_PLACEMENTS = ("auto", "thread", "process")
 ANE_STARTUPS = ("wait", "background")
+# Request ids are unique within the process, across Laya instances, so traces, worker-side
+# records and logs from several instances join on the id alone.
+_REQUEST_IDS = itertools.count(1)
 
 
 def ane_placement_for(model: str) -> str:
@@ -93,6 +98,7 @@ class Laya:
         execution: str = "inline",
         ane_placement: str = "auto",
         ane_startup: str = "wait",
+        trace: TraceCallback | None = None,
     ):
         if device not in routing.DEVICES:
             raise ValueError(f"device must be one of {routing.DEVICES}, got {device!r}")
@@ -105,6 +111,10 @@ class Laya:
             raise ValueError(f"device='ane' runs {ANE_PRECISION} only; dtype={dtype!r} is not validated on the ANE")
         self.spec, self.checkpoint, self.device, self.dtype = spec, checkpoint, device, dtype
         self.execution = execution
+        if trace is not None and execution != "workers":
+            raise ValueError('trace applies only to execution="workers"')
+        self._trace = trace
+        self._trace_warned = False
         if ane_startup not in ANE_STARTUPS:
             raise ValueError(f"ane_startup must be one of {ANE_STARTUPS}, got {ane_startup!r}")
         if ane_startup == "background" and (execution != "workers" or device != "auto"):
@@ -152,6 +162,7 @@ class Laya:
         execution: str = "inline",
         ane_placement: str = "auto",
         ane_startup: str = "wait",
+        trace: TraceCallback | None = None,
     ) -> "Laya":
         """Load a pinned checkpoint.
 
@@ -164,6 +175,8 @@ class Laya:
         ane_startup="background" (workers, auto): return once MLX is ready and finish loading
         the ANE artifacts (and any evicted ANE compile) in the background; until then auto
         routes to MLX with reason "ane_starting".
+        trace (workers only): called with one laya_apple.trace.RequestTrace per completed
+        request (see laya_apple/trace.py); None, the default, records nothing.
         """
         if device not in routing.DEVICES:
             raise ValueError(f"device must be one of {routing.DEVICES}, got {device!r}")
@@ -181,6 +194,7 @@ class Laya:
             execution=execution,
             ane_placement=ane_placement,
             ane_startup=ane_startup,
+            trace=trace,
         )
 
     def _routing_profile(self):
@@ -391,10 +405,15 @@ class Laya:
 
     # ------------------------------------------------------------------ inference
 
+    def queue_snapshots(self):
+        """(gpu, ane) QueueSnapshot, each None without a ready worker (always None inline)."""
+        gpu, ane = self._workers.get("gpu"), self._workers.get("ane")  # "ane" may be popped concurrently
+        return (gpu.snapshot() if gpu else None), (ane.snapshot() if ane else None)
+
     def backlogs(self) -> tuple[float, float]:
         """(gpu, ane) backlog estimates in ms; zeros in inline mode."""
-        gpu, ane = self._workers.get("gpu"), self._workers.get("ane")  # "ane" may be popped concurrently
-        return (gpu.backlog_ms() if gpu else 0.0), (ane.backlog_ms() if ane else 0.0)
+        gpu, ane = self.queue_snapshots()
+        return (gpu.backlog_ms if gpu else 0.0), (ane.backlog_ms if ane else 0.0)
 
     def route(self, prepared, backlogs: tuple[float, float] | None = None) -> routing.Decision:
         if self.execution == "inline":
@@ -447,7 +466,8 @@ class Laya:
         if self.execution == "workers":
             return self.submit(context, questions, state=state).result()
         context, questions = self._request(context, questions, state)
-        t0 = time.perf_counter()
+        t0 = time.monotonic_ns()
+        request_id = next(_REQUEST_IDS)
         prep = self.prepare(context, questions)
         decision = self.route(prep)
         backend = self.ane if decision.target == "ane" else self.mlx
@@ -458,7 +478,8 @@ class Laya:
             if decision.target == "ane":
                 buckets = tuple(backend.check(prep.items))  # raises before any work runs
             logits, act = backend.forward(prep.items)
-        return self._result(prep, decision, backend, buckets, logits, act, t0)
+        answers = format_answers(prep, logits, act, self.calibration)
+        return self._result(prep, decision, backend, buckets, answers, t0, time.monotonic_ns(), request_id)
 
     def submit(self, context=None, questions=None, *, state=None) -> Future:
         """Queue a request; the Future resolves to a Result or raises the request's error."""
@@ -472,10 +493,19 @@ class Laya:
         if self._closed:
             raise BackendUnavailableError("this Laya instance is closed")
         context, questions = self._request(context, questions, state)
-        t0 = time.perf_counter()
+        t0 = time.monotonic_ns()
+        request_id = next(_REQUEST_IDS)
+        trace = self._trace
         prep = self.prepare(context, questions)
-        gpu_backlog, ane_backlog = self.backlogs()
+        prepared_ns = time.monotonic_ns() if trace is not None else 0
+        # One reading per device: the router decides on it and the trace records the same values.
+        gpu_w, ane_w = self._workers.get("gpu"), self._workers.get("ane")  # "ane" may be popped concurrently
+        gpu_q = gpu_w.read_queue() if gpu_w else None
+        ane_q = ane_w.read_queue() if ane_w else None
+        gpu_backlog = gpu_q[0] if gpu_q else 0.0
+        ane_backlog = ane_q[0] if ane_q else 0.0
         decision = self.route(prep, (gpu_backlog, ane_backlog))
+        routed_ns = time.monotonic_ns() if trace is not None else 0
         backend = self.ane if decision.target == "ane" else self.mlx
         worker = self._workers.get(decision.target)
         if backend is None or worker is None:  # unreachable by construction; never substitute
@@ -487,30 +517,70 @@ class Laya:
         else:
             estimate = self._service.gpu_ms(prep.sequence_length, prep.question_count)
         out: Future = Future()
-        queue_state = {"gpu_backlog_ms": gpu_backlog, "ane_backlog_ms": ane_backlog}
 
-        def finish(done: Future):
+        def finish(done: Future):  # runs on the dispatcher thread as it resolves the device job
+            received_ns = time.monotonic_ns() if trace is not None else 0
             try:
-                logits, act, wait_ms, device_ms = done.result()
-                out.set_result(
-                    self._result(
-                        prep,
-                        decision,
-                        backend,
-                        buckets,
-                        logits,
-                        act,
-                        t0,
-                        wait_ms=wait_ms,
-                        device_ms=device_ms,
-                        **queue_state,
-                    )
+                logits, act, enq_ns, dispatch_ns, start_ns, end_ns = done.result()
+                answers = format_answers(prep, logits, act, self.calibration)
+                response_ns = time.monotonic_ns()
+                result = self._result(
+                    prep,
+                    decision,
+                    backend,
+                    buckets,
+                    answers,
+                    t0,
+                    response_ns,
+                    request_id,
+                    wait_ms=(dispatch_ns - enq_ns) / 1e6,
+                    device_ms=(end_ns - start_ns) / 1e6,
+                    gpu_backlog_ms=gpu_backlog,
+                    ane_backlog_ms=ane_backlog,
                 )
+                if trace is not None:
+                    self._emit(
+                        trace,
+                        RequestTrace(
+                            request_id=request_id,
+                            sequence_length=prep.sequence_length,
+                            question_count=prep.question_count,
+                            target=decision.target,
+                            routing_reason=decision.reason,
+                            service_estimate_ms=estimate,
+                            gpu=QueueSnapshot._make(gpu_q) if gpu_q else None,
+                            ane=QueueSnapshot._make(ane_q) if ane_q else None,
+                            submit_ns=t0,
+                            prepared_ns=prepared_ns,
+                            routed_ns=routed_ns,
+                            queue_enter_ns=enq_ns,
+                            dispatch_ns=dispatch_ns,
+                            service_start_ns=start_ns,
+                            service_end_ns=end_ns,
+                            received_ns=received_ns,
+                            response_ns=response_ns,
+                        ),
+                    )
+                out.set_result(result)
             except BaseException as e:
                 out.set_exception(e)
 
-        worker.submit(prep.items, estimate).add_done_callback(finish)
+        worker.submit(prep.items, estimate, request_id).add_done_callback(finish)
         return out
+
+    def _emit(self, callback: TraceCallback, trace: RequestTrace) -> None:
+        """Hand one trace to the callback; its failure is reported once, never raised."""
+        try:
+            callback(trace)
+        except Exception as e:
+            if not self._trace_warned:
+                self._trace_warned = True
+                warnings.warn(
+                    f"laya-apple: the trace callback raised {type(e).__name__}: {e}; requests are unaffected "
+                    "(reported once per instance)",
+                    RuntimeWarning,
+                    stacklevel=2,
+                )
 
     async def apredict(self, context=None, questions=None, *, state=None) -> Result:
         """Awaitable predict (workers mode runs concurrently; inline mode runs in a thread)."""
@@ -524,16 +594,16 @@ class Laya:
         decision,
         backend,
         buckets,
-        logits,
-        act,
-        t0,
+        answers,
+        t0_ns,
+        end_ns,
+        request_id,
         *,
         wait_ms=None,
         device_ms=None,
         gpu_backlog_ms=None,
         ane_backlog_ms=None,
     ) -> Result:
-        answers = format_answers(prep, logits, act, self.calibration)
         runtime = RuntimeInfo(
             backend=backend.name,
             device=backend.device,
@@ -543,7 +613,7 @@ class Laya:
             question_count=prep.question_count,
             routing_reason=decision.reason,
             artifact_revision=backend.artifact_revision(prep.items),
-            latency_ms=(time.perf_counter() - t0) * 1000,
+            latency_ms=(end_ns - t0_ns) / 1e6,
             compute_units=ANE_COMPUTE_UNITS if decision.target == "ane" else None,
             buckets=buckets,
             dtype=ANE_PRECISION if decision.target == "ane" else self.dtype,
@@ -552,6 +622,7 @@ class Laya:
             device_ms=device_ms,
             gpu_backlog_ms=gpu_backlog_ms,
             ane_backlog_ms=ane_backlog_ms,
+            request_id=request_id,
         )
         return Result(answers=answers, usage={"input_tokens": prep.input_tokens, "output_tokens": 0}, runtime=runtime)
 

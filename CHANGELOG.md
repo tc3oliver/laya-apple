@@ -7,6 +7,25 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- **Request lifecycle tracing** (#6, runtime part). `Laya.from_pretrained(...,
+  execution="workers", trace=callback)` calls the callback once per completed request with
+  an immutable `laya_apple.RequestTrace`. It holds:
+  - the per-device queue state the router decided on (`QueueSnapshot`: backlog, queued jobs,
+    running);
+  - the target and routing reason;
+  - the service estimate charged to the queue;
+  - `time.monotonic_ns()` timestamps: submit, prepared, routed, queue enter, dispatch,
+    service start and end (taken in the process that runs the backend and returned on the
+    existing reply), received, and response.
+
+  Durations are derived properties.
+  - `RuntimeInfo` gains `request_id`, unique in the process across instances and also the
+    job id on the worker protocol.
+  - `queue_wait_ms`, `device_ms` and `latency_ms` are now computed from the same timestamps.
+  - `trace=None`, the default, builds no trace object and adds no lock, message or I/O. Its
+    serving throughput and P50/P95/P99 are within 0.1% of `main` and inside `main`'s own
+    run-to-run spread. The host-path cost is +0.96 µs per request (`benchmarks/tracing.md`).
+  - Routing decisions and answers are unchanged.
 - **Benchmark disk preflight** (`scripts/bench_preflight.py`). `release_bench.py` and
   `bench_v1.sh` now stop before loading any model if free disk on the output filesystem is
   below 200 GiB. They print each Core ML E5 cache under `~/Library/Caches` with its size,
