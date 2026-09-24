@@ -75,8 +75,8 @@ placement has 6 hetero windows (2 runs × 3 cycles).
   98 short req/s on the ANE. The ANE-side cost of process placement shows up here, and the
   cause is not investigated. The #54 gate saw the same direction in its closed-loop smoke:
   ANE −11% / −12.5% for laya / typed.
-- With this evidence, `scripts/derive_placement.py` refuses to move either model from
-  thread to process.
+- `laya_apple/data/placement.json` and `scripts/derive_placement.py` are not changed: laya
+  and laya-typed-decisions stay on thread placement, laya-multilingual on process.
 
 ## Workload
 
