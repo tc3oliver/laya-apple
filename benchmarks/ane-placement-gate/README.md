@@ -22,6 +22,11 @@ Are process placement's resource and lifecycle costs acceptable?
 | laya-typed-decisions | pass | pass | pass | pass | **FAIL** | pass | pass | pass | pass |
 | laya-multilingual | pass | pass | pass | pass | pass | pass | pass | **FAIL** | pass |
 
+Gate: FAIL. The pre-registered CPU criterion failed under closed-loop load. The result may
+be confounded because process isolation lets the GPU complete substantially more work. A
+fixed-offered-load follow-up is required before interpreting this as intrinsic process CPU
+overhead.
+
 The two failures, and what the evidence says about them:
 
 1. **CPU:**
