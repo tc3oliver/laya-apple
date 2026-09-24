@@ -27,7 +27,7 @@ MP4:
 
 | Time | Shows |
 |---|---|
-| 0–2 s | "1,407 LATE TRAINS → 0", "Same Mac. Same model. Different runtime.", and "MLX GPU → MLX GPU + Apple Neural Engine" |
+| 0–2 s | "1,407 LATE TRAINS → 0", "Same Mac. Same model.", and "MLX GPU → MLX GPU + Apple Neural Engine" |
 | 2–8 s | GPU-only round, data time 29.75–31.25 s: from just before the rush hour that starts at 30 s ("Rush hour starts…") |
 | 8–14 s | Hard cut to the GPU + ANE round, the same data window on the same timetable |
 | 14–18 s | Result card: trains late and P99 decision latency for both rounds |
