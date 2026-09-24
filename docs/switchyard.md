@@ -16,6 +16,39 @@ laya-apple switchyard [--seed N] [--duration S] [--out DIR] [--no-open] [--setup
 This document states the rules and the measurement method before any number is
 published. It contains no performance results.
 
+## Architecture
+
+```
+headless benchmark  →  result.json + trace.jsonl  →  replay.html in the browser
+(measures, no UI)       (every number, every request)   (draws the recorded requests)
+```
+
+1. **Measure.** The CLI runs every round headless. No browser, server or page is open
+   while it measures.
+2. **Record.** It writes `result.json` (the summary, schema-validated) and `trace.jsonl`
+   (one line per request). Every published number comes from these two files.
+3. **Replay.** It then builds `replay.html` from those files and opens it. The page only
+   draws what was recorded. It is not part of the measurement, and `--no-open` skips it.
+
+### What the replay draws
+
+- A train reaches the back of its line's queue at its recorded `arrival_ms` and stands at
+  the red signal until its recorded `response_ms`. The time a train spends at the signal
+  is its measured decision latency.
+- At `response_ms` the signal turns green, the switch throws to the recorded `answer` and
+  the train runs into that platform. The signal ring shows the device that answered: amber
+  for the MLX GPU, teal for the Neural Engine. An on-time train takes the same colour.
+- A train still waiting after the deadline turns red, is marked "!" and stays so; only its
+  nose takes the answering device's colour. A misrouted train enters an occupied or closed
+  platform and is marked "×".
+- Playback is slowed so the motion can be followed. The page defaults to 0.25× real time
+  and always shows the speed. Data time maps linearly to screen time, and no event is
+  reordered. Travel distances and animation lengths are presentation only.
+
+The launch animation in the README
+([`media/switchyard-launch.gif`](media/switchyard-launch.gif)) is a capture of such a replay;
+its sources are in [`media/switchyard-launch.md`](media/switchyard-launch.md).
+
 ## Rules of the game
 
 - **Train.** One `choice` question: `ROUTE A / B / C`. Exactly one platform is clear.

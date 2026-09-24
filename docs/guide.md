@@ -164,7 +164,7 @@ build one). Each bucket goes through:
    of operations on the Neural Engine and 0 device transitions;
 5. **parity** — every shipped golden row that fits the bucket, checked
    against the upstream PyTorch FP32 reference, with the unchanged Phase -1
-   gate (see [Correctness](#correctness));
+   gate (see [Correctness](correctness.md));
 6. **atomic registration** — the artifact is built in a temporary directory
    and renamed into place only after every step above passes. A partial or
    failed build never appears as usable; a failure leaves the manifest under
@@ -363,15 +363,20 @@ laya-apple --offline info laya-typed-decisions
 
 ## Switchyard
 
-`laya-apple switchyard` runs the frozen `switchyard-v1` workload (bursty seeded arrivals,
-single-question routing decisions as "trains", background long-context requests loading the
-GPU) and replays it as a rail-junction game in your browser. It is headless: all measurement
-happens before anything opens, and the browser only replays the recorded run — there is no
-live mode yet.
+The easiest way to see heterogeneous serving is to run it. `laya-apple switchyard` runs the
+frozen `switchyard-v1` workload (bursty seeded arrivals, single-question routing decisions
+as "trains", background long-context requests loading the GPU), then replays the recorded
+run as a rail yard in your browser. All measurement happens headless, before anything
+opens; the browser only replays the recorded requests.
 
 ```bash
 uvx laya-apple switchyard
 ```
+
+<!-- release-note:switchyard — remove this note in the release PR that ships switchyard -->
+> `switchyard` is not on PyPI yet (the current release is 1.1.0). Until the next release, run
+> it from a clone: `uv run laya-apple switchyard`.
+<!-- /release-note:switchyard -->
 
 The first run downloads the pinned `laya-typed-decisions` checkpoint (about 800 MB) and runs
 offline after that. A standard run (60 s timed window, plus a 5 s warmup, for one or two

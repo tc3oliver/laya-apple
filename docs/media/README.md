@@ -1,4 +1,12 @@
-# Heterogeneous serving video
+# Media
+
+| Files | Sources |
+|---|---|
+| `switchyard-launch.gif`, `switchyard-launch.mp4` | [`switchyard-launch.md`](switchyard-launch.md) |
+| `switchyard-gpu-only.png`, `switchyard-gpu-ane.png`, `switchyard-result.png` | [`switchyard.md`](switchyard.md) |
+| `heterogeneous-serving.{mp4,gif,png}` | this page, below |
+
+## Heterogeneous serving video
 
 `heterogeneous-serving.mp4` (1920×1080, 30 s), `heterogeneous-serving.gif` (800×450,
 5 fps, 30 s) and the poster frame `heterogeneous-serving.png` tell one story from two
