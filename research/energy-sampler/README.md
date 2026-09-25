@@ -3,10 +3,10 @@
 Issue: [#13](https://github.com/tc3oliver/laya-apple/issues/13). Machine: Mac Studio M4 Max
 (Mac16,9), macOS 26.6.2. Model: laya-typed-decisions.
 
-**Status: method and criteria only. No campaign or cross-check data has been recorded yet.**
-`results.json` and `tables.md` are generated from `raw/` and stay empty until those runs
-exist. The criteria below were written before any measurement and are applied unchanged by
-`scripts/analyze.py`.
+**Status: run 1 is invalid under its own criteria (see [Run 1: invalid](#run-1-invalid)). No
+result from this track is claimable yet, and no cross-check data has been recorded.**
+`results.json` and `tables.md` are generated from `raw/`. The criteria below were written
+before any measurement and are applied unchanged by `scripts/analyze.py`.
 
 ## Question
 
@@ -173,6 +173,28 @@ The fixed workload is:
 3. For each `powermetrics` interval, it computes the sampler's mean power over that same
    interval, using the wall-clock stamps.
 4. It averages both inside each trimmed phase and applies criteria 1–3.
+
+## Run 1: invalid
+
+Raw data: `raw/campaign-laya-typed-decisions.json.gz` (the campaign above, method version 1,
+sampler interval 0.5 s, no cross-check run). Apple M4 Max (Mac16,9), macOS 26.6.2,
+laya-apple 1.3.0, AC power, `omlx-server` not running. `results.json` and `tables.md`
+reproduce it with `analyze.py --check`.
+
+The run fails two of its own preregistered criteria:
+
+| Criterion | Limit | Run 1 | Met |
+|---|---|---|---|
+| 3. Sampler loop CPU | ≤ 2% of one core | 2.38% (32.4 CPU-s over 1363 s, 2728 samples: 11.9 ms per sample) | no |
+| 5. Idle spread, `short` | ≤ 10% of the smallest net loaded SoC power | spread 0.194 W vs 1.653 W (limit 0.165 W) | no |
+| 5. Idle spread, `mixed` | ≤ 10% of the smallest net loaded SoC power | spread 0.447 W vs 2.397 W (limit 0.240 W) | no |
+
+Criterion 5 makes a shape's results unusable, and it fails in both shapes. The J/decision
+numbers and comparison verdicts that `tables.md` prints for this run are therefore **not
+claimable**, and no verdict is drawn from them. They stay in the generated tables only
+because the tables are regenerated from `raw/` unchanged. Criterion 4 (loaded window
+validity) was met in every window, and criteria 1–2 need a cross-check run, which was not
+recorded. The file is kept unchanged as the record of the first attempt.
 
 ## Reproduce
 

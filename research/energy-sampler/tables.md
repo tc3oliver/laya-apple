@@ -8,5 +8,37 @@ No cross-check data in `raw/` yet.
 
 ## J/decision at equal offered load
 
-No campaign data in `raw/` yet.
+### campaign-laya-typed-decisions
+
+Apple M4 Max (Mac16,9), macOS 26.6.2, laya-apple 1.3.0, oMLX running: False. Sampler loop CPU 2.38% of one core (criterion met: no).
+
+**short** — idle SoC 0.149 W, spread 0.194 W vs smallest net loaded 1.653 W (criterion met: no).
+
+| config | valid/windows | decisions/s | net SoC W | net J/decision (median, min–max) | gross J/decision | net system J/decision (PSTR) | decisions by device |
+|---|---:|---:|---:|---|---:|---:|---|
+| gpu | 4/4 | 30.0 | 9.77 | 0.3256 (0.3055–0.3335) | 0.3324 | 0.8924 | gpu: 3600 |
+| ane | 4/4 | 30.0 | 1.73 | 0.0578 (0.0551–0.0586) | 0.0630 | 0.1327 | ane: 3600 |
+| auto | 4/4 | 30.0 | 1.74 | 0.0581 (0.0567–0.0668) | 0.0631 | 0.1345 | ane: 3600 |
+
+| comparison | median ratio | verdict |
+|---|---:|---|
+| ane_vs_gpu:net_j_per_decision | 0.178 | lower |
+| ane_vs_gpu:net_system_j_per_decision | 0.149 | lower |
+| auto_vs_gpu:net_j_per_decision | 0.179 | lower |
+| auto_vs_gpu:net_system_j_per_decision | 0.151 | lower |
+
+**mixed** — idle SoC 0.122 W, spread 0.447 W vs smallest net loaded 2.397 W (criterion met: no).
+
+| config | valid/windows | decisions/s | net SoC W | net J/decision (median, min–max) | gross J/decision | net system J/decision (PSTR) | decisions by device |
+|---|---:|---:|---:|---|---:|---:|---|
+| gpu | 4/4 | 35.0 | 12.47 | 0.3563 (0.3463–0.3655) | 0.3617 | 1.0124 | gpu: 4200 |
+| ane | 4/4 | 35.0 | 2.51 | 0.0717 (0.0685–0.0747) | 0.0784 | 0.1480 | ane: 4195 |
+| auto | 4/4 | 35.0 | 7.84 | 0.2241 (0.2173–0.2355) | 0.2293 | 0.5523 | ane: 1800, gpu: 2400 |
+
+| comparison | median ratio | verdict |
+|---|---:|---|
+| ane_vs_gpu:net_j_per_decision | 0.201 | lower |
+| ane_vs_gpu:net_system_j_per_decision | 0.146 | lower |
+| auto_vs_gpu:net_j_per_decision | 0.629 | lower |
+| auto_vs_gpu:net_system_j_per_decision | 0.546 | lower |
 
