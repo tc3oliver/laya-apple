@@ -55,6 +55,10 @@ Otherwise expect the client's fallback path more often than with Jev.
 
 ## Reproducing
 
+The full per-client record (commands, requests logged, decoded answers) is in
+[`runs/2026-09-25.md`](runs/2026-09-25.md).
+
+
 Every client reads its base URL from the environment variable in the table. Start the
 server with `laya-apple serve`, export the variable and a placeholder key such as
 `TYPESAFE_API_KEY=local-placeholder`, then run the client's normal command.
