@@ -1,0 +1,50 @@
+{
+ "about": "Preregistered criteria for benchmarks/serve (serve decisions beside a local LLM). Fixed before any campaign data; not changed after data is seen. Definitions in README.md; analyze.py implements them.",
+ "results": {
+  "gpu_free": {
+   "G1_llm_cost_auto": {
+    "metric": "1 - median(tok/s, auto decisions_llm windows) / median(tok/s, llm_alone windows)",
+    "max": 0.05
+   },
+   "G2_auto_below_gpu_only": {
+    "metric": "drop(gpu) - drop(auto), where drop(c) = 1 - median(tok/s, c decisions_llm) / median(tok/s, llm_alone)",
+    "must_exceed": "llm_alone_noise = (max - min) / median of tok/s over llm_alone windows"
+   }
+  },
+  "decision_latency": {
+   "L1_short_p99_loaded_abs_ms": {
+    "metric": "median over auto decisions_llm windows of the per-window short_1q P99, from scheduled arrival to response",
+    "max": 50.0
+   },
+   "L2_short_p99_loaded_vs_unloaded": {
+    "metric": "L1's value / the same statistic over auto decisions windows",
+    "max": 1.5
+   }
+  },
+  "correctness": {
+   "C1_fp16_gate": {
+    "metric": "every decision in every decisions / decisions_llm window of both configs, against the same serve process's unloaded reference",
+    "prob_err_max": 0.02,
+    "act_err_max": 0.02,
+    "hard_mismatches": 0,
+    "near_tie_flips": "listed, not failed"
+   },
+   "E1_errors": {
+    "metric": "requests without an HTTP 200 answer (status, timeout or connection error), every decision window of both configs",
+    "max": 0
+   }
+  }
+ },
+ "validity": {
+  "V1_open_loop_client_lag_p99_ms": {"max": 5.0, "metric": "P99 of sent - scheduled, per decision window"},
+  "V2_llm_saturated": {"generating_coverage_min": 0.9, "llm_errors_max": 0, "metric": "per LLM window"},
+  "V3_llm_exclusive": {"metric": "the LLM server was idle at window start, and its total_requests grew by exactly this harness's own request count across the window"},
+  "V4_auto_short_on_ane": {"min_share": 0.99, "metric": "short_1q answers with device ane, per auto window"},
+  "V5_references_on_expected_devices": {"metric": "auto: short_1q references on ane, mixed_3q on gpu; gpu: all on gpu"}
+ },
+ "notes": [
+  "Throughput, latency and correctness are separate results; there is no overall PASS/FAIL.",
+  "A validity failure makes the affected result invalid (neither pass nor fail); rerun as a new campaign directory.",
+  "GPU-only (serve --device gpu) is measured with the same metrics and has no threshold: it is the comparison."
+ ]
+}
