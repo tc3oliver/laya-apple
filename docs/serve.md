@@ -14,7 +14,9 @@ export TYPESAFE_BASE_URL=http://127.0.0.1:8642     # then run your Jev client as
 laya-apple is not affiliated with TypeSafe or Jev. The API is compatible; the model is
 not the same.
 - **What is guaranteed:** the server's answers are upstream Laya's answers, within the parity
-  gate in [`correctness.md`](correctness.md).
+  gate in [`correctness.md`](correctness.md). Measured against unmodified upstream
+  `laya.serve` 0.3.20 on 792 requests, including 365 answered on the Neural Engine
+  ([`benchmarks/serve-compat/`](../benchmarks/serve-compat/README.md)).
 - **What is not:** Jev-level accuracy. Laya is a different, smaller model. The upstream Laya
   README compares the two on its benchmarks.
 
@@ -65,12 +67,15 @@ A response looks like this:
 ```json
 {
   "model": "laya-rl-agent",
-  "answers": {"next": {"type": "choice", "choice": "run_tests", "confidence": 0.20,
-                       "probabilities": {"run_tests": 0.62, "ask_user": 0.09, "commit": 0.29},
+  "answers": {"next": {"type": "choice", "choice": "run_tests",
+                       "probabilities": {"run_tests": 0.8865, "ask_user": 0.0117, "commit": 0.1018},
+                       "confidence": 0.6436, "answer_confidence": 0.8865,
                        "action": {"act_probability": 1.0}}},
   "usage": {"input_tokens": 35, "output_tokens": 0},
-  "routing": {"model": "english", "repo": "convaiinnovations/laya", "reason": "English Latin text",
-              "detection": {"script": "latin", "language": "en", "...": "..."}, "workflow": null},
+  "routing": {"model": "english", "repo": "convaiinnovations/laya",
+              "reason": "Latin script, language not identified and no non-English letters; using default (english)",
+              "detection": {"script": "latin", "language": null, "is_english": true, "...": "..."},
+              "workflow": null},
   "laya_apple": {"model": "laya", "device": "ane", "backend": "coreml",
                  "routing_reason": "validated_short_single_question_path", "request_id": 1,
                  "truncated": false, "sequence_length": 35, "question_count": 1,
@@ -78,8 +83,15 @@ A response looks like this:
 }
 ```
 
-- **Fields as upstream:** `model`, `answers`, `usage` and `routing` are upstream's. Jev clients
-  read `answers` and `usage` and ignore the rest.
+- **Fields as upstream:** `model`, `answers`, `usage` and `routing` are upstream's, and each
+  answer carries upstream's fields in upstream's order. Jev clients read `answers` and
+  `usage` and ignore the rest.
+- **Which confidence to use.**
+  - `answer_confidence` is the probability of the chosen answer.
+  - `confidence` is upstream's entropy-based certainty, which is lower when there are many
+    options.
+  - If your client lets you pick the field or its threshold, `answer_confidence` is the one
+    that reads like a probability.
 - **`routing.workflow`** names the typed-decisions workflow whose question ids the request
   uses, as upstream reports it. As upstream with `LAYA_AUTO_TASK` off, a match does not
   change the checkpoint.
