@@ -15,14 +15,18 @@ over TypeSafe Jev's `POST /v1/systemone` protocol: a request `{model?, state, qu
 answers `{model, answers, usage, routing}`, so a client written against Jev keeps working
 when its base URL points here. What differs from upstream, on purpose:
 
-- It binds 127.0.0.1. Any other address needs `--allow-remote` and prints a warning.
+- It binds 127.0.0.1 and answers only requests whose `Host` is a loopback name, so a web
+  page in a local browser cannot reach it through DNS rebinding. Any other bind address
+  needs `--allow-remote` and `LAYA_API_KEY`. `POST /v1/systemone` needs
+  `Content-Type: application/json`, which a browser cannot send cross-site without a
+  preflight this server never grants.
 - There is no global inference lock. Each model is one `Laya(execution="workers")`
   instance and requests go through `apredict`, so the GPU and the ANE serve concurrently.
 - `ane_startup="background"`: the server answers on MLX as soon as MLX is ready while the
   ANE artifacts load; `/health` reports the ANE as `warming`, `ready` or `unavailable`.
 - Every response carries a `laya_apple` block (checkpoint, device, routing reason,
-  request id, `truncated`). A state cut to fit the model's max length is reported there,
-  never silently.
+  request id, `truncated`). A state cut to fit the model's max length is reported there;
+  upstream cuts it too, without saying so.
 
 Configuration is by flag, with environment fallbacks for the service manager:
 `LAYA_APPLE_SERVE_MODEL`, `LAYA_APPLE_SERVE_HOST`, `LAYA_APPLE_SERVE_PORT`, and
@@ -81,6 +85,16 @@ _ALIASES = {
 _UPSTREAM_KEY = {v: k for k, v in UPSTREAM_NAMES.items()}
 # Upstream reads the root repo id as "let the router choose", not "pin English".
 _ROUTER_CHOICE = {"convaiinnovations/laya"}
+# Upstream's typed-decisions workflows (laya/router.py v0.3.20), matched on the exact set of
+# question ids. Reported in `routing.workflow`; like upstream with LAYA_AUTO_TASK off, a
+# match does not change the checkpoint.
+TYPED_DECISION_WORKFLOWS = {
+    "agent_trace_observability": {"action", "needs_review", "outcome", "risk", "urgency"},
+    "customer_service": {"action", "category", "churn_risk", "needs_human", "urgency"},
+    "invoice_processing": {"discrepancy_severity", "disposition", "duplicate", "matches_order", "urgency"},
+    "security_incidents": {"credential_compromise", "disposition", "severity", "true_positive", "urgency"},
+}
+LOOPBACK_HOSTS = {"127.0.0.1", "localhost", "::1"}
 
 Loader = Callable[[str], Any]
 
@@ -96,11 +110,19 @@ def checkpoint(name: str) -> str:
     return resolve(_upstream_name(name) or name.strip()).name
 
 
+def match_workflow(questions: Any) -> str | None:
+    ids = set(questions or {})
+    return next((wf for wf, sig in TYPED_DECISION_WORKFLOWS.items() if ids == sig), None)
+
+
 def resolve_model(requested: Any, default: str) -> str:
-    """Map a client's `model` field onto a checkpoint name, or `default` (which may be AUTO)."""
+    """Map a client's `model` field onto a checkpoint name, or `default` (which may be AUTO).
+    `model: "auto"` asks for language routing whatever the server default is."""
     if not isinstance(requested, str) or not requested.strip():
         return default
     name = requested.strip()
+    if name.lower() == AUTO:
+        return AUTO
     if name.lower() in _ROUTER_CHOICE:
         return default
     if (upstream := _upstream_name(name)) is not None:
@@ -140,6 +162,14 @@ def route_by_language(state: Any) -> tuple[str, str, dict]:
     else:
         name, reason = "laya", "English Latin text"
     return name, reason, det
+
+
+def host_name(header: str) -> str:
+    """The host part of a Host header: "[::1]:8642" -> "::1", "localhost:8642" -> "localhost"."""
+    header = header.strip().lower()
+    if header.startswith("["):
+        return header[1:].split("]", 1)[0]
+    return header.rsplit(":", 1)[0] if header.count(":") == 1 else header
 
 
 def is_loopback(host: str) -> bool:
@@ -214,12 +244,17 @@ def create_app(
     preload: tuple[str, ...] = (),
     loader: Loader | None = None,
     api_key: str | None = None,
+    device: str = "auto",
+    loopback_only: bool = True,
 ):
     """Build the FastAPI app. `loader(name)` returns a Laya-like object (tests inject one).
 
     `default_model` is a checkpoint or AUTO (language routing between laya and
     laya-multilingual). The default's checkpoints and every `preload` model load at startup;
-    another supported model loads the first time a request names it."""
+    another supported model loads the first time a request names it.
+
+    loopback_only: refuse requests whose Host header is not a loopback name (the bind is
+    loopback; this stops DNS rebinding from a browser)."""
     from fastapi import FastAPI, HTTPException, Request
     from fastapi.responses import JSONResponse
 
@@ -230,31 +265,40 @@ def create_app(
     loader = loader or default_loader()
     expected_auth = ("Bearer " + api_key).encode("utf-8", "surrogateescape") if api_key else b""
     instances: dict[str, Any] = {}
-    loading: dict[str, asyncio.Lock] = {}
+    loads: dict[str, asyncio.Task] = {}
+
+    async def load(name: str) -> Any:
+        """One load per model, shared by concurrent requests. The load runs as its own task,
+        so a request cancelled mid-load neither aborts it nor leaks the instance: it is
+        stored when it finishes, and closed at shutdown like every other."""
+        if name in instances:
+            return instances[name]
+        task = loads.get(name)
+        if task is None or (task.done() and task.exception() is not None):
+
+            async def run_load():
+                _log.info("loading %s", name)
+                instances[name] = await asyncio.to_thread(loader, name)
+                return instances[name]
+
+            task = loads[name] = asyncio.create_task(run_load())
+        return await asyncio.shield(task)
 
     @asynccontextmanager
     async def lifespan(_app):
         try:
             for name in names:
-                _log.info("loading %s", name)
-                instances[name] = await asyncio.to_thread(loader, name)
+                await load(name)
             yield
         finally:
+            pending = [t for t in loads.values() if not t.done()]
+            if pending:  # a thread cannot be cancelled: wait for it, then close what it built
+                await asyncio.gather(*pending, return_exceptions=True)
             for laya in instances.values():
                 try:
                     laya.close()
                 except Exception:
                     _log.exception("closing a model failed")
-
-    async def get_model(name: str):
-        if name in instances:
-            return instances[name]
-        lock = loading.setdefault(name, asyncio.Lock())
-        async with lock:
-            if name not in instances:
-                _log.info("loading %s on first use", name)
-                instances[name] = await asyncio.to_thread(loader, name)
-        return instances[name]
 
     from . import __version__
 
@@ -264,6 +308,17 @@ def create_app(
         version=__version__,
         lifespan=lifespan,
     )
+
+    @app.middleware("http")
+    async def loopback_host_only(request: Request, call_next):
+        if loopback_only and host_name(request.headers.get("host", "")) not in LOOPBACK_HOSTS:
+            return JSONResponse(status_code=421, content={"detail": "this server answers loopback requests only"})
+        return await call_next(request)
+
+    @app.exception_handler(Exception)
+    async def unexpected(_request: Request, exc: Exception):
+        _log.error("request failed", exc_info=exc)
+        return JSONResponse(status_code=500, content={"detail": "inference failed"})
 
     def check_auth(request: Request) -> None:
         if not api_key:
@@ -278,7 +333,7 @@ def create_app(
             "version": __version__,
             "default_model": default_model,  # a checkpoint, or "auto" (language routing)
             "loaded": sorted(instances),
-            "device": "auto",
+            "device": device,
             "ane": {name: ane_status(laya) for name, laya in sorted(instances.items())},
         }
 
@@ -319,6 +374,8 @@ def create_app(
     @app.post("/v1/systemone")
     async def systemone(request: Request):
         check_auth(request)
+        if request.headers.get("content-type", "").split(";")[0].strip().lower() != "application/json":
+            raise HTTPException(status_code=415, detail="Content-Type must be application/json")
         declared = request.headers.get("content-length")
         if declared and declared.isdigit() and int(declared) > MAX_BODY_BYTES:
             raise HTTPException(status_code=413, detail="request body too large")
@@ -333,13 +390,14 @@ def create_app(
         check_limits(state, questions)
         requested = body.get("model")
         name = resolve_model(requested, default_model)
-        if checkpoint_named(requested):
-            routing = routing_block(name, reason="explicit model=%r" % requested.strip())
+        workflow = match_workflow(questions)
+        if checkpoint_named(requested):  # upstream names the normalised checkpoint key
+            routing = routing_block(name, reason="explicit model=%r" % _UPSTREAM_KEY[name])
         elif name == AUTO:
             name, reason, detection = route_by_language(state)
-            routing = routing_block(name, reason=reason, detection=detection)
+            routing = routing_block(name, reason=reason, detection=detection, workflow=workflow)
         else:
-            routing = routing_block(name, reason="server default model (--model %s)" % name)
+            routing = routing_block(name, reason="server default model (--model %s)" % name, workflow=workflow)
         if not questions:  # upstream answers an empty question set with nothing, not an error
             return JSONResponse(
                 content={
@@ -352,7 +410,11 @@ def create_app(
         # Upstream serializes a missing state as JSON null ("null"); Laya reads None as "".
         state = "null" if state is None else state
         try:
-            laya = await get_model(name)
+            laya = await load(name)
+        except Exception:
+            _log.exception("loading %s failed", name)
+            raise HTTPException(status_code=503, detail=f"model {name} is unavailable on this server")
+        try:
             t0 = time.perf_counter()
             # submit() tokenizes before it queues the device job; keep that off the event loop.
             future = await asyncio.to_thread(laya.submit, state, questions)
@@ -384,15 +446,17 @@ def checkpoint_named(requested: Any) -> bool:
     return True
 
 
-def routing_block(name: str, *, reason: str, detection: dict | None = None) -> dict:
-    """Upstream's `routing` keys: {model, repo, reason, detection, workflow}."""
+def routing_block(name: str, *, reason: str, detection: dict | None = None, workflow: str | None = None) -> dict:
+    """Upstream's `routing` keys: {model, repo, reason, detection, workflow}. `repo` names the
+    standalone repository the pinned weights come from; stock upstream names its bundle
+    repository (convaiinnovations/laya/<subfolder>) instead."""
     spec = resolve(name)
     return {
         "model": _UPSTREAM_KEY[spec.name],
         "repo": spec.repo,
         "reason": reason,
         "detection": detection,
-        "workflow": None,
+        "workflow": workflow,
     }
 
 
@@ -445,12 +509,16 @@ def run(
         raise LayaAppleError(f"invalid port {raw_port!r}: must be an integer 1-65535") from None
     if not 1 <= port <= 65535:
         raise LayaAppleError(f"invalid port {port}: must be an integer 1-65535")
-    if not is_loopback(host):
+    api_key = os.environ.get("LAYA_API_KEY") or None
+    loopback = is_loopback(host)
+    if not loopback:
         if not allow_remote:
             raise LayaAppleError(
                 f"refusing to bind {host!r}: laya-apple serve is loopback-only by default. "
                 "Pass --allow-remote to expose it, and set LAYA_API_KEY."
             )
+        if not api_key:
+            raise LayaAppleError(f"refusing to bind {host!r} without LAYA_API_KEY: set a key before exposing it")
         _log.warning("laya-apple serve is listening on %s, which is not a loopback address", host)
         print(f"warning: listening on {host}, reachable from other machines", flush=True)
     model = model or os.environ.get("LAYA_APPLE_SERVE_MODEL") or DEFAULT_MODEL
@@ -458,7 +526,9 @@ def run(
         default_model=model,
         preload=preload,
         loader=default_loader(device=device, offline=offline),
-        api_key=os.environ.get("LAYA_API_KEY") or None,
+        api_key=api_key,
+        device=device,
+        loopback_only=loopback,
     )
     uvicorn.run(app, host=host, port=port, log_level=log_level)
     return 0

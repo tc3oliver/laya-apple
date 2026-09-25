@@ -570,9 +570,11 @@ class Laya:
                             response_ns=response_ns,
                         ),
                     )
-                out.set_result(result)
+                if not out.cancelled():  # the caller may have given up (asyncio cancellation)
+                    out.set_result(result)
             except BaseException as e:
-                out.set_exception(e)
+                if not out.cancelled():
+                    out.set_exception(e)
 
         worker.submit(prep.items, estimate, request_id).add_done_callback(finish)
         return out

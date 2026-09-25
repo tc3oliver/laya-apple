@@ -8,12 +8,14 @@ The requests are the shipped parity golden cases for the model (state + question
 response it checks:
 
 - wire shape: the same top-level keys (ours adds only `laya_apple`), the same `routing`
-  keys, and the same keys in every answer;
+  keys, the same answer ids, and the same keys in every answer;
 - values: the same `choice` and `usage`, and every probability, score, noul, confidence
   and act_probability within the FP16 parity gate's 0.02 (docs/correctness.md).
 
 With --auto the requests name no model, as Jev clients do, and each server routes by
-language; the routed checkpoint (`routing.model`) and `routing.reason` must then agree too.
+language; `routing.model`, `reason`, `detection` and `workflow` must then agree too.
+`routing.repo` is not compared: ours names the pinned standalone repository, and the
+pinned upstream launcher reports a local path.
 
 Upstream runs PyTorch; ours runs MLX or the ANE, so values are compared with the gate's
 tolerance, never for equality. Exit status 1 if any case fails.
@@ -50,7 +52,7 @@ def post(base: str, body: dict) -> dict:
 def compare(ours: dict, theirs: dict, auto: bool = False) -> list[str]:
     problems = []
     if auto:
-        for k in ("model", "reason"):
+        for k in ("model", "reason", "detection", "workflow"):
             if ours["routing"][k] != theirs["routing"][k]:
                 problems.append(f"routing.{k}: ours {ours['routing'][k]!r}, upstream {theirs['routing'][k]!r}")
     extra = set(ours) - set(theirs)
@@ -60,6 +62,9 @@ def compare(ours: dict, theirs: dict, auto: bool = False) -> list[str]:
         problems.append(f"routing keys: ours {sorted(ours.get('routing') or {})}, upstream {sorted(theirs['routing'])}")
     if ours.get("usage") != theirs.get("usage"):
         problems.append(f"usage: ours {ours.get('usage')}, upstream {theirs.get('usage')}")
+    extra_answers = set(ours.get("answers", {})) - set(theirs.get("answers", {}))
+    if extra_answers:
+        problems.append(f"answers only in ours: {sorted(extra_answers)}")
     for qid, want in theirs.get("answers", {}).items():
         got = ours.get("answers", {}).get(qid)
         if got is None:

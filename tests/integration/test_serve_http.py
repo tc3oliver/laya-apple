@@ -29,7 +29,7 @@ STATE = {"task": "fix the failing parser test", "last_tool": "edit parser.py", "
 def http():
     os.environ.setdefault("HF_HUB_OFFLINE", "1")
     app = serve.create_app(default_model=MODEL, loader=serve.default_loader(offline=True))
-    with TestClient(app) as c:
+    with TestClient(app, base_url="http://127.0.0.1:8642") as c:
         yield c
 
 

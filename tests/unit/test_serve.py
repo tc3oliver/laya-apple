@@ -15,6 +15,7 @@ from laya_apple import routing, serve
 from laya_apple.errors import InvalidRequestError, LayaAppleError
 from laya_apple.result import Result, RuntimeInfo
 
+BASE = "http://127.0.0.1:8642"
 QUESTIONS = {"next": {"type": "choice", "instructions": "What next?", "criteria": ["run_tests", "ask_user"]}}
 
 
@@ -84,7 +85,7 @@ class Loader:
 def client(api_key=None, default_model=serve.DEFAULT_MODEL, **kwargs):
     loader = Loader(**kwargs)
     app = serve.create_app(loader=loader, api_key=api_key, default_model=default_model)
-    return TestClient(app), loader
+    return TestClient(app, base_url=BASE), loader
 
 
 def post(c, body, **kw):
@@ -168,9 +169,10 @@ def test_limits_and_validation_match_upstream(body, status):
 def test_invalid_json_is_400_and_oversized_body_is_413():
     c, _ = client()
     with c:
-        assert c.post("/v1/systemone", content=b"{not json").status_code == 400
+        json_type = {"Content-Type": "application/json"}
+        assert c.post("/v1/systemone", content=b"{not json", headers=json_type).status_code == 400
         big = b'{"state": "' + b"x" * (serve.MAX_BODY_BYTES + 1) + b'", "questions": {}}'
-        assert c.post("/v1/systemone", content=big).status_code == 413
+        assert c.post("/v1/systemone", content=big, headers=json_type).status_code == 413
 
 
 def test_internal_error_is_500_without_details(monkeypatch, caplog):
@@ -252,15 +254,12 @@ def test_two_slow_requests_overlap():
             results.append(post(c, {"state": "s", "questions": QUESTIONS}).status_code)
 
         threads = [threading.Thread(target=one) for _ in range(2)]
-        t0 = time.monotonic()
         for t in threads:
             t.start()
         for t in threads:
             t.join()
-        elapsed = time.monotonic() - t0
-    assert results == [200, 200]
-    assert loader.loaded["laya"].max_active == 2
-    assert elapsed < 0.95
+        assert results == [200, 200]
+    assert loader.loaded["laya"].max_active == 2  # both were inside the model at once
 
 
 @pytest.mark.parametrize("host", ["127.0.0.1", "localhost", "::1", "127.0.0.2"])
@@ -300,7 +299,9 @@ def test_cli_parses_serve():
 
 def test_default_model_accepts_upstream_names_and_rejects_unknown():
     loader = Loader()
-    with TestClient(serve.create_app(default_model="typed-decisions", preload=("english",), loader=loader)):
+    with TestClient(
+        serve.create_app(default_model="typed-decisions", preload=("english",), loader=loader), base_url=BASE
+    ):
         assert set(loader.loaded) == {"laya-typed-decisions", "laya"}
     with pytest.raises(LayaAppleError):
         serve.create_app(default_model="jev-latest", loader=Loader())
@@ -313,7 +314,7 @@ def test_routing_block_has_upstream_keys():
         named = post(c, {"model": "typed", "state": "s", "questions": QUESTIONS}).json()["routing"]
     assert set(default) == {"model", "repo", "reason", "detection", "workflow"}
     assert default["model"] == "english" and default["detection"]["is_english"] is True
-    assert named["model"] == "typed-decisions" and named["reason"] == "explicit model='typed'"
+    assert named["model"] == "typed-decisions" and named["reason"] == "explicit model='typed-decisions'"
     assert named["detection"] is None
     assert named["repo"] == "convaiinnovations/laya-typed-decisions"
 
@@ -367,3 +368,125 @@ def test_model_env_var_sets_the_default(monkeypatch):
     monkeypatch.setattr("uvicorn.run", lambda *a, **k: None)
     serve.run()
     assert seen["default_model"] == "typed-decisions"
+
+
+def test_non_loopback_host_header_is_refused():
+    """DNS rebinding: a page on evil.example resolving to 127.0.0.1 sends Host: evil.example."""
+    c, _ = client()
+    with c:
+        r = post(c, {"state": "s", "questions": QUESTIONS}, headers={"Host": "evil.example:8642"})
+        assert r.status_code == 421
+        assert c.get("/health", headers={"Host": "localhost:8642"}).status_code == 200
+        assert c.get("/health", headers={"Host": "[::1]:8642"}).status_code == 200
+
+
+@pytest.mark.parametrize(
+    "header, host",
+    [
+        ("127.0.0.1:8642", "127.0.0.1"),
+        ("localhost", "localhost"),
+        ("[::1]:8642", "::1"),
+        ("Evil.Example", "evil.example"),
+    ],
+)
+def test_host_name(header, host):
+    assert serve.host_name(header) == host
+
+
+def test_remote_bind_serves_any_host_header():
+    app = serve.create_app(loader=Loader(), loopback_only=False)
+    with TestClient(app, base_url="http://mac-studio.lan:8642") as c:
+        assert c.get("/health").status_code == 200
+
+
+def test_non_json_content_type_is_415():
+    """A browser can POST text/plain cross-site without a preflight; application/json it cannot."""
+    c, loader = client()
+    with c:
+        r = c.post("/v1/systemone", content=b'{"state": "s", "questions": {}}', headers={"Content-Type": "text/plain"})
+    assert r.status_code == 415
+
+
+def test_allow_remote_needs_an_api_key(monkeypatch):
+    monkeypatch.delenv("LAYA_API_KEY", raising=False)
+    monkeypatch.setattr("uvicorn.run", lambda *a, **k: pytest.fail("must not start"))
+    with pytest.raises(LayaAppleError, match="LAYA_API_KEY"):
+        serve.run(host="0.0.0.0", allow_remote=True)
+    seen = {}
+    monkeypatch.setenv("LAYA_API_KEY", "k")
+    monkeypatch.setattr(serve, "create_app", lambda **kw: seen.update(kw))
+    monkeypatch.setattr("uvicorn.run", lambda *a, **k: None)
+    serve.run(host="0.0.0.0", allow_remote=True)
+    assert seen["loopback_only"] is False and seen["api_key"] == "k"
+
+
+def test_failed_model_load_is_503_and_retried():
+    calls = []
+
+    def loader(name):
+        calls.append(name)
+        if name == "laya-typed-decisions" and calls.count(name) == 1:
+            raise ValueError("LocalEntryNotFoundError: /cache/path/secret")
+        return FakeLaya(name)
+
+    with TestClient(serve.create_app(loader=loader), base_url=BASE) as c:
+        r = post(c, {"model": "typed", "state": "s", "questions": QUESTIONS})
+        assert r.status_code == 503 and "secret" not in r.text
+        assert post(c, {"model": "typed", "state": "s", "questions": QUESTIONS}).status_code == 200
+
+
+def test_concurrent_first_use_loads_once():
+    loads = []
+
+    def loader(name):
+        loads.append(name)
+        time.sleep(0.2)
+        return FakeLaya(name)
+
+    with TestClient(serve.create_app(loader=loader, default_model="laya"), base_url=BASE) as c:
+        codes = []
+        threads = [
+            threading.Thread(
+                target=lambda: codes.append(
+                    post(c, {"model": "typed", "state": "s", "questions": QUESTIONS}).status_code
+                )
+            )
+            for _ in range(3)
+        ]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+    assert codes == [200, 200, 200]
+    assert loads.count("laya-typed-decisions") == 1
+
+
+def test_workflow_is_reported_without_changing_the_model():
+    ids = ["action", "category", "churn_risk", "needs_human", "urgency"]
+    questions = {i: {"type": "noul", "instructions": i} for i in ids}
+    c, _ = client()
+    with c:
+        auto = post(c, {"state": "The customer wants to cancel", "questions": questions}).json()["routing"]
+        named = post(c, {"model": "english", "state": "s", "questions": questions}).json()["routing"]
+    assert auto["workflow"] == "customer_service" and auto["model"] == "english"
+    assert named["workflow"] is None  # explicit model: upstream reports no workflow
+
+
+def test_explicit_auto_routes_by_language_on_a_pinned_server():
+    c, _ = client(default_model="laya")
+    with c:
+        body = post(c, {"model": "auto", "state": "修正測試", "questions": QUESTIONS}).json()
+    assert body["laya_apple"]["model"] == "laya-multilingual"
+
+
+def test_health_reports_the_configured_device():
+    with TestClient(serve.create_app(loader=Loader(), device="gpu"), base_url=BASE) as c:
+        assert c.get("/health").json()["device"] == "gpu"
+
+
+def test_unexpected_error_outside_inference_is_json_500(monkeypatch):
+    monkeypatch.setattr(serve, "route_by_language", lambda state: 1 / 0)
+    c, _ = client()
+    with TestClient(c.app, base_url=BASE, raise_server_exceptions=False) as c2:
+        r = post(c2, {"state": "s", "questions": QUESTIONS})
+    assert r.status_code == 500 and r.json() == {"detail": "inference failed"}

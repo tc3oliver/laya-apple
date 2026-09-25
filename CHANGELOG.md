@@ -23,7 +23,7 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     - the default port is 8642, not 8000.
   - Docs: [`docs/serve.md`](docs/serve.md).
 - **`RuntimeInfo.truncated`.** It is true when a state was cut to fit the checkpoint's
-  maximum length. Upstream truncates the same way, without reporting it.
+  maximum length. Upstream truncates too, without reporting it.
 
 ### Fixed
 

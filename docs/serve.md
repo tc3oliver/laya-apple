@@ -39,7 +39,8 @@ Jev clients send a Jev model id such as `jev-latest`, which names no Laya checkp
 - **Checking a response.** Every response names the checkpoint and the reason in `routing`,
   for example `"reason": "non-Latin script (han, 100% of letters); ..."`.
 
-A request whose `model` names a checkpoint always gets that checkpoint. Accepted names:
+A request whose `model` names a checkpoint always gets that checkpoint, and `model: "auto"`
+always gets language routing. Accepted names:
 - ours: `laya`, `laya-multilingual`, `laya-typed-decisions`;
 - upstream's names and aliases: `english`, `multilingual`, `typed-decisions`, `typed`, `ml`, …;
 - the standalone Hugging Face ids.
@@ -79,14 +80,19 @@ A response looks like this:
 
 - **Fields as upstream:** `model`, `answers`, `usage` and `routing` are upstream's. Jev clients
   read `answers` and `usage` and ignore the rest.
+- **`routing.workflow`** names the typed-decisions workflow whose question ids the request
+  uses, as upstream reports it. As upstream with `LAYA_AUTO_TASK` off, a match does not
+  change the checkpoint.
+- **`routing.repo`** names the standalone repository the pinned weights come from, such as
+  `convaiinnovations/laya-multilingual`. Stock upstream names its bundle repository,
+  `convaiinnovations/laya/multilingual`.
 - **The `laya_apple` block** is our addition:
   - which checkpoint and which device (GPU or Neural Engine) answered, and why;
   - `truncated: true` when the state was cut to fit the model's maximum length. Upstream
-    cuts the same way, silently.
-- **Timing headers:** `Server-Timing: inference;dur=<ms>` and `X-Inference-Time-Ms`, as
-  upstream.
+    cuts too, without reporting it.
+- **Timing headers:** `Server-Timing: inference;dur=<ms>` and `X-Inference-Time-Ms`.
 
-Status codes are the same as upstream:
+Status codes follow upstream v0.3.20:
 
 | Status | When |
 |---|---|
@@ -96,6 +102,16 @@ Status codes are the same as upstream:
 | 413 | Body over 2 MiB, more than 64 questions, or a state over 50,000 characters |
 | 422 | A question fails validation, for example a missing `instructions` (upstream requires it too) |
 | 500 | `{"detail": "inference failed"}`. The cause is in the server log, never in the response |
+
+Where they differ from upstream:
+- **415** when `Content-Type` is not `application/json` (see "Security").
+- **421** when the `Host` header is not a loopback name.
+- **503** when a checkpoint that a request names fails to load. The request can be retried.
+- **Malformed questions:**
+  - non-string choice labels get a 422, where upstream answers 500;
+  - duplicate choice labels are rejected with a 422, where upstream answers 200;
+  - JSON nested deeply enough to raise `RecursionError` gets a 400, where upstream answers
+    500.
 
 ### Other endpoints
 
@@ -135,12 +151,16 @@ request through one worker.
 as oMLX already use it.
 
 **Security.**
-- The server binds loopback only. `--host` with any non-loopback address is refused unless
-  you also pass `--allow-remote`, and then it prints a warning.
-- Set `LAYA_API_KEY` before exposing it. The key is compared in constant time and never
-  logged.
-- Without `LAYA_API_KEY`, any bearer value is accepted. Jev clients require some key to
-  start, so give them a placeholder.
+- **Loopback only.** The server binds loopback, and it answers only requests whose `Host`
+  header is `127.0.0.1`, `localhost` or `[::1]`. A web page in your browser therefore
+  cannot reach it through DNS rebinding.
+- **JSON only.** `POST /v1/systemone` requires `Content-Type: application/json`. A browser
+  cannot send that cross-site without a CORS preflight, and this server grants none.
+- **Remote access.** `--host` with a non-loopback address is refused unless you pass
+  `--allow-remote` and set `LAYA_API_KEY`. The server then prints a warning.
+- **The key.** It is compared in constant time and never logged.
+- **Without `LAYA_API_KEY`**, any bearer value, or none, is accepted. Jev clients need some
+  key to start, so give them a placeholder.
 
 ## Client compatibility
 
