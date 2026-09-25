@@ -19,12 +19,41 @@ matching upstream Laya's schema:
 | `score` | non-empty list of level descriptions | pick a level, 0-indexed |
 | `noul` | optional dict `{"false": ..., "true": ...}` | yes/no |
 
+The rules follow upstream Laya 0.3.20:
+
+- **`noul` criteria keys** are case-insensitive (`"True"` reads as `"true"`). Any key other
+  than `true`/`false` raises `InvalidRequestError`.
+- **`noul` labels.** An optional `"labels": {"false": "B", "true": "A"}` changes only the
+  option text the model reads (by default `false:` and `true:`). The labels must be distinct,
+  non-empty strings. `noul` is still P(true). `labels` on a `choice` or `score` question
+  raises `InvalidRequestError`.
+- **Non-string `instructions`** (a dict or list) are sent to the model as JSON, with
+  non-ASCII text kept as it is.
+- **A conversation `context`** (a list of turns) that exceeds the checkpoint's `max_len`
+  keeps its newest turns: it is truncated from the start. Any other context keeps its start.
+- **`questions={}`** returns empty `answers` with zero usage. Nothing is tokenized, routed or
+  run, so `result.runtime` records `backend="none"`, `device="none"` and the routing reason
+  `no_questions`, and workers mode emits no trace. This holds for `device="ane"` too: no
+  device was used, so nothing fell back.
+
 A list of plain strings is also accepted as a convenience; each string
 becomes a `noul` question named after itself:
 
 ```python
 model.predict(context="...", questions=["Does the customer request a refund?"])
 ```
+
+Every answer has upstream's fields in upstream's order:
+
+- `choice`: `type`, `choice`, `probabilities`, `confidence`, `answer_confidence`, `action`;
+- `score`: `type`, `score`, `legend`, `probabilities`, `confidence`, `answer_confidence`,
+  `action`;
+- `noul`: `type`, `noul`, `confidence`, `answer_confidence`, `action`.
+
+`answer_confidence` is max(p), the calibrated probability of the reported answer. It is the
+quantity temperature scaling fits, so it is the one to gate on across question types. On
+`choice` and `score`, `confidence` is the normalised entropy 1 − H(p)/log(k), a different
+quantity. On `noul` the two are equal. All values are rounded to 4 decimals.
 
 **Known limitation: option order.** For `choice` questions, the decision can depend on
 the order of the `criteria` dict. This is a property of the upstream Laya model, not a
@@ -63,6 +92,7 @@ across calls for a given question if you need repeatable decisions.
   | `ane_artifact_unavailable` | auto chose MLX: no validated artifact for the bucket |
   | `ane_runtime_unavailable` | auto chose MLX: coremltools is not installed |
   | `platform_not_validated` | auto chose MLX: unknown hardware/OS profile |
+  | `no_questions` | `questions={}`: nothing ran, on any `device` |
 
 Auto-ANE buckets, generated from measured evidence
 (`laya_apple/data/routing.json`):

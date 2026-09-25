@@ -281,6 +281,24 @@ def test_failed_requests_emit_no_trace(fake_backends):
     assert traces == []
 
 
+def test_empty_questions_resolve_without_a_device_or_a_trace(fake_backends):
+    """questions={} (upstream v0.3.20): empty answers, zero usage, nothing queued or traced."""
+    traces = []
+    laya = make_laya(traces.append)
+    try:
+        r = laya.submit(questions=Prep(0, questions=0)).result(5)
+        assert laya.queue_snapshots() == (QueueSnapshot(0.0, 0, False), QueueSnapshot(0.0, 0, False))
+    finally:
+        laya.close()
+    assert r.answers == {} and r.usage == {"input_tokens": 0, "output_tokens": 0}
+    assert (r.runtime.backend, r.runtime.device, r.runtime.routing_reason) == ("none", "none", model.NO_QUESTIONS)
+    assert (r.runtime.question_count, r.runtime.sequence_length, r.runtime.execution) == (0, 0, "workers")
+    assert r.runtime.request_id is not None
+    assert traces == []
+    assert fake_backends["gpu"].entered.acquire(timeout=0) is False  # no forward ran
+    assert fake_backends["ane"].entered.acquire(timeout=0) is False
+
+
 def test_request_ids_are_unique_across_instances(fake_backends):
     a, b = make_laya(), make_laya()
     try:

@@ -10,7 +10,7 @@ the callback once the answers are formatted and before the request's Future reso
 thread that resolves it (the target device's dispatcher thread): a slow callback delays that
 device's next job, so keep it cheap (append to a list or a queue). An exception raised by the
 callback is reported once as a RuntimeWarning and never fails the request. Failed requests
-produce no trace.
+produce no trace, and neither do requests with no questions, which never reach a device.
 
 Timestamps are `time.monotonic_ns()`. On macOS that clock is system-wide, so the worker
 process's service timestamps share the parent's time axis. Every duration is derived from

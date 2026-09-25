@@ -5,6 +5,36 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **Upstream Laya 0.3.20 parity.** Prompt building, question validation and the answer
+  format now follow upstream Laya 0.3.20 (NandhaKishorM/laya@23a1752), not 0.3.5. Token ids
+  are unchanged for every request that 0.3.5 and 0.3.20 already treated alike. The rest
+  differs as follows:
+  - A conversation `context` (a list of turns) that exceeds `max_len` keeps its newest
+    turns. It is now truncated from the start, not the end.
+  - Non-string `instructions` keep non-ASCII text, where they were `\uXXXX`-escaped before.
+  - `noul` accepts optional `labels` (`{"false": ..., "true": ...}`), which replace the
+    `false:` / `true:` option prefixes. `labels` on `choice` or `score`, or invalid labels,
+    raise `InvalidRequestError`.
+  - `noul` criteria keys are case-insensitive. Keys other than `true`/`false` raise
+    `InvalidRequestError`; before, they were replaced by the default texts without a
+    word.
+  - Every answer gains `answer_confidence`, max(p), and the answer fields follow upstream's
+    order.
+  - `questions={}` returns empty answers with zero usage instead of raising. Nothing is
+    tokenized, routed or run: `runtime` records `backend="none"`, `device="none"` and
+    `routing_reason="no_questions"`, and workers mode emits no trace.
+  - A checkpoint temperature that is not a number now loads with a warning and falls back
+    to 1.0, where it raised before. Out-of-range values in `temperature` are now warned
+    about as well as those in `temperature_by_options`.
+- **Goldens recorded from upstream 0.3.20.** The `[reference]` extra pins `laya==0.3.20`.
+  `scripts/make_reference.py` records the references into
+  `research/upstream-reference/raw/laya-0.3.20/`. Every Phase -1 case is identical to its
+  0.3.5 record, which `scripts/make_goldens.py` enforces. Five new cases per model (13
+  rows) cover the changes above, and each golden now stores upstream's answers. The v1.0
+  parity tables predate these cases ([`docs/correctness.md`](docs/correctness.md#golden-set)).
+
 ### Changed
 
 - **Switchyard launch media.** `docs/media/switchyard-launch.gif` and `.mp4` are re-cut for
