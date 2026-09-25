@@ -1,0 +1,24 @@
+{
+ "revision": "r1",
+ "written": "before any measurement: README.md, \"Acceptance criteria\" (#70). Recorded here as a file when r2 was added; the values are the ones analyze.py applied to run 1.",
+ "applies_to": "campaign and cross-check runs recorded with harness method_version 1 (run 1)",
+ "thresholds": {
+  "xc_rel_tol": 0.05,
+  "xc_abs_floor_w": 1.0,
+  "xc_abs_tol_w": 0.1,
+  "xc_trim_s": 3.0,
+  "xc_min_pairs": 20,
+  "sampler_max_cpu_frac": 0.02,
+  "rate_tol": 0.02,
+  "idle_spread_max": 0.1
+ },
+ "protocol": {
+  "sampler_version": 1,
+  "sampler_interval_s": 0.5,
+  "pstr_interval_s": 0.5,
+  "warmup_s": 10.0,
+  "loaded_seconds": 30.0,
+  "idle_seconds": 30.0,
+  "disturbance_repeats": false
+ }
+}

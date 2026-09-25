@@ -4,7 +4,8 @@ Issue: [#13](https://github.com/tc3oliver/laya-apple/issues/13). Machine: Mac St
 (Mac16,9), macOS 26.6.2. Model: laya-typed-decisions.
 
 **Status: run 1 is invalid under its own criteria (see [Run 1: invalid](#run-1-invalid)). No
-result from this track is claimable yet, and no cross-check data has been recorded.**
+result from this track is claimable yet, and no cross-check data has been recorded. Run 2 is
+preregistered with unchanged thresholds (see [Run 2](#run-2-preregistered)).**
 `results.json` and `tables.md` are generated from `raw/`. The criteria below were written
 before any measurement and are applied unchanged by `scripts/analyze.py`.
 
@@ -148,7 +149,8 @@ config, with inline execution, and `predict(context=..., questions=...)`.
     recorded.
   - A decision is one answered question.
 - **Windows:** 10 s warm-up (not measured), then 30 s measured. An idle window runs nothing
-  for the same 40 s.
+  for the same 40 s. From method version 2 (run 2), an idle window measures 60 s after its
+  10 s settle, and a window hit by a CPU burst is repeated (see [Run 2](#run-2-preregistered)).
 - **Order:** ABBA per shape, `idle, gpu, ane, auto, idle, auto, ane, gpu` × 2, then a closing
   `idle`. That gives 17 windows per shape, 4 measured windows per config, and an idle window
   on each side of every loaded block.
@@ -162,6 +164,9 @@ config, with inline execution, and `predict(context=..., questions=...)`.
   and whether `omlx-server` was running.
 
 ## Acceptance criteria (preregistered)
+
+The thresholds below are also recorded in [`criteria-r1.json`](criteria-r1.json), which is
+what `analyze.py` reads. [`criteria-r2.json`](criteria-r2.json) keeps every one of them.
 
 **Sampler vs `powermetrics`.** The sampler is accepted only if all of these hold on the
 cross-check run:
@@ -197,10 +202,11 @@ The median ratio is reported with the verdict. The same rule is applied separate
 
 ## Cross-check against `powermetrics`
 
-Terminal 1. The operator runs this; nothing in this repository runs sudo:
+Terminal 1. The operator runs this; nothing in this repository runs sudo. Run 2 uses
+`-n 300` instead of the original `-n 200` (see [Run 2](#procedure)):
 
 ```
-sudo powermetrics --samplers cpu_power,gpu_power,ane_power -i 1000 -n 200 \
+sudo powermetrics --samplers cpu_power,gpu_power,ane_power -i 1000 -n 300 \
   -o research/energy-sampler/raw/crosscheck-powermetrics.txt
 ```
 
@@ -252,13 +258,127 @@ because the tables are regenerated from `raw/` unchanged. Criterion 4 (loaded wi
 validity) was met in every window, and criteria 1–2 need a cross-check run, which was not
 recorded. The file is kept unchanged as the record of the first attempt.
 
+## Run 2 (preregistered)
+
+This section and [`criteria-r2.json`](criteria-r2.json) were written after run 1 was found
+invalid and before any run-2 or cross-check data existed.
+
+**Criteria.** Every acceptance threshold is unchanged: the `thresholds` in `criteria-r2.json`
+equal those in `criteria-r1.json`, and a unit test checks this. Only the sampler
+implementation and the idle/disturbance protocol change. `analyze.py` analyses each run under
+the revision stored with it (`meta.criteria`). Run 1 records none and has method version 1, so
+it is analysed under r1 and its `results.json` and `tables.md` are unchanged byte for byte. If
+run 2 also fails a criterion, it is recorded as invalid in the same way. Neither r2 nor a
+threshold is changed after run-2 data exists.
+
+### What drove run 1's idle spread
+
+From run 1's raw sampler series (0.5 s resolution) and its window stamps:
+
+- **Two windows cause the spread.** Eight of the ten idle windows have mean SoC power
+  0.119–0.163 W. Among those eight, the spread is 0.037 W in `short` and 0.025 W in `mixed`,
+  against limits of 0.165 W and 0.240 W. The other two are `short` window 16 (0.320 W) and
+  `mixed` window 12 (0.565 W).
+- **Both are bursts of CPU work from other processes.** In `short` window 16, a single burst
+  17.3 s into the measured span reached 8.6 W SoC (7.8 W on the CPU rail) for 0.5 s, and
+  stayed at 1–2 W for another 2 s. In `mixed` window 12, repeated bursts of 2–8 W ran through
+  the settle and the measured span. The GPU and ANE rails stayed at or below 0.02 W, and the
+  harness sleeps during idle windows.
+- **Not cooling after load.** After a loaded window, the first 2 s of the 10 s settle average
+  0.2–0.9 W. From then on, the settle reads like the measured span that follows it, apart
+  from the bursts in `mixed` window 12. The settle is long enough and stays at 10 s.
+- **Loaded windows are hit too.** The same kind of burst appears in 3 of the 24 loaded
+  windows (`short` windows 3, 7 and 9). This does not affect criterion 4, but it adds noise
+  to net J/decision.
+- Run 1 did not record which processes ran, so the bursts cannot be attributed.
+
+The statistic used below is the **CPU-rail excess**: over a window's measured span, the mean
+minus the median of the CPU rail's power in 5 s bins. A short burst raises the mean but not
+the median. In run 1, the five burst windows have an excess of 0.160–0.313 W. The other 29
+windows are at or below 0.044 W. Idle windows without a burst are at or below 0.014 W.
+
+### Protocol changes (method version 2)
+
+1. **Sampler version 2** at a 1.0 s interval (see [Sampler](#sampler)).
+2. **Idle windows measure 60 s** after the unchanged 10 s settle, instead of 30 s. This halves
+   how far any burst below the repeat limit can move the baseline. Loaded windows are
+   unchanged: 10 s warm-up, then 30 s measured.
+3. **Disturbance record, every window.**
+   - The CPU rail's energy in 5 s bins over the measured span. A harness thread reads it
+     through a one-channel IOReport subscription, in idle and loaded windows alike.
+   - CPU seconds per process from `ps` at the window's start and end: the 10 largest,
+     recorded by process name only (last path component). The harness and the sampler are
+     labelled as such.
+4. **Disturbance repeat rule, every window.**
+   - A window whose CPU-rail excess is above **0.10 W** is repeated at once, in the same
+     position. Idle and loaded windows follow the same rule, so the baseline and the loaded
+     energy exclude the same kind of disturbance.
+   - A window is repeated at most 2 times, and a run at most 8 times.
+   - The analysis uses the last attempt of each window: the first undisturbed one, or the
+     last one when a limit is reached.
+   - Every attempt stays in `raw/` and in `results.json`. `tables.md` counts the repeated
+     attempts, the disturbed attempts that were kept, and, for information only, the idle
+     spread over all attempts.
+   - The 0.10 W limit was chosen from run 1: it separates the five burst windows (≥ 0.160 W)
+     from all the others (≤ 0.044 W).
+5. **Quiet machine, checked by the operator before starting:**
+   - no other interactive or agent sessions;
+   - the local LLM server and container runtimes stopped;
+   - a static wallpaper. An animated Aerial wallpaper decodes video: its extension and a
+     video decoder service appeared in the process list of a short no-model smoke test of
+     the disturbance record;
+   - Spotlight indexing and Time Machine idle;
+   - AC power, and 5 minutes without use before starting.
+
+Everything else is unchanged: the shapes, rates, ABBA order, warm-up, loaded window length,
+idle interpolation, net J/decision, the comparison rule, and `PSTR` as a separate secondary
+result.
+
+### Procedure
+
+On the quiet machine, run the cross-check first, because it validates the sampler.
+
+1. **Cross-check.** The operator runs this in terminal 1; nothing in this repository runs
+   sudo:
+
+   ```
+   sudo powermetrics --samplers cpu_power,gpu_power,ane_power -i 1000 -n 300 \
+     -o research/energy-sampler/raw/crosscheck-powermetrics.txt
+   ```
+
+   Then, within about 20 s, in terminal 2:
+
+   ```
+   LAYA_APPLE_CACHE=... HF_HUB_OFFLINE=1 \
+     uv run python research/energy-sampler/scripts/crosscheck.py run
+   ```
+
+   This takes about 3–4 minutes: 140 s of phases plus loading the model. `-n 300` (5 min)
+   covers the phases even with a slow model load; run 1's procedure had `-n 200`. The
+   cross-check run records method version 2 and is judged under r2. The sampler's CPU
+   (criterion 3) is reported for it separately.
+2. **Campaign**, with the same `LAYA_APPLE_CACHE` and `HF_HUB_OFFLINE=1`:
+
+   ```
+   sh research/energy-sampler/scripts/run.sh
+   ```
+
+   It writes `raw/campaign-r2-laya-typed-decisions.json.gz`. Per shape, 5 idle windows take
+   70 s each and 12 loaded windows take 40 s each, so the windows take 27.7 min for both
+   shapes. With loading and the untimed pass, expect about 30 minutes. Each repeat adds 40
+   or 70 s, so with all 8 repeats a run takes at most about 40 minutes.
+3. **Analysis:** `uv run python research/energy-sampler/scripts/analyze.py`. Before committing
+   `raw/`, read the `cpu_by_process` names: they are process names from the machine.
+4. **Report** every criterion on its own, for the cross-check and for each shape, as for
+   run 1.
+
 ## Reproduce
 
 ```
 uv sync --extra ane --extra dev
 export LAYA_APPLE_CACHE=/path/to/cache HF_HUB_OFFLINE=1
-# stop other GPU/ANE users first (a local LLM server included); AC power
-sh research/energy-sampler/scripts/run.sh          # campaign, about 25 min
+# quiet machine (Run 2, protocol change 5); AC power
+sh research/energy-sampler/scripts/run.sh          # campaign, about 30 min
 uv run python research/energy-sampler/scripts/analyze.py --check
 ```
 
@@ -279,5 +399,11 @@ uv run pytest -q tests/unit/test_energy_sampler.py
   documented, so it is used only as a secondary, whole-window result.
 - Only one process is measured, but the rails are system-wide. Any other GPU/ANE user adds
   to them. Criterion 5 rejects a run whose idle windows show that kind of interference.
+- The run-2 repeat rule catches bursts of CPU work only. It is calibrated on run 1's bursts,
+  so a burst below 0.10 W of CPU-rail excess, or interference on another rail, is not
+  repeated. It remains in the window, and criterion 5 still applies.
+- The repeat rule makes the run's length depend on the machine's background activity. The
+  per-process record shows what ran, but it cannot tell which process caused a burst when
+  several were active.
 - Inline execution serves one request at a time. Energy under `execution="workers"`, with
   both devices busy at once, is not covered by this harness.
