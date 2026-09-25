@@ -51,7 +51,7 @@ routing thresholds, parity tolerances and the published v1.0 measurements are un
   (down to −15.6%). Production is unchanged: thread-placed coremltools for `laya` and
   `laya-typed-decisions`, process placement for `laya-multilingual`.
 - **Follow-up preregistered:** `research/coreml-prebind-predict/` collapses the PyObjC/GIL
-  handoffs on the ANE request path (preregistered; issue link to follow). Its results are
+  handoffs on the ANE request path (preregistered in #80). Its results are
   not part of this release.
 
 ### Changed
