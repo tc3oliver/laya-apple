@@ -2,6 +2,7 @@
 # The staged-handoff screen of research/coreml-staged-handoff/, unattended, one round per call:
 #   LAYA_APPLE_CACHE=... HF_HUB_OFFLINE=1 sh research/coreml-staged-handoff/scripts/run_all.sh 1
 #   LAYA_APPLE_CACHE=... HF_HUB_OFFLINE=1 sh research/coreml-staged-handoff/scripts/run_all.sh 2 H32
+#   LAYA_APPLE_CACHE=... HF_HUB_OFFLINE=1 sh research/coreml-staged-handoff/scripts/run_all.sh 2 H64 fallback
 # It stops no service: the machine is prepared beforehand (idle, on AC power, the local LLM server
 # stopped). A run whose output already exists is skipped, so an interrupted round resumes in order;
 # run_config.py writes each file only once its run has finished.
@@ -44,7 +45,7 @@ run() {  # cell rep
 lines=$(mktemp)
 trap 'rm -f "$lines"' EXIT
 if [ "$1" = 2 ]; then
-  uv run python $S/design.py runs 2 --leader "$2" >"$lines"
+  uv run python $S/design.py runs 2 --leader "$2" ${3:+--fallback} >"$lines"
 else
   uv run python $S/design.py runs 1 >"$lines"
 fi

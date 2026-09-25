@@ -75,7 +75,7 @@
   "transient_s": 1.0
  },
  "failed_runs": [],
- "outcome": "round 2 (H32) pending: H32 r3, A r3, H32 r4, A r4, H32 r5",
+ "outcome": "round 2 (H32): INCONCLUSIVE: an A window failed the validity guard; no candidate is judged in this round; independently of A, H32 failed laya-H32-r3 c0: transient_from_th, laya-H32-r3 c1: transient_from_th/steady_host_slow, so it is not replicated; the H64 fallback runs (addendum 4); round 2 (H64) pending: H64 r3, A r5, H64 r4, A r6, H64 r5",
  "round1": {
   "A_validity": {
    "per_transition": [
@@ -834,25 +834,649 @@
  },
  "round2": [
   {
-   "candidate": "H32",
-   "complete": false,
-   "deviating": [],
-   "judgement": {
-    "failing": [],
-    "mechanism_reading_holds": null,
-    "n": 0,
-    "pass": false,
-    "transitions": []
+   "A_validity": {
+    "per_transition": [
+     {
+      "aggregate_req_s": 122.0649282464687,
+      "cycle": 0,
+      "failed": [],
+      "run": "laya-A-r1",
+      "short_p99_ms": 12.719834973104298,
+      "steady_host_slow_share": 0.0,
+      "transient_s": 0.5
+     },
+     {
+      "aggregate_req_s": 122.1184739748298,
+      "cycle": 1,
+      "failed": [],
+      "run": "laya-A-r1",
+      "short_p99_ms": 11.48909333627671,
+      "steady_host_slow_share": 0.0,
+      "transient_s": 0.5
+     },
+     {
+      "aggregate_req_s": 122.42727882621149,
+      "cycle": 0,
+      "failed": [],
+      "run": "laya-A-r2",
+      "short_p99_ms": 11.118843171279881,
+      "steady_host_slow_share": 0.0,
+      "transient_s": 0.5
+     },
+     {
+      "aggregate_req_s": 122.43402548565875,
+      "cycle": 1,
+      "failed": [],
+      "run": "laya-A-r2",
+      "short_p99_ms": 10.998670704429973,
+      "steady_host_slow_share": 0.0,
+      "transient_s": 0.5
+     },
+     {
+      "aggregate_req_s": 121.55232061354653,
+      "cycle": 0,
+      "failed": [],
+      "run": "laya-A-r3",
+      "short_p99_ms": 11.581871301168576,
+      "steady_host_slow_share": 0.0,
+      "transient_s": 0.5
+     },
+     {
+      "aggregate_req_s": 121.37240728239873,
+      "cycle": 1,
+      "failed": [
+       "short_p99"
+      ],
+      "run": "laya-A-r3",
+      "short_p99_ms": 13.32768894964829,
+      "steady_host_slow_share": 0.0,
+      "transient_s": 1.0
+     },
+     {
+      "aggregate_req_s": 121.41433395236992,
+      "cycle": 0,
+      "failed": [],
+      "run": "laya-A-r4",
+      "short_p99_ms": 11.620583736803383,
+      "steady_host_slow_share": 0.0,
+      "transient_s": 0.5
+     },
+     {
+      "aggregate_req_s": 122.14009990129055,
+      "cycle": 1,
+      "failed": [],
+      "run": "laya-A-r4",
+      "short_p99_ms": 11.094357790425422,
+      "steady_host_slow_share": 0.0,
+      "transient_s": 0.5
+     }
+    ],
+    "valid": false
    },
-   "missing": [
-    "H32 r3",
-    "A r3",
-    "H32 r4",
-    "A r4",
-    "H32 r5"
+   "a_independent_failures": [
+    "laya-H32-r3 c0: transient_from_th",
+    "laya-H32-r3 c1: transient_from_th/steady_host_slow"
    ],
-   "passed": null,
-   "references": null,
+   "candidate": "H32",
+   "complete": true,
+   "deviating": [],
+   "fallback": false,
+   "judgement": {
+    "failing": [
+     "laya-H32-r3 c0: transient_from_th",
+     "laya-H32-r3 c1: onset_p99, window_p99, transient_from_th, steady_host_slow, throughput",
+     "laya-H32-r4 c0: window_p99"
+    ],
+    "mechanism_reading_holds": false,
+    "n": 6,
+    "pass": false,
+    "transitions": [
+     {
+      "cycle": 0,
+      "failed": [
+       "transient_from_th"
+      ],
+      "gates": {
+       "crash": {
+        "limit": false,
+        "op": "==",
+        "pass": true,
+        "value": false
+       },
+       "gpu_return_p50": {
+        "limit": 1.0,
+        "op": "<=",
+        "pass": true,
+        "value": 0.047
+       },
+       "mismatches": {
+        "limit": 0,
+        "op": "==",
+        "pass": true,
+        "value": 0
+       },
+       "native_plus": {
+        "limit": 9.968915914115291,
+        "op": "<=",
+        "pass": true,
+        "value": 9.411100507621951
+       },
+       "native_ratio": {
+        "limit": 10.152361709821054,
+        "op": "<=",
+        "pass": true,
+        "value": 9.411100507621951
+       },
+       "onset_p99": {
+        "limit": 16.15928133390844,
+        "op": "<=",
+        "pass": true,
+        "value": 16.066445061005652
+       },
+       "routing": {
+        "limit": 0,
+        "op": "==",
+        "pass": true,
+        "value": 0
+       },
+       "steady_host_slow": {
+        "limit": 0.1,
+        "op": "<",
+        "pass": true,
+        "value": 0.0049800796812749
+       },
+       "structure": {
+        "limit": true,
+        "op": "==",
+        "pass": true,
+        "value": true
+       },
+       "throughput": {
+        "limit": 115.98711605511677,
+        "op": ">=",
+        "pass": true,
+        "value": 127.69198255542476
+       },
+       "transient_from_th": {
+        "limit": 1.0,
+        "op": "<=",
+        "pass": false,
+        "value": 16.0
+       },
+       "window_p99": {
+        "limit": 12.535482318722643,
+        "op": "<=",
+        "pass": true,
+        "value": 12.345181206474079
+       }
+      },
+      "pass": false,
+      "pending": [],
+      "preceded_by": "solo_long",
+      "run": "laya-H32-r3"
+     },
+     {
+      "cycle": 1,
+      "failed": [
+       "onset_p99",
+       "window_p99",
+       "transient_from_th",
+       "steady_host_slow",
+       "throughput"
+      ],
+      "gates": {
+       "crash": {
+        "limit": false,
+        "op": "==",
+        "pass": true,
+        "value": false
+       },
+       "gpu_return_p50": {
+        "limit": 1.0,
+        "op": "<=",
+        "pass": true,
+        "value": 0.168
+       },
+       "mismatches": {
+        "limit": 0,
+        "op": "==",
+        "pass": true,
+        "value": 0
+       },
+       "native_plus": {
+        "limit": 9.968915914115291,
+        "op": "<=",
+        "pass": true,
+        "value": 9.611230770577933
+       },
+       "native_ratio": {
+        "limit": 10.152361709821054,
+        "op": "<=",
+        "pass": true,
+        "value": 9.611230770577933
+       },
+       "onset_p99": {
+        "limit": 16.15928133390844,
+        "op": "<=",
+        "pass": false,
+        "value": 17.430385323241353
+       },
+       "routing": {
+        "limit": 0,
+        "op": "==",
+        "pass": true,
+        "value": 0
+       },
+       "steady_host_slow": {
+        "limit": 0.1,
+        "op": "<",
+        "pass": false,
+        "value": 0.13435897435897437
+       },
+       "structure": {
+        "limit": true,
+        "op": "==",
+        "pass": true,
+        "value": true
+       },
+       "throughput": {
+        "limit": 115.98711605511677,
+        "op": ">=",
+        "pass": false,
+        "value": 112.79277714919235
+       },
+       "transient_from_th": {
+        "limit": 1.0,
+        "op": "<=",
+        "pass": false,
+        "value": 11.5
+       },
+       "window_p99": {
+        "limit": 12.535482318722643,
+        "op": "<=",
+        "pass": false,
+        "value": 17.118819928728044
+       }
+      },
+      "pass": false,
+      "pending": [],
+      "preceded_by": "gpu_only",
+      "run": "laya-H32-r3"
+     },
+     {
+      "cycle": 0,
+      "failed": [
+       "window_p99"
+      ],
+      "gates": {
+       "crash": {
+        "limit": false,
+        "op": "==",
+        "pass": true,
+        "value": false
+       },
+       "gpu_return_p50": {
+        "limit": 1.0,
+        "op": "<=",
+        "pass": true,
+        "value": 0.051
+       },
+       "mismatches": {
+        "limit": 0,
+        "op": "==",
+        "pass": true,
+        "value": 0
+       },
+       "native_plus": {
+        "limit": 9.968915914115291,
+        "op": "<=",
+        "pass": true,
+        "value": 9.414261304281345
+       },
+       "native_ratio": {
+        "limit": 10.152361709821054,
+        "op": "<=",
+        "pass": true,
+        "value": 9.414261304281345
+       },
+       "onset_p99": {
+        "limit": 16.15928133390844,
+        "op": "<=",
+        "pass": true,
+        "value": 15.956278757657849
+       },
+       "routing": {
+        "limit": 0,
+        "op": "==",
+        "pass": true,
+        "value": 0
+       },
+       "steady_host_slow": {
+        "limit": 0.1,
+        "op": "<",
+        "pass": true,
+        "value": 0.0
+       },
+       "structure": {
+        "limit": true,
+        "op": "==",
+        "pass": true,
+        "value": true
+       },
+       "throughput": {
+        "limit": 115.98711605511677,
+        "op": ">=",
+        "pass": true,
+        "value": 127.42265158285603
+       },
+       "transient_from_th": {
+        "limit": 1.0,
+        "op": "<=",
+        "pass": true,
+        "value": 0.0
+       },
+       "window_p99": {
+        "limit": 12.535482318722643,
+        "op": "<=",
+        "pass": false,
+        "value": 12.550261678406958
+       }
+      },
+      "pass": false,
+      "pending": [],
+      "preceded_by": "solo_long",
+      "run": "laya-H32-r4"
+     },
+     {
+      "cycle": 1,
+      "failed": [],
+      "gates": {
+       "crash": {
+        "limit": false,
+        "op": "==",
+        "pass": true,
+        "value": false
+       },
+       "gpu_return_p50": {
+        "limit": 1.0,
+        "op": "<=",
+        "pass": true,
+        "value": 0.069
+       },
+       "mismatches": {
+        "limit": 0,
+        "op": "==",
+        "pass": true,
+        "value": 0
+       },
+       "native_plus": {
+        "limit": 9.968915914115291,
+        "op": "<=",
+        "pass": true,
+        "value": 9.41341342740703
+       },
+       "native_ratio": {
+        "limit": 10.152361709821054,
+        "op": "<=",
+        "pass": true,
+        "value": 9.41341342740703
+       },
+       "onset_p99": {
+        "limit": 16.15928133390844,
+        "op": "<=",
+        "pass": true,
+        "value": 11.148587567731738
+       },
+       "routing": {
+        "limit": 0,
+        "op": "==",
+        "pass": true,
+        "value": 0
+       },
+       "steady_host_slow": {
+        "limit": 0.1,
+        "op": "<",
+        "pass": true,
+        "value": 0.002
+       },
+       "structure": {
+        "limit": true,
+        "op": "==",
+        "pass": true,
+        "value": true
+       },
+       "throughput": {
+        "limit": 115.98711605511677,
+        "op": ">=",
+        "pass": true,
+        "value": 127.60409308904504
+       },
+       "transient_from_th": {
+        "limit": 1.0,
+        "op": "<=",
+        "pass": true,
+        "value": 0.0
+       },
+       "window_p99": {
+        "limit": 12.535482318722643,
+        "op": "<=",
+        "pass": true,
+        "value": 10.741197515744716
+       }
+      },
+      "pass": true,
+      "pending": [],
+      "preceded_by": "gpu_only",
+      "run": "laya-H32-r4"
+     },
+     {
+      "cycle": 0,
+      "failed": [],
+      "gates": {
+       "crash": {
+        "limit": false,
+        "op": "==",
+        "pass": true,
+        "value": false
+       },
+       "gpu_return_p50": {
+        "limit": 1.0,
+        "op": "<=",
+        "pass": true,
+        "value": 0.054
+       },
+       "mismatches": {
+        "limit": 0,
+        "op": "==",
+        "pass": true,
+        "value": 0
+       },
+       "native_plus": {
+        "limit": 9.968915914115291,
+        "op": "<=",
+        "pass": true,
+        "value": 9.420080622381198
+       },
+       "native_ratio": {
+        "limit": 10.152361709821054,
+        "op": "<=",
+        "pass": true,
+        "value": 9.420080622381198
+       },
+       "onset_p99": {
+        "limit": 16.15928133390844,
+        "op": "<=",
+        "pass": true,
+        "value": 14.624663963913871
+       },
+       "routing": {
+        "limit": 0,
+        "op": "==",
+        "pass": true,
+        "value": 0
+       },
+       "steady_host_slow": {
+        "limit": 0.1,
+        "op": "<",
+        "pass": true,
+        "value": 0.0010030090270812437
+       },
+       "structure": {
+        "limit": true,
+        "op": "==",
+        "pass": true,
+        "value": true
+       },
+       "throughput": {
+        "limit": 115.98711605511677,
+        "op": ">=",
+        "pass": true,
+        "value": 127.20635772134905
+       },
+       "transient_from_th": {
+        "limit": 1.0,
+        "op": "<=",
+        "pass": true,
+        "value": 0.0
+       },
+       "window_p99": {
+        "limit": 12.535482318722643,
+        "op": "<=",
+        "pass": true,
+        "value": 11.250071425456554
+       }
+      },
+      "pass": true,
+      "pending": [],
+      "preceded_by": "solo_long",
+      "run": "laya-H32-r5"
+     },
+     {
+      "cycle": 1,
+      "failed": [],
+      "gates": {
+       "crash": {
+        "limit": false,
+        "op": "==",
+        "pass": true,
+        "value": false
+       },
+       "gpu_return_p50": {
+        "limit": 1.0,
+        "op": "<=",
+        "pass": true,
+        "value": 0.04
+       },
+       "mismatches": {
+        "limit": 0,
+        "op": "==",
+        "pass": true,
+        "value": 0
+       },
+       "native_plus": {
+        "limit": 9.968915914115291,
+        "op": "<=",
+        "pass": true,
+        "value": 9.391173131445907
+       },
+       "native_ratio": {
+        "limit": 10.152361709821054,
+        "op": "<=",
+        "pass": true,
+        "value": 9.391173131445907
+       },
+       "onset_p99": {
+        "limit": 16.15928133390844,
+        "op": "<=",
+        "pass": true,
+        "value": 14.779407659079888
+       },
+       "routing": {
+        "limit": 0,
+        "op": "==",
+        "pass": true,
+        "value": 0
+       },
+       "steady_host_slow": {
+        "limit": 0.1,
+        "op": "<",
+        "pass": true,
+        "value": 0.0009891196834817012
+       },
+       "structure": {
+        "limit": true,
+        "op": "==",
+        "pass": true,
+        "value": true
+       },
+       "throughput": {
+        "limit": 115.98711605511677,
+        "op": ">=",
+        "pass": true,
+        "value": 128.23313312338456
+       },
+       "transient_from_th": {
+        "limit": 1.0,
+        "op": "<=",
+        "pass": true,
+        "value": 0.0
+       },
+       "window_p99": {
+        "limit": 12.535482318722643,
+        "op": "<=",
+        "pass": true,
+        "value": 11.637861754279612
+       }
+      },
+      "pass": true,
+      "pending": [],
+      "preceded_by": "gpu_only",
+      "run": "laya-H32-r5"
+     }
+    ]
+   },
+   "missing": [],
+   "passed": false,
+   "references": {
+    "A_agg_req_s": 122.09170111064924,
+    "A_onset_p99_ms": 15.15928133390844,
+    "A_predict_mean_ms": 9.66891591411529,
+    "A_window_p99_ms": 11.535482318722643,
+    "transitions": [
+     [
+      "laya-A-r1",
+      0
+     ],
+     [
+      "laya-A-r1",
+      1
+     ],
+     [
+      "laya-A-r2",
+      0
+     ],
+     [
+      "laya-A-r2",
+      1
+     ],
+     [
+      "laya-A-r3",
+      0
+     ],
+     [
+      "laya-A-r3",
+      1
+     ],
+     [
+      "laya-A-r4",
+      0
+     ],
+     [
+      "laya-A-r4",
+      1
+     ]
+    ]
+   },
    "runs": [
     [
      "H32",
@@ -872,6 +1496,51 @@
     ],
     [
      "H32",
+     5
+    ]
+   ],
+   "valid": false
+  },
+  {
+   "candidate": "H64",
+   "complete": false,
+   "deviating": [],
+   "fallback": true,
+   "judgement": {
+    "failing": [],
+    "mechanism_reading_holds": null,
+    "n": 0,
+    "pass": false,
+    "transitions": []
+   },
+   "missing": [
+    "H64 r3",
+    "A r5",
+    "H64 r4",
+    "A r6",
+    "H64 r5"
+   ],
+   "passed": null,
+   "references": null,
+   "runs": [
+    [
+     "H64",
+     3
+    ],
+    [
+     "A",
+     5
+    ],
+    [
+     "H64",
+     4
+    ],
+    [
+     "A",
+     6
+    ],
+    [
+     "H64",
      5
     ]
    ],
@@ -1491,6 +2160,622 @@
       "short": 0.14529622063329928
      },
      "window_p99_ms": 10.998670704429973,
+     "window_s": 20.0
+    }
+   ]
+  },
+  "laya-A-r3": {
+   "cell": "A",
+   "crashed": false,
+   "handoff": {
+    "episodes": 0,
+    "errors": [],
+    "forwards": 7807,
+    "forwards_async": 0,
+    "forwards_sync": 7807,
+    "guard": null
+   },
+   "mismatches": 0,
+   "protocol": {
+    "cycles": true,
+    "guard": true,
+    "installed": true,
+    "seconds": true
+   },
+   "protocol_ok": true,
+   "routing_failures": [],
+   "run": "laya-A-r3",
+   "run_wall_s": 188.83757520793006,
+   "seconds": 20.0,
+   "transitions": [
+    {
+     "aggregate_req_s": 121.55232061354653,
+     "cell": "A",
+     "cycle": 0,
+     "end_ns": 1024725179158000,
+     "gpu_return_ms": {
+      "from_s": 0.0,
+      "n": 487,
+      "p50": 4.462,
+      "p95": 6.188999999999999,
+      "p99": 7.173079999999996
+     },
+     "mechanism": {
+      "p_dominant_stays": false,
+      "spans": {
+       "parent": {
+        "0-0.5": {
+         "cpu_ms": 82.713125,
+         "e_share": 0.5314246197323581,
+         "rate_e": 1.764886314979521,
+         "rate_p": 2.9509082848680976
+        },
+        "0.5-4": {
+         "cpu_ms": 301.351374,
+         "e_share": 0.0,
+         "rate_e": null,
+         "rate_p": 4.144685081143848
+        },
+        "4-end": {
+         "cpu_ms": 1428.785209,
+         "e_share": 2.4992559955875075e-05,
+         "rate_e": 2.272004256629981,
+         "rate_p": 4.052899463481877
+        }
+       },
+       "worker": {
+        "0-0.5": {
+         "cpu_ms": 65.010041,
+         "e_share": 0.5550129709962804,
+         "rate_e": 1.9261363800134674,
+         "rate_p": 2.6704700966603148
+        },
+        "0.5-4": {
+         "cpu_ms": 263.639624,
+         "e_share": 0.0,
+         "rate_e": null,
+         "rate_p": 3.1648375131956645
+        },
+        "4-end": {
+         "cpu_ms": 902.226167,
+         "e_share": 0.0005089721588622468,
+         "rate_e": 2.2767220954338776,
+         "rate_p": 3.485118074724226
+        }
+       }
+      },
+      "switch_s": {
+       "parent": 0.5,
+       "worker": 0.5
+      }
+     },
+     "native_mean_ms": null,
+     "native_n": 0,
+     "onset_p99_ms": 14.828255927423013,
+     "preceded_by": "solo_long",
+     "predict_mean_ms": 9.697242986625513,
+     "run": "laya-A-r3",
+     "steady_host_slow_share": 0.0,
+     "structure": {
+      "forwards_async": 0,
+      "forwards_sync": 1944,
+      "t_h_ns": null,
+      "t_h_s": null,
+      "valid": null
+     },
+     "t0_ns": 1024705179158000,
+     "t_h_s": null,
+     "transient": {
+      "bins_share": [
+       0.4358974358974359,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "duration_s": 0.5,
+      "peak_short_p99_ms": 23.24523774906974,
+      "present": true,
+      "recovered": true,
+      "recovery_s": 0.5
+     },
+     "transient_from_th": null,
+     "window": {
+      "aggregate_req_s": 121.55232061354653,
+      "mismatches": 0,
+      "routing_failures": [],
+      "short_p99_ms": 11.581871301168576,
+      "steady_host_slow_share": 0.0
+     },
+     "window_client_cpu_ms_per_request": {
+      "long": 0.46841598360655734,
+      "short": 0.15761831275720165
+     },
+     "window_p99_ms": 11.581871301168576,
+     "window_s": 20.0
+    },
+    {
+     "aggregate_req_s": 121.37240728239873,
+     "cell": "A",
+     "cycle": 1,
+     "end_ns": 1024792928237041,
+     "gpu_return_ms": {
+      "from_s": 0.0,
+      "n": 488,
+      "p50": 4.391,
+      "p95": 5.471999999999998,
+      "p99": 6.661329999999999
+     },
+     "mechanism": {
+      "p_dominant_stays": false,
+      "spans": {
+       "parent": {
+        "0-0.5": {
+         "cpu_ms": 141.41375,
+         "e_share": 0.760221039326091,
+         "rate_e": 1.5866070664824605,
+         "rate_p": 1.8362634445244583
+        },
+        "0.5-4": {
+         "cpu_ms": 347.785541,
+         "e_share": 0.16471728765745325,
+         "rate_e": 1.4079495738343402,
+         "rate_p": 4.066560016936361
+        },
+        "4-end": {
+         "cpu_ms": 1404.439083,
+         "e_share": 8.989353936969583e-06,
+         "rate_e": 0.9917623762376238,
+         "rate_p": 4.087845966798213
+        }
+       },
+       "worker": {
+        "0-0.5": {
+         "cpu_ms": 142.296665,
+         "e_share": 0.7555450508977143,
+         "rate_e": 1.7230362459412614,
+         "rate_p": 1.8993975413167996
+        },
+        "0.5-4": {
+         "cpu_ms": 294.996043,
+         "e_share": 0.15024241189567414,
+         "rate_e": 1.5589156695471802,
+         "rate_p": 3.1411640299724035
+        },
+        "4-end": {
+         "cpu_ms": 981.623666,
+         "e_share": 0.0,
+         "rate_e": null,
+         "rate_p": 3.376347154001888
+        }
+       }
+      },
+      "switch_s": {
+       "parent": 1.0,
+       "worker": 1.0
+      }
+     },
+     "native_mean_ms": null,
+     "native_n": 0,
+     "onset_p99_ms": 16.42276318743824,
+     "preceded_by": "gpu_only",
+     "predict_mean_ms": 9.700059477319588,
+     "run": "laya-A-r3",
+     "steady_host_slow_share": 0.0,
+     "structure": {
+      "forwards_async": 0,
+      "forwards_sync": 1940,
+      "t_h_ns": null,
+      "t_h_s": null,
+      "valid": null
+     },
+     "t0_ns": 1024772928237041,
+     "t_h_s": null,
+     "transient": {
+      "bins_share": [
+       0.9705882352941176,
+       0.25,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "duration_s": 1.0,
+      "peak_short_p99_ms": 27.64065446099282,
+      "present": true,
+      "recovered": true,
+      "recovery_s": 1.0
+     },
+     "transient_from_th": null,
+     "window": {
+      "aggregate_req_s": 121.37240728239873,
+      "mismatches": 0,
+      "routing_failures": [],
+      "short_p99_ms": 13.32768894964829,
+      "steady_host_slow_share": 0.0
+     },
+     "window_client_cpu_ms_per_request": {
+      "long": 0.4985398773006135,
+      "short": 0.1620881443298969
+     },
+     "window_p99_ms": 13.32768894964829,
+     "window_s": 20.0
+    }
+   ]
+  },
+  "laya-A-r4": {
+   "cell": "A",
+   "crashed": false,
+   "handoff": {
+    "episodes": 0,
+    "errors": [],
+    "forwards": 7849,
+    "forwards_async": 0,
+    "forwards_sync": 7849,
+    "guard": null
+   },
+   "mismatches": 0,
+   "protocol": {
+    "cycles": true,
+    "guard": true,
+    "installed": true,
+    "seconds": true
+   },
+   "protocol_ok": true,
+   "routing_failures": [],
+   "run": "laya-A-r4",
+   "run_wall_s": 188.7758194160415,
+   "seconds": 20.0,
+   "transitions": [
+    {
+     "aggregate_req_s": 121.41433395236992,
+     "cell": "A",
+     "cycle": 0,
+     "end_ns": 1025103990991791,
+     "gpu_return_ms": {
+      "from_s": 0.0,
+      "n": 487,
+      "p50": 4.522,
+      "p95": 6.205399999999999,
+      "p99": 7.06718
+     },
+     "mechanism": {
+      "p_dominant_stays": false,
+      "spans": {
+       "parent": {
+        "0-0.5": {
+         "cpu_ms": 109.394209,
+         "e_share": 0.575702329910352,
+         "rate_e": 1.689964310201667,
+         "rate_p": 2.4943767312565823
+        },
+        "0.5-4": {
+         "cpu_ms": 302.3215,
+         "e_share": 0.0,
+         "rate_e": null,
+         "rate_p": 4.154006678320926
+        },
+        "4-end": {
+         "cpu_ms": 1438.185165,
+         "e_share": 0.0003251194709688165,
+         "rate_e": 2.4004666561159325,
+         "rate_p": 4.078228559857573
+        }
+       },
+       "worker": {
+        "0-0.5": {
+         "cpu_ms": 111.768834,
+         "e_share": 0.6609359635978667,
+         "rate_e": 1.841436737324792,
+         "rate_p": 2.2480229724985694
+        },
+        "0.5-4": {
+         "cpu_ms": 263.258082,
+         "e_share": 0.0,
+         "rate_e": null,
+         "rate_p": 3.1707791064131507
+        },
+        "4-end": {
+         "cpu_ms": 1220.961166,
+         "e_share": 7.029953317941974e-05,
+         "rate_e": 2.553901180198758,
+         "rate_p": 3.1935662533366953
+        }
+       }
+      },
+      "switch_s": {
+       "parent": 0.5,
+       "worker": 0.5
+      }
+     },
+     "native_mean_ms": null,
+     "native_n": 0,
+     "onset_p99_ms": 15.186725649982685,
+     "preceded_by": "solo_long",
+     "predict_mean_ms": 9.70034490731205,
+     "run": "laya-A-r4",
+     "steady_host_slow_share": 0.0,
+     "structure": {
+      "forwards_async": 0,
+      "forwards_sync": 1942,
+      "t_h_ns": null,
+      "t_h_s": null,
+      "valid": null
+     },
+     "t0_ns": 1025083990991791,
+     "t_h_s": null,
+     "transient": {
+      "bins_share": [
+       0.47368421052631576,
+       0.0,
+       0.0,
+       0.02040816326530612,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "duration_s": 0.5,
+      "peak_short_p99_ms": 21.663082223385594,
+      "present": true,
+      "recovered": true,
+      "recovery_s": 0.5
+     },
+     "transient_from_th": null,
+     "window": {
+      "aggregate_req_s": 121.41433395236992,
+      "mismatches": 0,
+      "routing_failures": [],
+      "short_p99_ms": 11.620583736803383,
+      "steady_host_slow_share": 0.0
+     },
+     "window_client_cpu_ms_per_request": {
+      "long": 0.47950819672131145,
+      "short": 0.15979299691040164
+     },
+     "window_p99_ms": 11.620583736803383,
+     "window_s": 20.0
+    },
+    {
+     "aggregate_req_s": 122.14009990129055,
+     "cell": "A",
+     "cycle": 1,
+     "end_ns": 1025171762823666,
+     "gpu_return_ms": {
+      "from_s": 0.0,
+      "n": 489,
+      "p50": 4.371,
+      "p95": 5.0378,
+      "p99": 5.794760000000001
+     },
+     "mechanism": {
+      "p_dominant_stays": false,
+      "spans": {
+       "parent": {
+        "0-0.5": {
+         "cpu_ms": 80.037624,
+         "e_share": 0.5482291428341252,
+         "rate_e": 1.8474971078392517,
+         "rate_p": 2.9424205527936236
+        },
+        "0.5-4": {
+         "cpu_ms": 301.788959,
+         "e_share": 0.0,
+         "rate_e": null,
+         "rate_p": 4.135714554090098
+        },
+        "4-end": {
+         "cpu_ms": 1373.750583,
+         "e_share": 0.0,
+         "rate_e": null,
+         "rate_p": 4.121274379106123
+        }
+       },
+       "worker": {
+        "0-0.5": {
+         "cpu_ms": 65.606501,
+         "e_share": 0.5946514507761967,
+         "rate_e": 1.832583809689493,
+         "rate_p": 2.651448173425837
+        },
+        "0.5-4": {
+         "cpu_ms": 259.085708,
+         "e_share": 0.0,
+         "rate_e": null,
+         "rate_p": 3.1459961427127427
+        },
+        "4-end": {
+         "cpu_ms": 960.036958,
+         "e_share": 0.0,
+         "rate_e": null,
+         "rate_p": 3.367250881397839
+        }
+       }
+      },
+      "switch_s": {
+       "parent": 0.5,
+       "worker": 0.5
+      }
+     },
+     "native_mean_ms": null,
+     "native_n": 0,
+     "onset_p99_ms": 15.182950252201408,
+     "preceded_by": "gpu_only",
+     "predict_mean_ms": 9.66980629390681,
+     "run": "laya-A-r4",
+     "steady_host_slow_share": 0.0,
+     "structure": {
+      "forwards_async": 0,
+      "forwards_sync": 1953,
+      "t_h_ns": null,
+      "t_h_s": null,
+      "valid": null
+     },
+     "t0_ns": 1025151762823666,
+     "t_h_s": null,
+     "transient": {
+      "bins_share": [
+       0.4358974358974359,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "duration_s": 0.5,
+      "peak_short_p99_ms": 23.163630538619845,
+      "present": true,
+      "recovered": true,
+      "recovery_s": 0.5
+     },
+     "transient_from_th": null,
+     "window": {
+      "aggregate_req_s": 122.14009990129055,
+      "mismatches": 0,
+      "routing_failures": [],
+      "short_p99_ms": 11.094357790425422,
+      "steady_host_slow_share": 0.0
+     },
+     "window_client_cpu_ms_per_request": {
+      "long": 0.45873265306122446,
+      "short": 0.15205069124423962
+     },
+     "window_p99_ms": 11.094357790425422,
      "window_s": 20.0
     }
    ]
@@ -3123,6 +4408,1242 @@
       "short": 0.14683250497017894
      },
      "window_p99_ms": 10.735853319056325,
+     "window_s": 20.0
+    }
+   ]
+  },
+  "laya-H32-r3": {
+   "cell": "H32",
+   "crashed": false,
+   "handoff": {
+    "episodes": 2,
+    "errors": [],
+    "forwards": 7671,
+    "forwards_async": 3681,
+    "forwards_sync": 3990,
+    "guard": 32
+   },
+   "mismatches": 0,
+   "protocol": {
+    "cycles": true,
+    "guard": true,
+    "installed": true,
+    "seconds": true
+   },
+   "protocol_ok": true,
+   "routing_failures": [],
+   "run": "laya-H32-r3",
+   "run_wall_s": 188.78534037491772,
+   "seconds": 20.0,
+   "transitions": [
+    {
+     "aggregate_req_s": 127.69198255542476,
+     "cell": "H32",
+     "cycle": 0,
+     "end_ns": 1024535504314416,
+     "gpu_return_ms": {
+      "from_s": 1.462287667,
+      "n": 517,
+      "p50": 0.047,
+      "p95": 0.09739999999999999,
+      "p99": 0.19567999999999997
+     },
+     "mechanism": {
+      "p_dominant_stays": true,
+      "spans": {
+       "parent": {
+        "0-0.5": {
+         "cpu_ms": 34.094125,
+         "e_share": 0.0,
+         "rate_e": null,
+         "rate_p": 3.9667167583857923
+        },
+        "0.5-4": {
+         "cpu_ms": 235.384083,
+         "e_share": 0.0,
+         "rate_e": null,
+         "rate_p": 3.930290447888951
+        },
+        "4-end": {
+         "cpu_ms": 1074.125919,
+         "e_share": 0.0010577605287262414,
+         "rate_e": 2.5512142570464933,
+         "rate_p": 3.8628739511604153
+        }
+       },
+       "worker": {
+        "0-0.5": {
+         "cpu_ms": 42.919918,
+         "e_share": 0.0,
+         "rate_e": null,
+         "rate_p": 3.2286516018040854
+        },
+        "0.5-4": {
+         "cpu_ms": 295.923125,
+         "e_share": 0.0,
+         "rate_e": null,
+         "rate_p": 3.2621959301085375
+        },
+        "4-end": {
+         "cpu_ms": 1077.346041,
+         "e_share": 0.00010515748486423407,
+         "rate_e": 2.5912561456779444,
+         "rate_p": 3.4640772962017725
+        }
+       }
+      },
+      "switch_s": {
+       "parent": 0.5,
+       "worker": 0.5
+      }
+     },
+     "native_mean_ms": 9.411100507621951,
+     "native_n": 1968,
+     "onset_p99_ms": 16.066445061005652,
+     "preceded_by": "solo_long",
+     "predict_mean_ms": 9.52406536,
+     "run": "laya-H32-r3",
+     "steady_host_slow_share": 0.0049800796812749,
+     "structure": {
+      "before_all_sync_in_episode": true,
+      "episodes": 1,
+      "forwards_async": 1968,
+      "forwards_sync": 32,
+      "sync_after_t_h": 0,
+      "sync_before_t_h": 32,
+      "t_h_ns": 1024515966602083,
+      "t_h_s": 0.462287667,
+      "valid": true
+     },
+     "t0_ns": 1024515504314416,
+     "t_h_s": 0.462287667,
+     "transient": {
+      "bins_share": [
+       0.6666666666666666,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.10416666666666667,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "duration_s": 16.5,
+      "peak_short_p99_ms": 22.670456138439498,
+      "present": true,
+      "recovered": true,
+      "recovery_s": 16.5
+     },
+     "transient_from_th": {
+      "bins_share": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.10204081632653061,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "duration_s": 16.0,
+      "peak_short_p99_ms": 10.45462500769645,
+      "present": true,
+      "recovered": true,
+      "recovery_s": 16.0
+     },
+     "window": {
+      "aggregate_req_s": 127.69198255542476,
+      "mismatches": 0,
+      "routing_failures": [],
+      "short_p99_ms": 12.345181206474079,
+      "steady_host_slow_share": 0.0049800796812749
+     },
+     "window_client_cpu_ms_per_request": {
+      "long": 0.48005225225225223,
+      "short": 0.15911850000000002
+     },
+     "window_p99_ms": 12.345181206474079,
+     "window_s": 20.0
+    },
+    {
+     "aggregate_req_s": 112.79277714919235,
+     "cell": "H32",
+     "cycle": 1,
+     "end_ns": 1024603247764958,
+     "gpu_return_ms": {
+      "from_s": 1.47704025,
+      "n": 477,
+      "p50": 0.168,
+      "p95": 0.9157999999999997,
+      "p99": 1.762760000000001
+     },
+     "mechanism": {
+      "p_dominant_stays": false,
+      "spans": {
+       "parent": {
+        "0-0.5": {
+         "cpu_ms": 146.878334,
+         "e_share": 1.0,
+         "rate_e": 1.3443207627886085,
+         "rate_p": null
+        },
+        "0.5-4": {
+         "cpu_ms": 1025.188374,
+         "e_share": 0.9999053022815493,
+         "rate_e": 1.3658373613087305,
+         "rate_p": 1.5124378109452736
+        },
+        "4-end": {
+         "cpu_ms": 2616.060417,
+         "e_share": 0.7675114213541498,
+         "rate_e": 1.4319811034440244,
+         "rate_p": 3.7781479886208214
+        }
+       },
+       "worker": {
+        "0-0.5": {
+         "cpu_ms": 132.01775,
+         "e_share": 1.0,
+         "rate_e": 1.517823542667558,
+         "rate_p": null
+        },
+        "0.5-4": {
+         "cpu_ms": 957.144251,
+         "e_share": 0.9965121934373923,
+         "rate_e": 1.4778913266062281,
+         "rate_p": 1.460655524582022
+        },
+        "4-end": {
+         "cpu_ms": 2612.998416,
+         "e_share": 0.7195936715791718,
+         "rate_e": 1.5499732184879946,
+         "rate_p": 3.165395589339291
+        }
+       }
+      },
+      "switch_s": {
+       "parent": 11.5,
+       "worker": 11.5
+      }
+     },
+     "native_mean_ms": 9.611230770577933,
+     "native_n": 1713,
+     "onset_p99_ms": 17.430385323241353,
+     "preceded_by": "gpu_only",
+     "predict_mean_ms": 9.9186860252149,
+     "run": "laya-H32-r3",
+     "steady_host_slow_share": 0.13435897435897437,
+     "structure": {
+      "before_all_sync_in_episode": true,
+      "episodes": 1,
+      "forwards_async": 1713,
+      "forwards_sync": 32,
+      "sync_after_t_h": 0,
+      "sync_before_t_h": 32,
+      "t_h_ns": 1024583724805208,
+      "t_h_s": 0.47704025,
+      "valid": true
+     },
+     "t0_ns": 1024583247764958,
+     "t_h_s": 0.47704025,
+     "transient": {
+      "bins_share": [
+       0.9705882352941176,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       0.9523809523809523,
+       1.0,
+       0.2978723404255319,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "duration_s": 12.0,
+      "peak_short_p99_ms": 28.272755243815524,
+      "present": true,
+      "recovered": true,
+      "recovery_s": 12.0
+     },
+     "transient_from_th": {
+      "bins_share": [
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       0.9512195121951219,
+       1.0,
+       0.3404255319148936,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "duration_s": 11.5,
+      "peak_short_p99_ms": 17.879931004717935,
+      "present": true,
+      "recovered": true,
+      "recovery_s": 11.5
+     },
+     "window": {
+      "aggregate_req_s": 112.79277714919235,
+      "mismatches": 0,
+      "routing_failures": [],
+      "short_p99_ms": 17.118819928728044,
+      "steady_host_slow_share": 0.13435897435897437
+     },
+     "window_client_cpu_ms_per_request": {
+      "long": 1.529189453125,
+      "short": 0.4801833810888252
+     },
+     "window_p99_ms": 17.118819928728044,
+     "window_s": 20.0
+    }
+   ]
+  },
+  "laya-H32-r4": {
+   "cell": "H32",
+   "crashed": false,
+   "handoff": {
+    "episodes": 2,
+    "errors": [],
+    "forwards": 7919,
+    "forwards_async": 3925,
+    "forwards_sync": 3994,
+    "guard": 32
+   },
+   "mismatches": 0,
+   "protocol": {
+    "cycles": true,
+    "guard": true,
+    "installed": true,
+    "seconds": true
+   },
+   "protocol_ok": true,
+   "routing_failures": [],
+   "run": "laya-H32-r4",
+   "run_wall_s": 188.91242624993902,
+   "seconds": 20.0,
+   "transitions": [
+    {
+     "aggregate_req_s": 127.42265158285603,
+     "cell": "H32",
+     "cycle": 0,
+     "end_ns": 1024914624000541,
+     "gpu_return_ms": {
+      "from_s": 1.471908709,
+      "n": 516,
+      "p50": 0.051,
+      "p95": 0.09925,
+      "p99": 0.14770000000000003
+     },
+     "mechanism": {
+      "p_dominant_stays": true,
+      "spans": {
+       "parent": {
+        "0-0.5": {
+         "cpu_ms": 33.902583,
+         "e_share": 0.0,
+         "rate_e": null,
+         "rate_p": 3.9514785643323993
+        },
+        "0.5-4": {
+         "cpu_ms": 322.155958,
+         "e_share": 0.0016217548892887464,
+         "rate_e": 2.4500591435101002,
+         "rate_p": 3.7240691066073652
+        },
+        "4-end": {
+         "cpu_ms": 1038.771917,
+         "e_share": 0.0,
+         "rate_e": null,
+         "rate_p": 3.91091691401588
+        }
+       },
+       "worker": {
+        "0-0.5": {
+         "cpu_ms": 42.690083,
+         "e_share": 0.0,
+         "rate_e": null,
+         "rate_p": 3.263568520117424
+        },
+        "0.5-4": {
+         "cpu_ms": 333.815751,
+         "e_share": 0.00024689368237749813,
+         "rate_e": 2.3056650933666596,
+         "rate_p": 3.4287096535583106
+        },
+        "4-end": {
+         "cpu_ms": 1063.095457,
+         "e_share": 0.0,
+         "rate_e": null,
+         "rate_p": 3.4923072999266895
+        }
+       }
+      },
+      "switch_s": {
+       "parent": 0.5,
+       "worker": 0.5
+      }
+     },
+     "native_mean_ms": 9.414261304281345,
+     "native_n": 1962,
+     "onset_p99_ms": 15.956278757657849,
+     "preceded_by": "solo_long",
+     "predict_mean_ms": 9.53373614894684,
+     "run": "laya-H32-r4",
+     "steady_host_slow_share": 0.0,
+     "structure": {
+      "before_all_sync_in_episode": true,
+      "episodes": 1,
+      "forwards_async": 1962,
+      "forwards_sync": 32,
+      "sync_after_t_h": 0,
+      "sync_before_t_h": 32,
+      "t_h_ns": 1024895095909250,
+      "t_h_s": 0.471908709,
+      "valid": true
+     },
+     "t0_ns": 1024894624000541,
+     "t_h_s": 0.471908709,
+     "transient": {
+      "bins_share": [
+       0.7142857142857143,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "duration_s": 0.5,
+      "peak_short_p99_ms": 23.919606296113013,
+      "present": true,
+      "recovered": true,
+      "recovery_s": 0.5
+     },
+     "transient_from_th": {
+      "bins_share": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "duration_s": 0.0,
+      "peak_short_p99_ms": 11.243461584672332,
+      "present": false,
+      "recovered": true,
+      "recovery_s": 0.0
+     },
+     "window": {
+      "aggregate_req_s": 127.42265158285603,
+      "mismatches": 0,
+      "routing_failures": [],
+      "short_p99_ms": 12.550261678406958,
+      "steady_host_slow_share": 0.0
+     },
+     "window_client_cpu_ms_per_request": {
+      "long": 0.49740720720720716,
+      "short": 0.16592527582748245
+     },
+     "window_p99_ms": 12.550261678406958,
+     "window_s": 20.0
+    },
+    {
+     "aggregate_req_s": 127.60409308904504,
+     "cell": "H32",
+     "cycle": 1,
+     "end_ns": 1024982353635791,
+     "gpu_return_ms": {
+      "from_s": 1.362864084,
+      "n": 521,
+      "p50": 0.069,
+      "p95": 0.093,
+      "p99": 0.15159999999999854
+     },
+     "mechanism": {
+      "p_dominant_stays": true,
+      "spans": {
+       "parent": {
+        "0-0.5": {
+         "cpu_ms": 43.156458,
+         "e_share": 0.0,
+         "rate_e": null,
+         "rate_p": 3.8435439720284736
+        },
+        "0.5-4": {
+         "cpu_ms": 269.499041,
+         "e_share": 0.0019619735863920943,
+         "rate_e": 2.485053427895981,
+         "rate_p": 3.7796501956418673
+        },
+        "4-end": {
+         "cpu_ms": 1201.596293,
+         "e_share": 0.0020726936447031797,
+         "rate_e": 2.553426343914836,
+         "rate_p": 3.8011534023564586
+        }
+       },
+       "worker": {
+        "0-0.5": {
+         "cpu_ms": 41.249583,
+         "e_share": 0.0,
+         "rate_e": null,
+         "rate_p": 3.8703612834098227
+        },
+        "0.5-4": {
+         "cpu_ms": 300.701417,
+         "e_share": 0.0,
+         "rate_e": null,
+         "rate_p": 3.392753922406691
+        },
+        "4-end": {
+         "cpu_ms": 1087.109458,
+         "e_share": 0.0005525358974477803,
+         "rate_e": 2.588252725719908,
+         "rate_p": 3.7297779029198854
+        }
+       }
+      },
+      "switch_s": {
+       "parent": 0.0,
+       "worker": 0.0
+      }
+     },
+     "native_mean_ms": 9.41341342740703,
+     "native_n": 1963,
+     "onset_p99_ms": 11.148587567731738,
+     "preceded_by": "gpu_only",
+     "predict_mean_ms": 9.50683282556391,
+     "run": "laya-H32-r4",
+     "steady_host_slow_share": 0.002,
+     "structure": {
+      "before_all_sync_in_episode": true,
+      "episodes": 1,
+      "forwards_async": 1963,
+      "forwards_sync": 32,
+      "sync_after_t_h": 0,
+      "sync_before_t_h": 32,
+      "t_h_ns": 1024962716499875,
+      "t_h_s": 0.362864084,
+      "valid": true
+     },
+     "t0_ns": 1024962353635791,
+     "t_h_s": 0.362864084,
+     "transient": {
+      "bins_share": [
+       0.021739130434782608,
+       0.0,
+       0.02,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.02040816326530612,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.02,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "duration_s": 0.0,
+      "peak_short_p99_ms": 12.785233617760296,
+      "present": false,
+      "recovered": true,
+      "recovery_s": 0.0
+     },
+     "transient_from_th": {
+      "bins_share": [
+       0.0,
+       0.0,
+       0.02,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.02,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.02,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "duration_s": 0.0,
+      "peak_short_p99_ms": 10.741171238478273,
+      "present": false,
+      "recovered": true,
+      "recovery_s": 0.0
+     },
+     "window": {
+      "aggregate_req_s": 127.60409308904504,
+      "mismatches": 0,
+      "routing_failures": [],
+      "short_p99_ms": 10.741197515744716,
+      "steady_host_slow_share": 0.002
+     },
+     "window_client_cpu_ms_per_request": {
+      "long": 0.5110788530465951,
+      "short": 0.17605513784461155
+     },
+     "window_p99_ms": 10.741197515744716,
+     "window_s": 20.0
+    }
+   ]
+  },
+  "laya-H32-r5": {
+   "cell": "H32",
+   "crashed": false,
+   "handoff": {
+    "episodes": 2,
+    "errors": [],
+    "forwards": 7930,
+    "forwards_async": 3936,
+    "forwards_sync": 3994,
+    "guard": 32
+   },
+   "mismatches": 0,
+   "protocol": {
+    "cycles": true,
+    "guard": true,
+    "installed": true,
+    "seconds": true
+   },
+   "protocol_ok": true,
+   "routing_failures": [],
+   "run": "laya-H32-r5",
+   "run_wall_s": 188.84362162498292,
+   "seconds": 20.0,
+   "transitions": [
+    {
+     "aggregate_req_s": 127.20635772134905,
+     "cell": "H32",
+     "cycle": 0,
+     "end_ns": 1025293260488083,
+     "gpu_return_ms": {
+      "from_s": 1.449395958,
+      "n": 517,
+      "p50": 0.054,
+      "p95": 0.10819999999999999,
+      "p99": 0.25283999999999995
+     },
+     "mechanism": {
+      "p_dominant_stays": true,
+      "spans": {
+       "parent": {
+        "0-0.5": {
+         "cpu_ms": 33.793167,
+         "e_share": 0.0,
+         "rate_e": null,
+         "rate_p": 3.9399788128765794
+        },
+        "0.5-4": {
+         "cpu_ms": 232.356792,
+         "e_share": 0.0,
+         "rate_e": null,
+         "rate_p": 3.9028012660804854
+        },
+        "4-end": {
+         "cpu_ms": 1193.943333,
+         "e_share": 0.0015197890468056242,
+         "rate_e": 2.485590303228032,
+         "rate_p": 3.7396981925587935
+        }
+       },
+       "worker": {
+        "0-0.5": {
+         "cpu_ms": 42.503459,
+         "e_share": 0.0,
+         "rate_e": null,
+         "rate_p": 3.2454686805607986
+        },
+        "0.5-4": {
+         "cpu_ms": 293.704625,
+         "e_share": 0.0,
+         "rate_e": null,
+         "rate_p": 3.2484702343383254
+        },
+        "4-end": {
+         "cpu_ms": 1119.114083,
+         "e_share": 0.0004623818142050849,
+         "rate_e": 2.411239173034333,
+         "rate_p": 3.4479132493359703
+        }
+       }
+      },
+      "switch_s": {
+       "parent": 0.5,
+       "worker": 0.5
+      }
+     },
+     "native_mean_ms": 9.420080622381198,
+     "native_n": 1957,
+     "onset_p99_ms": 14.624663963913871,
+     "preceded_by": "solo_long",
+     "predict_mean_ms": 9.535304273869347,
+     "run": "laya-H32-r5",
+     "steady_host_slow_share": 0.0010030090270812437,
+     "structure": {
+      "before_all_sync_in_episode": true,
+      "episodes": 1,
+      "forwards_async": 1957,
+      "forwards_sync": 33,
+      "sync_after_t_h": 0,
+      "sync_before_t_h": 32,
+      "t_h_ns": 1025273709884041,
+      "t_h_s": 0.449395958,
+      "valid": true
+     },
+     "t0_ns": 1025273260488083,
+     "t_h_s": 0.449395958,
+     "transient": {
+      "bins_share": [
+       0.46153846153846156,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.02040816326530612
+      ],
+      "duration_s": 0.5,
+      "peak_short_p99_ms": 21.80587187409421,
+      "present": true,
+      "recovered": true,
+      "recovery_s": 0.5
+     },
+     "transient_from_th": {
+      "bins_share": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.02040816326530612,
+       0.0
+      ],
+      "duration_s": 0.0,
+      "peak_short_p99_ms": 10.920111271552742,
+      "present": false,
+      "recovered": true,
+      "recovery_s": 0.0
+     },
+     "window": {
+      "aggregate_req_s": 127.20635772134905,
+      "mismatches": 0,
+      "routing_failures": [],
+      "short_p99_ms": 11.250071425456554,
+      "steady_host_slow_share": 0.0010030090270812437
+     },
+     "window_client_cpu_ms_per_request": {
+      "long": 0.49915675675675675,
+      "short": 0.17226820693119035
+     },
+     "window_p99_ms": 11.250071425456554,
+     "window_s": 20.0
+    },
+    {
+     "aggregate_req_s": 128.23313312338456,
+     "cell": "H32",
+     "cycle": 1,
+     "end_ns": 1025361059141458,
+     "gpu_return_ms": {
+      "from_s": 1.442773125,
+      "n": 517,
+      "p50": 0.04,
+      "p95": 0.072,
+      "p99": 0.2079599999999995
+     },
+     "mechanism": {
+      "p_dominant_stays": true,
+      "spans": {
+       "parent": {
+        "0-0.5": {
+         "cpu_ms": 45.556916,
+         "e_share": 0.015380035821564391,
+         "rate_e": 2.5909454848023383,
+         "rate_p": 3.812168266677849
+        },
+        "0.5-4": {
+         "cpu_ms": 234.405001,
+         "e_share": 0.0,
+         "rate_e": null,
+         "rate_p": 3.827537310093482
+        },
+        "4-end": {
+         "cpu_ms": 1008.901416,
+         "e_share": 0.001496140233388274,
+         "rate_e": 2.5581619362711647,
+         "rate_p": 3.9055791271266034
+        }
+       },
+       "worker": {
+        "0-0.5": {
+         "cpu_ms": 46.435709,
+         "e_share": 0.0003723858291902036,
+         "rate_e": 1.3983344899375434,
+         "rate_p": 3.488217812339443
+        },
+        "0.5-4": {
+         "cpu_ms": 292.317208,
+         "e_share": 0.0,
+         "rate_e": null,
+         "rate_p": 3.1542912006740296
+        },
+        "4-end": {
+         "cpu_ms": 1286.782542,
+         "e_share": 0.00020723548175088623,
+         "rate_e": 2.5644305444618194,
+         "rate_p": 3.1836533723301317
+        }
+       }
+      },
+      "switch_s": {
+       "parent": 0.5,
+       "worker": 0.5
+      }
+     },
+     "native_mean_ms": 9.391173131445907,
+     "native_n": 1978,
+     "onset_p99_ms": 14.779407659079888,
+     "preceded_by": "gpu_only",
+     "predict_mean_ms": 9.497173586069652,
+     "run": "laya-H32-r5",
+     "steady_host_slow_share": 0.0009891196834817012,
+     "structure": {
+      "before_all_sync_in_episode": true,
+      "episodes": 1,
+      "forwards_async": 1978,
+      "forwards_sync": 32,
+      "sync_after_t_h": 0,
+      "sync_before_t_h": 32,
+      "t_h_ns": 1025341501914583,
+      "t_h_s": 0.442773125,
+      "valid": true
+     },
+     "t0_ns": 1025341059141458,
+     "t_h_s": 0.442773125,
+     "transient": {
+      "bins_share": [
+       0.5,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.02,
+       0.0
+      ],
+      "duration_s": 0.5,
+      "peak_short_p99_ms": 21.157512289937408,
+      "present": true,
+      "recovered": true,
+      "recovery_s": 0.5
+     },
+     "transient_from_th": {
+      "bins_share": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.02,
+       0.0,
+       0.0
+      ],
+      "duration_s": 0.0,
+      "peak_short_p99_ms": 10.504836151376365,
+      "present": false,
+      "recovered": true,
+      "recovery_s": 0.0
+     },
+     "window": {
+      "aggregate_req_s": 128.23313312338456,
+      "mismatches": 0,
+      "routing_failures": [],
+      "short_p99_ms": 11.637861754279612,
+      "steady_host_slow_share": 0.0009891196834817012
+     },
+     "window_client_cpu_ms_per_request": {
+      "long": 0.4576612612612613,
+      "short": 0.15154378109452737
+     },
+     "window_p99_ms": 11.637861754279612,
      "window_s": 20.0
     }
    ]

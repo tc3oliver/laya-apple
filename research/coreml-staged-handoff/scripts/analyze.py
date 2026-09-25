@@ -55,8 +55,10 @@ Interpretation choices where criteria.md leaves room (the stricter reading each 
   validity failure (INCONCLUSIVE), never a candidate failure.
 - A run whose protocol differs (cycles != 2, seconds != 20, or a guard other than the cell's) is
   analysed and shown but never judged: its round stays pending.
-- Round 2's fallback (H64 after H32 fails) uses design.round2("H64"): H64 r3-r5, and A r3-r4 as
-  run_all.sh leaves them (it skips existing files).
+- Round 2's fallback (H64 after H32 fails) is addendum 1's: H64 r3, A r5, H64 r4, A r6, H64 r5, with
+  A references and A validity over A r1, r2, r5, r6. Addendum 4: H32's round 2 is INCONCLUSIVE by the
+  A guard (kept as such); the fallback runs because H32 failed gates that do not use an A reference
+  (A_INDEPENDENT) in round 2, so H32 is not replicated under any reading.
 - Mechanism: parent-active and worker are CPU-weighted aggregates of the threads active (>= 20 ms
   CPU) in [t0, t0 + 4 s), as phase 0; the switch time is per aggregate, from t0.
 """
@@ -116,6 +118,16 @@ MECH_ACTIVE_MS = 20.0
 P_DOMINANT = 0.25
 R1_A = (("A", 1), ("A", 2))
 R2_A = (("A", 1), ("A", 2), ("A", 3), ("A", 4))
+R2F_A = (("A", 1), ("A", 2), ("A", 5), ("A", 6))  # addendum 1: the H64 fallback's own A runs
+A_INDEPENDENT = (
+    "transient_from_th",
+    "steady_host_slow",
+    "gpu_return_p50",
+    "mismatches",
+    "routing",
+    "crash",
+    "structure",
+)
 TRANSITIONS = {1: 2 * design.CYCLES, 2: 3 * design.CYCLES}  # per candidate
 GATES = (
     "onset_p99",
@@ -131,7 +143,7 @@ GATES = (
     "crash",
     "structure",
 )
-RUN_NAME = re.compile(rf"^{design.MODEL}-(?P<cell>A|B|H32|H64)-r(?P<rep>[1-5])\.json\.gz$")
+RUN_NAME = re.compile(rf"^{design.MODEL}-(?P<cell>A|B|H32|H64)-r(?P<rep>[1-6])\.json\.gz$")
 
 INCONCLUSIVE_A = "INCONCLUSIVE: an A window failed the validity guard; no candidate is judged in this round"
 INCONCLUSIVE_B = "INCONCLUSIVE: B did not reproduce the phenotype (fewer than 2 of 4 transitions >= 2.0 s)"
@@ -528,22 +540,33 @@ def round1(stats: dict, present) -> dict:
     return out
 
 
-def round2(stats: dict, present, cand: str) -> dict:
-    runs2 = design.round2(cand)
+def round2(stats: dict, present, cand: str, fallback: bool = False) -> dict:
+    runs2 = design.round2(cand, fallback)
+    r2_a = R2F_A if fallback else R2_A
     missing = [f"{c} r{r}" for c, r in runs2 if (c, r) not in present]
     deviating = [f"{c} r{r}" for c, r in runs2 if (c, r) in stats and not stats[(c, r)]["protocol_ok"]]
-    a_runs = [stats[k] for k in R2_A if k in stats]
-    ref = references(a_runs) if len(a_runs) == len(R2_A) else None
+    a_runs = [stats[k] for k in r2_a if k in stats]
+    ref = references(a_runs) if len(a_runs) == len(r2_a) else None
     runs = [stats[(cand, r)] for r in (3, 4, 5) if (cand, r) in stats]
     j = judge_candidate(runs, ref, TRANSITIONS[2])
     j["mechanism_reading_holds"] = _mech_holds(runs) if runs else None
-    out = {"candidate": cand, "runs": [list(x) for x in runs2], "references": ref, "judgement": j}
+    out = {"candidate": cand, "fallback": fallback, "runs": [list(x) for x in runs2], "references": ref, "judgement": j}
     out.update(missing=missing, deviating=deviating)
     if missing or deviating:
         out.update(complete=False, valid=None, passed=None)
         return out
     av = a_validity(a_runs)
     out.update(complete=True, A_validity=av, valid=av["valid"], passed=av["valid"] and j["pass"])
+    return out
+
+
+def a_independent_failures(r2: dict) -> list[str]:
+    """The failed gates of a round-2 candidate that do not use an A reference (addendum 4)."""
+    out = []
+    for t in r2["judgement"].get("transitions") or []:
+        bad = [g for g in t.get("failed") or [] if g in A_INDEPENDENT]
+        if bad:
+            out.append(f"{t.get('run')} c{t.get('cycle')}: {'/'.join(bad)}")
     return out
 
 
@@ -567,22 +590,32 @@ def summarise(raw: Path) -> dict:
         order = [r1["leader"]]
         if r1["leader"] == "H32" and r1["candidates"]["H64"]["pass"]:
             order.append("H64")  # the fallback, used only if H32 fails round 2
+        notes = []
         for c in order:
-            r2 = round2(stats, present, c)
+            r2 = round2(stats, present, c, fallback=c != r1["leader"])
             r2s.append(r2)
             if not r2["complete"]:
-                outcome = f"round 2 ({c}) pending: " + ", ".join(r2["missing"] + r2["deviating"])
+                outcome = "; ".join(notes + [f"round 2 ({c}) pending: " + ", ".join(r2["missing"] + r2["deviating"])])
                 break
             if not r2["valid"]:
-                outcome = f"round 2 ({c}): " + INCONCLUSIVE_A
+                indep = a_independent_failures(r2)
+                r2["a_independent_failures"] = indep
+                if c == "H32" and indep and "H64" in order:  # addendum 4
+                    notes.append(
+                        f"round 2 (H32): {INCONCLUSIVE_A}; independently of A, H32 failed "
+                        + ", ".join(indep)
+                        + ", so it is not replicated; the H64 fallback runs (addendum 4)"
+                    )
+                    continue
+                outcome = "; ".join(notes + [f"round 2 ({c}): " + INCONCLUSIVE_A])
                 break
             if r2["passed"]:
-                outcome = REPLICATES.format(c=c)
+                outcome = "; ".join(notes + [REPLICATES.format(c=c)])
                 if not r2["judgement"]["mechanism_reading_holds"]:
                     outcome += "; the gates pass but the 'P-dominant at the handoff and stays' reading does not hold"
                 break
         if outcome is None:
-            outcome = f"no candidate replicates: {CLOSED}"
+            outcome = "; ".join(notes + [f"no candidate replicates: {CLOSED}"])
     planned = set(design.ROUND1)
     for r2 in r2s:
         planned |= {tuple(x) for x in r2["runs"]}

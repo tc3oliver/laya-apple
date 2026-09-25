@@ -270,3 +270,28 @@ methodology, and it would interfere with the research harnesses that swap the AN
 therefore passes `ane_handoff=True` explicitly, and cell A passes `ane_handoff=False`, which is the
 default. Nothing else changes. Whether 1.5 enables the handoff by default is a release decision
 that follows these phases.
+
+## Addendum 4 (committed after H32's round 2, before any H64 fallback run)
+
+This records a decision made after H32's round-2 data was seen. It changes no threshold, gate or
+verdict.
+
+- **H32's round 2 as preregistered: INCONCLUSIVE, and it stays so.** A r3's cycle-1 window has a
+  short P99 of 13.33 ms, over the A guard's 13 ms.
+- **Independently of that, H32 failed gates that do not use an A reference.** In r3 cycle 1 the
+  transient from t_h lasted 11.5 s, and the steady host-slow share was 0.134. In r3 cycle 0 the
+  transient from t_h lasted 16.0 s.
+  - Its research counters show the #96 / #99 E-core residency starting at the handoff: parent and
+    worker E share 1.00 from t_h, and the switch at 11.5 s.
+  - So H32 cannot replicate under any reading. It is not a candidate.
+- **The H64 fallback runs as addendum 1 wrote it.** Addendum 1's condition, "H32 failed round 2", is
+  read as "H32 is not replicated":
+  - runs H64 r3, A r5, H64 r4, A r6, H64 r5;
+  - A references and A validity over A r1, r2, r5 and r6;
+  - the same gates. `analyze.py` reports H32's formal INCONCLUSIVE and its A-independent failures
+    next to the H64 result.
+- **No other candidate, N or variant follows.**
+- **Machine conditions.** The window-start conditions (`conditions_before`) show load averages of
+  0.7–2.5 in every run, and no large process before H32 r3's cycle-1 hetero window. Nothing there
+  marks it as a machine artefact. From here on, no other agent runs tests on this machine while a
+  run is in progress.

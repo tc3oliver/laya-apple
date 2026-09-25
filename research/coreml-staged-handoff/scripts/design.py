@@ -27,10 +27,15 @@ CYCLES = 2
 SECONDS = 20.0
 
 
-def round2(leader: str) -> tuple[tuple[str, int], ...]:
-    """Round 2's runs: leader r3, A r3, leader r4, A r4, leader r5."""
+def round2(leader: str, fallback: bool = False) -> tuple[tuple[str, int], ...]:
+    """Round 2's runs: leader r3, A r3, leader r4, A r4, leader r5. The H64 fallback (criteria.md,
+    addendum 1) has its own A runs: H64 r3, A r5, H64 r4, A r6, H64 r5."""
     if leader not in CANDIDATES:
         raise ValueError(f"not a candidate: {leader}")
+    if fallback:
+        if leader != "H64":
+            raise ValueError("only H64 is a fallback")
+        return ((leader, 3), ("A", 5), (leader, 4), ("A", 6), (leader, 5))
     return ((leader, 3), ("A", 3), (leader, 4), ("A", 4), (leader, 5))
 
 
@@ -44,13 +49,14 @@ def main():
     r = sub.add_parser("runs", help='print one round\'s runs as "cell rep" lines, in order')
     r.add_argument("round", type=int, choices=(1, 2))
     r.add_argument("--leader", choices=CANDIDATES, default=None)
+    r.add_argument("--fallback", action="store_true", help="the H64 fallback round 2 (addendum 1)")
     a = ap.parse_args()
     if a.round == 1:
         runs = ROUND1
     else:
         if a.leader is None:
             ap.error("round 2 needs --leader")
-        runs = round2(a.leader)
+        runs = round2(a.leader, a.fallback)
     for cell, rep in runs:
         print(cell, rep)
 

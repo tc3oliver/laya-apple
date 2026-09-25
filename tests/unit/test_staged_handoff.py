@@ -194,6 +194,12 @@ def test_round1_is_mirrored_and_balanced():
     assert len(set(r)) == len(r)
 
 
+def test_round2_fallback_has_its_own_a_runs():
+    assert design.round2("H64", fallback=True) == (("H64", 3), ("A", 5), ("H64", 4), ("A", 6), ("H64", 5))
+    with pytest.raises(ValueError):
+        design.round2("H32", fallback=True)
+
+
 def test_round2():
     assert design.round2("H64") == (("H64", 3), ("A", 3), ("H64", 4), ("A", 4), ("H64", 5))
     with pytest.raises(ValueError):
@@ -544,11 +550,23 @@ def test_round2_fallback_and_replication(raw):
     assert [r["candidate"] for r in res["round2"]] == ["H32", "H64"]
     assert res["round2"][0]["passed"] is False and res["outcome"].startswith("round 2 (H64) pending: H64 r3")
     assert len(res["round2"][0]["references"]["transitions"]) == 8
-    for rep in (3, 4, 5):
-        _write(raw, "H64", rep)
+    for cell, rep in design.round2("H64", fallback=True):
+        _write(raw, cell, rep)
     res = analyze.summarise(raw)
-    assert res["outcome"].startswith(analyze.REPLICATES.format(c="H64")) and res["round2"][1]["passed"]
+    assert res["round2"][1]["fallback"] and len(res["round2"][1]["references"]["transitions"]) == 8
+    assert res["outcome"] == analyze.REPLICATES.format(c="H64") and res["round2"][1]["passed"]
     assert res["unexpected_files"] == [] and "## Round 2: H64" in analyze.tables(res)
+
+
+def test_round2_h32_a_invalid_with_a_independent_failure_runs_fallback(raw):
+    _round1(raw)
+    for cell, rep in design.round2("H32"):
+        mod = _window if (cell, rep) == ("A", 3) else _gpu if (cell, rep) == ("H32", 4) else None
+        _write(raw, cell, rep, mod)
+    res = analyze.summarise(raw)
+    assert res["round2"][0]["valid"] is False
+    assert "gpu_return_p50" in " ".join(res["round2"][0]["a_independent_failures"])
+    assert "H64 fallback runs (addendum 4)" in res["outcome"] and "round 2 (H64) pending" in res["outcome"]
 
 
 def test_round2_failure_closes(raw):
@@ -594,3 +612,359 @@ def test_rejects_other_experiments(raw):
         json.dump(run, fh)
     with pytest.raises(AssertionError):
         analyze.summarise(raw)
+
+
+# ------------------------------------------------------------------ prod_analyze.py on synthetic records
+
+prod = _load("staged_handoff_prod_analyze_for_tests", SCRIPTS / "prod_analyze.py")
+STEP = 50 * MS  # one closed-loop short request every 50 ms, one long every 100 ms
+
+
+def _prod_record(phase, cell):
+    """A synthetic prod_run.py record of `phase` as cell A / P that passes every gate: short
+    latency 5 ms, prepare 0.1 ms, ANE forward 2 ms, GPU return 0.5 ms, 100 + 20 req/s in hetero;
+    P logs N sync decisions then async in each hetero window, "armed" ones in solo_short."""
+    cfg = prod.PHASES[phase]
+    enabled = cell == "P" and phase != "5b"
+    t, windows, trace, dec = 100 * S, [], [], []
+    for i, w in enumerate(prod.prod_run.schedule(cfg["schedule"], cfg["seconds"])):
+        t += int((w["gap_s"] + 0.5) * S)
+        t0, end = t, t + int(w["seconds"] * S)
+        t = end
+        inst, streams = prod.prod_run.STREAMS[w["condition"]]
+        rec = {"index": i, "cycle": w.get("cycle"), "condition": w["condition"], "instance": inst}
+        rec.update(start_ns=t0, end_ns=end, streams={})
+        for s in streams:
+            dev = "gpu" if inst == "gpu" or s == "long" else "ane"
+            step = STEP if s == "short" else 2 * STEP
+            subs = list(range(t0 + MS, end - 10 * MS, step))
+            rec["streams"][s] = {
+                "latency_ms": [5.0] * len(subs),
+                "p99_ms": 5.0,
+                "req_s": 100.0 if s == "short" else 20.0,
+                "devices": {dev: len(subs)},
+                "mismatches": 0,
+            }
+            if inst != "auto":
+                continue
+            for k, sub in enumerate(subs):
+                if dev == "ane":
+                    trace.append(
+                        [
+                            "ane",
+                            sub,
+                            sub + MS // 10,
+                            sub + MS // 5,
+                            sub + 2 * MS + MS // 5,
+                            sub + 2400_000,
+                            sub + 2500_000,
+                        ]
+                    )
+                    if not enabled:
+                        continue
+                    if w["condition"] != "hetero":
+                        dec.append([sub, 0, "armed", 0])
+                    elif k < prod.GUARD:
+                        dec.append([sub, 0, "async_steady" if k == prod.GUARD - 1 else "sync_guard", k + 1])
+                    else:
+                        dec.append([sub, 1, "async_steady", prod.GUARD])
+                else:
+                    trace.append(
+                        ["gpu", sub, sub + MS // 10, sub + MS, sub + 40 * MS, sub + 40 * MS + MS // 2, sub + 41 * MS]
+                    )
+        windows.append(rec)
+    return {
+        "experiment": "coreml-staged-handoff production",
+        "args": {
+            "cell": cell,
+            "model": cfg["model"],
+            "short": cfg["short"],
+            "long": cfg["long"],
+            "schedule": cfg["schedule"],
+            "seconds": cfg["seconds"],
+        },
+        "info_end": {"ane_placement": "process" if phase == "5b" else "thread"},
+        "workers_alive_at_end": {"ane": True, "gpu": True},
+        "handoff_snapshot": {"guard": prod.GUARD, "disabled": False, "disabled_reason": None} if enabled else None,
+        "windows": windows,
+        "trace_columns": prod.prod_run.TRACE_COLUMNS,
+        "trace": sorted(trace, key=lambda r: r[1]),
+        "decisions_columns": ["decision_ns", "path", "state", "count"],
+        "decisions": dec,
+        "run_wall_s": 1.0,
+    }
+
+
+_RECORDS: dict = {}
+
+
+def _record(phase, cell):
+    if (phase, cell) not in _RECORDS:
+        _RECORDS[(phase, cell)] = json.dumps(_prod_record(phase, cell))
+    return json.loads(_RECORDS[(phase, cell)])
+
+
+def _write_prod(raw, phase, cell, rep, mod=None):
+    run = _record(phase, cell)
+    if mod:
+        mod(run)
+    with gzip.open(raw / (prod.run_name(phase, cell, rep) + ".json.gz"), "wt") as fh:
+        json.dump(run, fh)
+
+
+def _write_phases(raw, phases, mods=None):
+    mods = mods or {}
+    for ph in phases:
+        for cell, rep in prod.RUNS[ph]:
+            _write_prod(raw, ph, cell, rep, mods.get((ph, cell, rep)))
+
+
+def _hetero(run):
+    return [w for w in run["windows"] if w["condition"] == "hetero"]
+
+
+def _rows(run, lo, hi, target="ane"):
+    return [r for r in run["trace"] if r[0] == target and lo <= r[1] < hi]
+
+
+def _slow_client(lo_s, hi_s, ms):
+    def mod(run):
+        for w in _hetero(run):
+            subs = [r[1] for r in _rows(run, w["start_ns"], w["end_ns"])]
+            lat = w["streams"]["short"]["latency_ms"]
+            for k, sub in enumerate(subs):
+                if w["start_ns"] + lo_s * S <= sub < w["start_ns"] + hi_s * S:
+                    lat[k] = ms
+
+    return mod
+
+
+def _slow_prepare(lo_s, hi_s, every=1):
+    def mod(run):
+        for w in _hetero(run):
+            for k, r in enumerate(_rows(run, w["start_ns"] + int(lo_s * S), w["start_ns"] + int(hi_s * S))):
+                if k % every == 0:
+                    r[2] = r[1] + MS
+
+    return mod
+
+
+def _slow_forward(run):
+    for w in _hetero(run):
+        for r in _rows(run, w["start_ns"] + 2 * S, w["end_ns"]):
+            r[4] += MS
+
+
+def _slow_gpu_return(run):
+    for r in run["trace"]:
+        if r[0] == "gpu":
+            r[5] += 2 * MS
+
+
+def _low_throughput(run):
+    for w in _hetero(run):
+        w["streams"]["long"]["req_s"] = 5.0
+
+
+def _mismatch(run):
+    run["windows"][0]["streams"]["short"]["mismatches"] = 1
+
+
+def _misroute(run):
+    w = next(w for w in run["windows"] if w["condition"] == "solo_long")
+    w["streams"]["long"]["devices"] = {"gpu": 10, "ane": 1}
+
+
+def _dead_worker(run):
+    run["workers_alive_at_end"] = {"ane": False, "gpu": True}
+
+
+def _disabled(run):
+    run["handoff_snapshot"] = {"guard": prod.GUARD, "disabled": True, "disabled_reason": "worker error"}
+
+
+def _drop_guard_decision(run):
+    w = _hetero(run)[0]
+    k = next(i for i, d in enumerate(run["decisions"]) if d[0] >= w["start_ns"] and d[3] == 5)
+    del run["decisions"][k]
+
+
+PROD_GATE_FAILS = [
+    (_slow_client(0.0, 1.0, 12.0), "onset_p99"),
+    (_slow_client(15.0, 16.0, 12.0), "window_p99"),
+    (_slow_forward, "forward_ratio"),
+    (_slow_forward, "forward_plus"),
+    (_slow_prepare(1.7, 3.7), "transient_from_th"),
+    (_slow_prepare(10.0, 20.0, every=5), "steady_host_slow"),
+    (_slow_gpu_return, "gpu_return_p50"),
+    (_low_throughput, "throughput"),
+    (_mismatch, "mismatches"),
+    (_misroute, "routing"),
+    (_dead_worker, "workers_alive"),
+    (_disabled, "handoff_enabled"),
+    (_drop_guard_decision, "structure"),
+]
+
+
+@pytest.fixture
+def raw_prod(tmp_path):
+    d = tmp_path / "raw-prod"
+    d.mkdir()
+    return d
+
+
+def test_prod_phase4_passes_with_measures(raw_prod):
+    _write_phases(raw_prod, ["4"])
+    res = prod.summarise(raw_prod)
+    ph = res["phases"]["4"]
+    assert ph["status"] == "PASS" and ph["A_validity"]["valid"]
+    assert ph["judgement"]["n"] == ph["judgement"]["n_expected"] == 4
+    ref = ph["references"]["all"]
+    assert ref["A_window_p99_ms"] == 5.0 and ref["A_forward_mean_ms"] == pytest.approx(2.0)
+    assert ref["A_agg_req_s"] == 120.0
+    t = res["runs"]["mix-laya-P-r1"]["transitions"][0]
+    assert t["latency_source"] == "client" and t["structure"]["valid"] and t["structure"]["sync_before_t_h"] == 32
+    assert t["t_h_s"] == pytest.approx(0.001 + 32 * 0.05)
+    assert t["gpu_return_ms"]["p50"] == pytest.approx(0.5) and t["transient_from_th"]["duration_s"] == 0.0
+    assert res["phases"]["5"]["status"] == "pending" and res["outcome"].startswith("phase 5 pending")
+    assert res["phases"]["6"]["status"] == "not reached"
+    json.dumps(res, default=prod.a94._json)
+    assert "Phase 4" in prod.tables(res)
+
+
+def test_prod_latency_source_falls_back_to_trace():
+    run = _record("4", "P")
+    _hetero(run)[0]["streams"]["short"]["latency_ms"].pop()
+    st = prod.run_stats(run, "mix-laya-P-r1", "4", "P")
+    t = st["transitions"][0]
+    assert t["latency_source"] == "trace" and t["onset_p99_ms"] == pytest.approx(2.5)
+
+
+@pytest.mark.parametrize(("mod", "gate"), PROD_GATE_FAILS)
+def test_prod_each_gate_fails(raw_prod, mod, gate):
+    _write_phases(raw_prod, ["4"], {("4", "P", 2): mod})
+    res = prod.summarise(raw_prod)
+    ph = res["phases"]["4"]
+    assert ph["status"] == "FAIL" and res["outcome"].startswith("phase 4 FAIL: " + prod.CLOSED)
+    failed = {g for x in ph["judgement"]["transitions"] if x["run"] == "mix-laya-P-r2" for g in x["failed"]}
+    assert gate in failed
+    assert all(x["pass"] for x in ph["judgement"]["transitions"] if x["run"] == "mix-laya-P-r1")
+    assert all(res["phases"][p]["status"] == "not reached" for p in ("5", "5b", "6", "7"))
+
+
+def test_prod_crash_log_fails(raw_prod):
+    _write_phases(raw_prod, ["4"])
+    (raw_prod / "failed").mkdir()
+    (raw_prod / "failed" / "mix-laya-P-r1.1.log").write_text("x\n")
+    (raw_prod / "failed" / "mix-laya-A-r1.1.log").write_text("x\n")
+    ph = prod.summarise(raw_prod)["phases"]["4"]
+    assert ph["status"] == "FAIL" and {"crash"} == {g for x in ph["judgement"]["transitions"] for g in x["failed"]}
+
+
+def test_prod_structure_second_episode_fails(raw_prod):
+    def second(run):
+        w = _hetero(run)[1]
+        run["decisions"].append([w["end_ns"] - 5 * MS, 0, "sync_guard", 1])
+        run["decisions"].sort(key=lambda d: d[0])
+
+    _write_phases(raw_prod, ["4"], {("4", "P", 1): second})
+    ph = prod.summarise(raw_prod)["phases"]["4"]
+    x = next(x for x in ph["judgement"]["transitions"] if x["run"] == "mix-laya-P-r1" and x["index"] == 5)
+    assert ph["status"] == "FAIL" and x["failed"] == ["structure"]
+
+
+def test_prod_a_invalid_is_inconclusive(raw_prod):
+    _write_phases(raw_prod, ["4"], {("4", "A", 2): _slow_prepare(0.0, 3.0)})
+    res = prod.summarise(raw_prod)
+    ph = res["phases"]["4"]
+    assert ph["status"] == "INCONCLUSIVE" and not ph["A_validity"]["valid"]
+    assert res["outcome"].startswith("INCONCLUSIVE: phase 4") and prod.CLOSED not in res["outcome"]
+    assert res["phases"]["5"]["status"] == "not reached"
+
+
+def test_prod_protocol_deviation_is_not_judged(raw_prod):
+    def other_guard(run):
+        run["handoff_snapshot"]["guard"] = 64
+
+    _write_phases(raw_prod, ["4"], {("4", "P", 1): other_guard})
+    ph = prod.summarise(raw_prod)["phases"]["4"]
+    assert ph["status"] == "pending" and "protocol deviation (not judged): mix-laya-P-r1" in ph["reason"]
+
+
+def test_prod_phase_gating(raw_prod):
+    _write_phases(raw_prod, ["4", "5", "5b", "6", "7"], {("5", "P", 1): _slow_gpu_return})
+    res = prod.summarise(raw_prod)
+    st = {p: j["status"] for p, j in res["phases"].items()}
+    assert st == {"4": "PASS", "5": "FAIL", "5b": "PASS", "6": "not reached", "7": "not reached"}
+    assert res["phases"]["6"]["judged_status"] == "PASS" and res["outcome"].startswith("phase 5 FAIL")
+
+
+def test_prod_all_phases_pass_is_product_candidate(raw_prod):
+    _write_phases(raw_prod, ["4", "5", "5b", "6", "7"])
+    res = prod.summarise(raw_prod)
+    assert res["outcome"] == prod.CANDIDATE, res["outcome"]
+    assert res["phases"]["6"]["judgement"]["n"] == 12 and res["phases"]["6"]["non_hetero"]["pass"]
+    sk = res["phases"]["7"]["soak"]
+    assert sk["pass"] and res["phases"]["7"]["judgement"]["n"] == 60 and sk["first15_p99_ms"] == 5.0
+    assert "Soak gates" in prod.tables(res)
+
+
+def test_prod_phase6_non_hetero_fails(raw_prod):
+    def slow_solo(run):
+        w = next(w for w in run["windows"] if w["condition"] == "solo_short")
+        w["streams"]["short"]["latency_ms"] = [7.0] * len(w["streams"]["short"]["latency_ms"])
+
+    _write_phases(raw_prod, ["4", "5", "5b", "6"], {("6", "P", 2): slow_solo})
+    ph = prod.summarise(raw_prod)["phases"]["6"]
+    assert ph["status"] == "FAIL" and ph["judgement"]["pass"]
+    assert ph["non_hetero"]["failing"] == ["product-laya-P-r2 w2 short: p99"]
+
+
+def test_prod_soak_rearm_fails(raw_prod):
+    def not_rearmed(run):
+        w = _hetero(run)[10]
+        run["decisions"].append([w["start_ns"], 0, "armed", 0])  # the window starts without an episode
+        run["decisions"].sort(key=lambda d: d[0])
+
+    _write_phases(raw_prod, ["4", "5", "5b", "6", "7"], {("7", "P", 1): not_rearmed})
+    res = prod.summarise(raw_prod)
+    ph = res["phases"]["7"]
+    assert ph["status"] == "FAIL" and ph["judgement"]["pass"] and ph["soak"]["failed"] == ["rearm"]
+    assert ph["soak"]["rearm_failures"] == [21] and res["outcome"].startswith("phase 7 FAIL")
+
+
+def test_prod_soak_degradation_fails(raw_prod):
+    def degrade(run):
+        for w in _hetero(run)[-15:]:
+            w["streams"]["short"]["latency_ms"] = [5.5] * len(w["streams"]["short"]["latency_ms"])
+
+    _write_phases(raw_prod, ["4", "5", "5b", "6", "7"], {("7", "P", 1): degrade})
+    ph = prod.summarise(raw_prod)["phases"]["7"]
+    assert ph["status"] == "FAIL" and ph["judgement"]["pass"] and ph["soak"]["failed"] == ["degradation"]
+    assert ph["soak"]["last15_p99_ms"] == 5.5
+
+
+def test_prod_multilingual_handoff_enabled_fails(raw_prod):
+    def enabled(run):
+        run["handoff_snapshot"] = {"guard": prod.GUARD, "disabled": False}
+
+    _write_phases(raw_prod, ["4", "5"])
+    _write_phases(raw_prod, ["5b"], {("5b", "P", 1): enabled})
+    res = prod.summarise(raw_prod)
+    assert res["phases"]["5b"]["status"] == "FAIL" and res["phases"]["5b"]["checks"]["failed"] == [
+        "handoff_not_enabled"
+    ]
+    assert res["outcome"].startswith("phase 5b FAIL") and res["phases"]["6"]["status"] == "not reached"
+
+
+def test_prod_check_mode(raw_prod, tmp_path):
+    _write_phases(raw_prod, ["4"])
+    out = tmp_path / "out"
+    out.mkdir()
+    script = SCRIPTS / "prod_analyze.py"
+    subprocess.run([sys.executable, script, "--raw", raw_prod, "--out", out], check=True, capture_output=True)
+    ok = subprocess.run([sys.executable, script, "--raw", raw_prod, "--out", out, "--check"], capture_output=True)
+    assert ok.returncode == 0
+    (out / "prod_tables.md").write_text("x\n")
+    stale = subprocess.run([sys.executable, script, "--raw", raw_prod, "--out", out, "--check"], capture_output=True)
+    assert stale.returncode != 0 and b"stale" in stale.stderr
