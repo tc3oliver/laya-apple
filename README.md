@@ -1,5 +1,7 @@
 # laya-apple
 
+**English** | [繁體中文](README.zh-TW.md) | [简体中文](README.zh-CN.md)
+
 [![CI](https://github.com/tc3oliver/laya-apple/actions/workflows/ci.yml/badge.svg)](https://github.com/tc3oliver/laya-apple/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/laya-apple)](https://pypi.org/project/laya-apple/)
 ![Python 3.11–3.13](https://img.shields.io/badge/python-3.11%E2%80%933.13-blue)

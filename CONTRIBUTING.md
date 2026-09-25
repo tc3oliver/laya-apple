@@ -237,6 +237,11 @@ setting, and any quantized or otherwise optimized export.
   under about 70 characters.
 - Explain *why* a change was made in the body, not just what changed; the diff already
   shows what changed.
+- `README.md` has two translations, [`README.zh-TW.md`](README.zh-TW.md) (Traditional
+  Chinese) and [`README.zh-CN.md`](README.zh-CN.md) (Simplified Chinese). A pull request
+  that changes `README.md` updates both in the same pull request: same sections, numbers,
+  links and limitations. The English README is authoritative; if a translation disagrees
+  with it, the English text wins and the translation is fixed.
 - Keep a pull request to one logical change. Update `CHANGELOG.md` under `[Unreleased]`
   for any user-visible change.
 - Before opening a PR: run the fast test suite, `ruff check .`, and `ruff format --check`.
