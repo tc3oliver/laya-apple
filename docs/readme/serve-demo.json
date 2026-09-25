@@ -1,0 +1,128 @@
+{
+ "about": "Recorded by scripts/capture_serve_demo.py; rendered to serve-demo.svg by scripts/generate_readme_svgs.py. Each output is the real output of its command.",
+ "recorded": "2026-09-25",
+ "laya_apple": "1.3.0",
+ "platform": {
+  "soc": "Apple M4 Max",
+  "macos": "26.6.2"
+ },
+ "client": {
+  "name": "typesafe-sdk",
+  "version": "0.7.1"
+ },
+ "health": {
+  "default_model": "auto",
+  "ane": {
+   "laya": {
+    "status": "ready",
+    "buckets": [
+     64,
+     96,
+     128
+    ]
+   },
+   "laya-multilingual": {
+    "status": "ready",
+    "buckets": [
+     64,
+     96,
+     128
+    ]
+   }
+  }
+ },
+ "session": [
+  {
+   "cmd": "laya-apple serve 2> serve.log &",
+   "out": ""
+  },
+  {
+   "comment": "wait until GET /health reports the Neural Engine ready"
+  },
+  {
+   "cmd": "export TYPESAFE_BASE_URL=http://127.0.0.1:8642 TYPESAFE_API_KEY=local-placeholder",
+   "out": ""
+  },
+  {
+   "cmd": "cat next_step.py",
+   "out": "from typesafe_sdk import Choice, TypeSafeClient\n\nclient = TypeSafeClient()  # reads TYPESAFE_BASE_URL and TYPESAFE_API_KEY\nr = client.system_one(\n    state='pytest: 2 failed in tests/test_api.py right after the agent edited api/routes.py',\n    questions={\"next\": Choice(instructions='What should the coding agent do next?',\n                              criteria={'fix_code': None, 'run_tests': None, 'commit': None})},\n)\nprint(r.answers[\"next\"].choice, r.answers[\"next\"].probabilities)\n"
+  },
+  {
+   "cmd": "python next_step.py",
+   "out": "fix_code {'fix_code': 0.602, 'run_tests': 0.2346, 'commit': 0.1634}\n",
+   "note": "typesafe-sdk 0.7.1, unmodified"
+  },
+  {
+   "cmd": "curl -s http://127.0.0.1:8642/v1/systemone -H 'content-type: application/json' \\\n    -d @next.json | jq -c '.laya_apple | {model, device, routing_reason}'",
+   "out": "{\"model\":\"laya\",\"device\":\"ane\",\"routing_reason\":\"validated_short_single_question_path\"}\n"
+  }
+ ],
+ "request": {
+  "state": "pytest: 2 failed in tests/test_api.py right after the agent edited api/routes.py",
+  "questions": {
+   "next": {
+    "type": "choice",
+    "instructions": "What should the coding agent do next?",
+    "criteria": {
+     "fix_code": null,
+     "run_tests": null,
+     "commit": null
+    }
+   }
+  }
+ },
+ "response": {
+  "model": "laya-rl-agent",
+  "answers": {
+   "next": {
+    "type": "choice",
+    "choice": "fix_code",
+    "probabilities": {
+     "fix_code": 0.602,
+     "run_tests": 0.2346,
+     "commit": 0.1634
+    },
+    "confidence": 0.1429,
+    "answer_confidence": 0.602,
+    "action": {
+     "act_probability": 1.0
+    }
+   }
+  },
+  "usage": {
+   "input_tokens": 50,
+   "output_tokens": 0
+  },
+  "routing": {
+   "model": "english",
+   "repo": "convaiinnovations/laya",
+   "reason": "English Latin text",
+   "detection": {
+    "script": "latin",
+    "script_profile": {
+     "latin": 1.0
+    },
+    "language": "en",
+    "is_english": true,
+    "language_undecided": false,
+    "diacritic_rate": 0.0,
+    "non_latin_fraction": 0.0
+   },
+   "workflow": null
+  },
+  "laya_apple": {
+   "model": "laya",
+   "model_revision": "c5d78730f3493e4fe16d61507ef4b78eef7318cf",
+   "device": "ane",
+   "backend": "coreml",
+   "routing_reason": "validated_short_single_question_path",
+   "request_id": 3,
+   "truncated": false,
+   "sequence_length": 50,
+   "question_count": 1,
+   "latency_ms": 7.967,
+   "queue_wait_ms": 0.020958,
+   "device_ms": 7.81525
+  }
+ }
+}

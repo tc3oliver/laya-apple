@@ -10,6 +10,10 @@
   README text next to it names the benchmark report and its methodology.
 - architecture.svg: request-level routing and concurrent GPU + ANE serving; the ANE limits
   are read from laya_apple/data/routing.json.
+- serve-demo.svg: a terminal session in which the released Jev Python SDK, unmodified, gets
+  its answer from `laya-apple serve`. It is drawn from docs/readme/serve-demo.json, which
+  scripts/capture_serve_demo.py records from a real run; every output line is the recorded
+  output of its command.
 - social-preview.png: the repository's 1280x640 link preview, with the best throughput gain
   from the same data and the hard-mismatch count from benchmarks/v1.0/parity. It is
   rendered by headless Google Chrome, so it is not part of --check; regenerate it with
@@ -229,7 +233,88 @@ def architecture() -> str:
     return _svg(W, H, title, b)
 
 
-FIGURES = {"hero-throughput.svg": hero, "architecture.svg": architecture}
+SERVE_DEMO = OUT / "serve-demo.json"
+MONO = "ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace"
+TERM = {"bg": "#0d1117", "bar": "#161b22", "edge": "#3d444d", "text": "#e6edf3", "out": "#c9d1d9"}
+TERM.update(prompt="#3fb950", comment="#8b949e")
+
+
+def _mono(x, y, spans: list[tuple[str, str]], size=13) -> str:
+    """One terminal line: consecutive (text, colour) spans, whitespace preserved."""
+    parts = "".join(f'<tspan fill="{c}">{escape(t)}</tspan>' for t, c in spans if t)
+    return (
+        f'<text x="{x:g}" y="{y:g}" font-family="{MONO}" font-size="{size}" '
+        f'xml:space="preserve" style="white-space:pre">{parts}</text>'
+    )
+
+
+def serve_demo_lines(rec: dict) -> list[list[tuple[str, str]]]:
+    """The recorded session as terminal lines of (text, colour) spans."""
+    lines = []
+    for step in rec["session"]:
+        if "comment" in step:
+            lines.append([(f"# {step['comment']}", TERM["comment"])])
+            continue
+        cmd = step["cmd"].split("\n")
+        first = [("$ ", TERM["prompt"]), (cmd[0], TERM["text"])]
+        if step.get("note"):
+            first.append((f"   # {step['note']}", TERM["comment"]))
+        lines.append(first)
+        lines += [[(c, TERM["text"])] for c in cmd[1:]]
+        out = step.get("out", "")
+        if out:
+            lines += [[(o, TERM["out"])] for o in out.rstrip("\n").split("\n")]
+    return lines
+
+
+def serve_demo() -> str:
+    rec = json.loads(SERVE_DEMO.read_text())
+    lines = serve_demo_lines(rec)
+    size, line_h, char_w, pad = 13, 20, 7.9, 24
+    longest = max(sum(len(t) for t, _ in spans) for spans in lines)
+    W = max(880, int(2 * pad + char_w * longest + 0.999))
+    top = 44 + 26
+    H = top + line_h * len(lines) + 30
+    plat = rec["platform"]
+    caption = (
+        f"Recorded {rec['recorded']} on {plat['soc']}, macOS {plat['macos']}, laya-apple {rec['laya_apple']}, "
+        f"{rec['client']['name']} {rec['client']['version']}"
+    )
+    b = [
+        f'<rect x="0.5" y="0.5" width="{W - 1}" height="{H - 1}" rx="10" fill="{TERM["bg"]}" stroke="{TERM["edge"]}"/>',
+        f'<path d="M0.5,44 V10.5 a10,10 0 0 1 10,-10 H{W - 10.5} a10,10 0 0 1 10,10 V44 z" fill="{TERM["bar"]}"/>',
+        f'<line x1="0.5" x2="{W - 0.5}" y1="44" y2="44" stroke="{TERM["edge"]}"/>',
+        *(
+            f'<circle cx="{22 + 20 * k}" cy="22" r="6" fill="{c}"/>'
+            for k, c in enumerate(("#ff5f57", "#febc2e", "#28c840"))
+        ),
+        f'<text x="{W / 2:g}" y="27" fill="{TERM["comment"]}" font-size="13" text-anchor="middle">'
+        f"{escape(caption)}</text>",
+    ]
+    for i, spans in enumerate(lines):
+        b.append(_mono(pad, top + i * line_h, spans, size))
+    client = rec["client"]
+    answer = rec["response"]["answers"]
+    (qid,) = answer
+    la = rec["response"]["laya_apple"]
+    title = (
+        f"Terminal: laya-apple serve runs locally; {client['name']} {client['version']}, unmodified, "
+        f"is pointed at it with TYPESAFE_BASE_URL and gets the answer {answer[qid]['choice']!r}, "
+        f"which laya-apple reports was answered by the {la['model']} checkpoint on the {la['device'].upper()}"
+    )
+    return "\n".join(
+        [
+            f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" '
+            f'viewBox="0 0 {W} {H}" role="img" aria-labelledby="title" font-family="{FONT}">',
+            f'<title id="title">{escape(title)}</title>',
+            *b,
+            "</svg>",
+            "",
+        ]
+    )
+
+
+FIGURES = {"hero-throughput.svg": hero, "architecture.svg": architecture, "serve-demo.svg": serve_demo}
 
 SOCIAL_W, SOCIAL_H = 1280, 640
 CHROME_CANDIDATES = (
