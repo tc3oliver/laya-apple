@@ -11,6 +11,7 @@ from __future__ import annotations
 import bisect
 import math
 import re
+import statistics
 from datetime import datetime
 
 # ------------------------------------------------------------------------ energy over intervals
@@ -122,6 +123,73 @@ def offered_arrivals(rate: float, seconds: float) -> list[float]:
         raise ValueError("rate must be > 0")
     n = int(math.floor(seconds * rate - 1e-9)) + 1
     return [k / rate for k in range(n) if k / rate < seconds]
+
+
+# ------------------------------------------------------------------------ disturbance (run 2)
+
+
+def bin_powers(points: list[tuple[float, float]]) -> list[float]:
+    """Mean power (W) between consecutive (time s, cumulative J) points."""
+    return [(e1 - e0) / (t1 - t0) for (t0, e0), (t1, e1) in zip(points, points[1:]) if t1 > t0]
+
+
+def burst_excess(points: list[tuple[float, float]]) -> float | None:
+    """Mean minus median of the bin powers of a (time s, cumulative J) series.
+
+    A short burst of foreign CPU work raises the mean of a window but not its median, so the
+    excess measures how much a burst moved the window's mean. None with fewer than 2 bins.
+    """
+    p = bin_powers(points)
+    if len(p) < 2:
+        return None
+    return statistics.fmean(p) - statistics.median(p)
+
+
+def parse_ps_time(s: str) -> float:
+    """CPU time as printed by macOS `ps -o time` ([[dd-]hh:]mm:ss.cc) in seconds."""
+    days = 0
+    if "-" in s:
+        d, s = s.split("-", 1)
+        days = int(d)
+    secs = 0.0
+    for part in s.split(":"):
+        secs = secs * 60 + float(part)
+    return days * 86400 + secs
+
+
+def parse_ps(text: str) -> dict[int, tuple[str, float]]:
+    """`ps -A -o pid=,time=,comm=` output -> {pid: (process name, CPU s)}. Only the last path
+    component of the command is kept, so no machine path is recorded."""
+    out: dict[int, tuple[str, float]] = {}
+    for line in text.splitlines():
+        parts = line.split(None, 2)
+        if len(parts) < 3:
+            continue
+        try:
+            pid, cpu = int(parts[0]), parse_ps_time(parts[1])
+        except ValueError:
+            continue
+        out[pid] = (parts[2].rstrip("/").rsplit("/", 1)[-1], cpu)
+    return out
+
+
+def cpu_by_process(
+    before: dict[int, tuple[str, float]],
+    after: dict[int, tuple[str, float]],
+    own: dict[int, str] | None = None,
+    top: int = 10,
+) -> list[list]:
+    """CPU seconds used between two ps snapshots, summed by process name, largest first:
+    [[name, cpu_s], ...]. Processes started in between count from zero. `own` maps pids of the
+    measurement itself to a label (e.g. "harness", "sampler") that replaces their name."""
+    own = own or {}
+    by: dict[str, float] = {}
+    for pid, (name, cpu) in after.items():
+        d = cpu - before[pid][1] if pid in before and before[pid][0] == name else cpu
+        if d > 0:
+            key = own.get(pid, name)
+            by[key] = by.get(key, 0.0) + d
+    return [[k, round(v, 2)] for k, v in sorted(by.items(), key=lambda kv: (-kv[1], kv[0]))[:top]]
 
 
 # ------------------------------------------------------------------------ powermetrics

@@ -1,8 +1,24 @@
 # GIL-released Core ML predict on the product mix
 
-**Status: preregistered, not run.** The criteria are in [`criteria.md`](criteria.md), which
-was committed before any campaign data. `raw/`, `results.json` and `tables.md` do not exist
-yet.
+**Status: run, FAIL.** Neither candidate passes the preregistered gate
+([`criteria.md`](criteria.md), committed before any campaign data) on any of the three
+models. Per the stop rule, the FAIL is recorded, thread-placed coremltools stays the
+production path, and the Swift-worker study is preregistered next. Full numbers:
+[`tables.md`](tables.md), [`results.json`](results.json), raw data in [`raw/`](raw/)
+(18 runs, P C D D C P per model).
+
+| model | C vs production | D vs production |
+|---|---|---|
+| laya (A) | short P99 +12.9% | aggregate −11.5%, short P99 +39.1% |
+| laya-typed-decisions (A) | aggregate −7.2%, short P99 +83.0% | short P99 +11.8% |
+| laya-multilingual (B) | aggregate −9.1%, short P99 +20.9% | aggregate −15.6%, short P99 +57.9% |
+
+- Correctness passed everywhere (0 mismatches), and long (GPU) P99 passed everywhere.
+- GPU completion isolation passed everywhere: GPU return P50 fell from 4.35 ms (laya) and
+  8.53 ms (typed) to 0.05–0.06 ms with C and to 0.01 ms or less with D.
+- The cost moved to the short (ANE) stream: its P99 rose and its throughput fell in every
+  failing cell. Not gating: in D, and in C for laya-multilingual, the ANE thread's GIL
+  re-acquire wait reaches 1–4 ms at P99, and per-forward thread CPU rises (`tables.md`).
 
 Machine: Mac Studio M4 Max, macOS 26, Python 3.12.14, coremltools 9.0, MLX 0.32.2,
 PyObjC 12.2.2.

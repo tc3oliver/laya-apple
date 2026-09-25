@@ -8,8 +8,11 @@ Inputs (raw/):
   crosscheck-powermetrics.txt       the operator's `sudo powermetrics` capture of the same run
 
 --check regenerates both outputs in memory and fails if they differ from the committed files.
-The acceptance criteria below are the ones preregistered in README.md; they are applied here
-unchanged and reported separately (no combined PASS/FAIL).
+
+Each run is analysed under the criteria revision stored with it (criteria-<rev>.json next to
+README.md): a run's meta.criteria names it, and a run without one (method_version 1, run 1) is
+analysed under r1. Revisions keep the preregistered thresholds unchanged (README.md, "Run 2");
+results are reported per criterion, with no combined PASS/FAIL.
 """
 
 from __future__ import annotations
@@ -37,15 +40,22 @@ from energy import (  # noqa: E402
 
 SOC = ("cpu", "gpu", "ane", "dram")
 
-# Preregistered criteria (README.md, "Acceptance criteria"). Do not change after data.
-XC_REL_TOL = 0.05  # sampler vs powermetrics, rails and combined with reference >= 1 W
-XC_ABS_FLOOR_W = 1.0
-XC_ABS_TOL_W = 0.10  # below 1 W: absolute agreement
-XC_TRIM_S = 3.0  # phase edges excluded
-XC_MIN_PAIRS = 20  # paired 1 s samples per loaded phase
-SAMPLER_MAX_CPU_FRAC = 0.02  # of one core
-RATE_TOL = 0.02  # achieved decisions/s within 2% of offered
-IDLE_SPREAD_MAX = 0.10  # idle spread <= 10% of the smallest net loaded power in the shape
+
+def load_criteria(rev: str) -> dict:
+    """criteria-<rev>.json. The thresholds are preregistered (README.md); do not edit a
+    revision after data exists for it, add a new one."""
+    return json.loads((ROOT / f"criteria-{rev}.json").read_text())
+
+
+def criteria_rev(meta: dict | None) -> str:
+    """The criteria revision a run was recorded under: meta.criteria, else r1 (method
+    version 1 predates the field)."""
+    meta = meta or {}
+    if meta.get("criteria"):
+        return meta["criteria"]
+    if meta.get("method_version", 1) == 1:
+        return "r1"
+    raise ValueError(f"run with method_version {meta.get('method_version')} names no criteria revision")
 
 
 def load_gz(p: Path) -> dict:
@@ -73,7 +83,7 @@ def rng(xs) -> dict:
 # ------------------------------------------------------------------------------ campaign
 
 
-def window_row(w: dict, ts, cum, pts, pws) -> dict:
+def window_row(w: dict, ts, cum, pts, pws, rate_tol: float | None = None) -> dict:
     m0, m1 = (x / 1e9 for x in w["measure_ns"])
     dur = m1 - m0
     rails = {r: window_energy(ts, cum[r], m0, m1) for r in SOC}
@@ -109,21 +119,35 @@ def window_row(w: dict, ts, cum, pts, pws) -> dict:
             errors=errors,
             decisions_by_device=devices,
         )
-        ok_rate = rate_q > 0 and abs(decisions / dur - rate_q) / rate_q <= RATE_TOL
+        if rate_tol is None:
+            rate_tol = load_criteria("r1")["thresholds"]["rate_tol"]
+        ok_rate = rate_q > 0 and abs(decisions / dur - rate_q) / rate_q <= rate_tol
         ok_late = bool(late) and late[int(0.99 * (len(late) - 1))] <= 1e3 / w["rate"]
         row["valid"] = bool(ok_rate and ok_late and errors == 0)
+    if "attempt" in w:  # method version 2: disturbance record and repeats
+        row.update(
+            attempt=w["attempt"],
+            disturbed=w["disturbed"],
+            superseded=w["superseded"],
+            cpu_excess_w=w["cpu_excess_w"],
+            cpu_by_process=w["cpu_by_process"],
+        )
     return row
 
 
 def campaign(run: dict) -> dict:
+    th = load_criteria(criteria_rev(run.get("meta")))["thresholds"]
     ts, cum = series(run["sampler"])
     pts, pws = pstr_series(run["sampler"])
-    rows = [window_row(w, ts, cum, pts, pws) for w in run["windows"]]
+    all_rows = [window_row(w, ts, cum, pts, pws, th["rate_tol"]) for w in run["windows"]]
+    # A superseded attempt was repeated because of a CPU burst (method version 2); the
+    # attempt that replaced it is the one analysed. Every attempt stays in "windows".
+    rows = [r for r in all_rows if not r.get("superseded")]
     out: dict = {"meta": run["meta"], "args": run["args"], "sampler_meta": run["sampler"]["meta"], "shapes": {}}
     loop_frac = run["sampler"]["meta"].get("sampler_loop_cpu_frac")
     out["sampler_overhead"] = {
         "loop_cpu_frac": loop_frac,
-        "ok": loop_frac is not None and loop_frac <= SAMPLER_MAX_CPU_FRAC,
+        "ok": loop_frac is not None and loop_frac <= th["sampler_max_cpu_frac"],
     }
     for shape in dict.fromkeys(r["shape"] for r in rows):
         rs = [r for r in rows if r["shape"] == shape]
@@ -196,12 +220,25 @@ def campaign(run: dict) -> dict:
                 "ok": spread is not None
                 and min_net is not None
                 and min_net > 0
-                and spread <= IDLE_SPREAD_MAX * min_net,
+                and spread <= th["idle_spread_max"] * min_net,
             },
             "cells": cells,
             "comparisons": comparisons,
             "windows": rs,
         }
+        attempts = [r for r in all_rows if r["shape"] == shape and "attempt" in r]
+        if attempts:
+            sup = [r for r in attempts if r["superseded"]]
+            idle_all = [r["soc_w"] for r in attempts if r["config"] == "idle"]
+            out["shapes"][shape]["disturbance"] = {
+                "attempts": len(attempts),
+                "repeated": len(sup),
+                "repeated_idle": sum(1 for r in sup if r["config"] == "idle"),
+                "disturbed_but_kept": sum(1 for r in attempts if r["disturbed"] and not r["superseded"]),
+                # informational: the idle spread had the repeated attempts been kept
+                "idle_spread_all_attempts_w": max(idle_all) - min(idle_all) if idle_all else None,
+                "superseded_windows": sup,
+            }
     return out
 
 
@@ -212,6 +249,8 @@ def crosscheck(sampler_path: Path, pm_path: Path) -> dict | None:
     if not (sampler_path.exists() and pm_path.exists()):
         return None
     run = load_gz(sampler_path)
+    rev = criteria_rev(run.get("meta"))
+    th = load_criteria(rev)["thresholds"]
     pm = parse_powermetrics_text(pm_path.read_text(errors="replace"))
     ts, cum = series(run["sampler"], clock=1)
     rails = {k: cum[k] for k in ("cpu", "gpu", "ane")}
@@ -219,7 +258,7 @@ def crosscheck(sampler_path: Path, pm_path: Path) -> dict | None:
     phases = []
     for p in run["phases"]:
         u0, u1 = (x / 1e9 for x in p["unix_ns"])
-        lo, hi = u0 + XC_TRIM_S, u1 - XC_TRIM_S
+        lo, hi = u0 + th["xc_trim_s"], u1 - th["xc_trim_s"]
         pairs = []
         for s in pm:
             t1 = s["t_end"] + lag
@@ -233,21 +272,26 @@ def crosscheck(sampler_path: Path, pm_path: Path) -> dict | None:
             for k in ("cpu", "gpu", "ane"):
                 o = sum(e * ours[k] for e, ours, _ in pairs) / wsum
                 r = sum(e * s[f"{k}_w"] for e, _, s in pairs) / wsum
-                row[k] = agreement(o, r, XC_REL_TOL, XC_ABS_FLOOR_W, XC_ABS_TOL_W)
+                row[k] = agreement(o, r, th["xc_rel_tol"], th["xc_abs_floor_w"], th["xc_abs_tol_w"])
             o = sum(row[k]["ours_w"] for k in ("cpu", "gpu", "ane"))
             r = sum(e * s["combined_w"] for e, _, s in pairs) / wsum
-            row["combined"] = agreement(o, r, XC_REL_TOL, XC_ABS_FLOOR_W, XC_ABS_TOL_W)
-        need = XC_MIN_PAIRS if p["phase"] != "idle" else 1
+            row["combined"] = agreement(o, r, th["xc_rel_tol"], th["xc_abs_floor_w"], th["xc_abs_tol_w"])
+        need = th["xc_min_pairs"] if p["phase"] != "idle" else 1
         row["ok"] = len(pairs) >= need and all(row[k]["ok"] for k in ("cpu", "gpu", "ane", "combined") if k in row)
         phases.append(row)
-    return {
+    loop_frac = run["sampler"]["meta"].get("sampler_loop_cpu_frac")
+    out = {
         "powermetrics_samples": len(pm),
         "lag_s": lag,
         "phases": phases,
-        "sampler_loop_cpu_frac": run["sampler"]["meta"].get("sampler_loop_cpu_frac"),
+        "sampler_loop_cpu_frac": loop_frac,
         "ok": bool(phases) and all(p["ok"] for p in phases),
         "meta": run["meta"],
     }
+    if rev != "r1":  # criterion 3 on the cross-check run, reported on its own
+        out["criteria"] = rev
+        out["sampler_overhead_ok"] = loop_frac is not None and loop_frac <= th["sampler_max_cpu_frac"]
+    return out
 
 
 # ------------------------------------------------------------------------------ output
@@ -269,6 +313,12 @@ def tables(res: dict) -> str:
             f"Criterion met: **{'yes' if xc['ok'] else 'no'}**.",
             "",
         ]
+        if "sampler_overhead_ok" in xc:
+            L += [
+                f"Criteria revision {xc['criteria']}. Sampler loop CPU {fmt((xc['sampler_loop_cpu_frac'] or 0) * 100, 2)}% "
+                f"of one core (criterion met: {'yes' if xc['sampler_overhead_ok'] else 'no'}).",
+                "",
+            ]
         L += ["| phase | pairs | rail | sampler W | powermetrics W | diff | ok |", "|---|---:|---|---:|---:|---:|---|"]
         for p in xc["phases"]:
             for k in ("cpu", "gpu", "ane", "combined"):
@@ -292,6 +342,11 @@ def tables(res: dict) -> str:
             f"of one core (criterion met: {'yes' if c['sampler_overhead']['ok'] else 'no'}).",
             "",
         ]
+        if "criteria" in res:
+            L += [
+                f"Criteria revision: {res['criteria'][name]['revision']} (`criteria-{res['criteria'][name]['revision']}.json`).",
+                "",
+            ]
         for shape, s in c["shapes"].items():
             i = s["idle"]
             L += [
@@ -299,6 +354,14 @@ def tables(res: dict) -> str:
                 f"vs smallest net loaded {fmt(i['min_net_loaded_w'])} W (criterion met: {'yes' if i['ok'] else 'no'}).",
                 "",
             ]
+            if "disturbance" in s:
+                d = s["disturbance"]
+                L += [
+                    f"Disturbance repeats: {d['repeated']} of {d['attempts']} attempts repeated ({d['repeated_idle']} idle); "
+                    f"{d['disturbed_but_kept']} disturbed attempt(s) kept at the repeat limit. Idle spread over all "
+                    f"attempts, repeated ones included: {fmt(d['idle_spread_all_attempts_w'])} W (informational).",
+                    "",
+                ]
             L += [
                 "| config | valid/windows | decisions/s | net SoC W | net J/decision (median, min–max) | gross J/decision | net system J/decision (PSTR) | decisions by device |",
                 "|---|---:|---:|---:|---|---:|---:|---|",
@@ -319,9 +382,14 @@ def tables(res: dict) -> str:
 
 
 def build(raw: Path) -> dict:
-    campaigns = {p.name.removesuffix(".json.gz"): campaign(load_gz(p)) for p in sorted(raw.glob("campaign*.json.gz"))}
+    runs = {p.name.removesuffix(".json.gz"): load_gz(p) for p in sorted(raw.glob("campaign*.json.gz"))}
+    campaigns = {name: campaign(run) for name, run in runs.items()}
     xc = crosscheck(raw / "crosscheck-sampler.json.gz", raw / "crosscheck-powermetrics.txt")
-    return {"crosscheck": xc, "campaigns": campaigns}
+    res = {"crosscheck": xc, "campaigns": campaigns}
+    revs = {name: criteria_rev(run.get("meta")) for name, run in runs.items()}
+    if set(revs.values()) - {"r1"}:  # added with r2; run 1 alone keeps its original output
+        res["criteria"] = {name: {"revision": rev, **load_criteria(rev)} for name, rev in revs.items()}
+    return res
 
 
 def main(argv=None) -> int:

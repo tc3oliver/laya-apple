@@ -52,6 +52,14 @@ def _libs():
         _cf.CFRelease.restype = None
         _cf.CFDictionaryCreateMutableCopy.restype = c_void_p
         _cf.CFDictionaryCreateMutableCopy.argtypes = [c_void_p, ctypes.c_long, c_void_p]
+        _cf.CFDictionarySetValue.restype = None
+        _cf.CFDictionarySetValue.argtypes = [c_void_p, c_void_p, c_void_p]
+        _cf.CFArrayCreateMutable.restype = c_void_p
+        _cf.CFArrayCreateMutable.argtypes = [c_void_p, ctypes.c_long, c_void_p]
+        _cf.CFArrayAppendValue.restype = None
+        _cf.CFArrayAppendValue.argtypes = [c_void_p, c_void_p]
+        _cf.CFEqual.restype = ctypes.c_bool
+        _cf.CFEqual.argtypes = [c_void_p, c_void_p]
         _iokit.IOServiceMatching.restype = c_void_p
         _iokit.IOServiceMatching.argtypes = [ctypes.c_char_p]
         _iokit.IOServiceGetMatchingService.restype = c_uint32
@@ -91,6 +99,12 @@ def _libs():
         _ior.IOReportChannelGetFormat.restype = c_uint8
         _ior.IOReportChannelGetFormat.argtypes = [c_void_p]
     return _cf, _iokit, _ior
+
+
+def _cf_type_array_callbacks():
+    """kCFTypeArrayCallBacks (a struct exported by CoreFoundation), for CFArrayCreateMutable."""
+    cf, _, _ = _libs()
+    return ctypes.c_void_p.in_dll(cf, "kCFTypeArrayCallBacks")
 
 
 def _cfstr(s: str) -> int:
@@ -252,10 +266,15 @@ class IOReportEnergy:
 
     GROUP = "Energy Model"
 
-    def __init__(self) -> None:
-        # One sample costs ~3.3 ms of CPU on M4 Max / macOS 26.6.2 whether the subscription
-        # holds all ~330 channels or only the four rails used (measured), so the whole group
-        # is subscribed and the rails are picked in delta().
+    def __init__(self, channels: tuple[str, ...] | None = None) -> None:
+        """Subscribe to the whole group, or with `channels` to those channels only.
+
+        Nearly all of a sample's cost is kernel time in IOReportCreateSamples (M4 Max /
+        macOS 26.6.2: ~0.1 ms user, ~3.6 ms system per sample for the whole group of 331
+        channels, ~2.9 ms for 4), so a sample's CPU cost is set mostly by how often it is
+        taken; a 4-channel subscription trims it further. `read()` then returns the
+        channels' cumulative counters without a delta object or any string conversion.
+        """
         cf, _, ior = _libs()
         grp = _cfstr(self.GROUP)
         chans = ior.IOReportCopyChannelsInGroup(grp, None, 0, 0, 0)
@@ -265,11 +284,75 @@ class IOReportEnergy:
         self._chans = cf.CFDictionaryCreateMutableCopy(None, 0, chans)
         cf.CFRelease(chans)
         self._key = _cfstr("IOReportChannels")
+        self.names: tuple[str, ...] = ()
+        self._scales: tuple[float, ...] = ()
+        if channels is not None:
+            self._select(channels)
         subbed = c_void_p()
         self._sub = ior.IOReportCreateSubscription(None, self._chans, byref(subbed), 0, None)
         if not self._sub:
             raise OSError("IOReportCreateSubscription failed")
         self._subbed = subbed.value
+        if channels is not None:
+            self._check_layout()
+
+    def _select(self, channels: tuple[str, ...]) -> None:
+        """Keep only `channels` (one entry each, energy units) in the subscription request."""
+        cf, _, ior = _libs()
+        arr = cf.CFDictionaryGetValue(self._chans, self._key)
+        picked: dict[str, tuple[int, float]] = {}
+        for i in range(cf.CFArrayGetCount(arr)):
+            item = cf.CFArrayGetValueAtIndex(arr, i)
+            name = _pystr(ior.IOReportChannelGetChannelName(item))
+            unit = (_pystr(ior.IOReportChannelGetUnitLabel(item)) or "").strip()
+            if name in channels:
+                if name in picked:
+                    raise OSError(f"IOReport: channel {name!r} appears more than once")
+                if unit not in _ENERGY_UNITS:
+                    raise OSError(f"IOReport: channel {name!r} has non-energy unit {unit!r}")
+                picked[name] = (i, _ENERGY_UNITS[unit])
+        missing = [c for c in channels if c not in picked]
+        if missing:
+            raise OSError(f"IOReport: channels not found in {self.GROUP!r}: {missing}")
+        sel = cf.CFArrayCreateMutable(None, len(channels), ctypes.addressof(_cf_type_array_callbacks()))
+        for c in channels:
+            cf.CFArrayAppendValue(sel, cf.CFArrayGetValueAtIndex(arr, picked[c][0]))
+        cf.CFDictionarySetValue(self._chans, self._key, sel)
+        cf.CFRelease(sel)
+        self.names = tuple(channels)
+        self._scales = tuple(picked[c][1] for c in channels)
+        self._cfnames = tuple(_cfstr(c) for c in channels)
+
+    def _check_layout(self) -> None:
+        """A sample of a selected subscription must hold exactly the selected channels, in
+        order; read() relies on it and re-checks it on every call with CFEqual (no string
+        conversion)."""
+        s = self.sample()
+        try:
+            self.read(s)
+        finally:
+            self.release(s)
+
+    def read(self, s: int) -> tuple[int, ...]:
+        """Raw cumulative counters of the selected channels in sample `s` (units: see
+        `scales`). The counters are cumulative, so an interval's energy is a difference of
+        two reads times the scale; no IOReportCreateSamplesDelta object is needed."""
+        cf, _, ior = _libs()
+        arr = cf.CFDictionaryGetValue(s, self._key)
+        if not self.names or cf.CFArrayGetCount(arr) != len(self.names):
+            raise OSError("IOReport: sample does not match the selected channels")
+        out = []
+        for i, cfname in enumerate(self._cfnames):
+            item = cf.CFArrayGetValueAtIndex(arr, i)
+            if not cf.CFEqual(ior.IOReportChannelGetChannelName(item), cfname):
+                raise OSError("IOReport: sample channel order changed")
+            out.append(ior.IOReportSimpleGetIntegerValue(item, 0))
+        return tuple(out)
+
+    @property
+    def scales(self) -> tuple[float, ...]:
+        """Joules per raw count, per selected channel."""
+        return self._scales
 
     def sample(self) -> int:
         s = _libs()[2].IOReportCreateSamples(self._sub, self._subbed, None)
