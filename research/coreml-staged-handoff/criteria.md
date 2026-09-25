@@ -183,3 +183,10 @@ claimed either way.
     never written as INCONCLUSIVE.
 - `laya-multilingual` keeps its process placement. It gets only a regression smoke if shared code
   changes.
+
+## Addendum 1 (committed after round 1, before any round-2 run; protocol only)
+
+The review of `analyze.py` noted that the H64 fallback round 2 would reuse the A runs of H32's
+round 2 as its own. If the fallback runs, it gets its own interleaved A runs: H64 r3, A r5, H64 r4,
+A r6, H64 r5. Its A references and its A validity use A r1, r2, r5 and r6. No threshold, gate or
+outcome rule changes. H32's round 2 is as written above: H32 r3, A r3, H32 r4, A r4, H32 r5.
