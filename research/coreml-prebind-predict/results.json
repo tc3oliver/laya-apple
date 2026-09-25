@@ -1,0 +1,4022 @@
+{
+ "check": {
+  "C_bit_identical_everywhere": true,
+  "PB_bit_identical_everywhere": true,
+  "coremltools": "9.0",
+  "laya_apple": "1.3.0",
+  "models": {
+   "laya": {
+    "buckets": {
+     "128": {
+      "C_bit_identical": true,
+      "PB_backings": {
+       "evidence": {
+        "cls": {
+         "backing_written": true,
+         "dtype": "float16",
+         "equal_to_returned": true,
+         "same_address": true,
+         "shape": [
+          1,
+          1024,
+          1,
+          1
+         ]
+        },
+        "logits": {
+         "backing_written": true,
+         "dtype": "float16",
+         "equal_to_returned": true,
+         "same_address": true,
+         "shape": [
+          1,
+          1,
+          1,
+          32
+         ]
+        }
+       },
+       "modes": {
+        "cls": "backed",
+        "logits": "backed"
+       }
+      },
+      "PB_bit_identical": true,
+      "PB_forward_bit_identical": true,
+      "crossings": {
+       "C": {
+        "ctypes": 1,
+        "objc_send": 216,
+        "pool_pop": 1,
+        "pool_push": 2,
+        "total": 220
+       },
+       "PB": {
+        "ctypes": 1,
+        "objc_send": 40,
+        "pool_pop": 1,
+        "pool_push": 2,
+        "total": 44
+       }
+      },
+      "rows": 11,
+      "stamps_ordered": {
+       "C": true,
+       "PB": true
+      }
+     },
+     "64": {
+      "C_bit_identical": true,
+      "PB_backings": {
+       "evidence": {
+        "cls": {
+         "backing_written": true,
+         "dtype": "float16",
+         "equal_to_returned": true,
+         "same_address": true,
+         "shape": [
+          1,
+          1024,
+          1,
+          1
+         ]
+        },
+        "logits": {
+         "backing_written": true,
+         "dtype": "float16",
+         "equal_to_returned": true,
+         "same_address": true,
+         "shape": [
+          1,
+          1,
+          1,
+          32
+         ]
+        }
+       },
+       "modes": {
+        "cls": "backed",
+        "logits": "backed"
+       }
+      },
+      "PB_bit_identical": true,
+      "PB_forward_bit_identical": true,
+      "crossings": {
+       "C": {
+        "ctypes": 1,
+        "objc_send": 216,
+        "pool_pop": 1,
+        "pool_push": 2,
+        "total": 220
+       },
+       "PB": {
+        "ctypes": 1,
+        "objc_send": 40,
+        "pool_pop": 1,
+        "pool_push": 2,
+        "total": 44
+       }
+      },
+      "rows": 11,
+      "stamps_ordered": {
+       "C": true,
+       "PB": true
+      }
+     },
+     "96": {
+      "C_bit_identical": true,
+      "PB_backings": {
+       "evidence": {
+        "cls": {
+         "backing_written": true,
+         "dtype": "float16",
+         "equal_to_returned": true,
+         "same_address": true,
+         "shape": [
+          1,
+          1024,
+          1,
+          1
+         ]
+        },
+        "logits": {
+         "backing_written": true,
+         "dtype": "float16",
+         "equal_to_returned": true,
+         "same_address": true,
+         "shape": [
+          1,
+          1,
+          1,
+          32
+         ]
+        }
+       },
+       "modes": {
+        "cls": "backed",
+        "logits": "backed"
+       }
+      },
+      "PB_bit_identical": true,
+      "PB_forward_bit_identical": true,
+      "crossings": {
+       "C": {
+        "ctypes": 1,
+        "objc_send": 216,
+        "pool_pop": 1,
+        "pool_push": 2,
+        "total": 220
+       },
+       "PB": {
+        "ctypes": 1,
+        "objc_send": 40,
+        "pool_pop": 1,
+        "pool_push": 2,
+        "total": 44
+       }
+      },
+      "rows": 11,
+      "stamps_ordered": {
+       "C": true,
+       "PB": true
+      }
+     }
+    }
+   },
+   "laya-multilingual": {
+    "buckets": {
+     "128": {
+      "C_bit_identical": true,
+      "PB_backings": {
+       "evidence": {
+        "cls": {
+         "backing_written": true,
+         "dtype": "float16",
+         "equal_to_returned": true,
+         "same_address": true,
+         "shape": [
+          1,
+          768,
+          1,
+          1
+         ]
+        },
+        "logits": {
+         "backing_written": true,
+         "dtype": "float16",
+         "equal_to_returned": true,
+         "same_address": true,
+         "shape": [
+          1,
+          1,
+          1,
+          32
+         ]
+        }
+       },
+       "modes": {
+        "cls": "backed",
+        "logits": "backed"
+       }
+      },
+      "PB_bit_identical": true,
+      "PB_forward_bit_identical": true,
+      "crossings": {
+       "C": {
+        "ctypes": 1,
+        "objc_send": 216,
+        "pool_pop": 1,
+        "pool_push": 2,
+        "total": 220
+       },
+       "PB": {
+        "ctypes": 1,
+        "objc_send": 40,
+        "pool_pop": 1,
+        "pool_push": 2,
+        "total": 44
+       }
+      },
+      "rows": 11,
+      "stamps_ordered": {
+       "C": true,
+       "PB": true
+      }
+     },
+     "256": {
+      "C_bit_identical": true,
+      "PB_backings": {
+       "evidence": {
+        "cls": {
+         "backing_written": true,
+         "dtype": "float16",
+         "equal_to_returned": true,
+         "same_address": true,
+         "shape": [
+          1,
+          768,
+          1,
+          1
+         ]
+        },
+        "logits": {
+         "backing_written": true,
+         "dtype": "float16",
+         "equal_to_returned": true,
+         "same_address": true,
+         "shape": [
+          1,
+          1,
+          1,
+          32
+         ]
+        }
+       },
+       "modes": {
+        "cls": "backed",
+        "logits": "backed"
+       }
+      },
+      "PB_bit_identical": true,
+      "PB_forward_bit_identical": true,
+      "crossings": {
+       "C": {
+        "ctypes": 1,
+        "objc_send": 216,
+        "pool_pop": 1,
+        "pool_push": 2,
+        "total": 220
+       },
+       "PB": {
+        "ctypes": 1,
+        "objc_send": 40,
+        "pool_pop": 1,
+        "pool_push": 2,
+        "total": 44
+       }
+      },
+      "rows": 11,
+      "stamps_ordered": {
+       "C": true,
+       "PB": true
+      }
+     },
+     "64": {
+      "C_bit_identical": true,
+      "PB_backings": {
+       "evidence": {
+        "cls": {
+         "backing_written": true,
+         "dtype": "float16",
+         "equal_to_returned": true,
+         "same_address": true,
+         "shape": [
+          1,
+          768,
+          1,
+          1
+         ]
+        },
+        "logits": {
+         "backing_written": true,
+         "dtype": "float16",
+         "equal_to_returned": true,
+         "same_address": true,
+         "shape": [
+          1,
+          1,
+          1,
+          32
+         ]
+        }
+       },
+       "modes": {
+        "cls": "backed",
+        "logits": "backed"
+       }
+      },
+      "PB_bit_identical": true,
+      "PB_forward_bit_identical": true,
+      "crossings": {
+       "C": {
+        "ctypes": 1,
+        "objc_send": 216,
+        "pool_pop": 1,
+        "pool_push": 2,
+        "total": 220
+       },
+       "PB": {
+        "ctypes": 1,
+        "objc_send": 40,
+        "pool_pop": 1,
+        "pool_push": 2,
+        "total": 44
+       }
+      },
+      "rows": 11,
+      "stamps_ordered": {
+       "C": true,
+       "PB": true
+      }
+     },
+     "96": {
+      "C_bit_identical": true,
+      "PB_backings": {
+       "evidence": {
+        "cls": {
+         "backing_written": true,
+         "dtype": "float16",
+         "equal_to_returned": true,
+         "same_address": true,
+         "shape": [
+          1,
+          768,
+          1,
+          1
+         ]
+        },
+        "logits": {
+         "backing_written": true,
+         "dtype": "float16",
+         "equal_to_returned": true,
+         "same_address": true,
+         "shape": [
+          1,
+          1,
+          1,
+          32
+         ]
+        }
+       },
+       "modes": {
+        "cls": "backed",
+        "logits": "backed"
+       }
+      },
+      "PB_bit_identical": true,
+      "PB_forward_bit_identical": true,
+      "crossings": {
+       "C": {
+        "ctypes": 1,
+        "objc_send": 216,
+        "pool_pop": 1,
+        "pool_push": 2,
+        "total": 220
+       },
+       "PB": {
+        "ctypes": 1,
+        "objc_send": 40,
+        "pool_pop": 1,
+        "pool_push": 2,
+        "total": 44
+       }
+      },
+      "rows": 11,
+      "stamps_ordered": {
+       "C": true,
+       "PB": true
+      }
+     }
+    }
+   },
+   "laya-typed-decisions": {
+    "buckets": {
+     "128": {
+      "C_bit_identical": true,
+      "PB_backings": {
+       "evidence": {
+        "cls": {
+         "backing_written": true,
+         "dtype": "float16",
+         "equal_to_returned": true,
+         "same_address": true,
+         "shape": [
+          1,
+          1024,
+          1,
+          1
+         ]
+        },
+        "logits": {
+         "backing_written": true,
+         "dtype": "float16",
+         "equal_to_returned": true,
+         "same_address": true,
+         "shape": [
+          1,
+          1,
+          1,
+          32
+         ]
+        }
+       },
+       "modes": {
+        "cls": "backed",
+        "logits": "backed"
+       }
+      },
+      "PB_bit_identical": true,
+      "PB_forward_bit_identical": true,
+      "crossings": {
+       "C": {
+        "ctypes": 1,
+        "objc_send": 216,
+        "pool_pop": 1,
+        "pool_push": 2,
+        "total": 220
+       },
+       "PB": {
+        "ctypes": 1,
+        "objc_send": 40,
+        "pool_pop": 1,
+        "pool_push": 2,
+        "total": 44
+       }
+      },
+      "rows": 11,
+      "stamps_ordered": {
+       "C": true,
+       "PB": true
+      }
+     },
+     "64": {
+      "C_bit_identical": true,
+      "PB_backings": {
+       "evidence": {
+        "cls": {
+         "backing_written": true,
+         "dtype": "float16",
+         "equal_to_returned": true,
+         "same_address": true,
+         "shape": [
+          1,
+          1024,
+          1,
+          1
+         ]
+        },
+        "logits": {
+         "backing_written": true,
+         "dtype": "float16",
+         "equal_to_returned": true,
+         "same_address": true,
+         "shape": [
+          1,
+          1,
+          1,
+          32
+         ]
+        }
+       },
+       "modes": {
+        "cls": "backed",
+        "logits": "backed"
+       }
+      },
+      "PB_bit_identical": true,
+      "PB_forward_bit_identical": true,
+      "crossings": {
+       "C": {
+        "ctypes": 1,
+        "objc_send": 216,
+        "pool_pop": 1,
+        "pool_push": 2,
+        "total": 220
+       },
+       "PB": {
+        "ctypes": 1,
+        "objc_send": 40,
+        "pool_pop": 1,
+        "pool_push": 2,
+        "total": 44
+       }
+      },
+      "rows": 11,
+      "stamps_ordered": {
+       "C": true,
+       "PB": true
+      }
+     },
+     "96": {
+      "C_bit_identical": true,
+      "PB_backings": {
+       "evidence": {
+        "cls": {
+         "backing_written": true,
+         "dtype": "float16",
+         "equal_to_returned": true,
+         "same_address": true,
+         "shape": [
+          1,
+          1024,
+          1,
+          1
+         ]
+        },
+        "logits": {
+         "backing_written": true,
+         "dtype": "float16",
+         "equal_to_returned": true,
+         "same_address": true,
+         "shape": [
+          1,
+          1,
+          1,
+          32
+         ]
+        }
+       },
+       "modes": {
+        "cls": "backed",
+        "logits": "backed"
+       }
+      },
+      "PB_bit_identical": true,
+      "PB_forward_bit_identical": true,
+      "crossings": {
+       "C": {
+        "ctypes": 1,
+        "objc_send": 216,
+        "pool_pop": 1,
+        "pool_push": 2,
+        "total": 220
+       },
+       "PB": {
+        "ctypes": 1,
+        "objc_send": 40,
+        "pool_pop": 1,
+        "pool_push": 2,
+        "total": 44
+       }
+      },
+      "rows": 11,
+      "stamps_ordered": {
+       "C": true,
+       "PB": true
+      }
+     }
+    }
+   }
+  },
+  "pyobjc": "12.2.2",
+  "rows_per_bucket": 11,
+  "seed": 0
+ },
+ "limits": {
+  "aggregate_min_ratio": 0.95,
+  "p99_max_ratio": 1.05,
+  "return_min_gain": 5.0,
+  "return_p50_max_ms": 1.0
+ },
+ "models": {
+  "laya": {
+   "args": {
+    "cycles": 3,
+    "long": 512,
+    "seconds": 20,
+    "short": 128
+   },
+   "configs": {
+    "A": {
+     "aggregate_req_s": 122.30649732386132,
+     "gpu_return_ms": {
+      "n": 2932,
+      "p50": 4.390499999999999,
+      "p99": 5.615490000000001
+     },
+     "hetero_windows_with_gpu_returns": 6,
+     "mismatches_all_windows": 0,
+     "streams": {
+      "long": {
+       "devices": [
+        {
+         "gpu": 490
+        },
+        {
+         "gpu": 490
+        },
+        {
+         "gpu": 490
+        },
+        {
+         "gpu": 489
+        },
+        {
+         "gpu": 489
+        },
+        {
+         "gpu": 490
+        }
+       ],
+       "p50_ms_median": 40.8072397694923,
+       "p99_ms": [
+        42.14116535964422,
+        41.73188482760452,
+        41.662590984487906,
+        42.300580106675625,
+        41.916924957185984,
+        41.72588232206181
+       ],
+       "p99_ms_median": 41.82440489239525,
+       "req_s": [
+        24.474105223099873,
+        24.498436795178858,
+        24.484984736145854,
+        24.42416539042246,
+        24.43515498244086,
+        24.468087395443003
+       ],
+       "req_s_median": 24.471096309271438
+      },
+      "short": {
+       "devices": [
+        {
+         "ane": 1957
+        },
+        {
+         "ane": 1959
+        },
+        {
+         "ane": 1959
+        },
+        {
+         "ane": 1952
+        },
+        {
+         "ane": 1954
+        },
+        {
+         "ane": 1957
+        }
+       ],
+       "p50_ms_median": 10.10139548452571,
+       "p99_ms": [
+        10.781144499778748,
+        10.722729924600571,
+        10.735650395508856,
+        10.766084035858512,
+        10.778455721447244,
+        10.747463521547616
+       ],
+       "p99_ms_median": 10.756773778703064,
+       "req_s": [
+        97.82202921420516,
+        97.94481688273515,
+        97.91858384048324,
+        97.57397966408811,
+        97.66867582420413,
+        97.8487728149746
+       ],
+       "req_s_median": 97.83540101458988
+      }
+     },
+     "windows": 6
+    },
+    "C": {
+     "aggregate_req_s": 126.31955458808942,
+     "gpu_return_ms": {
+      "n": 3338,
+      "p50": 0.038,
+      "p99": 0.25263000000000013
+     },
+     "hetero_windows_with_gpu_returns": 6,
+     "mismatches_all_windows": 0,
+     "streams": {
+      "long": {
+       "devices": [
+        {
+         "gpu": 556
+        },
+        {
+         "gpu": 557
+        },
+        {
+         "gpu": 558
+        },
+        {
+         "gpu": 558
+        },
+        {
+         "gpu": 558
+        },
+        {
+         "gpu": 557
+        }
+       ],
+       "p50_ms_median": 35.87424001307227,
+       "p99_ms": [
+        36.25642228289507,
+        36.26521705184131,
+        36.14671596325934,
+        36.16303156595677,
+        36.18558095768093,
+        36.20786150917411
+       ],
+       "p99_ms_median": 36.196721233427525,
+       "req_s": [
+        27.79567927695701,
+        27.810018058480487,
+        27.897170006386336,
+        27.892219059622523,
+        27.885412850595767,
+        27.81100532027174
+       ],
+       "req_s_median": 27.84820908543375
+      },
+      "short": {
+       "devices": [
+        {
+         "ane": 1962
+        },
+        {
+         "ane": 1962
+        },
+        {
+         "ane": 1972
+        },
+        {
+         "ane": 1973
+        },
+        {
+         "ane": 1971
+        },
+        {
+         "ane": 1969
+        }
+       ],
+       "p50_ms_median": 10.105489986017346,
+       "p99_ms": [
+        10.8164555078838,
+        10.835496223298833,
+        10.779403118649498,
+        10.784266730770469,
+        10.82107147667557,
+        10.756301805377007
+       ],
+       "p99_ms_median": 10.800361119327135,
+       "req_s": [
+        98.07370521357731,
+        98.07890772423453,
+        98.56365855367798,
+        98.64466270720139,
+        98.51888342645627,
+        98.42380757885506
+       ],
+       "req_s_median": 98.47134550265567
+      }
+     },
+     "windows": 6
+    },
+    "PB": {
+     "aggregate_req_s": 129.5385604820601,
+     "gpu_return_ms": {
+      "n": 3344,
+      "p50": 0.034,
+      "p99": 0.17571000000000048
+     },
+     "hetero_windows_with_gpu_returns": 6,
+     "mismatches_all_windows": 0,
+     "streams": {
+      "long": {
+       "devices": [
+        {
+         "gpu": 558
+        },
+        {
+         "gpu": 558
+        },
+        {
+         "gpu": 559
+        },
+        {
+         "gpu": 559
+        },
+        {
+         "gpu": 558
+        },
+        {
+         "gpu": 558
+        }
+       ],
+       "p50_ms_median": 35.816312505630776,
+       "p99_ms": [
+        36.258409060537815,
+        36.12560174195096,
+        36.137842510361224,
+        36.16621425608173,
+        36.05478068930097,
+        36.12184469704516
+       ],
+       "p99_ms_median": 36.13172212615609,
+       "req_s": [
+        27.890370616640016,
+        27.89215928109332,
+        27.904321730389476,
+        27.903667355517722,
+        27.898709277335552,
+        27.89324809060866
+       ],
+       "req_s_median": 27.895978683972107
+      },
+      "short": {
+       "devices": [
+        {
+         "ane": 2028
+        },
+        {
+         "ane": 2032
+        },
+        {
+         "ane": 2032
+        },
+        {
+         "ane": 2035
+        },
+        {
+         "ane": 2037
+        },
+        {
+         "ane": 2036
+        }
+       ],
+       "p50_ms_median": 9.800614992855117,
+       "p99_ms": [
+        10.366608144249767,
+        10.307767516933382,
+        10.287794235628098,
+        10.300603576470166,
+        10.251093674451111,
+        10.274618823314087
+       ],
+       "p99_ms_median": 10.294198906049132,
+       "req_s": [
+        101.39369373283763,
+        101.56570041475058,
+        101.5581942039493,
+        101.71946318142535,
+        101.83385636032405,
+        101.78796654503923
+       ],
+       "req_s_median": 101.64258179808797
+      }
+     },
+     "windows": 6
+    }
+   },
+   "extras": {
+    "A": {
+     "collisions": {
+      "collide_fraction": 0.24919066280456637,
+      "forward_overlap_any_fraction": 0.23888226273641167,
+      "forward_overlap_mean": 0.23888226273641167,
+      "n": 11738,
+      "odds_ratio": 2.852791252332952,
+      "tail_colliding_fraction": 0.4830508474576271,
+      "tail_fraction": 0.010052819901175668,
+      "tail_n": 118,
+      "threshold_ms": 10.731544
+     },
+     "forwards": {
+      "ane": {
+       "n": 11738,
+       "placement": "thread",
+       "service_ms_p50": 9.902125,
+       "thread_cpu_ms_mean": 0.587025480746294
+      },
+      "gpu": {
+       "n": 2938,
+       "placement": "process",
+       "service_ms_p50": 35.7789585,
+       "thread_cpu_ms_mean": 1.7370410217835262
+      }
+     },
+     "gil_wait": null,
+     "load": {
+      "backings": null,
+      "crossings": {
+       "128": {
+        "ctypes": 0,
+        "nested_sends": 0,
+        "objc_send": 0,
+        "pool_pop": 0,
+        "pool_push": 0,
+        "reentries": 0,
+        "sites": {},
+        "total": 0
+       },
+       "64": {
+        "ctypes": 0,
+        "nested_sends": 0,
+        "objc_send": 0,
+        "pool_pop": 0,
+        "pool_push": 0,
+        "reentries": 0,
+        "sites": {},
+        "total": 0
+       },
+       "96": {
+        "ctypes": 0,
+        "nested_sends": 0,
+        "objc_send": 0,
+        "pool_pop": 0,
+        "pool_push": 0,
+        "reentries": 0,
+        "sites": {},
+        "total": 0
+       }
+      }
+     },
+     "stages": {
+      "features": {
+       "mean_ms": 0.2239752899982961,
+       "n": 11738,
+       "p50_ms": 0.161292,
+       "p95_ms": 0.6713044499999999,
+       "p99_ms": 0.71125
+      },
+      "predict": {
+       "mean_ms": 9.73184059073096,
+       "n": 11738,
+       "p50_ms": 9.668167,
+       "p95_ms": 10.16480975,
+       "p99_ms": 10.23592304
+      },
+      "tail": {
+       "mean_ms": 0.06255303893337878,
+       "n": 11738,
+       "p50_ms": 0.059917,
+       "p95_ms": 0.077083,
+       "p99_ms": 0.111875
+      }
+     },
+     "windows": {
+      "gil_probe_cpu_fraction_of_core_median": 0.00322063794562015,
+      "gil_probe_over_1ms_fraction_median": 0.7098237103040785,
+      "gil_probe_p99_ms_median": 10.321421749999999,
+      "slow_cpu": null,
+      "thread_cpu_ms_per_window_median": {
+       "MainThread": 0.032,
+       "client-long": 220.945,
+       "gil-probe": 66.07300000000001,
+       "laya-ane-dispatch": 1240.3175,
+       "laya-gpu-dispatch": 57.461,
+       "other": 63.430499999999995
+      }
+     }
+    },
+    "C": {
+     "collisions": {
+      "collide_fraction": 0.04242526886273181,
+      "forward_overlap_any_fraction": 0.28232703869929715,
+      "forward_overlap_mean": 0.28232703869929715,
+      "n": 11809,
+      "odds_ratio": 45.03843904406575,
+      "tail_colliding_fraction": 0.5866141732283464,
+      "tail_fraction": 0.021509018545177408,
+      "tail_n": 254,
+      "threshold_ms": 10.731544
+     },
+     "forwards": {
+      "ane": {
+       "n": 11809,
+       "placement": "thread",
+       "service_ms_p50": 9.926792,
+       "thread_cpu_ms_mean": 0.6432767098822932
+      },
+      "gpu": {
+       "n": 3344,
+       "placement": "process",
+       "service_ms_p50": 35.317896000000005,
+       "thread_cpu_ms_mean": 1.699313697667464
+      }
+     },
+     "gil_wait": {
+      "mean_ms": 0.004159752985011432,
+      "n": 11809,
+      "p50_ms": 0.000709,
+      "p95_ms": 0.002875,
+      "p99_ms": 0.09828828000000009
+     },
+     "load": {
+      "backings": null,
+      "crossings": {
+       "128": {
+        "ctypes": 1,
+        "nested_sends": 112,
+        "objc_send": 104,
+        "pool_pop": 1,
+        "pool_push": 2,
+        "reentries": 62,
+        "sites": {
+         "ctypes laya_predict_stamped <- nogil.py:StampedNoGilModel._predict": 1,
+         "nested objc_send longLongValue <- _pythonify.py:numberWrapper": 56,
+         "nested objc_send objCType <- _pythonify.py:numberWrapper": 56,
+         "objc_send alloc <- nogil.py:StampedNoGilModel._predict": 1,
+         "objc_send alloc <- nogil_predict.py:NoGilModel._array": 5,
+         "objc_send count <- _convenience_nsset.py:<lambda>": 1,
+         "objc_send dataPointer <- nogil_predict.py:_view": 7,
+         "objc_send dataType <- nogil.py:StampedNoGilModel._predict": 2,
+         "objc_send featureNames <- nogil.py:StampedNoGilModel._predict": 1,
+         "objc_send featureValueForName: <- nogil.py:StampedNoGilModel._predict": 2,
+         "objc_send featureValueWithMultiArray: <- nogil.py:StampedNoGilModel._predict": 5,
+         "objc_send initWithDictionary:error: <- nogil.py:StampedNoGilModel._predict": 1,
+         "objc_send initWithShape:dataType:error: <- nogil_predict.py:NoGilModel._array": 5,
+         "objc_send multiArrayValue <- nogil.py:StampedNoGilModel._predict": 2,
+         "objc_send nextObject <- _convenience.py:<lambda>": 45,
+         "objc_send nextObject <- _convenience_nsset.py:nsset__iter__.__next__": 3,
+         "objc_send objectEnumerator <- _convenience_nsarray.py:nsarray__iter__": 9,
+         "objc_send objectEnumerator <- _convenience_nsset.py:nsset__iter__.__init__": 1,
+         "objc_send shape <- nogil_predict.py:_view": 7,
+         "objc_send strides <- nogil_predict.py:_view": 7,
+         "pool_pop __exit__ <- nogil_predict.py:NoGilModel.predict": 1,
+         "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+         "pool_push init <- __init__.py:autorelease_pool.__enter__": 1,
+         "reentry <frozen abc>:ABCMeta.__instancecheck__": 6,
+         "reentry _pythonify.py:numberWrapper": 56
+        },
+        "total": 108
+       },
+       "64": {
+        "ctypes": 1,
+        "nested_sends": 112,
+        "objc_send": 104,
+        "pool_pop": 1,
+        "pool_push": 2,
+        "reentries": 62,
+        "sites": {
+         "ctypes laya_predict_stamped <- nogil.py:StampedNoGilModel._predict": 1,
+         "nested objc_send longLongValue <- _pythonify.py:numberWrapper": 56,
+         "nested objc_send objCType <- _pythonify.py:numberWrapper": 56,
+         "objc_send alloc <- nogil.py:StampedNoGilModel._predict": 1,
+         "objc_send alloc <- nogil_predict.py:NoGilModel._array": 5,
+         "objc_send count <- _convenience_nsset.py:<lambda>": 1,
+         "objc_send dataPointer <- nogil_predict.py:_view": 7,
+         "objc_send dataType <- nogil.py:StampedNoGilModel._predict": 2,
+         "objc_send featureNames <- nogil.py:StampedNoGilModel._predict": 1,
+         "objc_send featureValueForName: <- nogil.py:StampedNoGilModel._predict": 2,
+         "objc_send featureValueWithMultiArray: <- nogil.py:StampedNoGilModel._predict": 5,
+         "objc_send initWithDictionary:error: <- nogil.py:StampedNoGilModel._predict": 1,
+         "objc_send initWithShape:dataType:error: <- nogil_predict.py:NoGilModel._array": 5,
+         "objc_send multiArrayValue <- nogil.py:StampedNoGilModel._predict": 2,
+         "objc_send nextObject <- _convenience.py:<lambda>": 45,
+         "objc_send nextObject <- _convenience_nsset.py:nsset__iter__.__next__": 3,
+         "objc_send objectEnumerator <- _convenience_nsarray.py:nsarray__iter__": 9,
+         "objc_send objectEnumerator <- _convenience_nsset.py:nsset__iter__.__init__": 1,
+         "objc_send shape <- nogil_predict.py:_view": 7,
+         "objc_send strides <- nogil_predict.py:_view": 7,
+         "pool_pop __exit__ <- nogil_predict.py:NoGilModel.predict": 1,
+         "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+         "pool_push init <- __init__.py:autorelease_pool.__enter__": 1,
+         "reentry <frozen abc>:ABCMeta.__instancecheck__": 6,
+         "reentry _pythonify.py:numberWrapper": 56
+        },
+        "total": 108
+       },
+       "96": {
+        "ctypes": 1,
+        "nested_sends": 112,
+        "objc_send": 104,
+        "pool_pop": 1,
+        "pool_push": 2,
+        "reentries": 62,
+        "sites": {
+         "ctypes laya_predict_stamped <- nogil.py:StampedNoGilModel._predict": 1,
+         "nested objc_send longLongValue <- _pythonify.py:numberWrapper": 56,
+         "nested objc_send objCType <- _pythonify.py:numberWrapper": 56,
+         "objc_send alloc <- nogil.py:StampedNoGilModel._predict": 1,
+         "objc_send alloc <- nogil_predict.py:NoGilModel._array": 5,
+         "objc_send count <- _convenience_nsset.py:<lambda>": 1,
+         "objc_send dataPointer <- nogil_predict.py:_view": 7,
+         "objc_send dataType <- nogil.py:StampedNoGilModel._predict": 2,
+         "objc_send featureNames <- nogil.py:StampedNoGilModel._predict": 1,
+         "objc_send featureValueForName: <- nogil.py:StampedNoGilModel._predict": 2,
+         "objc_send featureValueWithMultiArray: <- nogil.py:StampedNoGilModel._predict": 5,
+         "objc_send initWithDictionary:error: <- nogil.py:StampedNoGilModel._predict": 1,
+         "objc_send initWithShape:dataType:error: <- nogil_predict.py:NoGilModel._array": 5,
+         "objc_send multiArrayValue <- nogil.py:StampedNoGilModel._predict": 2,
+         "objc_send nextObject <- _convenience.py:<lambda>": 45,
+         "objc_send nextObject <- _convenience_nsset.py:nsset__iter__.__next__": 3,
+         "objc_send objectEnumerator <- _convenience_nsarray.py:nsarray__iter__": 9,
+         "objc_send objectEnumerator <- _convenience_nsset.py:nsset__iter__.__init__": 1,
+         "objc_send shape <- nogil_predict.py:_view": 7,
+         "objc_send strides <- nogil_predict.py:_view": 7,
+         "pool_pop __exit__ <- nogil_predict.py:NoGilModel.predict": 1,
+         "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+         "pool_push init <- __init__.py:autorelease_pool.__enter__": 1,
+         "reentry <frozen abc>:ABCMeta.__instancecheck__": 6,
+         "reentry _pythonify.py:numberWrapper": 56
+        },
+        "total": 108
+       }
+      }
+     },
+     "stages": {
+      "features": {
+       "mean_ms": 0.18053524913201793,
+       "n": 11809,
+       "p50_ms": 0.172375,
+       "p95_ms": 0.196125,
+       "p99_ms": 0.6912013600000001
+      },
+      "native": {
+       "mean_ms": 9.476262805656702,
+       "n": 11809,
+       "p50_ms": 9.460792,
+       "p95_ms": 9.549458,
+       "p99_ms": 9.63701636
+      },
+      "post": {
+       "mean_ms": 0.09573113252603946,
+       "n": 11809,
+       "p50_ms": 0.08925,
+       "p95_ms": 0.13653340000000005,
+       "p99_ms": 0.18084836000000004
+      },
+      "pre": {
+       "mean_ms": 0.1506011730883225,
+       "n": 11809,
+       "p50_ms": 0.145625,
+       "p95_ms": 0.181167,
+       "p99_ms": 0.2969920000000005
+      },
+      "pre_overlap_any_fraction": 0.027436700821407402,
+      "pre_overlap_mean": 0.027436700821407402,
+      "predict": {
+       "mean_ms": 9.726754864256076,
+       "n": 11809,
+       "p50_ms": 9.697667,
+       "p95_ms": 9.847742,
+       "p99_ms": 10.332369
+      },
+      "reacquire": {
+       "mean_ms": 0.004159752985011432,
+       "n": 11809,
+       "p50_ms": 0.000709,
+       "p95_ms": 0.002875,
+       "p99_ms": 0.09828828000000009
+      },
+      "tail": {
+       "mean_ms": 0.0578465766788043,
+       "n": 11809,
+       "p50_ms": 0.05525,
+       "p95_ms": 0.0705416,
+       "p99_ms": 0.11632636000000002
+      }
+     },
+     "windows": {
+      "gil_probe_cpu_fraction_of_core_median": 0.008014336806756076,
+      "gil_probe_over_1ms_fraction_median": 0.00020008628732869765,
+      "gil_probe_p99_ms_median": 0.5891591549999999,
+      "slow_cpu": {
+       "ane_thread_cpu_ratios": [
+        1.1161193389139301,
+        1.1212489792113036,
+        1.0237459273322782,
+        1.0235145585102186,
+        1.0315362044178908,
+        1.0894451939291736
+       ],
+       "client_short_ratios": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+       ],
+       "computable_windows": 0,
+       "flagged_windows": 0,
+       "flags": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+       ],
+       "limit": 1.25
+      },
+      "thread_cpu_ms_per_window_median": {
+       "MainThread": 0.0325,
+       "client-long": 252.4615,
+       "client-short": 291.2865,
+       "gil-probe": 164.435,
+       "laya-ane-dispatch": 1376.5949999999998,
+       "laya-gpu-dispatch": 48.1035,
+       "other": 55.8965
+      }
+     }
+    },
+    "PB": {
+     "collisions": {
+      "collide_fraction": 0.03114754098360656,
+      "forward_overlap_any_fraction": 0.27352459016393443,
+      "forward_overlap_mean": 0.27352459016393443,
+      "n": 12200,
+      "odds_ratio": 2.6659514398644832,
+      "tail_colliding_fraction": 0.05555555555555555,
+      "tail_fraction": 0.0014754098360655738,
+      "tail_n": 18,
+      "threshold_ms": 10.731544
+     },
+     "forwards": {
+      "ane": {
+       "n": 12200,
+       "placement": "thread",
+       "service_ms_p50": 9.615375,
+       "thread_cpu_ms_mean": 0.33641784418032783
+      },
+      "gpu": {
+       "n": 3350,
+       "placement": "process",
+       "service_ms_p50": 35.295417,
+       "thread_cpu_ms_mean": 1.699481887761194
+      }
+     },
+     "gil_wait": {
+      "mean_ms": 0.003298969344262295,
+      "n": 12200,
+      "p50_ms": 0.000791,
+      "p95_ms": 0.00275,
+      "p99_ms": 0.016710510000000057
+     },
+     "load": {
+      "backings": {
+       "128": {
+        "evidence": {
+         "cls": {
+          "backing_written": true,
+          "dtype": "float16",
+          "equal_to_returned": true,
+          "same_address": true,
+          "shape": [
+           1,
+           1024,
+           1,
+           1
+          ]
+         },
+         "logits": {
+          "backing_written": true,
+          "dtype": "float16",
+          "equal_to_returned": true,
+          "same_address": true,
+          "shape": [
+           1,
+           1,
+           1,
+           32
+          ]
+         }
+        },
+        "modes": {
+         "cls": "backed",
+         "logits": "backed"
+        }
+       },
+       "64": {
+        "evidence": {
+         "cls": {
+          "backing_written": true,
+          "dtype": "float16",
+          "equal_to_returned": true,
+          "same_address": true,
+          "shape": [
+           1,
+           1024,
+           1,
+           1
+          ]
+         },
+         "logits": {
+          "backing_written": true,
+          "dtype": "float16",
+          "equal_to_returned": true,
+          "same_address": true,
+          "shape": [
+           1,
+           1,
+           1,
+           32
+          ]
+         }
+        },
+        "modes": {
+         "cls": "backed",
+         "logits": "backed"
+        }
+       },
+       "96": {
+        "evidence": {
+         "cls": {
+          "backing_written": true,
+          "dtype": "float16",
+          "equal_to_returned": true,
+          "same_address": true,
+          "shape": [
+           1,
+           1024,
+           1,
+           1
+          ]
+         },
+         "logits": {
+          "backing_written": true,
+          "dtype": "float16",
+          "equal_to_returned": true,
+          "same_address": true,
+          "shape": [
+           1,
+           1,
+           1,
+           32
+          ]
+         }
+        },
+        "modes": {
+         "cls": "backed",
+         "logits": "backed"
+        }
+       }
+      },
+      "crossings": {
+       "128": {
+        "ctypes": 1,
+        "nested_sends": 0,
+        "objc_send": 0,
+        "pool_pop": 1,
+        "pool_push": 2,
+        "reentries": 0,
+        "sites": {
+         "ctypes laya_predict_options_stamped <- prebind.py:PrebindModel.predict": 1,
+         "pool_pop __exit__ <- prebind.py:PrebindModel.predict": 1,
+         "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+         "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+        },
+        "total": 4
+       },
+       "64": {
+        "ctypes": 1,
+        "nested_sends": 0,
+        "objc_send": 0,
+        "pool_pop": 1,
+        "pool_push": 2,
+        "reentries": 0,
+        "sites": {
+         "ctypes laya_predict_options_stamped <- prebind.py:PrebindModel.predict": 1,
+         "pool_pop __exit__ <- prebind.py:PrebindModel.predict": 1,
+         "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+         "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+        },
+        "total": 4
+       },
+       "96": {
+        "ctypes": 1,
+        "nested_sends": 0,
+        "objc_send": 0,
+        "pool_pop": 1,
+        "pool_push": 2,
+        "reentries": 0,
+        "sites": {
+         "ctypes laya_predict_options_stamped <- prebind.py:PrebindModel.predict": 1,
+         "pool_pop __exit__ <- prebind.py:PrebindModel.predict": 1,
+         "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+         "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+        },
+        "total": 4
+       }
+      }
+     },
+     "stages": {
+      "features": {
+       "mean_ms": 0.1667361063934426,
+       "n": 12200,
+       "p50_ms": 0.157292,
+       "p95_ms": 0.18866909999999998,
+       "p99_ms": 0.590423330000001
+      },
+      "native": {
+       "mean_ms": 9.38761709647541,
+       "n": 12200,
+       "p50_ms": 9.37275,
+       "p95_ms": 9.462083,
+       "p99_ms": 9.48158342
+      },
+      "post": {
+       "mean_ms": 0.0100302968852459,
+       "n": 12200,
+       "p50_ms": 0.005959,
+       "p95_ms": 0.019708,
+       "p99_ms": 0.023292830000000018
+      },
+      "pre": {
+       "mean_ms": 0.015877872704918035,
+       "n": 12200,
+       "p50_ms": 0.01425,
+       "p95_ms": 0.020167,
+       "p99_ms": 0.030042
+      },
+      "pre_overlap_any_fraction": 0.011311475409836066,
+      "pre_overlap_mean": 0.011311475409836066,
+      "predict": {
+       "mean_ms": 9.416824235409836,
+       "n": 12200,
+       "p50_ms": 9.395209,
+       "p95_ms": 9.500169099999999,
+       "p99_ms": 9.557796159999999
+      },
+      "reacquire": {
+       "mean_ms": 0.003298969344262295,
+       "n": 12200,
+       "p50_ms": 0.000791,
+       "p95_ms": 0.00275,
+       "p99_ms": 0.016710510000000057
+      },
+      "tail": {
+       "mean_ms": 0.06214409516393444,
+       "n": 12200,
+       "p50_ms": 0.060167,
+       "p95_ms": 0.077041,
+       "p99_ms": 0.11420842000000002
+      }
+     },
+     "windows": {
+      "gil_probe_cpu_fraction_of_core_median": 0.009158662932903038,
+      "gil_probe_over_1ms_fraction_median": 0.0001000325106284949,
+      "gil_probe_p99_ms_median": 0.577273549999999,
+      "slow_cpu": {
+       "ane_thread_cpu_ratios": [
+        0.5518351577591758,
+        0.5567938343499497,
+        0.5589373813390279,
+        0.5526418712840376,
+        0.5461292355795093,
+        0.5429662731871838
+       ],
+       "client_short_ratios": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+       ],
+       "computable_windows": 0,
+       "flagged_windows": 0,
+       "flags": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+       ],
+       "limit": 1.25
+      },
+      "thread_cpu_ms_per_window_median": {
+       "MainThread": 0.0315,
+       "client-long": 240.862,
+       "client-short": 290.149,
+       "gil-probe": 187.9185,
+       "laya-ane-dispatch": 784.6825,
+       "laya-gpu-dispatch": 44.599999999999994,
+       "other": 64.54650000000001
+      }
+     }
+    }
+   },
+   "hetero_streams_on_intended_devices": {
+    "A": true,
+    "C": true,
+    "PB": true
+   },
+   "interpretation": "PB PASS on laya: supports 'the many PyObjC/GIL handoffs are a significant execution-layer cost' for this model (not attributed to GPU-completion collisions alone)",
+   "production": "A",
+   "verdicts": {
+    "C": {
+     "bootstrap_sensitivity": {
+      "aggregate_throughput": "PASS",
+      "long_p99": "PASS",
+      "short_p99": "PASS"
+     },
+     "checks": {
+      "aggregate_throughput": "PASS",
+      "correctness": "PASS",
+      "gpu_completion_isolation": "PASS",
+      "long_p99": "PASS",
+      "short_p99": "PASS"
+     },
+     "gain_applies": true,
+     "gpu_return_p50_gain": 115.53947368421052,
+     "pairs": 6,
+     "pooled_point_estimate_not_the_verdict": {
+      "aggregate": 1.0328114806002637,
+      "gpu_return_p50_gain": 115.53947368421052,
+      "long_p99": 0.8654449794696066,
+      "short_p99": 1.0040520830428143
+     },
+     "stats": {
+      "aggregate": {
+       "bootstrap": {
+        "hi": 1.0350022058263,
+        "lo": 1.0300052602651102,
+        "resamples": 10000,
+        "seed": 20260925
+       },
+       "ratios": [
+        1.02921801306043,
+        1.028140971440246,
+        1.0331465824944086,
+        1.037203325593888,
+        1.035219742427385,
+        1.0320311744592634
+       ],
+       "t": {
+        "geomean": 1.0324884650647987,
+        "hi": 1.0361278366097246,
+        "lo": 1.0288618767158975,
+        "log_halfwidth": 0.0035186566951869555,
+        "n": 6
+       }
+      },
+      "long_p99": {
+       "bootstrap": {
+        "hi": 0.8673971552696745,
+        "lo": 0.8595035648249065,
+        "resamples": 10000,
+        "seed": 20260925
+       },
+       "ratios": [
+        0.8603564228343678,
+        0.8690050114355929,
+        0.8676060491945334,
+        0.854906279648154,
+        0.8632689777372969,
+        0.8677554432451116
+       ],
+       "t": {
+        "geomean": 0.8638020047251356,
+        "hi": 0.8695505311896307,
+        "lo": 0.8580914812924687,
+        "log_halfwidth": 0.006632865987574139,
+        "n": 6
+       }
+      },
+      "short_p99": {
+       "bootstrap": {
+        "hi": 1.0068710968596521,
+        "lo": 1.0020298409302502,
+        "resamples": 10000,
+        "seed": 20260925
+       },
+       "ratios": [
+        1.0032752559902873,
+        1.010516566162834,
+        1.0040754608737021,
+        1.0016888865860043,
+        1.0039537904436096,
+        1.0008223599746742
+       ],
+       "t": {
+        "geomean": 1.0040505502686519,
+        "hi": 1.0076373059329875,
+        "lo": 1.0004765619126723,
+        "log_halfwidth": 0.0035659204821261825,
+        "n": 6
+       }
+      }
+     },
+     "verdict": "PASS"
+    },
+    "PB": {
+     "bootstrap_sensitivity": {
+      "aggregate_throughput": "PASS",
+      "long_p99": "PASS",
+      "short_p99": "PASS"
+     },
+     "checks": {
+      "aggregate_throughput": "PASS",
+      "correctness": "PASS",
+      "gpu_completion_isolation": "PASS",
+      "long_p99": "PASS",
+      "short_p99": "PASS"
+     },
+     "gain_applies": true,
+     "gpu_return_p50_gain": 129.13235294117644,
+     "pairs": 6,
+     "pooled_point_estimate_not_the_verdict": {
+      "aggregate": 1.05913065386092,
+      "gpu_return_p50_gain": 129.13235294117644,
+      "long_p99": 0.8638908842603943,
+      "short_p99": 0.9569968763710764
+     },
+     "stats": {
+      "aggregate": {
+       "bootstrap": {
+        "hi": 1.0613494967085386,
+        "lo": 1.057813104877366,
+        "resamples": 10000,
+        "seed": 20260925
+       },
+       "ratios": [
+        1.0571394177283255,
+        1.057288628056077,
+        1.0576694571881744,
+        1.062500831295636,
+        1.0624774405570856,
+        1.0602071898556062
+       ],
+       "t": {
+        "geomean": 1.0595446315277335,
+        "hi": 1.062209170498799,
+        "lo": 1.0568867765207361,
+        "log_halfwidth": 0.0025116395401328815,
+        "n": 6
+       }
+      },
+      "long_p99": {
+       "bootstrap": {
+        "hi": 0.8656097250669934,
+        "lo": 0.8585592660142122,
+        "resamples": 10000,
+        "seed": 20260925
+       },
+       "ratios": [
+        0.8604035686032564,
+        0.8656594805431564,
+        0.8673930654916855,
+        0.8549815195176057,
+        0.8601485134257196,
+        0.8656939694705122
+       ],
+       "t": {
+        "geomean": 0.8623693254291034,
+        "hi": 0.8673226541995095,
+        "lo": 0.8574442853996739,
+        "log_halfwidth": 0.005727427043944235,
+        "n": 6
+       }
+      },
+      "short_p99": {
+       "bootstrap": {
+        "hi": 0.9600814142649537,
+        "lo": 0.9545522639217353,
+        "resamples": 10000,
+        "seed": 20260925
+       },
+       "ratios": [
+        0.9615498748266024,
+        0.9613006752398786,
+        0.9582832764311966,
+        0.9567641811230552,
+        0.9510725784263533,
+        0.9560040657699819
+       ],
+       "t": {
+        "geomean": 0.9574891909416167,
+        "hi": 0.9615814143329128,
+        "lo": 0.9534143829163358,
+        "log_halfwidth": 0.004264803580108939,
+        "n": 6
+       }
+      }
+     },
+     "verdict": "PASS"
+    }
+   },
+   "versions": {
+    "coremltools": "9.0",
+    "laya_apple": "1.3.0",
+    "mlx": "0.32.2",
+    "pyobjc": "12.2.2"
+   }
+  },
+  "laya-multilingual": {
+   "args": {
+    "cycles": 3,
+    "long": 1024,
+    "seconds": 20,
+    "short": 96
+   },
+   "configs": {
+    "B": {
+     "aggregate_req_s": 242.6301707321657,
+     "gpu_return_ms": {
+      "n": 3774,
+      "p50": 0.085,
+      "p99": 0.36527
+     },
+     "hetero_windows_with_gpu_returns": 6,
+     "mismatches_all_windows": 0,
+     "streams": {
+      "long": {
+       "devices": [
+        {
+         "gpu": 670
+        },
+        {
+         "gpu": 589
+        },
+        {
+         "gpu": 670
+        },
+        {
+         "gpu": 590
+        },
+        {
+         "gpu": 671
+        },
+        {
+         "gpu": 590
+        }
+       ],
+       "p50_ms_median": 31.82920825202018,
+       "p99_ms": [
+        30.11282622581348,
+        35.5899600032717,
+        30.109562285942957,
+        35.78209004132077,
+        30.094500060658902,
+        35.6899171625264
+       ],
+       "p99_ms_median": 32.85139311454259,
+       "req_s": [
+        33.484639410472255,
+        29.429842397407235,
+        33.474632086869335,
+        29.452087038434176,
+        33.503589989538035,
+        29.455340181423107
+       ],
+       "req_s_median": 31.464986134146223
+      },
+      "short": {
+       "devices": [
+        {
+         "ane": 4935
+        },
+        {
+         "ane": 3499
+        },
+        {
+         "ane": 4938
+        },
+        {
+         "ane": 3498
+        },
+        {
+         "ane": 4935
+        },
+        {
+         "ane": 3513
+        }
+       ],
+       "p50_ms_median": 4.822478978894651,
+       "p99_ms": [
+        4.435358529444784,
+        7.262259770650416,
+        4.48173475218937,
+        7.678976978641002,
+        4.511981913819909,
+        7.196898031979805
+       ],
+       "p99_ms_median": 5.854439972899857,
+       "req_s": [
+        246.73354801637268,
+        174.9468633519702,
+        246.88505213441667,
+        174.87657127856508,
+        246.72092035047154,
+        175.6094488455674
+       ],
+       "req_s_median": 211.1651845980195
+      }
+     },
+     "windows": 6
+    },
+    "C": {
+     "aggregate_req_s": 188.0250752485522,
+     "gpu_return_ms": {
+      "n": 3642,
+      "p50": 0.165,
+      "p99": 0.8985900000000002
+     },
+     "hetero_windows_with_gpu_returns": 6,
+     "mismatches_all_windows": 0,
+     "streams": {
+      "long": {
+       "devices": [
+        {
+         "gpu": 596
+        },
+        {
+         "gpu": 594
+        },
+        {
+         "gpu": 670
+        },
+        {
+         "gpu": 595
+        },
+        {
+         "gpu": 596
+        },
+        {
+         "gpu": 597
+        }
+       ],
+       "p50_ms_median": 33.41683329199441,
+       "p99_ms": [
+        35.65628536744043,
+        36.83710273238834,
+        30.1745689951349,
+        35.84794688504189,
+        35.78008749173023,
+        35.723635270260274
+       ],
+       "p99_ms_median": 35.75186138099525,
+       "req_s": [
+        29.78894284039709,
+        29.690606634348676,
+        33.45540812297331,
+        29.730613719132045,
+        29.78202301243091,
+        29.834093827591555
+       ],
+       "req_s_median": 29.785482926413998
+      },
+      "short": {
+       "devices": [
+        {
+         "ane": 3167
+        },
+        {
+         "ane": 3143
+        },
+        {
+         "ane": 4752
+        },
+        {
+         "ane": 3128
+        },
+        {
+         "ane": 3163
+        },
+        {
+         "ane": 3192
+        }
+       ],
+       "p50_ms_median": 5.977562454063445,
+       "p99_ms": [
+        9.089153350796554,
+        9.102836980018765,
+        4.916840288788079,
+        9.017662627156824,
+        9.024555003270509,
+        9.022540492005648
+       ],
+       "p99_ms_median": 9.023547747638078,
+       "req_s": [
+        158.33964458673373,
+        157.14165970693188,
+        237.5655218187165,
+        156.3969355971956,
+        158.1395400575427,
+        159.5692091265528
+       ],
+       "req_s_median": 158.2395923221382
+      }
+     },
+     "windows": 6
+    },
+    "PB": {
+     "aggregate_req_s": 293.3577373291277,
+     "gpu_return_ms": {
+      "n": 3931,
+      "p50": 0.032,
+      "p99": 0.7268999999999987
+     },
+     "hetero_windows_with_gpu_returns": 6,
+     "mismatches_all_windows": 0,
+     "streams": {
+      "long": {
+       "devices": [
+        {
+         "gpu": 672
+        },
+        {
+         "gpu": 670
+        },
+        {
+         "gpu": 583
+        },
+        {
+         "gpu": 670
+        },
+        {
+         "gpu": 672
+        },
+        {
+         "gpu": 670
+        }
+       ],
+       "p50_ms_median": 29.846062272554263,
+       "p99_ms": [
+        30.10097112157382,
+        30.205967528745532,
+        37.146768064703785,
+        30.13612898881547,
+        30.12455840362236,
+        30.117093740263954
+       ],
+       "p99_ms_median": 30.130343696218915,
+       "req_s": [
+        33.55223587576163,
+        33.45480423217216,
+        29.111918639545333,
+        33.46890076607209,
+        33.550057175282035,
+        33.47273436599262
+       ],
+       "req_s_median": 33.47081756603235
+      },
+      "short": {
+       "devices": [
+        {
+         "ane": 5180
+        },
+        {
+         "ane": 5199
+        },
+        {
+         "ane": 3874
+        },
+        {
+         "ane": 5217
+        },
+        {
+         "ane": 5198
+        },
+        {
+         "ane": 5218
+        }
+       ],
+       "p50_ms_median": 3.8228024495765567,
+       "p99_ms": [
+        4.428966880077496,
+        4.436168386600911,
+        8.438467006199062,
+        4.338468173518777,
+        4.400425951462239,
+        4.333214161451906
+       ],
+       "p99_ms_median": 4.414696415769868,
+       "req_s": [
+        258.9965370090259,
+        259.90182882009805,
+        193.65161372438706,
+        260.8153126458778,
+        259.8720107060927,
+        260.863456290936
+       ],
+       "req_s_median": 259.88691976309536
+      }
+     },
+     "windows": 6
+    }
+   },
+   "extras": {
+    "B": {
+     "collisions": {
+      "collide_fraction": 0.032743502646338574,
+      "forward_overlap_any_fraction": 0.14633857334702582,
+      "forward_overlap_mean": 0.14633857334702582,
+      "n": 25318,
+      "odds_ratio": 0.5274865169721127,
+      "tail_colliding_fraction": 0.015748031496062992,
+      "tail_fraction": 0.010032388024330516,
+      "tail_n": 254,
+      "threshold_ms": 6.561601
+     },
+     "forwards": {
+      "ane": {
+       "n": 25318,
+       "placement": "process",
+       "service_ms_p50": 3.873334,
+       "thread_cpu_ms_mean": 0.7525403289359349
+      },
+      "gpu": {
+       "n": 3779,
+       "placement": "process",
+       "service_ms_p50": 29.266125,
+       "thread_cpu_ms_mean": 3.355169340301667
+      }
+     },
+     "gil_wait": null,
+     "load": {
+      "backings": null,
+      "crossings": null
+     },
+     "stages": null,
+     "windows": {
+      "gil_probe_cpu_fraction_of_core_median": 0.00935940073507389,
+      "gil_probe_over_1ms_fraction_median": 0.01665923751538749,
+      "gil_probe_p99_ms_median": 1.574014179999998,
+      "slow_cpu": null,
+      "thread_cpu_ms_per_window_median": {
+       "MainThread": 0.042499999999999996,
+       "client-long": 768.182,
+       "gil-probe": 192.0865,
+       "laya-ane-dispatch": 667.6999999999999,
+       "laya-gpu-dispatch": 122.50200000000001,
+       "other": 0.1305
+      }
+     }
+    },
+    "C": {
+     "collisions": {
+      "collide_fraction": 0.04088586030664395,
+      "forward_overlap_any_fraction": 0.16914091019712826,
+      "forward_overlap_mean": 0.16914091019712826,
+      "n": 20545,
+      "odds_ratio": 9.44140248307926,
+      "tail_colliding_fraction": 0.15486993345432548,
+      "tail_fraction": 0.16091506449257728,
+      "tail_n": 3306,
+      "threshold_ms": 6.561601
+     },
+     "forwards": {
+      "ane": {
+       "n": 20545,
+       "placement": "thread",
+       "service_ms_p50": 5.357375,
+       "thread_cpu_ms_mean": 1.565383946945729
+      },
+      "gpu": {
+       "n": 3648,
+       "placement": "process",
+       "service_ms_p50": 30.937167000000002,
+       "thread_cpu_ms_mean": 4.506217290844298
+      }
+     },
+     "gil_wait": {
+      "mean_ms": 0.042140281966415186,
+      "n": 20545,
+      "p50_ms": 0.002292,
+      "p95_ms": 0.00625,
+      "p99_ms": 1.6605099600000002
+     },
+     "load": {
+      "backings": null,
+      "crossings": {
+       "128": {
+        "ctypes": 1,
+        "nested_sends": 112,
+        "objc_send": 104,
+        "pool_pop": 1,
+        "pool_push": 2,
+        "reentries": 62,
+        "sites": {
+         "ctypes laya_predict_stamped <- nogil.py:StampedNoGilModel._predict": 1,
+         "nested objc_send longLongValue <- _pythonify.py:numberWrapper": 56,
+         "nested objc_send objCType <- _pythonify.py:numberWrapper": 56,
+         "objc_send alloc <- nogil.py:StampedNoGilModel._predict": 1,
+         "objc_send alloc <- nogil_predict.py:NoGilModel._array": 5,
+         "objc_send count <- _convenience_nsset.py:<lambda>": 1,
+         "objc_send dataPointer <- nogil_predict.py:_view": 7,
+         "objc_send dataType <- nogil.py:StampedNoGilModel._predict": 2,
+         "objc_send featureNames <- nogil.py:StampedNoGilModel._predict": 1,
+         "objc_send featureValueForName: <- nogil.py:StampedNoGilModel._predict": 2,
+         "objc_send featureValueWithMultiArray: <- nogil.py:StampedNoGilModel._predict": 5,
+         "objc_send initWithDictionary:error: <- nogil.py:StampedNoGilModel._predict": 1,
+         "objc_send initWithShape:dataType:error: <- nogil_predict.py:NoGilModel._array": 5,
+         "objc_send multiArrayValue <- nogil.py:StampedNoGilModel._predict": 2,
+         "objc_send nextObject <- _convenience.py:<lambda>": 45,
+         "objc_send nextObject <- _convenience_nsset.py:nsset__iter__.__next__": 3,
+         "objc_send objectEnumerator <- _convenience_nsarray.py:nsarray__iter__": 9,
+         "objc_send objectEnumerator <- _convenience_nsset.py:nsset__iter__.__init__": 1,
+         "objc_send shape <- nogil_predict.py:_view": 7,
+         "objc_send strides <- nogil_predict.py:_view": 7,
+         "pool_pop __exit__ <- nogil_predict.py:NoGilModel.predict": 1,
+         "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+         "pool_push init <- __init__.py:autorelease_pool.__enter__": 1,
+         "reentry <frozen abc>:ABCMeta.__instancecheck__": 6,
+         "reentry _pythonify.py:numberWrapper": 56
+        },
+        "total": 108
+       },
+       "256": {
+        "ctypes": 1,
+        "nested_sends": 112,
+        "objc_send": 104,
+        "pool_pop": 1,
+        "pool_push": 2,
+        "reentries": 62,
+        "sites": {
+         "ctypes laya_predict_stamped <- nogil.py:StampedNoGilModel._predict": 1,
+         "nested objc_send longLongValue <- _pythonify.py:numberWrapper": 56,
+         "nested objc_send objCType <- _pythonify.py:numberWrapper": 56,
+         "objc_send alloc <- nogil.py:StampedNoGilModel._predict": 1,
+         "objc_send alloc <- nogil_predict.py:NoGilModel._array": 5,
+         "objc_send count <- _convenience_nsset.py:<lambda>": 1,
+         "objc_send dataPointer <- nogil_predict.py:_view": 7,
+         "objc_send dataType <- nogil.py:StampedNoGilModel._predict": 2,
+         "objc_send featureNames <- nogil.py:StampedNoGilModel._predict": 1,
+         "objc_send featureValueForName: <- nogil.py:StampedNoGilModel._predict": 2,
+         "objc_send featureValueWithMultiArray: <- nogil.py:StampedNoGilModel._predict": 5,
+         "objc_send initWithDictionary:error: <- nogil.py:StampedNoGilModel._predict": 1,
+         "objc_send initWithShape:dataType:error: <- nogil_predict.py:NoGilModel._array": 5,
+         "objc_send multiArrayValue <- nogil.py:StampedNoGilModel._predict": 2,
+         "objc_send nextObject <- _convenience.py:<lambda>": 45,
+         "objc_send nextObject <- _convenience_nsset.py:nsset__iter__.__next__": 3,
+         "objc_send objectEnumerator <- _convenience_nsarray.py:nsarray__iter__": 9,
+         "objc_send objectEnumerator <- _convenience_nsset.py:nsset__iter__.__init__": 1,
+         "objc_send shape <- nogil_predict.py:_view": 7,
+         "objc_send strides <- nogil_predict.py:_view": 7,
+         "pool_pop __exit__ <- nogil_predict.py:NoGilModel.predict": 1,
+         "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+         "pool_push init <- __init__.py:autorelease_pool.__enter__": 1,
+         "reentry <frozen abc>:ABCMeta.__instancecheck__": 6,
+         "reentry _pythonify.py:numberWrapper": 56
+        },
+        "total": 108
+       },
+       "64": {
+        "ctypes": 1,
+        "nested_sends": 112,
+        "objc_send": 104,
+        "pool_pop": 1,
+        "pool_push": 2,
+        "reentries": 62,
+        "sites": {
+         "ctypes laya_predict_stamped <- nogil.py:StampedNoGilModel._predict": 1,
+         "nested objc_send longLongValue <- _pythonify.py:numberWrapper": 56,
+         "nested objc_send objCType <- _pythonify.py:numberWrapper": 56,
+         "objc_send alloc <- nogil.py:StampedNoGilModel._predict": 1,
+         "objc_send alloc <- nogil_predict.py:NoGilModel._array": 5,
+         "objc_send count <- _convenience_nsset.py:<lambda>": 1,
+         "objc_send dataPointer <- nogil_predict.py:_view": 7,
+         "objc_send dataType <- nogil.py:StampedNoGilModel._predict": 2,
+         "objc_send featureNames <- nogil.py:StampedNoGilModel._predict": 1,
+         "objc_send featureValueForName: <- nogil.py:StampedNoGilModel._predict": 2,
+         "objc_send featureValueWithMultiArray: <- nogil.py:StampedNoGilModel._predict": 5,
+         "objc_send initWithDictionary:error: <- nogil.py:StampedNoGilModel._predict": 1,
+         "objc_send initWithShape:dataType:error: <- nogil_predict.py:NoGilModel._array": 5,
+         "objc_send multiArrayValue <- nogil.py:StampedNoGilModel._predict": 2,
+         "objc_send nextObject <- _convenience.py:<lambda>": 45,
+         "objc_send nextObject <- _convenience_nsset.py:nsset__iter__.__next__": 3,
+         "objc_send objectEnumerator <- _convenience_nsarray.py:nsarray__iter__": 9,
+         "objc_send objectEnumerator <- _convenience_nsset.py:nsset__iter__.__init__": 1,
+         "objc_send shape <- nogil_predict.py:_view": 7,
+         "objc_send strides <- nogil_predict.py:_view": 7,
+         "pool_pop __exit__ <- nogil_predict.py:NoGilModel.predict": 1,
+         "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+         "pool_push init <- __init__.py:autorelease_pool.__enter__": 1,
+         "reentry <frozen abc>:ABCMeta.__instancecheck__": 6,
+         "reentry _pythonify.py:numberWrapper": 56
+        },
+        "total": 108
+       },
+       "96": {
+        "ctypes": 1,
+        "nested_sends": 112,
+        "objc_send": 104,
+        "pool_pop": 1,
+        "pool_push": 2,
+        "reentries": 62,
+        "sites": {
+         "ctypes laya_predict_stamped <- nogil.py:StampedNoGilModel._predict": 1,
+         "nested objc_send longLongValue <- _pythonify.py:numberWrapper": 56,
+         "nested objc_send objCType <- _pythonify.py:numberWrapper": 56,
+         "objc_send alloc <- nogil.py:StampedNoGilModel._predict": 1,
+         "objc_send alloc <- nogil_predict.py:NoGilModel._array": 5,
+         "objc_send count <- _convenience_nsset.py:<lambda>": 1,
+         "objc_send dataPointer <- nogil_predict.py:_view": 7,
+         "objc_send dataType <- nogil.py:StampedNoGilModel._predict": 2,
+         "objc_send featureNames <- nogil.py:StampedNoGilModel._predict": 1,
+         "objc_send featureValueForName: <- nogil.py:StampedNoGilModel._predict": 2,
+         "objc_send featureValueWithMultiArray: <- nogil.py:StampedNoGilModel._predict": 5,
+         "objc_send initWithDictionary:error: <- nogil.py:StampedNoGilModel._predict": 1,
+         "objc_send initWithShape:dataType:error: <- nogil_predict.py:NoGilModel._array": 5,
+         "objc_send multiArrayValue <- nogil.py:StampedNoGilModel._predict": 2,
+         "objc_send nextObject <- _convenience.py:<lambda>": 45,
+         "objc_send nextObject <- _convenience_nsset.py:nsset__iter__.__next__": 3,
+         "objc_send objectEnumerator <- _convenience_nsarray.py:nsarray__iter__": 9,
+         "objc_send objectEnumerator <- _convenience_nsset.py:nsset__iter__.__init__": 1,
+         "objc_send shape <- nogil_predict.py:_view": 7,
+         "objc_send strides <- nogil_predict.py:_view": 7,
+         "pool_pop __exit__ <- nogil_predict.py:NoGilModel.predict": 1,
+         "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+         "pool_push init <- __init__.py:autorelease_pool.__enter__": 1,
+         "reentry <frozen abc>:ABCMeta.__instancecheck__": 6,
+         "reentry _pythonify.py:numberWrapper": 56
+        },
+        "total": 108
+       }
+      }
+     },
+     "stages": {
+      "features": {
+       "mean_ms": 0.2957672688245315,
+       "n": 20545,
+       "p50_ms": 0.264,
+       "p95_ms": 0.39224959999999987,
+       "p99_ms": 2.4828270400000005
+      },
+      "native": {
+       "mean_ms": 4.114367261620832,
+       "n": 20545,
+       "p50_ms": 4.103375,
+       "p95_ms": 4.7190672,
+       "p99_ms": 5.4024070000000055
+      },
+      "post": {
+       "mean_ms": 0.29219757055244583,
+       "n": 20545,
+       "p50_ms": 0.276083,
+       "p95_ms": 0.48175,
+       "p99_ms": 2.2394620400000034
+      },
+      "pre": {
+       "mean_ms": 0.45131883480165497,
+       "n": 20545,
+       "p50_ms": 0.445875,
+       "p95_ms": 0.6695755999999999,
+       "p99_ms": 2.582814520000004
+      },
+      "pre_overlap_any_fraction": 0.050961304453638355,
+      "pre_overlap_mean": 0.050961304453638355,
+      "predict": {
+       "mean_ms": 4.900023948941349,
+       "n": 20545,
+       "p50_ms": 4.867708,
+       "p95_ms": 6.6166498,
+       "p99_ms": 7.603397040000001
+      },
+      "reacquire": {
+       "mean_ms": 0.042140281966415186,
+       "n": 20545,
+       "p50_ms": 0.002292,
+       "p95_ms": 0.00625,
+       "p99_ms": 1.6605099600000002
+      },
+      "tail": {
+       "mean_ms": 0.19102570430761742,
+       "n": 20545,
+       "p50_ms": 0.215459,
+       "p95_ms": 0.283958,
+       "p99_ms": 0.32960652000000007
+      }
+     },
+     "windows": {
+      "gil_probe_cpu_fraction_of_core_median": 0.019269065681827666,
+      "gil_probe_over_1ms_fraction_median": 0.042011540677074716,
+      "gil_probe_p99_ms_median": 2.2043843950000026,
+      "slow_cpu": {
+       "ane_thread_cpu_ratios": [
+        4.664820051117326,
+        1.4549070299294025,
+        1.379230227345501,
+        1.4734548907761087,
+        4.710507288629738,
+        1.43624114660243
+       ],
+       "client_short_ratios": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+       ],
+       "computable_windows": 0,
+       "flagged_windows": 0,
+       "flags": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+       ],
+       "limit": 1.25
+      },
+      "thread_cpu_ms_per_window_median": {
+       "MainThread": 0.051500000000000004,
+       "client-long": 1071.091,
+       "gil-probe": 395.1775,
+       "laya-ane-dispatch": 6505.358,
+       "laya-gpu-dispatch": 214.6445,
+       "other": 77.982
+      }
+     }
+    },
+    "PB": {
+     "collisions": {
+      "collide_fraction": 0.03566887505855584,
+      "forward_overlap_any_fraction": 0.1301612795288764,
+      "forward_overlap_mean": 0.1301612795288764,
+      "n": 29886,
+      "odds_ratio": 40.106640004947536,
+      "tail_colliding_fraction": 0.5700483091787439,
+      "tail_fraction": 0.0069263200160610315,
+      "tail_n": 207,
+      "threshold_ms": 6.561601
+     },
+     "forwards": {
+      "ane": {
+       "n": 29885,
+       "placement": "thread",
+       "service_ms_p50": 3.689208,
+       "thread_cpu_ms_mean": 0.3066762992805755
+      },
+      "gpu": {
+       "n": 3936,
+       "placement": "process",
+       "service_ms_p50": 29.2058545,
+       "thread_cpu_ms_mean": 1.9738711333841465
+      }
+     },
+     "gil_wait": {
+      "mean_ms": 0.009454336969615847,
+      "n": 29884,
+      "p50_ms": 0.000583,
+      "p95_ms": 0.00275,
+      "p99_ms": 0.36274535999999874
+     },
+     "load": {
+      "backings": {
+       "128": {
+        "evidence": {
+         "cls": {
+          "backing_written": true,
+          "dtype": "float16",
+          "equal_to_returned": true,
+          "same_address": true,
+          "shape": [
+           1,
+           768,
+           1,
+           1
+          ]
+         },
+         "logits": {
+          "backing_written": true,
+          "dtype": "float16",
+          "equal_to_returned": true,
+          "same_address": true,
+          "shape": [
+           1,
+           1,
+           1,
+           32
+          ]
+         }
+        },
+        "modes": {
+         "cls": "backed",
+         "logits": "backed"
+        }
+       },
+       "256": {
+        "evidence": {
+         "cls": {
+          "backing_written": true,
+          "dtype": "float16",
+          "equal_to_returned": true,
+          "same_address": true,
+          "shape": [
+           1,
+           768,
+           1,
+           1
+          ]
+         },
+         "logits": {
+          "backing_written": true,
+          "dtype": "float16",
+          "equal_to_returned": true,
+          "same_address": true,
+          "shape": [
+           1,
+           1,
+           1,
+           32
+          ]
+         }
+        },
+        "modes": {
+         "cls": "backed",
+         "logits": "backed"
+        }
+       },
+       "64": {
+        "evidence": {
+         "cls": {
+          "backing_written": true,
+          "dtype": "float16",
+          "equal_to_returned": true,
+          "same_address": true,
+          "shape": [
+           1,
+           768,
+           1,
+           1
+          ]
+         },
+         "logits": {
+          "backing_written": true,
+          "dtype": "float16",
+          "equal_to_returned": true,
+          "same_address": true,
+          "shape": [
+           1,
+           1,
+           1,
+           32
+          ]
+         }
+        },
+        "modes": {
+         "cls": "backed",
+         "logits": "backed"
+        }
+       },
+       "96": {
+        "evidence": {
+         "cls": {
+          "backing_written": true,
+          "dtype": "float16",
+          "equal_to_returned": true,
+          "same_address": true,
+          "shape": [
+           1,
+           768,
+           1,
+           1
+          ]
+         },
+         "logits": {
+          "backing_written": true,
+          "dtype": "float16",
+          "equal_to_returned": true,
+          "same_address": true,
+          "shape": [
+           1,
+           1,
+           1,
+           32
+          ]
+         }
+        },
+        "modes": {
+         "cls": "backed",
+         "logits": "backed"
+        }
+       }
+      },
+      "crossings": {
+       "128": {
+        "ctypes": 1,
+        "nested_sends": 0,
+        "objc_send": 0,
+        "pool_pop": 1,
+        "pool_push": 2,
+        "reentries": 0,
+        "sites": {
+         "ctypes laya_predict_options_stamped <- prebind.py:PrebindModel.predict": 1,
+         "pool_pop __exit__ <- prebind.py:PrebindModel.predict": 1,
+         "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+         "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+        },
+        "total": 4
+       },
+       "256": {
+        "ctypes": 1,
+        "nested_sends": 0,
+        "objc_send": 0,
+        "pool_pop": 1,
+        "pool_push": 2,
+        "reentries": 0,
+        "sites": {
+         "ctypes laya_predict_options_stamped <- prebind.py:PrebindModel.predict": 1,
+         "pool_pop __exit__ <- prebind.py:PrebindModel.predict": 1,
+         "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+         "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+        },
+        "total": 4
+       },
+       "64": {
+        "ctypes": 1,
+        "nested_sends": 0,
+        "objc_send": 0,
+        "pool_pop": 1,
+        "pool_push": 2,
+        "reentries": 0,
+        "sites": {
+         "ctypes laya_predict_options_stamped <- prebind.py:PrebindModel.predict": 1,
+         "pool_pop __exit__ <- prebind.py:PrebindModel.predict": 1,
+         "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+         "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+        },
+        "total": 4
+       },
+       "96": {
+        "ctypes": 1,
+        "nested_sends": 0,
+        "objc_send": 0,
+        "pool_pop": 1,
+        "pool_push": 2,
+        "reentries": 0,
+        "sites": {
+         "ctypes laya_predict_options_stamped <- prebind.py:PrebindModel.predict": 1,
+         "pool_pop __exit__ <- prebind.py:PrebindModel.predict": 1,
+         "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+         "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+        },
+        "total": 4
+       }
+      }
+     },
+     "stages": {
+      "features": {
+       "mean_ms": 0.13018824935586415,
+       "n": 29885,
+       "p50_ms": 0.083375,
+       "p95_ms": 0.3231578,
+       "p99_ms": 0.6481849999999999
+      },
+      "native": {
+       "mean_ms": 3.5805835934080643,
+       "n": 29885,
+       "p50_ms": 3.536625,
+       "p95_ms": 3.8239496,
+       "p99_ms": 4.120645000000001
+      },
+      "post": {
+       "mean_ms": 0.008572009135017569,
+       "n": 29885,
+       "p50_ms": 0.004583,
+       "p95_ms": 0.020459,
+       "p99_ms": 0.028964719999999996
+      },
+      "pre": {
+       "mean_ms": 0.017973752919524844,
+       "n": 29885,
+       "p50_ms": 0.011333,
+       "p95_ms": 0.054958,
+       "p99_ms": 0.07500655999999999
+      },
+      "pre_overlap_any_fraction": 0.01328425631587753,
+      "pre_overlap_mean": 0.01328425631587753,
+      "predict": {
+       "mean_ms": 3.6165833928057554,
+       "n": 29885,
+       "p50_ms": 3.554542,
+       "p95_ms": 3.9288582,
+       "p99_ms": 4.245178159999999
+      },
+      "reacquire": {
+       "mean_ms": 0.009454037343148737,
+       "n": 29885,
+       "p50_ms": 0.000583,
+       "p95_ms": 0.00275,
+       "p99_ms": 0.36273827999999986
+      },
+      "tail": {
+       "mean_ms": 0.07553302958005689,
+       "n": 29885,
+       "p50_ms": 0.051167,
+       "p95_ms": 0.231625,
+       "p99_ms": 0.28905443999999997
+      }
+     },
+     "windows": {
+      "gil_probe_cpu_fraction_of_core_median": 0.008008871993507308,
+      "gil_probe_over_1ms_fraction_median": 0.0003752263875215924,
+      "gil_probe_p99_ms_median": 0.6457028800000009,
+      "slow_cpu": {
+       "ane_thread_cpu_ratios": [
+        0.5641427593614692,
+        0.17543362831858408,
+        2.0938200448286906,
+        0.17505005314284303,
+        0.5659216067379332,
+        0.17538901383204708
+       ],
+       "client_short_ratios": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+       ],
+       "computable_windows": 0,
+       "flagged_windows": 0,
+       "flags": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+       ],
+       "limit": 1.25
+      },
+      "thread_cpu_ms_per_window_median": {
+       "MainThread": 0.035,
+       "client-long": 359.4125,
+       "gil-probe": 164.411,
+       "laya-ane-dispatch": 1430.551,
+       "laya-gpu-dispatch": 57.1035,
+       "other": 4.9680000000000035
+      }
+     }
+    }
+   },
+   "hetero_streams_on_intended_devices": {
+    "B": true,
+    "C": true,
+    "PB": true
+   },
+   "interpretation": "PB INCONCLUSIVE on laya-multilingual: reported as inconclusive; no production change follows; a larger preregistered replication (for example 9 cycles, n = 18 pairs) decides",
+   "production": "B",
+   "verdicts": {
+    "C": {
+     "bootstrap_sensitivity": {
+      "aggregate_throughput": "FAIL",
+      "long_p99": "INCONCLUSIVE",
+      "short_p99": "FAIL"
+     },
+     "checks": {
+      "aggregate_throughput": "INCONCLUSIVE",
+      "correctness": "PASS",
+      "gpu_completion_isolation": "PASS",
+      "long_p99": "INCONCLUSIVE",
+      "short_p99": "FAIL"
+     },
+     "gain_applies": false,
+     "gpu_return_p50_gain": 0.5151515151515151,
+     "pairs": 6,
+     "pooled_point_estimate_not_the_verdict": {
+      "aggregate": 0.7749451549292652,
+      "gpu_return_p50_gain": 0.5151515151515151,
+      "long_p99": 1.0882905713112268,
+      "short_p99": 1.5413169815401626
+     },
+     "stats": {
+      "aggregate": {
+       "bootstrap": {
+        "hi": 0.9339957164055129,
+        "lo": 0.743267776592994,
+        "resamples": 10000,
+        "seed": 20260925
+       },
+       "ratios": [
+        0.6713646575001294,
+        0.9141563646220464,
+        0.9666900955979635,
+        0.9109223877326397,
+        0.6706107286688073,
+        0.9236266443051575
+       ],
+       "t": {
+        "geomean": 0.8332700253068712,
+        "hi": 0.9951004815193306,
+        "lo": 0.6977576113869317,
+        "log_halfwidth": 0.17748596884080373,
+        "n": 6
+       }
+      },
+      "long_p99": {
+       "bootstrap": {
+        "hi": 1.1283841976849605,
+        "lo": 1.006998881244708,
+        "resamples": 10000,
+        "seed": 20260925
+       },
+       "ratios": [
+        1.1840896334358335,
+        1.0350419817555847,
+        1.0021590054539682,
+        1.0018404974009363,
+        1.1889244685776927,
+        1.0009447516389665
+       ],
+       "t": {
+        "geomean": 1.0656314322437048,
+        "hi": 1.1640791519972402,
+        "lo": 0.9755095668859312,
+        "log_halfwidth": 0.08836282940032808,
+        "n": 6
+       }
+      },
+      "short_p99": {
+       "bootstrap": {
+        "hi": 1.7255695209175341,
+        "lo": 1.1732528085975573,
+        "resamples": 10000,
+        "seed": 20260925
+       },
+       "ratios": [
+        2.049248846616765,
+        1.253444143764566,
+        1.0970841784838241,
+        1.1743312491024993,
+        2.0001310234929974,
+        1.253670741465768
+       ],
+       "t": {
+        "geomean": 1.42285954572011,
+        "hi": 1.9042827103805087,
+        "lo": 1.0631453385628344,
+        "log_halfwidth": 0.2914367963905847,
+        "n": 6
+       }
+      }
+     },
+     "verdict": "FAIL"
+    },
+    "PB": {
+     "bootstrap_sensitivity": {
+      "aggregate_throughput": "PASS",
+      "long_p99": "INCONCLUSIVE",
+      "short_p99": "INCONCLUSIVE"
+     },
+     "checks": {
+      "aggregate_throughput": "INCONCLUSIVE",
+      "correctness": "PASS",
+      "gpu_completion_isolation": "PASS",
+      "long_p99": "INCONCLUSIVE",
+      "short_p99": "INCONCLUSIVE"
+     },
+     "gain_applies": false,
+     "gpu_return_p50_gain": 2.65625,
+     "pairs": 6,
+     "pooled_point_estimate_not_the_verdict": {
+      "aggregate": 1.2090736137384954,
+      "gpu_return_p50_gain": 2.65625,
+      "long_p99": 0.9171709580523353,
+      "short_p99": 0.754076638620509
+     },
+     "stats": {
+      "aggregate": {
+       "bootstrap": {
+        "hi": 1.3635006493711568,
+        "lo": 0.9613625236083899,
+        "resamples": 10000,
+        "seed": 20260925
+       },
+       "ratios": [
+        1.0440035158715804,
+        1.435372157392569,
+        0.794563358789157,
+        1.440249330837341,
+        1.0470963711395262,
+        1.435332667560925
+       ],
+       "t": {
+        "geomean": 1.1709238529026975,
+        "hi": 1.5153047797089925,
+        "lo": 0.904809836051467,
+        "log_halfwidth": 0.2578235383627764,
+        "n": 6
+       }
+      },
+      "long_p99": {
+       "bootstrap": {
+        "hi": 1.0794992557733485,
+        "lo": 0.8680028965839783,
+        "resamples": 10000,
+        "seed": 20260925
+       },
+       "ratios": [
+        0.9996063104754513,
+        0.8487215924369899,
+        1.2337199628453663,
+        0.8422126531461577,
+        1.0009987985480029,
+        0.8438544029989012
+       ],
+       "t": {
+        "geomean": 0.9520409124235002,
+        "hi": 1.1161620264787968,
+        "lo": 0.8120522625084925,
+        "log_halfwidth": 0.15904330831704916,
+        "n": 6
+       }
+      },
+      "short_p99": {
+       "bootstrap": {
+        "hi": 1.24701624838866,
+        "lo": 0.6360808437750839,
+        "resamples": 10000,
+        "seed": 20260925
+       },
+       "ratios": [
+        0.9985589328743424,
+        0.6108523416539261,
+        1.8828573025382171,
+        0.5649799687622691,
+        0.9752756184558317,
+        0.6020946999939467
+       ],
+       "t": {
+        "geomean": 0.851449239983927,
+        "hi": 1.3842525595314368,
+        "lo": 0.5237236538067912,
+        "log_halfwidth": 0.4859757188814369,
+        "n": 6
+       }
+      }
+     },
+     "verdict": "INCONCLUSIVE"
+    }
+   },
+   "versions": {
+    "coremltools": "9.0",
+    "laya_apple": "1.3.0",
+    "mlx": "0.32.2",
+    "pyobjc": "12.2.2"
+   }
+  },
+  "laya-typed-decisions": {
+   "args": {
+    "cycles": 3,
+    "long": 1024,
+    "seconds": 20,
+    "short": 128
+   },
+   "configs": {
+    "A": {
+     "aggregate_req_s": 110.41335879150401,
+     "gpu_return_ms": {
+      "n": 1476,
+      "p50": 8.778500000000001,
+      "p99": 9.5495
+     },
+     "hetero_windows_with_gpu_returns": 6,
+     "mismatches_all_windows": 0,
+     "streams": {
+      "long": {
+       "devices": [
+        {
+         "gpu": 247
+        },
+        {
+         "gpu": 247
+        },
+        {
+         "gpu": 248
+        },
+        {
+         "gpu": 247
+        },
+        {
+         "gpu": 246
+        },
+        {
+         "gpu": 247
+        }
+       ],
+       "p50_ms_median": 81.39095804654062,
+       "p99_ms": [
+        82.11803003679961,
+        82.34399265842512,
+        81.99773651664145,
+        81.9940605177544,
+        82.07122691674158,
+        81.9650792516768
+       ],
+       "p99_ms_median": 82.03448171669152,
+       "req_s": [
+        12.347104655218377,
+        12.345525081725015,
+        12.392809510933823,
+        12.33253602398105,
+        12.295646700437885,
+        12.33957254668171
+       ],
+       "req_s_median": 12.342548814203361
+      },
+      "short": {
+       "devices": [
+        {
+         "ane": 1960
+        },
+        {
+         "ane": 1961
+        },
+        {
+         "ane": 1966
+        },
+        {
+         "ane": 1962
+        },
+        {
+         "ane": 1963
+        },
+        {
+         "ane": 1962
+        }
+       ],
+       "p50_ms_median": 10.063427005661651,
+       "p99_ms": [
+        11.155195339815691,
+        11.134074977599086,
+        11.289108020719139,
+        11.091700614197176,
+        11.100621013902128,
+        11.125278072431682
+       ],
+       "p99_ms_median": 11.129676525015384,
+       "req_s": [
+        97.98425474401648,
+        98.02185445566973,
+        98.25214936054839,
+        98.06709174819058,
+        98.1163009357022,
+        98.07452820641072
+       ],
+       "req_s_median": 98.07080997730066
+      }
+     },
+     "windows": 6
+    },
+    "C": {
+     "aggregate_req_s": 112.95087222495151,
+     "gpu_return_ms": {
+      "n": 1662,
+      "p50": 0.044,
+      "p99": 0.2574099999999976
+     },
+     "hetero_windows_with_gpu_returns": 6,
+     "mismatches_all_windows": 0,
+     "streams": {
+      "long": {
+       "devices": [
+        {
+         "gpu": 278
+        },
+        {
+         "gpu": 278
+        },
+        {
+         "gpu": 278
+        },
+        {
+         "gpu": 278
+        },
+        {
+         "gpu": 278
+        },
+        {
+         "gpu": 278
+        }
+       ],
+       "p50_ms_median": 72.00292724883184,
+       "p99_ms": [
+        72.44269305374473,
+        72.3297812754754,
+        72.44439627276734,
+        72.51284430269152,
+        72.4905270896852,
+        72.35871950048022
+       ],
+       "p99_ms_median": 72.44354466325603,
+       "req_s": [
+        13.874117862251525,
+        13.871708505487508,
+        13.870841843310533,
+        13.875697929230585,
+        13.854817707597402,
+        13.877197163082375
+       ],
+       "req_s_median": 13.872913183869517
+      },
+      "short": {
+       "devices": [
+        {
+         "ane": 1982
+        },
+        {
+         "ane": 1983
+        },
+        {
+         "ane": 1981
+        },
+        {
+         "ane": 1982
+        },
+        {
+         "ane": 1975
+        },
+        {
+         "ane": 1984
+        }
+       ],
+       "p50_ms_median": 10.031864745542407,
+       "p99_ms": [
+        11.12230098922737,
+        11.099041132256389,
+        11.126608587801456,
+        11.072605776134878,
+        11.12909245537594,
+        11.065430011367425
+       ],
+       "p99_ms_median": 11.110671060741879,
+       "req_s": [
+        99.0931799118729,
+        99.14759525429801,
+        99.04400659974662,
+        99.0627381702911,
+        98.73145000944957,
+        99.16537640897454
+       ],
+       "req_s_median": 99.077959041082
+      }
+     },
+     "windows": 6
+    },
+    "PB": {
+     "aggregate_req_s": 115.79677259337527,
+     "gpu_return_ms": {
+      "n": 1662,
+      "p50": 0.039,
+      "p99": 0.27
+     },
+     "hetero_windows_with_gpu_returns": 6,
+     "mismatches_all_windows": 0,
+     "streams": {
+      "long": {
+       "devices": [
+        {
+         "gpu": 278
+        },
+        {
+         "gpu": 278
+        },
+        {
+         "gpu": 278
+        },
+        {
+         "gpu": 278
+        },
+        {
+         "gpu": 278
+        },
+        {
+         "gpu": 278
+        }
+       ],
+       "p50_ms_median": 71.99937500990927,
+       "p99_ms": [
+        72.4340234871488,
+        72.49891281942837,
+        72.31886075343937,
+        72.42230374133214,
+        72.32981660054065,
+        72.40001052152365
+       ],
+       "p99_ms_median": 72.4111571314279,
+       "req_s": [
+        13.875682086646213,
+        13.85548020632724,
+        13.872893320189162,
+        13.874829614003087,
+        13.87982012951904,
+        13.871033669675809
+       ],
+       "req_s_median": 13.873861467096123
+      },
+      "short": {
+       "devices": [
+        {
+         "ane": 2039
+        },
+        {
+         "ane": 2046
+        },
+        {
+         "ane": 2041
+        },
+        {
+         "ane": 2037
+        },
+        {
+         "ane": 2039
+        },
+        {
+         "ane": 2035
+        }
+       ],
+       "p50_ms_median": 9.758687519934028,
+       "p99_ms": [
+        10.739062551874667,
+        10.546414507552974,
+        10.75648283585906,
+        10.791041613556445,
+        10.762301939539611,
+        10.808985037729144
+       ],
+       "p99_ms_median": 10.759392387699336,
+       "req_s": [
+        101.93384539702,
+        102.27352820004072,
+        102.00068033031367,
+        101.82898292053397,
+        101.9119768555383,
+        101.74779143721221
+       ],
+       "req_s_median": 101.92291112627915
+      }
+     },
+     "windows": 6
+    }
+   },
+   "extras": {
+    "A": {
+     "collisions": {
+      "collide_fraction": 0.08705622558179038,
+      "forward_overlap_any_fraction": 0.11737727195515543,
+      "forward_overlap_mean": 0.11737727195515543,
+      "n": 11774,
+      "odds_ratio": 15.157371455161181,
+      "tail_colliding_fraction": 0.576271186440678,
+      "tail_fraction": 0.010022082554781722,
+      "tail_n": 118,
+      "threshold_ms": 11.13176
+     },
+     "forwards": {
+      "ane": {
+       "n": 11774,
+       "placement": "thread",
+       "service_ms_p50": 9.8723335,
+       "thread_cpu_ms_mean": 0.5958025500254799
+      },
+      "gpu": {
+       "n": 1482,
+       "placement": "process",
+       "service_ms_p50": 71.578584,
+       "thread_cpu_ms_mean": 1.8747752530364372
+      }
+     },
+     "gil_wait": null,
+     "load": {
+      "backings": null,
+      "crossings": {
+       "128": {
+        "ctypes": 0,
+        "nested_sends": 0,
+        "objc_send": 0,
+        "pool_pop": 0,
+        "pool_push": 0,
+        "reentries": 0,
+        "sites": {},
+        "total": 0
+       },
+       "64": {
+        "ctypes": 0,
+        "nested_sends": 0,
+        "objc_send": 0,
+        "pool_pop": 0,
+        "pool_push": 0,
+        "reentries": 0,
+        "sites": {},
+        "total": 0
+       },
+       "96": {
+        "ctypes": 0,
+        "nested_sends": 0,
+        "objc_send": 0,
+        "pool_pop": 0,
+        "pool_push": 0,
+        "reentries": 0,
+        "sites": {},
+        "total": 0
+       }
+      }
+     },
+     "stages": {
+      "features": {
+       "mean_ms": 0.23965802760319346,
+       "n": 11774,
+       "p50_ms": 0.159042,
+       "p95_ms": 1.04743135,
+       "p99_ms": 1.1267600000000002
+      },
+      "predict": {
+       "mean_ms": 9.688676839137083,
+       "n": 11774,
+       "p50_ms": 9.65125,
+       "p95_ms": 9.81934835,
+       "p99_ms": 10.65464298
+      },
+      "tail": {
+       "mean_ms": 0.061765672158994395,
+       "n": 11774,
+       "p50_ms": 0.059208,
+       "p95_ms": 0.076875,
+       "p99_ms": 0.12631441000000002
+      }
+     },
+     "windows": {
+      "gil_probe_cpu_fraction_of_core_median": 0.002976975495405914,
+      "gil_probe_over_1ms_fraction_median": 0.7081928510152449,
+      "gil_probe_p99_ms_median": 9.99073842,
+      "slow_cpu": null,
+      "thread_cpu_ms_per_window_median": {
+       "MainThread": 0.035500000000000004,
+       "client-long": 213.587,
+       "gil-probe": 61.063500000000005,
+       "laya-ane-dispatch": 1264.312,
+       "laya-gpu-dispatch": 32.5475,
+       "other": 65.518
+      }
+     }
+    },
+    "C": {
+     "collisions": {
+      "collide_fraction": 0.011777572137629344,
+      "forward_overlap_any_fraction": 0.1387229746782199,
+      "forward_overlap_mean": 0.1387229746782199,
+      "n": 11887,
+      "odds_ratio": 131.22915155910079,
+      "tail_colliding_fraction": 0.525,
+      "tail_fraction": 0.006730041221502482,
+      "tail_n": 80,
+      "threshold_ms": 11.13176
+     },
+     "forwards": {
+      "ane": {
+       "n": 11887,
+       "placement": "thread",
+       "service_ms_p50": 9.854583,
+       "thread_cpu_ms_mean": 0.6161392308404139
+      },
+      "gpu": {
+       "n": 1668,
+       "placement": "process",
+       "service_ms_p50": 71.034958,
+       "thread_cpu_ms_mean": 1.8426738147482014
+      }
+     },
+     "gil_wait": {
+      "mean_ms": 0.007452987465298225,
+      "n": 11887,
+      "p50_ms": 0.00075,
+      "p95_ms": 0.002916,
+      "p99_ms": 0.23716311999999914
+     },
+     "load": {
+      "backings": null,
+      "crossings": {
+       "128": {
+        "ctypes": 1,
+        "nested_sends": 112,
+        "objc_send": 104,
+        "pool_pop": 1,
+        "pool_push": 2,
+        "reentries": 62,
+        "sites": {
+         "ctypes laya_predict_stamped <- nogil.py:StampedNoGilModel._predict": 1,
+         "nested objc_send longLongValue <- _pythonify.py:numberWrapper": 56,
+         "nested objc_send objCType <- _pythonify.py:numberWrapper": 56,
+         "objc_send alloc <- nogil.py:StampedNoGilModel._predict": 1,
+         "objc_send alloc <- nogil_predict.py:NoGilModel._array": 5,
+         "objc_send count <- _convenience_nsset.py:<lambda>": 1,
+         "objc_send dataPointer <- nogil_predict.py:_view": 7,
+         "objc_send dataType <- nogil.py:StampedNoGilModel._predict": 2,
+         "objc_send featureNames <- nogil.py:StampedNoGilModel._predict": 1,
+         "objc_send featureValueForName: <- nogil.py:StampedNoGilModel._predict": 2,
+         "objc_send featureValueWithMultiArray: <- nogil.py:StampedNoGilModel._predict": 5,
+         "objc_send initWithDictionary:error: <- nogil.py:StampedNoGilModel._predict": 1,
+         "objc_send initWithShape:dataType:error: <- nogil_predict.py:NoGilModel._array": 5,
+         "objc_send multiArrayValue <- nogil.py:StampedNoGilModel._predict": 2,
+         "objc_send nextObject <- _convenience.py:<lambda>": 45,
+         "objc_send nextObject <- _convenience_nsset.py:nsset__iter__.__next__": 3,
+         "objc_send objectEnumerator <- _convenience_nsarray.py:nsarray__iter__": 9,
+         "objc_send objectEnumerator <- _convenience_nsset.py:nsset__iter__.__init__": 1,
+         "objc_send shape <- nogil_predict.py:_view": 7,
+         "objc_send strides <- nogil_predict.py:_view": 7,
+         "pool_pop __exit__ <- nogil_predict.py:NoGilModel.predict": 1,
+         "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+         "pool_push init <- __init__.py:autorelease_pool.__enter__": 1,
+         "reentry <frozen abc>:ABCMeta.__instancecheck__": 6,
+         "reentry _pythonify.py:numberWrapper": 56
+        },
+        "total": 108
+       },
+       "64": {
+        "ctypes": 1,
+        "nested_sends": 112,
+        "objc_send": 104,
+        "pool_pop": 1,
+        "pool_push": 2,
+        "reentries": 62,
+        "sites": {
+         "ctypes laya_predict_stamped <- nogil.py:StampedNoGilModel._predict": 1,
+         "nested objc_send longLongValue <- _pythonify.py:numberWrapper": 56,
+         "nested objc_send objCType <- _pythonify.py:numberWrapper": 56,
+         "objc_send alloc <- nogil.py:StampedNoGilModel._predict": 1,
+         "objc_send alloc <- nogil_predict.py:NoGilModel._array": 5,
+         "objc_send count <- _convenience_nsset.py:<lambda>": 1,
+         "objc_send dataPointer <- nogil_predict.py:_view": 7,
+         "objc_send dataType <- nogil.py:StampedNoGilModel._predict": 2,
+         "objc_send featureNames <- nogil.py:StampedNoGilModel._predict": 1,
+         "objc_send featureValueForName: <- nogil.py:StampedNoGilModel._predict": 2,
+         "objc_send featureValueWithMultiArray: <- nogil.py:StampedNoGilModel._predict": 5,
+         "objc_send initWithDictionary:error: <- nogil.py:StampedNoGilModel._predict": 1,
+         "objc_send initWithShape:dataType:error: <- nogil_predict.py:NoGilModel._array": 5,
+         "objc_send multiArrayValue <- nogil.py:StampedNoGilModel._predict": 2,
+         "objc_send nextObject <- _convenience.py:<lambda>": 45,
+         "objc_send nextObject <- _convenience_nsset.py:nsset__iter__.__next__": 3,
+         "objc_send objectEnumerator <- _convenience_nsarray.py:nsarray__iter__": 9,
+         "objc_send objectEnumerator <- _convenience_nsset.py:nsset__iter__.__init__": 1,
+         "objc_send shape <- nogil_predict.py:_view": 7,
+         "objc_send strides <- nogil_predict.py:_view": 7,
+         "pool_pop __exit__ <- nogil_predict.py:NoGilModel.predict": 1,
+         "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+         "pool_push init <- __init__.py:autorelease_pool.__enter__": 1,
+         "reentry <frozen abc>:ABCMeta.__instancecheck__": 6,
+         "reentry _pythonify.py:numberWrapper": 56
+        },
+        "total": 108
+       },
+       "96": {
+        "ctypes": 1,
+        "nested_sends": 112,
+        "objc_send": 104,
+        "pool_pop": 1,
+        "pool_push": 2,
+        "reentries": 62,
+        "sites": {
+         "ctypes laya_predict_stamped <- nogil.py:StampedNoGilModel._predict": 1,
+         "nested objc_send longLongValue <- _pythonify.py:numberWrapper": 56,
+         "nested objc_send objCType <- _pythonify.py:numberWrapper": 56,
+         "objc_send alloc <- nogil.py:StampedNoGilModel._predict": 1,
+         "objc_send alloc <- nogil_predict.py:NoGilModel._array": 5,
+         "objc_send count <- _convenience_nsset.py:<lambda>": 1,
+         "objc_send dataPointer <- nogil_predict.py:_view": 7,
+         "objc_send dataType <- nogil.py:StampedNoGilModel._predict": 2,
+         "objc_send featureNames <- nogil.py:StampedNoGilModel._predict": 1,
+         "objc_send featureValueForName: <- nogil.py:StampedNoGilModel._predict": 2,
+         "objc_send featureValueWithMultiArray: <- nogil.py:StampedNoGilModel._predict": 5,
+         "objc_send initWithDictionary:error: <- nogil.py:StampedNoGilModel._predict": 1,
+         "objc_send initWithShape:dataType:error: <- nogil_predict.py:NoGilModel._array": 5,
+         "objc_send multiArrayValue <- nogil.py:StampedNoGilModel._predict": 2,
+         "objc_send nextObject <- _convenience.py:<lambda>": 45,
+         "objc_send nextObject <- _convenience_nsset.py:nsset__iter__.__next__": 3,
+         "objc_send objectEnumerator <- _convenience_nsarray.py:nsarray__iter__": 9,
+         "objc_send objectEnumerator <- _convenience_nsset.py:nsset__iter__.__init__": 1,
+         "objc_send shape <- nogil_predict.py:_view": 7,
+         "objc_send strides <- nogil_predict.py:_view": 7,
+         "pool_pop __exit__ <- nogil_predict.py:NoGilModel.predict": 1,
+         "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+         "pool_push init <- __init__.py:autorelease_pool.__enter__": 1,
+         "reentry <frozen abc>:ABCMeta.__instancecheck__": 6,
+         "reentry _pythonify.py:numberWrapper": 56
+        },
+        "total": 108
+       }
+      }
+     },
+     "stages": {
+      "features": {
+       "mean_ms": 0.1714675872802221,
+       "n": 11887,
+       "p50_ms": 0.157792,
+       "p95_ms": 0.185458,
+       "p99_ms": 0.3180757399999997
+      },
+      "native": {
+       "mean_ms": 9.43077978632119,
+       "n": 11887,
+       "p50_ms": 9.4165,
+       "p95_ms": 9.504778700000001,
+       "p99_ms": 9.570120259999998
+      },
+      "post": {
+       "mean_ms": 0.09051349810717589,
+       "n": 11887,
+       "p50_ms": 0.082709,
+       "p95_ms": 0.12089559999999977,
+       "p99_ms": 0.17294525999999988
+      },
+      "pre": {
+       "mean_ms": 0.14242565264574744,
+       "n": 11887,
+       "p50_ms": 0.134417,
+       "p95_ms": 0.16868309999999992,
+       "p99_ms": 0.20546473999999998
+      },
+      "pre_overlap_any_fraction": 0.011945823168166905,
+      "pre_overlap_mean": 0.011945823168166905,
+      "predict": {
+       "mean_ms": 9.671171924539413,
+       "n": 11887,
+       "p50_ms": 9.637542,
+       "p95_ms": 9.7805714,
+       "p99_ms": 10.493829999999999
+      },
+      "reacquire": {
+       "mean_ms": 0.007452987465298225,
+       "n": 11887,
+       "p50_ms": 0.00075,
+       "p95_ms": 0.002916,
+       "p99_ms": 0.23716311999999914
+      },
+      "tail": {
+       "mean_ms": 0.05712048405821486,
+       "n": 11887,
+       "p50_ms": 0.055125,
+       "p95_ms": 0.06740369999999996,
+       "p99_ms": 0.09608187999999983
+      }
+     },
+     "windows": {
+      "gil_probe_cpu_fraction_of_core_median": 0.00983089578449096,
+      "gil_probe_over_1ms_fraction_median": 0.0028843754816254797,
+      "gil_probe_p99_ms_median": 0.5849550650000003,
+      "slow_cpu": {
+       "ane_thread_cpu_ratios": [
+        0.9946757608501414,
+        1.0076224040276904,
+        1.0137001584786054,
+        0.9948377815882598,
+        1.0952115057186693,
+        0.9951337092178728
+       ],
+       "client_short_ratios": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+       ],
+       "computable_windows": 0,
+       "flagged_windows": 0,
+       "flags": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+       ],
+       "limit": 1.25
+      },
+      "thread_cpu_ms_per_window_median": {
+       "MainThread": 0.0345,
+       "client-long": 244.7665,
+       "gil-probe": 201.90550000000002,
+       "laya-ane-dispatch": 1320.2965,
+       "laya-gpu-dispatch": 27.578,
+       "other": 57.528999999999996
+      }
+     }
+    },
+    "PB": {
+     "collisions": {
+      "collide_fraction": 0.017651385143417506,
+      "forward_overlap_any_fraction": 0.1345100923428945,
+      "forward_overlap_mean": 0.1345100923428945,
+      "n": 12237,
+      "odds_ratio": 27.965262076053442,
+      "tail_colliding_fraction": 0.32,
+      "tail_fraction": 0.002042984391599248,
+      "tail_n": 25,
+      "threshold_ms": 11.13176
+     },
+     "forwards": {
+      "ane": {
+       "n": 12236,
+       "placement": "thread",
+       "service_ms_p50": 9.5667915,
+       "thread_cpu_ms_mean": 0.333600570774763
+      },
+      "gpu": {
+       "n": 1668,
+       "placement": "process",
+       "service_ms_p50": 71.06170850000001,
+       "thread_cpu_ms_mean": 1.8168274988009592
+      }
+     },
+     "gil_wait": {
+      "mean_ms": 0.008453515773128473,
+      "n": 12236,
+      "p50_ms": 0.000667,
+      "p95_ms": 0.002625,
+      "p99_ms": 0.3633034999999957
+     },
+     "load": {
+      "backings": {
+       "128": {
+        "evidence": {
+         "cls": {
+          "backing_written": true,
+          "dtype": "float16",
+          "equal_to_returned": true,
+          "same_address": true,
+          "shape": [
+           1,
+           1024,
+           1,
+           1
+          ]
+         },
+         "logits": {
+          "backing_written": true,
+          "dtype": "float16",
+          "equal_to_returned": true,
+          "same_address": true,
+          "shape": [
+           1,
+           1,
+           1,
+           32
+          ]
+         }
+        },
+        "modes": {
+         "cls": "backed",
+         "logits": "backed"
+        }
+       },
+       "64": {
+        "evidence": {
+         "cls": {
+          "backing_written": true,
+          "dtype": "float16",
+          "equal_to_returned": true,
+          "same_address": true,
+          "shape": [
+           1,
+           1024,
+           1,
+           1
+          ]
+         },
+         "logits": {
+          "backing_written": true,
+          "dtype": "float16",
+          "equal_to_returned": true,
+          "same_address": true,
+          "shape": [
+           1,
+           1,
+           1,
+           32
+          ]
+         }
+        },
+        "modes": {
+         "cls": "backed",
+         "logits": "backed"
+        }
+       },
+       "96": {
+        "evidence": {
+         "cls": {
+          "backing_written": true,
+          "dtype": "float16",
+          "equal_to_returned": true,
+          "same_address": true,
+          "shape": [
+           1,
+           1024,
+           1,
+           1
+          ]
+         },
+         "logits": {
+          "backing_written": true,
+          "dtype": "float16",
+          "equal_to_returned": true,
+          "same_address": true,
+          "shape": [
+           1,
+           1,
+           1,
+           32
+          ]
+         }
+        },
+        "modes": {
+         "cls": "backed",
+         "logits": "backed"
+        }
+       }
+      },
+      "crossings": {
+       "128": {
+        "ctypes": 1,
+        "nested_sends": 0,
+        "objc_send": 0,
+        "pool_pop": 1,
+        "pool_push": 2,
+        "reentries": 0,
+        "sites": {
+         "ctypes laya_predict_options_stamped <- prebind.py:PrebindModel.predict": 1,
+         "pool_pop __exit__ <- prebind.py:PrebindModel.predict": 1,
+         "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+         "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+        },
+        "total": 4
+       },
+       "64": {
+        "ctypes": 1,
+        "nested_sends": 0,
+        "objc_send": 0,
+        "pool_pop": 1,
+        "pool_push": 2,
+        "reentries": 0,
+        "sites": {
+         "ctypes laya_predict_options_stamped <- prebind.py:PrebindModel.predict": 1,
+         "pool_pop __exit__ <- prebind.py:PrebindModel.predict": 1,
+         "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+         "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+        },
+        "total": 4
+       },
+       "96": {
+        "ctypes": 1,
+        "nested_sends": 0,
+        "objc_send": 0,
+        "pool_pop": 1,
+        "pool_push": 2,
+        "reentries": 0,
+        "sites": {
+         "ctypes laya_predict_options_stamped <- prebind.py:PrebindModel.predict": 1,
+         "pool_pop __exit__ <- prebind.py:PrebindModel.predict": 1,
+         "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+         "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+        },
+        "total": 4
+       }
+      }
+     },
+     "stages": {
+      "features": {
+       "mean_ms": 0.1754866787348807,
+       "n": 12236,
+       "p50_ms": 0.157708,
+       "p95_ms": 0.1879275,
+       "p99_ms": 1.0434107499999998
+      },
+      "native": {
+       "mean_ms": 9.342730333197123,
+       "n": 12236,
+       "p50_ms": 9.326292,
+       "p95_ms": 9.417666,
+       "p99_ms": 9.456102099999999
+      },
+      "post": {
+       "mean_ms": 0.009900059333115397,
+       "n": 12236,
+       "p50_ms": 0.0055,
+       "p95_ms": 0.019625,
+       "p99_ms": 0.023997599999999956
+      },
+      "pre": {
+       "mean_ms": 0.0160779712324289,
+       "n": 12236,
+       "p50_ms": 0.014166,
+       "p95_ms": 0.01933325,
+       "p99_ms": 0.029218849999999925
+      },
+      "pre_overlap_any_fraction": 0.014465511605099705,
+      "pre_overlap_mean": 0.014465511605099705,
+      "predict": {
+       "mean_ms": 9.377161879535796,
+       "n": 12236,
+       "p50_ms": 9.348166,
+       "p95_ms": 9.45704125,
+       "p99_ms": 9.902582899999997
+      },
+      "reacquire": {
+       "mean_ms": 0.008453515773128473,
+       "n": 12236,
+       "p50_ms": 0.000667,
+       "p95_ms": 0.002625,
+       "p99_ms": 0.3633034999999957
+      },
+      "tail": {
+       "mean_ms": 0.060099184700882644,
+       "n": 12236,
+       "p50_ms": 0.057959,
+       "p95_ms": 0.07408324999999999,
+       "p99_ms": 0.11817959999999997
+      }
+     },
+     "windows": {
+      "gil_probe_cpu_fraction_of_core_median": 0.009530496986193883,
+      "gil_probe_over_1ms_fraction_median": 0.0027332775835570183,
+      "gil_probe_p99_ms_median": 0.5827877800000004,
+      "slow_cpu": {
+       "ane_thread_cpu_ratios": [
+        0.5279564307556646,
+        0.5472355779316131,
+        0.5389684099313259,
+        0.5562290338650131,
+        0.5578799431655158,
+        0.5633837165168796
+       ],
+       "client_short_ratios": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+       ],
+       "computable_windows": 0,
+       "flagged_windows": 0,
+       "flags": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+       ],
+       "limit": 1.25
+      },
+      "thread_cpu_ms_per_window_median": {
+       "MainThread": 0.0385,
+       "client-long": 235.2955,
+       "gil-probe": 195.68599999999998,
+       "laya-ane-dispatch": 778.807,
+       "laya-gpu-dispatch": 26.115000000000002,
+       "other": 61.628
+      }
+     }
+    }
+   },
+   "hetero_streams_on_intended_devices": {
+    "A": true,
+    "C": true,
+    "PB": true
+   },
+   "interpretation": "PB PASS on laya-typed-decisions: supports 'the many PyObjC/GIL handoffs are a significant execution-layer cost' for this model (not attributed to GPU-completion collisions alone)",
+   "production": "A",
+   "verdicts": {
+    "C": {
+     "bootstrap_sensitivity": {
+      "aggregate_throughput": "PASS",
+      "long_p99": "PASS",
+      "short_p99": "PASS"
+     },
+     "checks": {
+      "aggregate_throughput": "PASS",
+      "correctness": "PASS",
+      "gpu_completion_isolation": "PASS",
+      "long_p99": "PASS",
+      "short_p99": "PASS"
+     },
+     "gain_applies": true,
+     "gpu_return_p50_gain": 199.51136363636368,
+     "pairs": 6,
+     "pooled_point_estimate_not_the_verdict": {
+      "aggregate": 1.022981942232544,
+      "gpu_return_p50_gain": 199.51136363636368,
+      "long_p99": 0.8830865161486842,
+      "short_p99": 0.9982923614868062
+     },
+     "stats": {
+      "aggregate": {
+       "bootstrap": {
+        "hi": 1.0237647931739422,
+        "lo": 1.0210786988048808,
+        "resamples": 10000,
+        "seed": 20260925
+       },
+       "ratios": [
+        1.0238911075621882,
+        1.0240281524623156,
+        1.0205150744753904,
+        1.0229965297762535,
+        1.0196927970881586,
+        1.0238055900563123
+       ],
+       "t": {
+        "geomean": 1.022486737115167,
+        "hi": 1.0244832340795238,
+        "lo": 1.0204941308929876,
+        "log_halfwidth": 0.0019506857702230832,
+        "n": 6
+       }
+      },
+      "long_p99": {
+       "bootstrap": {
+        "hi": 0.8836684105514641,
+        "lo": 0.8806669004664859,
+        "resamples": 10000,
+        "seed": 20260925
+       },
+       "ratios": [
+        0.8821776779262841,
+        0.8783856470927984,
+        0.8834926346785772,
+        0.8843670364024734,
+        0.8832635969147181,
+        0.8827993599359564
+       ],
+       "t": {
+        "geomean": 0.8824122314187276,
+        "hi": 0.8846260674664113,
+        "lo": 0.8802039356441902,
+        "log_halfwidth": 0.002505703704766556,
+        "n": 6
+       }
+      },
+      "short_p99": {
+       "bootstrap": {
+        "hi": 0.9994672340054932,
+        "lo": 0.9912463659266187,
+        "resamples": 10000,
+        "seed": 20260925
+       },
+       "ratios": [
+        0.9970512080168679,
+        0.9968534570304958,
+        0.9856056446072228,
+        0.9982784571341696,
+        1.0025648512311298,
+        0.9946205334667041
+       ],
+       "t": {
+        "geomean": 0.9958156027724037,
+        "hi": 1.0017819399234291,
+        "lo": 0.9898847994811746,
+        "log_halfwidth": 0.005973530468401229,
+        "n": 6
+       }
+      }
+     },
+     "verdict": "PASS"
+    },
+    "PB": {
+     "bootstrap_sensitivity": {
+      "aggregate_throughput": "PASS",
+      "long_p99": "PASS",
+      "short_p99": "PASS"
+     },
+     "checks": {
+      "aggregate_throughput": "PASS",
+      "correctness": "PASS",
+      "gpu_completion_isolation": "PASS",
+      "long_p99": "PASS",
+      "short_p99": "PASS"
+     },
+     "gain_applies": true,
+     "gpu_return_p50_gain": 225.08974358974362,
+     "pairs": 6,
+     "pooled_point_estimate_not_the_verdict": {
+      "aggregate": 1.0487569064177902,
+      "gpu_return_p50_gain": 225.08974358974362,
+      "long_p99": 0.882691712266824,
+      "short_p99": 0.9667300180302827
+     },
+     "stats": {
+      "aggregate": {
+       "bootstrap": {
+        "hi": 1.0503527315695596,
+        "lo": 1.047611271604258,
+        "resamples": 10000,
+        "seed": 20260925
+       },
+       "ratios": [
+        1.0496519585570279,
+        1.0522040923062874,
+        1.0472557885361395,
+        1.048045313823988,
+        1.0487252463532881,
+        1.0471382216428533
+       ],
+       "t": {
+        "geomean": 1.0488353393972623,
+        "hi": 1.0508283312349813,
+        "lo": 1.0468461274504606,
+        "log_halfwidth": 0.0018983920750155498,
+        "n": 6
+       }
+      },
+      "long_p99": {
+       "bootstrap": {
+        "hi": 0.8828607355354681,
+        "lo": 0.8812353447662215,
+        "resamples": 10000,
+        "seed": 20260925
+       },
+       "ratios": [
+        0.8820721034672763,
+        0.8804396104542127,
+        0.8819616714512875,
+        0.8832628032325627,
+        0.8813054138195929,
+        0.8833031235072286
+       ],
+       "t": {
+        "geomean": 0.8820568687900625,
+        "hi": 0.8832260604532266,
+        "lo": 0.8808892248723811,
+        "log_halfwidth": 0.001324650926784101,
+        "n": 6
+       }
+      },
+      "short_p99": {
+       "bootstrap": {
+        "hi": 0.9700633837016721,
+        "lo": 0.9544573556332623,
+        "resamples": 10000,
+        "seed": 20260925
+       },
+       "ratios": [
+        0.9626960554912256,
+        0.947219641395586,
+        0.9528195510325049,
+        0.9728933360988942,
+        0.9695225092417069,
+        0.9715698760387564
+       ],
+       "t": {
+        "geomean": 0.962737641131698,
+        "hi": 0.9740001740496544,
+        "lo": 0.9516053388349546,
+        "log_halfwidth": 0.011630546773993396,
+        "n": 6
+       }
+      }
+     },
+     "verdict": "PASS"
+    }
+   },
+   "versions": {
+    "coremltools": "9.0",
+    "laya_apple": "1.3.0",
+    "mlx": "0.32.2",
+    "pyobjc": "12.2.2"
+   }
+  }
+ },
+ "outcome": "PB INCONCLUSIVE on laya-multilingual: no production change; a larger preregistered replication decides",
+ "per_model": {
+  "C": {
+   "laya": "PASS",
+   "laya-multilingual": "FAIL",
+   "laya-typed-decisions": "PASS"
+  },
+  "PB": {
+   "laya": "PASS",
+   "laya-multilingual": "INCONCLUSIVE",
+   "laya-typed-decisions": "PASS"
+  }
+ },
+ "rounds": [
+  1,
+  2
+ ]
+}
