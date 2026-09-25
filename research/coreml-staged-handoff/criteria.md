@@ -261,3 +261,12 @@ log decisions and records the RequestTrace. Raw output goes to `raw-prod/`.
 **Order:** Phase 4, then 5 and 5b, then 6, then 7. Each phase runs only if the previous one
 passed. A failure stops the campaign at RESEARCH-CLOSED, and the production change is not
 proposed.
+
+## Addendum 3 (committed before any production-path run; protocol only)
+
+The prototype review moved `ane_handoff` from default-on to opt-in, with `False` as the default.
+Two reasons: default-on would change today's default path and the recorded benchmark
+methodology, and it would interfere with the research harnesses that swap the ANE models. Cell P
+therefore passes `ane_handoff=True` explicitly, and cell A passes `ane_handoff=False`, which is the
+default. Nothing else changes. Whether 1.5 enables the handoff by default is a release decision
+that follows these phases.

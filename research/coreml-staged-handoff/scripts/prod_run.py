@@ -5,8 +5,8 @@
         --schedule mix --output research/coreml-staged-handoff/raw-prod/mix-laya-P-r1.json.gz
 
 It runs the released code path, not a research model swap: laya_apple.Laya with execution="workers",
-device="auto" and the default ane_handoff (cell P, the prototype's staged handoff), or with
-ane_handoff=False (cell A, today's production path). The GPU-only instance of the mix is
+device="auto" and ane_handoff=True (cell P, the prototype's staged handoff, opt-in; addendum 3),
+or with ane_handoff=False (cell A, today's production path and the default). The GPU-only instance of the mix is
 device="gpu", execution="workers", as in #92's part_a.
 
 The workload is #92's: one closed-loop client per stream (scripts/bench_concurrency.closed_loop,
@@ -141,7 +141,7 @@ def main():
         with tlock:
             trace_rows.append(row)
 
-    kw = {} if a.cell == "P" else {"ane_handoff": False}
+    kw = {"ane_handoff": a.cell == "P"}  # addendum 3: the prototype's handoff is opt-in
     laya_auto = Laya.from_pretrained(
         a.model, device="auto", execution="workers", local_files_only=True, trace=record, **kw
     )
