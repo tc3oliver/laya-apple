@@ -1,6 +1,6 @@
 # Staged handoff screen: A, B, H32, H64 at the hetero transition (laya, L128 / L512)
 
-Outcome: round 2 (H32): INCONCLUSIVE: an A window failed the validity guard; no candidate is judged in this round; independently of A, H32 failed laya-H32-r3 c0: transient_from_th, laya-H32-r3 c1: transient_from_th/steady_host_slow, so it is not replicated; the H64 fallback runs (addendum 4); round 2 (H64) pending: H64 r3, A r5, H64 r4, A r6, H64 r5
+Outcome: round 2 (H32): INCONCLUSIVE: an A window failed the validity guard; no candidate is judged in this round; independently of A, H32 failed laya-H32-r3 c0: transient_from_th, laya-H32-r3 c1: transient_from_th/steady_host_slow, so it is not replicated; the H64 fallback runs (addendum 4); no candidate replicates: RESEARCH-CLOSED / NO PRODUCT CHANGE
 
 Crashed runs and re-runs (`raw/failed/`): none
 
@@ -13,6 +13,8 @@ Crashed runs and re-runs (`raw/failed/`): none
 | laya-A-r2 | 20 | True | 0 | – | False | 0 | 7846 / 0 | 189 |
 | laya-A-r3 | 20 | True | 0 | – | False | 0 | 7807 / 0 | 189 |
 | laya-A-r4 | 20 | True | 0 | – | False | 0 | 7849 / 0 | 189 |
+| laya-A-r5 | 20 | True | 0 | – | False | 0 | 7837 / 0 | 189 |
+| laya-A-r6 | 20 | True | 0 | – | False | 0 | 7844 / 0 | 189 |
 | laya-B-r1 | 20 | True | 0 | – | False | 0 | 0 / 7085 | 189 |
 | laya-B-r2 | 20 | True | 0 | – | False | 0 | 0 / 7088 | 189 |
 | laya-H32-r1 | 20 | True | 0 | – | False | 2 | 3988 / 3956 | 188 |
@@ -22,6 +24,9 @@ Crashed runs and re-runs (`raw/failed/`): none
 | laya-H32-r5 | 20 | True | 0 | – | False | 2 | 3994 / 3936 | 189 |
 | laya-H64-r1 | 20 | True | 0 | – | False | 2 | 4074 / 3878 | 189 |
 | laya-H64-r2 | 20 | True | 0 | – | False | 2 | 4067 / 3898 | 189 |
+| laya-H64-r3 | 20 | True | 0 | – | False | 2 | 4062 / 3894 | 189 |
+| laya-H64-r4 | 20 | True | 0 | – | False | 2 | 4064 / 3897 | 189 |
+| laya-H64-r5 | 20 | True | 0 | – | False | 2 | 4059 / 3899 | 189 |
 
 ## Transitions
 
@@ -37,6 +42,10 @@ t_h in s from t0. Transient: #94's, from t0 and from t_h. GPU return over [t_h +
 | laya-A-r3 | 1 | gpu_only | – | – / – / – | 16.42 | 13.33 | – (0) | 9.700 | 1.0 / – | 0.000 | 4.391 / 5.472 / 6.661 | 121.4 |
 | laya-A-r4 | 0 | solo_long | – | – / – / – | 15.19 | 11.62 | – (0) | 9.700 | 0.5 / – | 0.000 | 4.522 / 6.205 / 7.067 | 121.4 |
 | laya-A-r4 | 1 | gpu_only | – | – / – / – | 15.18 | 11.09 | – (0) | 9.670 | 0.5 / – | 0.000 | 4.371 / 5.038 / 5.795 | 122.1 |
+| laya-A-r5 | 0 | solo_long | – | – / – / – | 16.46 | 12.35 | – (0) | 9.683 | 0.5 / – | 0.000 | 4.389 / 5.103 / 5.796 | 122.1 |
+| laya-A-r5 | 1 | gpu_only | – | – / – / – | 14.43 | 11.03 | – (0) | 9.681 | 0.5 / – | 0.000 | 4.417 / 5.087 / 5.965 | 122.1 |
+| laya-A-r6 | 0 | solo_long | – | – / – / – | 14.83 | 11.18 | – (0) | 9.682 | 0.5 / – | 0.000 | 4.416 / 4.965 / 6.414 | 122.1 |
+| laya-A-r6 | 1 | gpu_only | – | – / – / – | 14.87 | 11.07 | – (0) | 9.693 | 0.5 / – | 0.000 | 4.473 / 4.850 / 6.037 | 121.9 |
 | laya-B-r1 | 0 | solo_long | 0.000 | – / – / – | 17.46 | 17.44 | 9.871 (1532) | 10.321 | 20.0 / 20.0 | 0.999 | 0.248 / 1.465 / 2.017 | 100.3 |
 | laya-B-r1 | 1 | gpu_only | 0.000 | – / – / – | 17.38 | 17.35 | 9.878 (1535) | 10.300 | 20.0 / 20.0 | 1.000 | 0.246 / 1.541 / 2.158 | 100.4 |
 | laya-B-r2 | 0 | solo_long | 0.000 | – / – / – | 17.42 | 17.37 | 9.862 (1534) | 10.304 | 20.0 / 20.0 | 0.995 | 0.246 / 1.403 / 2.034 | 100.4 |
@@ -55,6 +64,12 @@ t_h in s from t0. Transient: #94's, from t0 and from t_h. GPU return over [t_h +
 | laya-H64-r1 | 1 | gpu_only | 0.758 | 1 / 64 / True | 14.49 | 10.74 | 9.396 (1943) | 9.507 | 0.5 / 0.0 | 0.001 | 0.038 / 0.083 / 0.179 | 128.0 |
 | laya-H64-r2 | 0 | solo_long | 0.763 | 1 / 64 / True | 14.58 | 10.69 | 9.388 (1949) | 9.492 | 0.5 / 0.0 | 0.000 | 0.039 / 0.067 / 0.163 | 128.4 |
 | laya-H64-r2 | 1 | gpu_only | 0.767 | 1 / 64 / True | 14.89 | 11.10 | 9.389 (1949) | 9.493 | 0.5 / 0.0 | 0.000 | 0.038 / 0.071 / 0.231 | 128.3 |
+| laya-H64-r3 | 0 | solo_long | 0.775 | 1 / 64 / True | 14.94 | 12.15 | 9.402 (1945) | 9.509 | 0.5 / 0.0 | 0.000 | 0.038 / 0.069 / 0.140 | 128.2 |
+| laya-H64-r3 | 1 | gpu_only | 0.751 | 1 / 64 / True | 13.98 | 10.96 | 9.404 (1948) | 9.511 | 0.5 / 0.0 | 0.000 | 0.038 / 0.063 / 0.151 | 128.2 |
+| laya-H64-r4 | 0 | solo_long | 0.759 | 1 / 64 / True | 15.29 | 10.80 | 9.387 (1951) | 9.495 | 0.5 / 0.0 | 0.000 | 0.036 / 0.070 / 0.214 | 128.4 |
+| laya-H64-r4 | 1 | gpu_only | 0.760 | 1 / 64 / True | 14.61 | 10.80 | 9.404 (1946) | 9.512 | 0.5 / 0.0 | 0.000 | 0.036 / 0.069 / 0.280 | 128.1 |
+| laya-H64-r5 | 0 | solo_long | 0.756 | 1 / 64 / True | 14.61 | 10.85 | 9.407 (1947) | 9.512 | 0.5 / 0.0 | 0.000 | 0.037 / 0.058 / 0.133 | 128.2 |
+| laya-H64-r5 | 1 | gpu_only | 0.759 | 1 / 64 / True | 15.23 | 10.64 | 9.358 (1952) | 9.466 | 0.5 / 0.0 | 0.000 | 0.039 / 0.074 / 0.114 | 128.5 |
 
 ## Mechanism (report only, never a gate)
 
@@ -78,6 +93,14 @@ E share (relative cycle rate P / E) of parent-active and the auto GPU worker; sp
 | laya-A-r4 | 0 | worker | 0.66 (2.25 / 1.84) | 0.00 (3.17 / –) | 0.00 (3.19 / 2.55) | 0.5 | False |
 | laya-A-r4 | 1 | parent | 0.55 (2.94 / 1.85) | 0.00 (4.14 / –) | 0.00 (4.12 / –) | 0.5 | False |
 | laya-A-r4 | 1 | worker | 0.59 (2.65 / 1.83) | 0.00 (3.15 / –) | 0.00 (3.37 / –) | 0.5 | False |
+| laya-A-r5 | 0 | parent | 0.76 (2.70 / 1.80) | 0.00 (4.13 / –) | 0.00 (4.12 / 2.36) | 0.5 | False |
+| laya-A-r5 | 0 | worker | 0.80 (2.59 / 1.84) | 0.00 (3.12 / –) | 0.00 (3.31 / 2.55) | 0.5 | False |
+| laya-A-r5 | 1 | parent | 0.49 (3.02 / 1.88) | 0.00 (4.13 / –) | 0.00 (4.10 / –) | 0.0 | False |
+| laya-A-r5 | 1 | worker | 0.47 (2.53 / 1.93) | 0.00 (3.10 / –) | 0.00 (3.35 / –) | 0.0 | False |
+| laya-A-r6 | 0 | parent | 0.53 (2.95 / 1.78) | 0.00 (4.11 / –) | 0.00 (4.12 / –) | 0.5 | False |
+| laya-A-r6 | 0 | worker | 0.59 (2.67 / 1.79) | 0.00 (3.15 / –) | 0.00 (3.34 / –) | 0.5 | False |
+| laya-A-r6 | 1 | parent | 0.53 (2.97 / 1.81) | 0.00 (4.12 / –) | 0.00 (4.10 / –) | 0.5 | False |
+| laya-A-r6 | 1 | worker | 0.58 (2.69 / 1.86) | 0.00 (3.10 / –) | 0.00 (3.07 / –) | 0.5 | False |
 | laya-B-r1 | 0 | parent | 0.93 (1.99 / 1.44) | 1.00 (– / 1.30) | 1.00 (1.54 / 1.33) | never | False |
 | laya-B-r1 | 0 | worker | 0.84 (1.90 / 1.59) | 1.00 (– / 1.42) | 1.00 (1.50 / 1.45) | never | False |
 | laya-B-r1 | 1 | parent | 0.92 (1.98 / 1.55) | 0.99 (1.57 / 1.34) | 1.00 (1.74 / 1.32) | never | False |
@@ -114,6 +137,18 @@ E share (relative cycle rate P / E) of parent-active and the auto GPU worker; sp
 | laya-H64-r2 | 0 | worker | 0.00 (3.20 / –) | 0.00 (3.19 / –) | 0.00 (3.45 / –) | 0.5 | True |
 | laya-H64-r2 | 1 | parent | 0.00 (3.93 / –) | 0.00 (3.89 / –) | 0.00 (3.90 / –) | 0.5 | True |
 | laya-H64-r2 | 1 | worker | 0.00 (3.22 / –) | 0.00 (3.18 / –) | 0.00 (3.43 / –) | 0.5 | True |
+| laya-H64-r3 | 0 | parent | 0.00 (3.90 / –) | 0.00 (3.89 / –) | 0.00 (3.90 / 2.59) | 0.5 | True |
+| laya-H64-r3 | 0 | worker | 0.00 (3.21 / –) | 0.00 (3.18 / –) | 0.00 (3.43 / –) | 0.5 | True |
+| laya-H64-r3 | 1 | parent | 0.00 (3.92 / –) | 0.00 (3.92 / –) | 0.00 (3.89 / –) | 0.0 | True |
+| laya-H64-r3 | 1 | worker | 0.00 (3.20 / –) | 0.00 (3.19 / –) | 0.00 (3.18 / –) | 0.0 | True |
+| laya-H64-r4 | 0 | parent | 0.00 (3.96 / –) | 0.00 (3.90 / –) | 0.00 (3.89 / –) | 0.5 | True |
+| laya-H64-r4 | 0 | worker | 0.00 (3.16 / –) | 0.00 (3.16 / –) | 0.00 (3.39 / –) | 0.5 | True |
+| laya-H64-r4 | 1 | parent | 0.00 (3.90 / –) | 0.00 (3.91 / –) | 0.00 (3.86 / –) | 0.0 | True |
+| laya-H64-r4 | 1 | worker | 0.00 (3.22 / –) | 0.00 (3.19 / –) | 0.00 (3.39 / 2.60) | 0.0 | True |
+| laya-H64-r5 | 0 | parent | 0.00 (3.96 / –) | 0.00 (3.89 / –) | 0.00 (3.89 / –) | 0.0 | True |
+| laya-H64-r5 | 0 | worker | 0.00 (3.19 / –) | 0.00 (3.27 / –) | 0.00 (3.24 / –) | 0.5 | True |
+| laya-H64-r5 | 1 | parent | 0.00 (3.91 / –) | 0.00 (3.89 / –) | 0.00 (3.86 / 1.02) | 0.5 | True |
+| laya-H64-r5 | 1 | worker | 0.00 (3.20 / –) | 0.00 (3.15 / –) | 0.00 (3.66 / –) | 0.5 | True |
 
 ## Round 1
 
@@ -196,7 +231,33 @@ Round 2 passed: False
 
 ## Round 2: H64
 
-A references: pending
+A references (median over 8 A transitions): onset P99 14.85 ms, window P99 11.15 ms, predict mean 9.674 ms, aggregate 122.1 req/s
 
-Round 2 passed: –
+A validity: **True**
+
+| run | cycle | short P99 ms | transient s | steady host-slow | aggregate req/s | failed |
+|---|---|---|---|---|---|---|
+| laya-A-r1 | 0 | 12.72 | 0.5 | 0.000 | 122.1 | – |
+| laya-A-r1 | 1 | 11.49 | 0.5 | 0.000 | 122.1 | – |
+| laya-A-r2 | 0 | 11.12 | 0.5 | 0.000 | 122.4 | – |
+| laya-A-r2 | 1 | 11.00 | 0.5 | 0.000 | 122.4 | – |
+| laya-A-r5 | 0 | 12.35 | 0.5 | 0.000 | 122.1 | – |
+| laya-A-r5 | 1 | 11.03 | 0.5 | 0.000 | 122.1 | – |
+| laya-A-r6 | 0 | 11.18 | 0.5 | 0.000 | 122.1 | – |
+| laya-A-r6 | 1 | 11.07 | 0.5 | 0.000 | 121.9 | – |
+
+| transition | after | onset_p99 | window_p99 | native_ratio | native_plus | transient_from_th | steady_host_slow | gpu_return_p50 | throughput | mismatches | routing | crash | structure | failed |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| laya-H64-r3 c0 | solo_long | 14.94 <= 15.85 pass | 12.15 <= 12.15 FAIL | 9.40 <= 10.16 pass | 9.40 <= 9.97 pass | 0.000 <= 1.000 pass | 0.000 < 0.100 pass | 0.038 <= 1.000 pass | 128.16 >= 115.99 pass | 0 == 0 pass | 0 == 0 pass | False == False pass | True == True pass | window_p99 |
+| laya-H64-r3 c1 | gpu_only | 13.98 <= 15.85 pass | 10.96 <= 12.15 pass | 9.40 <= 10.16 pass | 9.40 <= 9.97 pass | 0.000 <= 1.000 pass | 0.000 < 0.100 pass | 0.038 <= 1.000 pass | 128.25 >= 115.99 pass | 0 == 0 pass | 0 == 0 pass | False == False pass | True == True pass | – |
+| laya-H64-r4 c0 | solo_long | 15.29 <= 15.85 pass | 10.80 <= 12.15 pass | 9.39 <= 10.16 pass | 9.39 <= 9.97 pass | 0.000 <= 1.000 pass | 0.000 < 0.100 pass | 0.036 <= 1.000 pass | 128.41 >= 115.99 pass | 0 == 0 pass | 0 == 0 pass | False == False pass | True == True pass | – |
+| laya-H64-r4 c1 | gpu_only | 14.61 <= 15.85 pass | 10.80 <= 12.15 pass | 9.40 <= 10.16 pass | 9.40 <= 9.97 pass | 0.000 <= 1.000 pass | 0.000 < 0.100 pass | 0.036 <= 1.000 pass | 128.12 >= 115.99 pass | 0 == 0 pass | 0 == 0 pass | False == False pass | True == True pass | – |
+| laya-H64-r5 c0 | solo_long | 14.61 <= 15.85 pass | 10.85 <= 12.15 pass | 9.41 <= 10.16 pass | 9.41 <= 9.97 pass | 0.000 <= 1.000 pass | 0.000 < 0.100 pass | 0.037 <= 1.000 pass | 128.21 >= 115.99 pass | 0 == 0 pass | 0 == 0 pass | False == False pass | True == True pass | – |
+| laya-H64-r5 c1 | gpu_only | 15.23 <= 15.85 pass | 10.64 <= 12.15 pass | 9.36 <= 10.16 pass | 9.36 <= 9.97 pass | 0.000 <= 1.000 pass | 0.000 < 0.100 pass | 0.039 <= 1.000 pass | 128.47 >= 115.99 pass | 0 == 0 pass | 0 == 0 pass | False == False pass | True == True pass | – |
+
+Candidate passes: **False** (6 transitions)
+- failing: laya-H64-r3 c0: window_p99
+- 'P-dominant at the handoff and stays' holds in every transition: True
+
+Round 2 passed: False
 
