@@ -26,3 +26,12 @@ run: requests go to the GPU and `routing_reason` says why.
   ```bash
   uv run --extra ane python examples/heterogeneous_serving.py
   ```
+
+- `serve_client.py` sends one Jev-style decision request to a running `laya-apple serve`
+  over HTTP (standard library only) and prints the answer, the checkpoint the server
+  routed to, and the device that answered.
+
+  ```bash
+  uv run --extra serve --extra ane laya-apple serve      # in one terminal
+  uv run python examples/serve_client.py                 # in another
+  ```

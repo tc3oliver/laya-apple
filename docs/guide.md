@@ -374,7 +374,10 @@ laya-apple calibrate [MODEL ...] [--warmup N] [--iters N]
 laya-apple parity MODEL [--device gpu|ane] [--dtype float16|float32]
 laya-apple benchmark MODEL [--device auto|gpu|ane] [--lengths L ...] [--questions N] [--warmup N] [--iters N] [--output FILE]
 laya-apple switchyard [--seed N] [--duration S] [--out DIR] [--no-open] [--setup-ane] [--replay DIR]
+laya-apple serve [--model auto|MODEL] [--preload MODEL ...] [--host H] [--port P] [--device auto|gpu|ane] [--allow-remote] [--log-level L]
 ```
+
+`serve` runs the local Jev-compatible decision server; see [`serve.md`](serve.md).
 
 `--context` and `--questions` each accept inline text/JSON, `@file` to read
 from a file, or `-` to read from stdin.

@@ -1,0 +1,1241 @@
+{
+ "model": "english",
+ "auto": false,
+ "split": true,
+ "tolerance": 0.02,
+ "cases": [
+  {
+   "name": "L64-s11/q0",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L64-s11/q1",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L64-s11/q2",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L64-s11/q3",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L64-s11/q4",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L64-s11/q5",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L64-s11/q6",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L64-s11/q7",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L64-s12/q0",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L64-s12/q1",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L64-s12/q2",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L64-s12/q3",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L64-s12/q4",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L64-s12/q5",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L64-s12/q6",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L64-s12/q7",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L64-s13/q0",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L64-s13/q1",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L64-s13/q2",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L64-s13/q3",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L64-s13/q4",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L64-s13/q5",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L64-s13/q6",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L64-s13/q7",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L96-s11/q0",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L96-s11/q1",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L96-s11/q2",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L96-s11/q3",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L96-s11/q4",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L96-s11/q5",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L96-s11/q6",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L96-s11/q7",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L96-s12/q0",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L96-s12/q1",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L96-s12/q2",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L96-s12/q3",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L96-s12/q4",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L96-s12/q5",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L96-s12/q6",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L96-s12/q7",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L96-s13/q0",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L96-s13/q1",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L96-s13/q2",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L96-s13/q3",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L96-s13/q4",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L96-s13/q5",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L96-s13/q6",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L96-s13/q7",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L128-s11/q0",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L128-s11/q1",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L128-s11/q2",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L128-s11/q3",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L128-s11/q4",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L128-s11/q5",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L128-s11/q6",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L128-s11/q7",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L128-s12/q0",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L128-s12/q1",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L128-s12/q2",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L128-s12/q3",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L128-s12/q4",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L128-s12/q5",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L128-s12/q6",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L128-s12/q7",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L128-s13/q0",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L128-s13/q1",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L128-s13/q2",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L128-s13/q3",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L128-s13/q4",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L128-s13/q5",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L128-s13/q6",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L128-s13/q7",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "L256-s11/q0",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L256-s11/q1",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L256-s11/q2",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L256-s11/q3",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L256-s11/q4",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L256-s11/q5",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L256-s11/q6",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L256-s11/q7",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L256-s12/q0",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L256-s12/q1",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L256-s12/q2",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L256-s12/q3",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L256-s12/q4",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L256-s12/q5",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L256-s12/q6",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L256-s12/q7",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L256-s13/q0",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L256-s13/q1",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L256-s13/q2",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L256-s13/q3",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L256-s13/q4",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L256-s13/q5",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L256-s13/q6",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L256-s13/q7",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L512-s11/q0",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L512-s11/q1",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L512-s11/q2",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L512-s11/q3",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L512-s11/q4",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L512-s11/q5",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L512-s11/q6",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L512-s11/q7",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L512-s12/q0",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L512-s12/q1",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L512-s12/q2",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L512-s12/q3",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L512-s12/q4",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L512-s12/q5",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L512-s12/q6",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L512-s12/q7",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L512-s13/q0",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L512-s13/q1",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L512-s13/q2",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L512-s13/q3",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L512-s13/q4",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L512-s13/q5",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L512-s13/q6",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L512-s13/q7",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "lang-en/q0",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "lang-en/q1",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "lang-en/q2",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "lang-de/q0",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "lang-de/q1",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "lang-de/q2",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "lang-fr/q0",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "lang-fr/q1",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "lang-fr/q2",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "lang-es/q0",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "lang-es/q1",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "lang-es/q2",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "lang-zh/q0",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "lang-zh/q1",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "lang-zh/q2",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "lang-ja/q0",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "lang-ja/q1",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "lang-ja/q2",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "lang-hi/q0",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "lang-hi/q1",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "lang-hi/q2",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "lang-ru/q0",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "lang-ru/q1",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "lang-ru/q2",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "lang-ar/q0",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "lang-ar/q1",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "lang-ar/q2",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "empty-state/q0",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "empty-state/q1",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "empty-state/q2",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "conversation/q0",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "conversation/q1",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "conversation/q2",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "mask-literals/q0",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "mask-literals/q1",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "mask-literals/q2",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "edge-questions/structured_choice",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "edge-questions/five_level_score",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "edge-questions/noul_custom",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "edge-questions/twenty_options",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "overflow-truncated/q0",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "overflow-truncated/q1",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "overflow-truncated/q2",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "drift-conversation-left-truncated/q0",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "drift-conversation-left-truncated/q1",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "drift-conversation-left-truncated/q2",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "drift-structured-instructions-non-ascii/q0",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "drift-structured-instructions-non-ascii/q1",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "drift-structured-instructions-non-ascii/q2",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "drift-noul-labels/q0",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "drift-noul-labels/q1",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "drift-noul-labels/q2",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "drift-noul-criteria-key-case/q0",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "drift-noul-criteria-key-case/q1",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "drift-long-option-text/q0",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  },
+  {
+   "name": "drift-long-option-text/q1",
+   "passed": true,
+   "problems": [],
+   "ours_device": "ane",
+   "routed_to": "english"
+  }
+ ],
+ "passed": true
+}

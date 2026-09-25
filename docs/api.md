@@ -63,7 +63,8 @@ The `laya-apple` subcommands, and their arguments as listed in the CLI reference
 [`docs/guide.md`](guide.md), are stable:
 - `predict`, `info`, `download`;
 - `artifacts build|list [--capabilities]|verify|warm|prune|export|import`;
-- `parity`, `calibrate`, `benchmark`.
+- `parity`, `calibrate`, `benchmark`;
+- `serve` (since 1.3.0, needs the `[serve]` extra).
 
 **Exit codes:**
 - `0` means success;
@@ -79,6 +80,21 @@ The `laya-apple` subcommands, and their arguments as listed in the CLI reference
 | Export archive (`artifacts export`) | A `.tar.gz` holding `manifest.json` and `model.mlmodelc/` |
 | Local capability profile, `format: "laya-apple-profile"`, `format_version: 1` | `<cache>/profiles/<profile>.json` |
 
+### HTTP API (`laya-apple serve`, since 1.3.0)
+
+Stable, as documented in [`docs/serve.md`](serve.md):
+- the endpoints `POST /v1/systemone`, `GET /v1/models`, `GET /health`, `GET /healthz`;
+- the request fields and the status codes;
+- the top-level response keys `model`, `answers`, `usage`, `routing`, `laya_apple`, and the
+  keys of the `laya_apple` block;
+- the `--model` values, the default port 8642, and the loopback-only default bind;
+- the environment variables `LAYA_APPLE_SERVE_MODEL`, `LAYA_APPLE_SERVE_HOST`,
+  `LAYA_APPLE_SERVE_PORT` and `LAYA_API_KEY`.
+
+The wire format tracks upstream `laya.serve`. When upstream changes it, laya-apple follows
+in a minor release, with the change recorded in `CHANGELOG.md`. New response keys may be
+added at any time. The text of `routing.reason` and of error `detail` values is not stable.
+
 The cache *layout* (the directories under `<cache>/artifacts/`) is not public. Use the
 CLI or the manifest, not paths.
 
@@ -89,7 +105,8 @@ These are not covered by SemVer:
   attributes;
 - every submodule other than `laya_apple.errors`: `laya_apple.routing`, `scheduling`,
   `executor`, `artifacts`, `lifecycle`, `profiles`, `derivation`, `backends`,
-  `conversion`, `parity`, `schema`, `workload`, `benchmark`;
+  `conversion`, `parity`, `schema`, `workload`, `benchmark`, `serve`, `lang` (use the
+  CLI and the HTTP API);
 - the bundled data files, except the manifest schema;
 - everything under `scripts/`.
 

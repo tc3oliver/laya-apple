@@ -12,6 +12,11 @@ laya-apple is one repository. It covers:
   backends, parity and provenance.
 - **GPU + ANE serving** (product direction): routing, heterogeneous serving and
   benchmarking.
+  - This includes `laya-apple serve`: a local, loopback-only HTTP decision backend with a
+    Jev-compatible API. Existing clients, such as Claude Code plugins, call it without
+    code changes.
+  - Serving answers the decisions a client sends. It does not decide what an agent
+    offloads, so it does not resume the paused research below.
 - **Agent offloading** (research, **paused**): local Laya decisions inside coding agents
   (OpenClaw, Hermes Agent, Pi).
   - The EXP-001 and EXP-002 quick probes found no measurable upside, so no further
@@ -32,7 +37,8 @@ Rules:
 - **Agent integrations** use the agent's official plugin, hook or extension API.
   - Never fork, vendor, patch or rewrite a third-party agent framework.
   - Record the upstream version you verified against.
-- **Claude Code** integration is not currently planned.
+- **Client compatibility** (Jev-compatible clients and plugins) is verified against the
+  client's released version, without modifying the client. Record the versions tested.
 
 ## Git workflow
 

@@ -213,3 +213,35 @@ def test_answer_non_finite_action_logits_raise_floating_point_error(tokenizer, c
     act = [[float("inf"), 0.5]]
     with pytest.raises(FloatingPointError):
         format_answers(prep, logits, act, calibration)
+
+
+class _WordTokenizer:
+    """One id per whitespace-separated word; enough to test sequence budgeting offline."""
+
+    mask_token, cls_token_id, sep_token_id, mask_token_id = "[MASK]", 1, 2, 3
+
+    def encode(self, text):
+        return [10 + len(w) for w in text.split()]
+
+
+@pytest.mark.parametrize("state", ["w " * 5, "w " * 200, {"k": "w " * 200}, ["turn " * 50] * 4, ""])
+def test_truncation_report_leaves_token_ids_unchanged(state):
+    from laya_apple.prompt import build_sequence
+
+    q = {"t": "noul", "ins": "is it done", "crit": None}
+    tok = _WordTokenizer()
+    plain = build_sequence(tok, state, q, 64, 16)
+    ids, markers, cut = build_sequence(tok, state, q, 64, 16, report_truncation=True)
+    assert (ids, markers) == plain
+
+
+def test_truncation_flag_boundary():
+    from laya_apple.prompt import build_sequence
+
+    q = {"t": "noul", "ins": "is it done", "crit": None}
+    tok = _WordTokenizer()
+    ids, _, cut = build_sequence(tok, "", q, 64, 16, report_truncation=True)
+    room = 64 - len(ids)  # tokens the state may use: everything but the final [SEP]
+    assert not build_sequence(tok, "w " * room, q, 64, 16, report_truncation=True)[2]  # exact fit
+    assert build_sequence(tok, "w " * (room + 1), q, 64, 16, report_truncation=True)[2]
+    assert not cut

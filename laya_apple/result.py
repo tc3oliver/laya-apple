@@ -27,6 +27,7 @@ class RuntimeInfo:
     gpu_backlog_ms: float | None = None  # workers: backlog estimates seen by the router
     ane_backlog_ms: float | None = None
     request_id: int | None = None  # this instance's id for the request; RequestTrace.request_id
+    truncated: bool = False  # the state was cut to fit the model's max_len (as upstream does)
 
     def __str__(self) -> str:
         return (

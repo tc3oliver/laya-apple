@@ -570,9 +570,11 @@ class Laya:
                             response_ns=response_ns,
                         ),
                     )
-                out.set_result(result)
+                if not out.cancelled():  # the caller may have given up (asyncio cancellation)
+                    out.set_result(result)
             except BaseException as e:
-                out.set_exception(e)
+                if not out.cancelled():
+                    out.set_exception(e)
 
         worker.submit(prep.items, estimate, request_id).add_done_callback(finish)
         return out
@@ -632,6 +634,7 @@ class Laya:
             gpu_backlog_ms=gpu_backlog_ms,
             ane_backlog_ms=ane_backlog_ms,
             request_id=request_id,
+            truncated=prep.truncated,
         )
         return Result(answers=answers, usage={"input_tokens": prep.input_tokens, "output_tokens": 0}, runtime=runtime)
 

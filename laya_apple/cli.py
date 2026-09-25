@@ -7,6 +7,7 @@ laya-apple artifacts build MODEL [--length L ...] | list | verify [MODEL]
 laya-apple parity MODEL [--device gpu|ane] [--dtype float16|float32]
 laya-apple benchmark MODEL [--device ...] [--lengths ...] [--questions N]
 laya-apple switchyard [--seed N] [--duration S] [--out DIR] [--no-open] [--setup-ane] [--replay DIR]
+laya-apple serve [--model MODEL] [--preload MODEL ...] [--host H] [--port P] [--device auto|gpu|ane]
 """
 
 from __future__ import annotations
@@ -269,6 +270,21 @@ def cmd_calibrate(a):
     _json(out)
 
 
+def cmd_serve(a):
+    from .serve import run
+
+    return run(
+        host=a.host,
+        port=a.port,
+        model=a.model,
+        preload=tuple(a.preload or ()),
+        device=a.device,
+        allow_remote=a.allow_remote,
+        offline=a.offline,
+        log_level=a.log_level,
+    )
+
+
 def build_parser():
     p = argparse.ArgumentParser(prog="laya-apple", description=__doc__.split("\n")[0])
     p.add_argument("--offline", action="store_true", help="never touch the network (local_files_only)")
@@ -325,6 +341,20 @@ def build_parser():
     s.add_argument("--dtype", default="float16", choices=["float16", "float32"])
     s.add_argument("--output", help="append JSONL records here")
     s.set_defaults(fn=cmd_benchmark)
+
+    s = sub.add_parser("serve", help="local Jev-compatible decision server (needs the [serve] extra)")
+    s.add_argument(
+        "--model",
+        help="checkpoint for requests that name none: auto (default; laya for English, laya-multilingual "
+        "otherwise), laya, laya-multilingual or laya-typed-decisions. Env: LAYA_APPLE_SERVE_MODEL",
+    )
+    s.add_argument("--preload", action="append", help="also load this model at startup (repeatable)")
+    s.add_argument("--host", help="bind address (default 127.0.0.1, or LAYA_APPLE_SERVE_HOST)")
+    s.add_argument("--port", type=int, help="port (default 8642, or LAYA_APPLE_SERVE_PORT)")
+    s.add_argument("--device", default="auto", choices=["auto", "gpu", "ane"])
+    s.add_argument("--allow-remote", action="store_true", help="allow a non-loopback --host (set LAYA_API_KEY too)")
+    s.add_argument("--log-level", default="info", choices=["critical", "error", "warning", "info", "debug"])
+    s.set_defaults(fn=cmd_serve)
 
     from .demos.switchyard.cli import add_parser as add_switchyard
 
