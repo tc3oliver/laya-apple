@@ -14,6 +14,9 @@
   its answer from `laya-apple serve`. It is drawn from docs/readme/serve-demo.json, which
   scripts/capture_serve_demo.py records from a real run; every output line is the recorded
   output of its command.
+- serve-llm-load.svg: short-decision P99 and local-LLM tok/s, serve `--device gpu` against
+  `auto`, with the LLM idle and busy, read from benchmarks/serve/m4-max-r2/results.json (the
+  platform from its raw/campaign.json). Refuses a run that is not valid under its own checks.
 - social-preview.png: the repository's 1280x640 link preview, with the best throughput gain
   from the same data and the hard-mismatch count from benchmarks/v1.0/parity. It is
   rendered by headless Google Chrome, so it is not part of --check; regenerate it with
@@ -314,7 +317,126 @@ def serve_demo() -> str:
     )
 
 
-FIGURES = {"hero-throughput.svg": hero, "architecture.svg": architecture, "serve-demo.svg": serve_demo}
+SERVE_LLM_RUN = ROOT / "benchmarks" / "serve" / "m4-max-r2"
+
+
+def serve_llm_data() -> dict:
+    """Short-decision P99 and LLM tok/s per cell of the serve-beside-an-LLM run. Aborts if the
+    run is not valid under its own checks: an invalid run draws no result, so no figure."""
+    res = json.loads((SERVE_LLM_RUN / "results.json").read_text())
+    if res.get("smoke") or not res.get("valid"):
+        sys.exit(f"{SERVE_LLM_RUN.name}: not a valid campaign; the figure draws only valid runs")
+    camp = json.loads((SERVE_LLM_RUN / "raw" / "campaign.json").read_text())
+    cells = res["cells"]
+
+    def p99(cell):
+        return cells[cell]["classes"]["short_1q"]["p99_ms_median"]
+
+    return {
+        "run": res["campaign"],
+        "platform": camp["platform"],
+        "llm_model": res["llm_model"],
+        "offered_req_s": res["offered_req_s"],
+        "windows": cells["auto/decisions_llm"]["windows"],
+        "alone_windows": cells["llm_alone"]["windows"],
+        "p99": [
+            ("serve --device gpu", "LLM idle", p99("gpu/decisions"), "gpu"),
+            ("serve --device gpu", "LLM busy", p99("gpu/decisions_llm"), "gpu"),
+            ("serve auto", "LLM idle", p99("auto/decisions"), "acc"),
+            ("serve auto", "LLM busy", p99("auto/decisions_llm"), "acc"),
+        ],
+        "tok_s": [
+            ("LLM alone", cells["llm_alone"]["llm_tok_s_median"], None, "m"),
+            (
+                "LLM + serve --device gpu",
+                cells["gpu/decisions_llm"]["llm_tok_s_median"],
+                res["llm_tok_s_drop"]["gpu"],
+                "gpu",
+            ),
+            ("LLM + serve auto", cells["auto/decisions_llm"]["llm_tok_s_median"], res["llm_tok_s_drop"]["auto"], "acc"),
+        ],
+    }
+
+
+def serve_llm() -> str:
+    d = serve_llm_data()
+    W, x_label, x0, bar_max, bar_h, row_h = 880, 24, 260, 430, 16, 28
+    b = [
+        _text(24, 34, "laya-apple serve beside a busy local LLM", size=18, weight=600),
+        _text(
+            24,
+            58,
+            f"Decisions at {d['offered_req_s']:g} req/s while the LLM generates at saturation · "
+            "serve auto sends short decisions to the Neural Engine",
+            cls="m",
+        ),
+    ]
+    y = 96
+    b.append(_text(24, y, "Short-decision P99 latency, ms (lower is better)", size=14, weight=600))
+    y += 16
+    scale = bar_max / max(v for _, _, v, _ in d["p99"])
+    for cfg, state, v, cls in d["p99"]:
+        busy = state == "LLM busy"
+        b.append(_text(x_label, y + 12.5, f"{cfg} · {state}", cls="t" if busy else "m", size=12))
+        opacity = "" if busy else ' fill-opacity="0.45"'
+        b.append(f'<rect x="{x0}" y="{y}" width="{v * scale:.1f}" height="{bar_h}" rx="2" class="{cls}"{opacity}/>')
+        b.append(_text(x0 + v * scale + 8, y + 12.5, f"{v:.1f} ms", cls="t" if busy else "m", size=12))
+        y += row_h
+    y += 16
+    b.append(f'<line x1="24" x2="{W - 24}" y1="{y}" y2="{y}" class="grid"/>')
+    y += 28
+    b.append(
+        _text(24, y, "Local LLM generation throughput, tok/s (higher is better; bars start at 0)", size=14, weight=600)
+    )
+    y += 16
+    scale = bar_max / max(v for _, v, _, _ in d["tok_s"])
+    for label, v, drop, cls in d["tok_s"]:
+        b.append(_text(x_label, y + 12.5, label, size=12))
+        b.append(f'<rect x="{x0}" y="{y}" width="{v * scale:.1f}" height="{bar_h}" rx="2" class="{cls}"/>')
+        note = f"{v:.1f} tok/s" + ("" if drop is None else f" (−{drop * 100:.1f}%)")
+        b.append(_text(x0 + v * scale + 8, y + 12.5, note, size=12))
+        y += row_h
+    y += 8
+    b.append(f'<line x1="24" x2="{W - 24}" y1="{y}" y2="{y}" class="grid"/>')
+    plat = d["platform"]
+    b.append(
+        _text(
+            24,
+            y + 24,
+            f"One run ({d['run']}) on {plat['soc']} · macOS {plat['macos']} · LLM {d['llm_model']} · "
+            f"serve --model laya",
+            cls="m",
+            size=12,
+        )
+    )
+    b.append(
+        _text(
+            24,
+            y + 44,
+            f"Medians over {d['windows']} windows of 60 s per cell ({d['alone_windows']} for the LLM alone); "
+            "P99 from scheduled arrival, queueing included",
+            cls="m",
+            size=12,
+        )
+    )
+    H = int(y + 64)
+    (gi, gb, ai, ab) = (v for _, _, v, _ in d["p99"])
+    alone, gtok, atok = (v for _, v, _, _ in d["tok_s"])
+    title = (
+        f"laya-apple serve beside a busy local LLM, one run on {plat['soc']} with {d['llm_model']}: "
+        f"short-decision P99 {ab:.1f} ms with serve auto against {gb:.1f} ms with --device gpu while the LLM "
+        f"generates ({ai:.1f} and {gi:.1f} ms with the LLM idle); LLM throughput {alone:.1f} tok/s alone, "
+        f"{gtok:.1f} beside serve --device gpu and {atok:.1f} beside serve auto"
+    )
+    return _svg(W, H, title, b)
+
+
+FIGURES = {
+    "hero-throughput.svg": hero,
+    "architecture.svg": architecture,
+    "serve-demo.svg": serve_demo,
+    "serve-llm-load.svg": serve_llm,
+}
 
 SOCIAL_W, SOCIAL_H = 1280, 640
 CHROME_CANDIDATES = (

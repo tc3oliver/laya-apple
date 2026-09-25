@@ -12,6 +12,37 @@
 **经过正确性验证、可同时使用 MLX GPU 和 Apple Neural Engine（ANE）的
 [Laya](https://github.com/NandhaKishorM/laya) 运行时，面向 Apple 芯片。**
 
+## 本地 LLM 忙碌时，决策依然很快
+
+`laya-apple serve` 在你的 Mac 上用上游 Laya 回答 Jev 客户端发来的决策请求。默认的
+`--device auto` 会把简短的单问题决策交给 Apple Neural Engine 运行，不用在 GPU 上排在本地 LLM
+后面等待。
+
+```bash
+pip install 'laya-apple[serve,ane]'
+laya-apple serve                                   # http://127.0.0.1:8642
+export TYPESAFE_BASE_URL=http://127.0.0.1:8642     # then run your Jev client as usual
+```
+
+![laya-apple serve 与忙碌的本地 LLM 同时运行，在 Apple M4 Max 上用 Qwen3.8-27B-oQ4e-mtp 跑一次的结果：LLM 生成时，简短决策的 P99 在 serve auto 下为 47.2 ms，--device gpu 下为 122.3 ms（LLM 空闲时分别为 43.2 和 55.9 ms）；LLM 吞吐量单独运行时为 42.2 tok/s，搭配 serve --device gpu 时为 40.0，搭配 serve auto 时为 40.5](https://raw.githubusercontent.com/tc3oliver/laya-apple/main/docs/readme/serve-llm-load.svg)
+
+以下是在一台 Apple M4 Max 上跑一次的结果：27B 本地 LLM（oMLX 上的 `Qwen3.8-27B-oQ4e-mtp`）
+满载生成，同时每秒发送 8 个决策请求，其中 80% 是简短的单问题决策
+（[`benchmarks/serve/`](benchmarks/serve/README.md)，第 2 次运行）：
+
+- **LLM 忙碌时，简短决策的 P99：`auto` 为 47.2 ms，`--device gpu` 为 122.3 ms。** LLM 空闲时，
+  `auto` 为 43.2 ms，`--device gpu` 为 55.9 ms。
+- **LLM 的吞吐量以单独运行时的 42.2 tok/s 为基准，搭配 serve `auto` 时下降 4.0%，搭配
+  `--device gpu` 时下降 5.3%。** 两者相差 1.31 个百分点，只比同一次运行中 LLM 自身各 window
+  之间的波动（1.28 个百分点）略高。
+- **负载下结果依然正确：** 7,728 个决策中 0 个 hard mismatch、0 个错误；每个决策都与同一个服务器
+  在 LLM 空闲时的回答做了比对。
+- `auto` 的简短决策约有 4% 按设计改走 GPU：当 Neural Engine 的 backlog 等待时间更长时就会这样。
+  上面的 P99 已包含这些请求。
+- 这个 benchmark 的第 1 次运行按其自身的有效性检查判定为无效，不从中得出任何结论。
+
+API 与 Jev 兼容；laya-apple 与 TypeSafe 或 Jev 没有任何关联，回答来自 Laya，而不是 Jev。
+
 ## 在 Mac 上用本地后端替代 Jev API
 
 `laya-apple serve` 可以在本地替代 Jev API。它在 loopback 地址上提供 Jev 兼容 API
@@ -338,8 +369,14 @@ uv run python scripts/hardware_report.py --quick
   没有测量 Jev 级别的准确率。阈值针对 Jev 调优的客户端可能会更频繁地触发 fallback；
   测试的七个客户端中有两个出现了这种情况
   （[`integrations/jev-plugins/README.md`](integrations/jev-plugins/README.md)）。
-- **`laya-apple serve` 不做任何性能声明。** 它的延迟、吞吐量，以及对共享 GPU 的本地 LLM
-  的影响都还没有测量。
+- **`laya-apple serve` 的性能只在一种配置下跑过一次：** 一台 M4 Max、一个 LLM（oMLX 上的
+  `Qwen3.8-27B-oQ4e-mtp`，以 decode 为主、prompt 很短）、`--model laya`、每秒 8 个决策请求
+  （[`benchmarks/serve/`](benchmarks/serve/README.md)）。其他 LLM 服务器和模型、以 prefill
+  为主的 LLM 负载、`--model auto` 以及其他请求速率都还没有测量。
+- **serve `auto` 仍会拉低 LLM 的吞吐量：** 那次运行中下降 4.0%，只比 `--device gpu` 少 1.31
+  个百分点，而 LLM 单独运行时各 window 之间的波动就有 1.28 个百分点。
+- **多问题决策始终在 GPU 上运行，** LLM 忙碌时它们的 P99 会升高：`auto` 下为 117.1 ms，
+  空闲时为 84.1 ms。
 - **客户端兼容性只测试过一次：** 2026-09-25，使用列出的客户端版本，在测试用的 M4 Max 上进行。
   客户端之后的版本可能会改变它发送或接受的内容。
 - **`serve --model auto` 只在英文模型和多语言模型之间路由。** 上游需手动开启的 typed-decisions
