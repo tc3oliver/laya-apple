@@ -9,8 +9,9 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 No runtime change. This release publishes the measurements and research recorded since
 1.3.0: `laya-apple serve` measured beside a busy local LLM, the FAIL of GIL-released Core ML
-predict on the product mix, new research tooling, and Chinese READMEs. The package code,
-routing thresholds, parity tolerances and the published v1.0 measurements are unchanged.
+predict on the product mix and the prebound-predict result (no production change), new
+research tooling, and Chinese READMEs. The package code, routing thresholds, parity
+tolerances and the published v1.0 measurements are unchanged.
 
 ### Added
 
@@ -71,7 +72,20 @@ routing thresholds, parity tolerances and the published v1.0 measurements are un
   - The study's stop rule named a Swift-worker study as the next step. A post-hoc diagnosis
     of the recorded data found dozens of PyObjC/GIL handoffs per ANE forward on the request
     path, so a smaller, request-path study (prebound predict, #80) was preregistered first;
-    the Swift worker is deferred. Its results are not part of this release.
+    the Swift worker is deferred.
+- **Prebound Core ML predict: no production change**
+  ([`research/coreml-prebind-predict/`](research/coreml-prebind-predict/README.md), #80).
+  PB prebinds the inputs' and output's backings: 4 PyObjC/GIL crossings per ANE forward
+  against C's 108. Preregistered paired verdict against production (ratio, 95% interval):
+  PASS on `laya` (aggregate 1.060 [1.057, 1.062], short P99 0.957 [0.953, 0.962]), PASS on
+  `laya-typed-decisions` (aggregate 1.049, short P99 0.963 [0.952, 0.974]), INCONCLUSIVE on
+  `laya-multilingual` (short P99 0.851 [0.524, 1.384]). As preregistered for this outcome,
+  production is unchanged and a larger preregistered replication decides. PB's short P99 was
+  about 4–5% lower than C's in the same campaign.
+  - Unplanned observation: under this experiment's hetero-only protocol, C (#77's binding)
+    also passes on `laya` and `laya-typed-decisions`, where #77 recorded it as FAIL. #77's
+    regression therefore depends on the protocol; its verdict stands, and the protocol
+    dependence is an open question.
 
 ## [1.3.0] - 2026-09-25
 
