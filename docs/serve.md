@@ -203,8 +203,8 @@ these runs, so both took their own fallback paths.
 One run on an Apple M4 Max (macOS 26.6.2) measured `serve` on the same Mac as a local LLM
 generating at saturation: `Qwen3.8-27B-oQ4e-mtp` on oMLX 0.7.0.dev4, two streaming requests
 at a time, 256 tokens each. Beside it, 8 plugin-like clients sent 8 decision requests per
-second, open loop: 80% short, one question at 96 tokens, and 20% with three questions at
-128 tokens. `serve --model laya` ran once with `--device gpu` and once with `--device auto`
+second, open loop: 80% short (offered), one question at 96 tokens, and 20% with three
+questions at 128 tokens. `serve --model laya` ran once with `--device gpu` and once with `--device auto`
 (the default). Method, preregistered criteria and raw data:
 [`benchmarks/serve/README.md`](../benchmarks/serve/README.md), run 2
 ([`m4-max-r2/tables.md`](../benchmarks/serve/m4-max-r2/tables.md)).
@@ -242,8 +242,10 @@ second, open loop: 80% short, one question at 96 tokens, and 20% with three ques
   the checkpoint or use `--model` instead.
 - **Performance is one run in one setting** (see "Beside a local LLM"): one M4 Max, one LLM
   server and model, a decode-heavy LLM load with short prompts, `--model laya`, 8 decision
-  requests per second. Other LLM servers and models, prefill-heavy LLM loads, `--model auto`
-  (language routing and `laya-multilingual`) and other request rates are not measured.
+  requests per second offered. Not measured: other LLM servers and models, prefill-heavy
+  LLM loads, other request rates, serve's maximum decision throughput (run 2 used a fixed
+  8 req/s offered load), and the other checkpoints (`laya-typed-decisions`,
+  `--model laya-multilingual`) and `--model auto` (language routing).
 - **`auto` still costs the LLM throughput:** 4.0% in that run, 1.31 points less than
   `--device gpu`, against a 1.28-point window-to-window spread of the LLM alone. It is not
   shown to leave the GPU to the LLM by more than that.

@@ -17,7 +17,8 @@ routing thresholds, parity tolerances and the published v1.0 measurements are un
 - **`laya-apple serve` measured beside a local LLM** (run 2,
   [`benchmarks/serve/m4-max-r2/`](benchmarks/serve/m4-max-r2/tables.md)). One run on an
   Apple M4 Max, `Qwen3.8-27B-oQ4e-mtp` on oMLX generating at saturation, 8 decision requests
-  per second beside it, `serve --model laya`:
+  per second offered beside it (80% short), `serve --model laya`; the default
+  `--model auto` was not measured:
   - short-decision P99 with the LLM busy: 47.2 ms with `--device auto`, 122.3 ms with
     `--device gpu`; with the LLM idle, 43.2 ms and 55.9 ms;
   - LLM tok/s: −4.0% beside serve `auto`, −5.3% beside `--device gpu`, from 42.2 tok/s alone.
@@ -37,26 +38,14 @@ routing thresholds, parity tolerances and the published v1.0 measurements are un
     ([`benchmarks/compare-v1.4/`](benchmarks/compare-v1.4/README.md)): method, pins and
     tooling; no campaign has run yet;
   - the no-sudo energy sampler and its J/decision harness
-    ([`research/energy-sampler/`](research/energy-sampler/README.md)). Its run 1 is invalid
-    under its own criteria and run 2 is preregistered. Energy use stays unmeasured.
-
-### Research
-
-- **GIL-released Core ML predict on the product mix: FAIL**
-  ([`research/coreml-nogil-product-mix/`](research/coreml-nogil-product-mix/README.md)).
-  Neither candidate (C: GIL-released predict with the GPU in its worker process; D: the same
-  with the GPU on a thread) passed the preregistered production gate on any of the three
-  models. Correctness and GPU completion isolation passed everywhere; short (ANE) P99
-  regressed in every cell (+11.8% to +83.0%) and aggregate throughput failed in four of six
-  (down to −15.6%). Production is unchanged: thread-placed coremltools for `laya` and
-  `laya-typed-decisions`, process placement for `laya-multilingual`.
-- **Follow-up preregistered:** `research/coreml-prebind-predict/` collapses the PyObjC/GIL
-  handoffs on the ANE request path (preregistered in #80). Its results are
-  not part of this release.
+    ([`research/energy-sampler/`](research/energy-sampler/README.md)). Energy sampler run 1
+    recorded: it is invalid under its own criteria, and run 2 is preregistered. Energy use
+    stays unmeasured.
 
 ### Changed
 
-- **README leads with `serve` beside a busy local LLM.** The new first section has the
+- **README leads with `serve` beside a busy local LLM** ("Short decisions stay fast while
+  your local LLM is busy"), measured with `--model laya`. The new first section has the
   three-line quickstart and a chart of short-decision P99 and LLM tok/s, `--device gpu`
   against `auto`, with the LLM idle and busy, labelled with the machine, the LLM model and
   that it is one run. The chart, `docs/readme/serve-llm-load.svg`, is drawn by
@@ -64,12 +53,25 @@ routing thresholds, parity tolerances and the published v1.0 measurements are un
   covered by its `--check`); it refuses a run that is not valid under its own checks. The
   1.3 serve section follows, unchanged.
 - **The `serve` "no performance claim" limitation is replaced** by what run 2 measured and
-  what it does not cover (other LLM servers and models, prefill-heavy loads,
-  `--model auto`, other request rates), plus the costs it did measure: `auto` still costs
+  what it does not cover (other LLM servers and models, prefill-heavy loads, other request
+  rates, serve's maximum decision throughput, the other checkpoints and `--model auto`),
+  plus the costs it did measure: `auto` still costs
   the LLM 4.0% tok/s, and multi-question decisions, which always run on the GPU, reach a P99
   of 117.1 ms with the LLM busy. `docs/serve.md` gains a "Beside a local LLM" section;
   `docs/support-matrix.md`, `docs/compatibility.md` and `docs/reproducibility.md` are
   updated to match.
+- **GIL-released Core ML predict on the product mix: FAIL, production unchanged**
+  ([`research/coreml-nogil-product-mix/`](research/coreml-nogil-product-mix/README.md)).
+  Neither candidate (C: GIL-released predict with the GPU in its worker process; D: the same
+  with the GPU on a thread) passed the preregistered production gate on any of the three
+  models. Correctness and GPU completion isolation passed everywhere; short (ANE) P99
+  regressed in every cell (+11.8% to +83.0%) and aggregate throughput failed in four of six
+  (down to −15.6%). Production stays thread-placed coremltools for `laya` and
+  `laya-typed-decisions`, and process placement for `laya-multilingual`.
+  - The study's stop rule named a Swift-worker study as the next step. A post-hoc diagnosis
+    of the recorded data found dozens of PyObjC/GIL handoffs per ANE forward on the request
+    path, so a smaller, request-path study (prebound predict, #80) was preregistered first;
+    the Swift worker is deferred. Its results are not part of this release.
 
 ## [1.3.0] - 2026-09-25
 
