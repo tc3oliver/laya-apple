@@ -97,6 +97,8 @@ gives the exact commands.
   a result. A new measurement goes in a new file or directory, with its methodology.
 - **Every performance or correctness claim in `README.md` or `docs/` must trace to
   recorded measurement data.** Name the file it comes from.
+- **Keep the Chinese READMEs in sync.** A change to `README.md` updates `README.zh-TW.md`
+  and `README.zh-CN.md` in the same pull request. English is authoritative.
 
 ## Correctness and benchmark principles
 

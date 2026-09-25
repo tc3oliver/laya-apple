@@ -5,6 +5,12 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- **Chinese READMEs:** [`README.zh-TW.md`](README.zh-TW.md) (Traditional Chinese) and
+  [`README.zh-CN.md`](README.zh-CN.md) (Simplified Chinese), translated from `README.md`,
+  with a language switcher at the top of all three. The English README stays authoritative.
+
 ## [1.3.0] - 2026-09-25
 
 Adds `laya-apple serve`: a local, loopback-only decision server with a Jev-compatible API,
