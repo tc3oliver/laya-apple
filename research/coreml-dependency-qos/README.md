@@ -46,6 +46,51 @@
   (0.5–15 s). The transient durations vary a lot from run to run, so the differences in transient
   length between B, O and Q in one run each are not read as effects.
 
+## Post-hoc: where the E-core residency sits (#99 raw data only, not a gate)
+
+`scripts/placement_posthoc.py` splits #99's per-thread counters by process and thread group. The
+output is [`placement_posthoc.md`](placement_posthoc.md) and `placement_posthoc.json`. The group
+definitions, the active-thread rule and the P1–P4 classification are fixed in the script's
+docstring, written before its output was read. **This does not change #99's outcome.**
+
+**The groups:**
+- **chain:** laya-ane-dispatch, client-short and the Core ML callback;
+- **parent-other:** MainThread, client-long and laya-gpu-dispatch;
+- **worker:** every thread of the GPU worker process.
+
+Only active threads (at least 20 ms of CPU in [t0, t0 + 4 s)) enter a group's CPU-weighted
+aggregate.
+
+**Classification: P3, cross-process, in all 6 transitions.**
+- **Every group is E-dominant together.** Over [t0 + 0.5, t0 + 4 s), chain, parent-other and
+  worker are E-dominant in every transition: 0.99–1.00, and 0.67–0.76 in Q's first transition.
+- **The two processes switch back together.** The E→P switch times of the active threads in both
+  processes fall in the same 0.5 s bin, or within one bin of it:
+
+  | run, transition | switch |
+  |---|---|
+  | O cycle 0 | 4.0–4.5 s |
+  | Q cycle 0 | 2.0 s |
+  | O cycle 1 | 11.5–12.0 s |
+  | B cycle 1 | 17.0–17.5 s |
+  | B cycle 0 | 19.5 s |
+  | Q cycle 1 | never within 20 s |
+
+- **Group aggregates are not averaging different threads.** IPC and the relative effective cycle
+  rate on E are similar across the groups.
+- **The residency is specific to the hetero windows.** In the single-device windows of the same
+  runs, the sampled CPU of both processes is on P (E share ≤ 0.04). In the hetero windows it is
+  0.25–0.99.
+- The [t0 − 2 s, t0) baseline has only 0–31 ms of CPU per group. Its E shares are not read.
+
+**The limits of this data:**
+- **Sampled threads only.** The recount sampler reads only the listed parent threads and the auto
+  instance's GPU worker. Other parent threads, the separate GPU-only instance and other processes
+  on the machine are not in the data. "Cross-process" here means the two laya processes. It is not
+  shown to be system-wide.
+- **No cause.** What places both processes on E during hetero serving, and what moves them back,
+  is not observable in these counters.
+
 ## Question
 
 Can a public, production-viable QoS mechanism prevent the PB-ASYNC request dependency chain from
