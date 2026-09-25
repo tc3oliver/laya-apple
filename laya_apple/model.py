@@ -632,6 +632,7 @@ class Laya:
             gpu_backlog_ms=gpu_backlog_ms,
             ane_backlog_ms=ane_backlog_ms,
             request_id=request_id,
+            truncated=prep.truncated,
         )
         return Result(answers=answers, usage={"input_tokens": prep.input_tokens, "output_tokens": 0}, runtime=runtime)
 

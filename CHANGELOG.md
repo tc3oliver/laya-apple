@@ -5,6 +5,26 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- **`laya-apple serve`, a local Jev-compatible decision server** (`pip install
+  'laya-apple[serve]'`). It exposes `POST /v1/systemone` with upstream `laya.serve`'s wire
+  format (v0.3.20): request fields, limits, status codes, and the `routing` block.
+  - **Jev clients work unchanged:** point a client's base URL at `http://127.0.0.1:8642`.
+  - **Default `--model auto`:** the checkpoint is chosen per request by the state's language,
+    as upstream's Router does. Upstream's language detection is vendored unchanged
+    (`laya_apple/lang.py`). Every response also carries a `laya_apple` block saying which
+    checkpoint and device answered, and why.
+  - **Where we differ from upstream:**
+    - it binds loopback only by default;
+    - there is no global inference lock, so the GPU and the Neural Engine serve
+      concurrently;
+    - the Neural Engine warms in the background;
+    - the default port is 8642, not 8000.
+  - Docs: [`docs/serve.md`](docs/serve.md).
+- **`RuntimeInfo.truncated`.** It is true when a state was cut to fit the checkpoint's
+  maximum length. Upstream truncates the same way, without reporting it.
+
 ### Fixed
 
 - **Upstream Laya 0.3.20 parity.** Prompt building, question validation and the answer

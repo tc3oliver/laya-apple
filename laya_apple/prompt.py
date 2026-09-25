@@ -179,6 +179,7 @@ def build_sequence(
     *,
     truncate_left: bool = False,
     state_ids: list[int] | None = None,
+    report_truncation: bool = False,
 ):
     """[CLS] <type> question: ins [SEP] [MASK] opt0 [MASK] opt1 ... [SEP] state [SEP].
 
@@ -186,6 +187,8 @@ def build_sequence(
     lists, so the newest turn survives); `state_ids` reuses a state tokenized once per request.
     Option texts keep their first 48 tokens: upstream v0.3.20 caps them in the tokenizer
     (truncation=True, max_length=48), which yields the same ids as this slice.
+    With `report_truncation`, also returns whether any state token was cut to fit max_len
+    (upstream truncates too, without reporting it).
     """
     mask_tok = tok.mask_token
     opts = render_options(q)
@@ -209,7 +212,10 @@ def build_sequence(
     # not state_ids[-room:]: with no room left that is the whole state rather than none of it
     st = state_ids[max(0, len(state_ids) - room) :] if truncate_left else state_ids[:room]
     ids = ids + st + [tok.sep_token_id]
-    return ids[:max_len], [m for m in markers if m < max_len]
+    out = ids[:max_len], [m for m in markers if m < max_len]
+    if report_truncation:
+        return (*out, len(st) < len(state_ids) or len(ids) > max_len)
+    return out
 
 
 @dataclass
@@ -217,6 +223,7 @@ class PreparedRequest:
     question_ids: list
     internal: list  # validated internal question dicts
     items: list  # [{"ids", "markers", "qtype"}]
+    truncated: bool = False  # some question's state was cut to fit the model's max_len
 
     @property
     def sequence_length(self) -> int:
@@ -240,15 +247,23 @@ def prepare(tok: Tokenizer, cfg: dict, state, questions) -> PreparedRequest:
     # newest-last, so it is truncated from the left, keeping the newest turns (upstream v0.3.20).
     internal = [to_internal(qdef) for qdef in questions.values()]
     state_ids = encode_state(tok, state)
-    items = []
+    items, truncated = [], False
     for qid, q in zip(questions, internal):
-        ids, markers = build_sequence(
-            tok, state, q, max_len, head, truncate_left=isinstance(state, list), state_ids=state_ids
+        ids, markers, cut = build_sequence(
+            tok,
+            state,
+            q,
+            max_len,
+            head,
+            truncate_left=isinstance(state, list),
+            state_ids=state_ids,
+            report_truncation=True,
         )
+        truncated = truncated or cut
         if len(markers) != len(render_options(q)):
             raise InvalidRequestError(f"question {qid!r} has too many options for the token budget")
         items.append({"ids": ids, "markers": markers, "qtype": QTYPES[q["t"]]})
-    return PreparedRequest(list(questions), internal, items)
+    return PreparedRequest(list(questions), internal, items, truncated)
 
 
 # ----------------------------------------------------------------------------- calibration

@@ -55,6 +55,7 @@ class Prep:
     def __init__(self, length, questions=1):
         self.items = [{"ids": [0] * length, "markers": [1, 2], "qtype": 0} for _ in range(questions)]
         self.sequence_length, self.question_count, self.input_tokens = length, questions, length * questions
+        self.truncated = False
 
 
 def make_laya(trace=None):
