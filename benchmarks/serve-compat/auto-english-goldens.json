@@ -1,0 +1,246 @@
+{
+ "model": "english",
+ "auto": true,
+ "tolerance": 0.02,
+ "cases": [
+  {
+   "name": "L64-s11",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L64-s12",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L64-s13",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L96-s11",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L96-s12",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L96-s13",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L128-s11",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L128-s12",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L128-s13",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L256-s11",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L256-s12",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L256-s13",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L512-s11",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L512-s12",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "L512-s13",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "lang-en",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "lang-de",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "multilingual"
+  },
+  {
+   "name": "lang-fr",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "multilingual"
+  },
+  {
+   "name": "lang-es",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "multilingual"
+  },
+  {
+   "name": "lang-zh",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "multilingual"
+  },
+  {
+   "name": "lang-ja",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "multilingual"
+  },
+  {
+   "name": "lang-hi",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "multilingual"
+  },
+  {
+   "name": "lang-ru",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "multilingual"
+  },
+  {
+   "name": "lang-ar",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "multilingual"
+  },
+  {
+   "name": "empty-state",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "conversation",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "mask-literals",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "edge-questions",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "overflow-truncated",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "drift-conversation-left-truncated",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "drift-structured-instructions-non-ascii",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "multilingual"
+  },
+  {
+   "name": "drift-noul-labels",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "drift-noul-criteria-key-case",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  },
+  {
+   "name": "drift-long-option-text",
+   "passed": true,
+   "problems": [],
+   "ours_device": "gpu",
+   "routed_to": "english"
+  }
+ ],
+ "passed": true
+}

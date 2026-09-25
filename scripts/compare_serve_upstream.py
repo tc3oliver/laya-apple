@@ -17,6 +17,10 @@ language; `routing.model`, `reason`, `detection` and `workflow` must then agree 
 `routing.repo` is not compared: ours names the pinned standalone repository, and the
 pinned upstream launcher reports a local path.
 
+With --split every question is sent as its own request. Golden cases mostly carry several
+questions, which laya-apple routes to the GPU; single short questions take the validated
+Neural Engine path, so --split is what compares the ANE's answers over HTTP.
+
 Upstream runs PyTorch; ours runs MLX or the ANE, so values are compared with the gate's
 tolerance, never for equality. Exit status 1 if any case fails.
 """
@@ -93,11 +97,18 @@ def main():
     ap.add_argument("--upstream", required=True)
     ap.add_argument("--model", required=True, choices=sorted(UPSTREAM_TO_OURS))
     ap.add_argument("--auto", action="store_true", help="send no model field; compare the language routing too")
+    ap.add_argument("--split", action="store_true", help="one request per question (exercises the ANE path)")
     ap.add_argument("--out", help="write the per-case report here (JSON)")
     a = ap.parse_args()
 
     cases = load_goldens(UPSTREAM_TO_OURS[a.model])["cases"]
-    report = {"model": a.model, "auto": a.auto, "tolerance": TOL, "cases": []}
+    report = {"model": a.model, "auto": a.auto, "split": a.split, "tolerance": TOL, "cases": []}
+    if a.split:
+        cases = [
+            {"name": f"{c['name']}/{qid}", "state": c["state"], "questions": {qid: q}}
+            for c in cases
+            for qid, q in c["questions"].items()
+        ]
     for case in cases:
         body = {"state": case["state"], "questions": case["questions"]}
         if not a.auto:
