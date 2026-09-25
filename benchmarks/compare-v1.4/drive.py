@@ -4,6 +4,8 @@
     uv run python benchmarks/compare-v1.4/drive.py setup                 # envs, sources, model files
     uv run python benchmarks/compare-v1.4/drive.py smoke                 # 1 golden case + 1 window each
     uv run python benchmarks/compare-v1.4/drive.py run --run-id ID       # the campaign -> raw/ID/
+    uv run python benchmarks/compare-v1.4/drive.py run --run-id ID --phase parity    # parity only
+    uv run python benchmarks/compare-v1.4/drive.py run --run-id ID --phase latency   # latency only
     uv run python benchmarks/compare-v1.4/drive.py teardown [--models]   # remove what setup created
 
 Method: README.md in this directory (written before any campaign run). This driver runs in
@@ -14,6 +16,12 @@ environment's python. laya-apple itself runs in this checkout's `.venv`.
 
 Machine-specific paths (environments, snapshots, converted models) go to a config file under
 --base, never into raw/. raw/ holds measurements, versions and hashes only.
+
+Execution: parity tasks of different configurations run concurrently (--parity-jobs), because
+parity answers do not depend on machine load; configurations that use the Neural Engine run
+their parity tasks alone, one at a time, after that batch. Latency windows always run alone,
+one process at a time, and never overlap a parity task. A `--phase parity` or
+`--phase latency` run resumes an existing run directory and skips the outputs it already has.
 """
 
 from __future__ import annotations
@@ -30,6 +38,7 @@ import sys
 import tarfile
 import time
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -60,7 +69,23 @@ EST_LOAD_S = {
     ("upstream", "cpu-fp32"): 20,
 }
 EST_PARITY_S_PER_SET = 60  # laya-coreml default answers mixed and long calls in 0.5-3 s each
+EST_PARITY_SETS = {"laya": 4, "laya-multilingual": 3, "laya-typed-decisions": 3}
+# Assumed slowdown of each parity task while others run beside it: a planning guess, not a
+# measurement. It changes only the estimate, never the answers.
+EST_PARITY_CONTENTION = 1.5
 EST_SETUP_S = {"envs": 300, "downloads": 600, "laya_fast_convert": 120, "laya_fast_ane_export_per_bucket": 180}
+
+# Configurations whose parity task uses the Neural Engine. laya-apple's ANE placement probe can
+# raise ComputeUnitMismatchError while other processes contend for the ANE (seen in smoke), so
+# these parity tasks run alone, one at a time, after the concurrent batch. Every other parity
+# task (MLX GPU, Core ML cpu_gpu, upstream PyTorch CPU) may run beside others: its answers do
+# not depend on load.
+ANE_PARITY = {("laya-apple", "auto"), ("laya-coreml", "ane"), ("laya-fast", "fast")}
+EXECUTION = (
+    "parity tasks of different configurations may run concurrently (answers are load-independent); "
+    "ANE configurations run their parity alone and serially after that batch; latency windows run "
+    "alone, one process at a time, and never overlap parity"
+)
 
 
 # ------------------------------------------------------------------------------ paths
@@ -319,7 +344,12 @@ def fixture_sets(a, run_dir: Path) -> dict:
         fast = json.loads(p.read_text())["cases"]
         put("laya", "published-laya-fast", fast)
     record = {f"{m}/{n}": hashlib.sha256(p.read_bytes()).hexdigest() for (m, n), p in out.items()}
-    (run_dir / "fixtures.json").write_text(json.dumps(record, indent=1, sort_keys=True) + "\n")
+    rec_path = run_dir / "fixtures.json"
+    if rec_path.exists():
+        if json.loads(rec_path.read_text()) != record:
+            raise SystemExit(f"{rec_path} records other fixture hashes; this run cannot be resumed with these fixtures")
+        return out
+    rec_path.write_text(json.dumps(record, indent=1, sort_keys=True) + "\n")
     return out
 
 
@@ -344,14 +374,55 @@ def adapter(a, task, rt, var, model, *args, timeout=None):
     return subprocess.run([str(c) for c in cmd], env=child_env(), cwd=base, timeout=timeout).returncode
 
 
+def completed(out: Path) -> bool:
+    """True when a task's output already exists, so a resumed run skips it. Never overwrites raw data."""
+    if not out.exists():
+        return False
+    try:
+        json.loads(out.read_text())
+    except ValueError:
+        raise SystemExit(f"{out} exists but is not valid JSON (an interrupted task?); move it aside by hand") from None
+    print(f"skip (done): {out.name}", flush=True)
+    return True
+
+
 def run_parity(a, rt, var, m, sets, out_dir: Path):
     rc = {}
     for (fm, name), path in sets.items():
         if fm != m:
             continue
         out = out_dir / f"{rt}-{var}-{m}-{name}.json"
+        if completed(out):
+            continue
         rc[name] = adapter(a, "parity", rt, var, m, "--fixtures", path, "--out", out)
     return rc
+
+
+def parity_task_s(rt, var, m) -> float:
+    """Planning estimate of one configuration's parity task (all its fixture sets)."""
+    per_set = EST_PARITY_S_PER_SET * (2 if rt == "upstream" else 1)
+    return EST_LOAD_S[(rt, var)] + EST_PARITY_SETS[m] * per_set
+
+
+def parity_schedule(cfgs):
+    """(concurrent, serial) parity tasks as [(runtime, variant, model)].
+
+    The upstream reference tasks and every configuration outside ANE_PARITY form the concurrent
+    batch, longest estimated task first. The ANE configurations follow, alone, in matrix order.
+    """
+    refs = [("upstream", "cpu-fp32", m) for m in sorted({m for _, _, m in cfgs})]
+    tasks = refs + [c for c in cfgs if c[0] != "upstream"]
+    batch = sorted((c for c in tasks if c[:2] not in ANE_PARITY), key=lambda c: -parity_task_s(*c))
+    serial = [c for c in tasks if c[:2] in ANE_PARITY]
+    return batch, serial
+
+
+def makespan(durations, jobs: int) -> float:
+    """Wall time of durations started in order on `jobs` workers, each task taking the next free one."""
+    workers = [0.0] * max(1, jobs)
+    for d in durations:
+        workers[workers.index(min(workers))] += d
+    return max(workers)
 
 
 # ------------------------------------------------------------------------------ smoke
@@ -495,22 +566,16 @@ def weights_record(a) -> dict:
     return out
 
 
-def run(a):
-    if omlx_running() and not a.allow_omlx:
-        raise SystemExit(
-            "oMLX is running. Stop it for the campaign (see README), or pass --allow-omlx to record a non-standard run."
-        )
+def open_run(a) -> tuple[Path, dict]:
+    """The run directory and its manifest. `--phase all` needs a new run id; one phase resumes."""
     run_dir = Path(a.raw) / a.run_id
-    if run_dir.exists():
-        raise SystemExit(f"{run_dir} exists; raw data is never overwritten. Choose a new --run-id.")
-    (run_dir / "parity").mkdir(parents=True)
-    (run_dir / "latency").mkdir()
-    adapter_config(a)
-    base = Path(a.base)
-    manifest = {
-        "started": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
-        "platform": platform_info(),
-        "machine_state": machine_state(),
+    mpath = run_dir / "manifest.json"
+    if run_dir.exists() and a.phase == "all":
+        raise SystemExit(
+            f"{run_dir} exists; raw data is never overwritten. Choose a new --run-id, "
+            "or resume it with --phase parity / --phase latency (completed outputs are skipped)."
+        )
+    fixed = {
         "method": {
             "rounds": a.rounds,
             "warmup_calls": a.warmup,
@@ -519,32 +584,62 @@ def run(a):
             "cooldown_s": a.cooldown_s,
             "energy_cmd": bool(a.energy_cmd),
             "rotation": "configuration order and shape order rotate by one position per round",
+            "execution": EXECUTION,
         },
         "pins": PINS,
         "checkpoints": checkpoints(),
-        "weights": weights_record(a),
         "laya_apple_commit": subprocess.run(
             ["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True
         ).stdout.strip(),
-        "env_freeze": {p.stem.replace(".freeze", ""): p.read_text().splitlines() for p in base.glob("*.freeze.txt")},
     }
-    (run_dir / "manifest.json").write_text(json.dumps(manifest, indent=1) + "\n")
+    if mpath.exists():
+        manifest = json.loads(mpath.read_text())
+        for k, v in fixed.items():
+            if manifest.get(k) != v:
+                raise SystemExit(f"{mpath}: {k} differs from this invocation; resume a run only with the same {k}")
+    else:
+        base = Path(a.base)
+        manifest = {
+            "started": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+            "platform": platform_info(),
+            "machine_state": machine_state(),
+            **fixed,
+            "weights": weights_record(a),
+            "env_freeze": {
+                p.stem.replace(".freeze", ""): p.read_text().splitlines() for p in base.glob("*.freeze.txt")
+            },
+            "phases": [],
+        }
+    (run_dir / "parity").mkdir(parents=True, exist_ok=True)
+    (run_dir / "latency").mkdir(exist_ok=True)
+    return run_dir, manifest
+
+
+def run_parity_phase(a, cfgs, run_dir: Path):
     sets = fixture_sets(a, run_dir)
-    cfgs = configs(a.runtimes, a.models)
-    # 1. reference answers for every fixture set without committed goldens
-    for m in sorted({m for _, _, m in cfgs}):
-        run_parity(a, "upstream", "cpu-fp32", m, sets, run_dir / "parity")
-    # 2. parity per configuration
-    for rt, var, m in cfgs:
-        run_parity(a, rt, var, m, sets, run_dir / "parity")
-    # 3. latency rounds, rotated
+    pdir = run_dir / "parity"
+    batch, serial = parity_schedule(cfgs)
+    # 1. upstream reference answers and every non-ANE configuration, up to --parity-jobs at once
+    with ThreadPoolExecutor(max_workers=max(1, a.parity_jobs)) as ex:
+        list(ex.map(lambda c: run_parity(a, *c, sets, pdir), batch))
+    # 2. ANE configurations: alone, one at a time, after the batch has ended
+    for c in serial:
+        run_parity(a, *c, sets, pdir)
+
+
+def run_latency_phase(a, cfgs, run_dir: Path):
+    """Latency rounds, rotated; strictly one process at a time."""
     for r in range(a.rounds):
-        idle_window(a, run_dir / "latency" / f"idle-{r}.json", r)
+        idle = run_dir / "latency" / f"idle-{r}.json"
+        if not completed(idle):
+            idle_window(a, idle, r)
         order = cfgs[r % len(cfgs) :] + cfgs[: r % len(cfgs)]
         for i, (rt, var, m) in enumerate(order):
             k = (r + i) % len(LATENCY_SHAPES)
             shapes = LATENCY_SHAPES[k:] + LATENCY_SHAPES[:k]
             out = run_dir / "latency" / f"r{r}-{rt}-{var}-{m}.json"
+            if completed(out):
+                continue
             extra = ["--energy-cmd", a.energy_cmd] if a.energy_cmd else []
             adapter(
                 a,
@@ -567,10 +662,29 @@ def run(a):
                 *extra,
             )
             time.sleep(a.cooldown_s)
-    manifest["finished"] = time.strftime("%Y-%m-%dT%H:%M:%S%z")
-    manifest["machine_state_end"] = machine_state()
-    (run_dir / "manifest.json").write_text(json.dumps(manifest, indent=1) + "\n")
-    print(f"campaign done: {run_dir}; now run analyze.py")
+
+
+def run(a):
+    if omlx_running() and not a.allow_omlx:
+        raise SystemExit(
+            "oMLX is running. Stop it for the campaign (see README), or pass --allow-omlx to record a non-standard run."
+        )
+    adapter_config(a)
+    run_dir, manifest = open_run(a)
+    mpath = run_dir / "manifest.json"
+    cfgs = configs(a.runtimes, a.models)
+    # phases run one after the other: latency starts only after every parity process has ended
+    for phase in ["parity", "latency"] if a.phase == "all" else [a.phase]:
+        rec = {"phase": phase, "started": time.strftime("%Y-%m-%dT%H:%M:%S%z"), "machine_state": machine_state()}
+        if phase == "parity":
+            rec["parity_jobs"] = a.parity_jobs
+        manifest.setdefault("phases", []).append(rec)
+        mpath.write_text(json.dumps(manifest, indent=1) + "\n")
+        (run_parity_phase if phase == "parity" else run_latency_phase)(a, cfgs, run_dir)
+        rec["finished"] = manifest["finished"] = time.strftime("%Y-%m-%dT%H:%M:%S%z")
+        rec["machine_state_end"] = manifest["machine_state_end"] = machine_state()
+        mpath.write_text(json.dumps(manifest, indent=1) + "\n")
+    print(f"{a.phase} done: {run_dir}; run analyze.py once both phases are done")
 
 
 # ------------------------------------------------------------------------------ plan / teardown
@@ -582,19 +696,23 @@ def estimate(a) -> dict:
         per_round += len(LATENCY_SHAPES) * a.warmup * 0.1  # warm-up: ~100 ms per call, upper side
         per_round += a.window_s if a.energy_cmd else 0
     idle = a.window_s * a.rounds if a.energy_cmd else 0
-    sets_per_model = {"laya": 4, "laya-multilingual": 3, "laya-typed-decisions": 3}
-    parity = sum(EST_LOAD_S[(rt, var)] + sets_per_model[m] * EST_PARITY_S_PER_SET for rt, var, m in cfgs)
-    parity += sum(
-        EST_LOAD_S[("upstream", "cpu-fp32")] + sets_per_model[m] * EST_PARITY_S_PER_SET * 2
-        for m in {m for _, _, m in cfgs}
-    )
+    batch, serial = parity_schedule(cfgs)
+    parity_serial = sum(parity_task_s(*c) for c in batch + serial)
+    slow = EST_PARITY_CONTENTION if a.parity_jobs > 1 else 1.0
+    parity = makespan([parity_task_s(*c) * slow for c in batch], a.parity_jobs)
+    parity += sum(parity_task_s(*c) for c in serial)
     campaign = per_round * a.rounds + idle + parity
     setup_s = EST_SETUP_S["envs"] + EST_SETUP_S["downloads"] + EST_SETUP_S["laya_fast_convert"]
     setup_s += EST_SETUP_S["laya_fast_ane_export_per_bucket"] * len(PINS["runtimes"]["laya-fast"]["ane_buckets"])
     return {
         "configurations": len(cfgs),
         "latency_round_s": round(per_round),
+        "latency_s": round(per_round * a.rounds + idle),
+        "parity_jobs": a.parity_jobs,
+        "parity_concurrent_tasks": len(batch),
+        "parity_serial_ane_tasks": len(serial),
         "parity_s": round(parity),
+        "parity_all_serial_s": round(parity_serial),
         "campaign_s": round(campaign),
         "setup_s": setup_s,
     }
@@ -606,6 +724,11 @@ def plan(a):
     e = estimate(a)
     print(json.dumps(e, indent=1))
     print(f"estimated: setup ~{e['setup_s'] / 60:.0f} min (first time), campaign ~{e['campaign_s'] / 3600:.1f} h")
+    print(
+        f"  parity ~{e['parity_s'] / 60:.0f} min: {e['parity_concurrent_tasks']} tasks up to {e['parity_jobs']} at once, "
+        f"then {e['parity_serial_ane_tasks']} ANE tasks alone (all serial: ~{e['parity_all_serial_s'] / 60:.0f} min)"
+    )
+    print(f"  latency ~{e['latency_s'] / 3600:.1f} h, one process at a time, after parity")
 
 
 def teardown(a):
@@ -666,6 +789,18 @@ def main(argv=None):
     ap.add_argument("--variants", nargs="*", help="setup: restrict laya-coreml bundle downloads")
     ap.add_argument("--ane-buckets", nargs="*", type=int, help="setup: laya-fast ANE buckets to export (default: all)")
     ap.add_argument("--run-id")
+    ap.add_argument(
+        "--phase",
+        choices=["all", "parity", "latency"],
+        default="all",
+        help="run: all (parity, then latency; needs a new run id) or one phase (resumes a run, skips completed outputs)",
+    )
+    ap.add_argument(
+        "--parity-jobs",
+        type=int,
+        default=4,
+        help="run/plan: parity processes at once for non-ANE configurations (ANE ones always run alone)",
+    )
     ap.add_argument("--rounds", type=int, default=3)
     ap.add_argument("--warmup", type=int, default=20)
     ap.add_argument("--window-s", type=float, default=20.0)
@@ -678,6 +813,8 @@ def main(argv=None):
         a.models = a.models is not None
     if a.command == "run" and not a.run_id:
         ap.error("run needs --run-id")
+    if a.parity_jobs < 1:
+        ap.error("--parity-jobs must be at least 1")
     {"plan": plan, "setup": setup, "smoke": smoke, "run": run, "teardown": teardown}[a.command](a)
 
 
