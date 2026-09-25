@@ -1,0 +1,11 @@
+/Users/oliver/Developer/src/personal/laya-apple/laya_apple/model.py:191: RuntimeWarning: laya-apple: checkpoint temperatures that are invalid or outside [0.5, 5.0] are replaced (choice:11+=0.10058280825614929 -> 0.5), as upstream does; treat confidence from those entries as uncalibrated
+  return cls(
+/Users/oliver/Developer/src/personal/laya-apple/laya_apple/model.py:191: RuntimeWarning: laya-apple: checkpoint temperatures that are invalid or outside [0.5, 5.0] are replaced (choice:11+=0.10058280825614929 -> 0.5), as upstream does; treat confidence from those entries as uncalibrated
+  return cls(
+A 0 solo_short {'short': (98.0, 10.71, {'ane': 1960}, 0)}
+A 0 solo_long {'long': (27.9, 36.4, {'gpu': 559}, 0)}
+A 0 hetero {'short': (100.0, 12.35, {'ane': 2000}, 0), 'long': (27.7, 41.7, {'gpu': 555}, 0)}
+A 0 gpu_only {'short': (21.0, 48.69, {'gpu': 420}, 0), 'long': (20.9, 48.7, {'gpu': 419}, 0)}
+A 1 gpu_only {'short': (20.9, 48.54, {'gpu': 419}, 0), 'long': (20.9, 48.62, {'gpu': 419}, 0)}
+A 1 hetero {'short': (87.2, 17.12, {'ane': 1745}, 0), 'long': (25.6, 45.14, {'gpu': 512}, 0)}
+A 1 solo_long {'long': (27.9, 36.69, {'gpu': 558}, 0)}

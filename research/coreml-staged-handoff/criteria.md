@@ -190,3 +190,74 @@ The review of `analyze.py` noted that the H64 fallback round 2 would reuse the A
 round 2 as its own. If the fallback runs, it gets its own interleaved A runs: H64 r3, A r5, H64 r4,
 A r6, H64 r5. Its A references and its A validity use A r1, r2, r5 and r6. No threshold, gate or
 outcome rule changes. H32's round 2 is as written above: H32 r3, A r3, H32 r4, A r4, H32 r5.
+
+## Addendum 2: protocols of Phases 4–7
+
+This addendum was committed before any production-path run. It changes nothing above. It applies
+only if round 2 replicates a leader. The production prototype implements that leader's N, and it
+counts forwards the same way.
+
+**Harness:** [`scripts/prod_run.py`](scripts/prod_run.py). It runs the prototype's own code path:
+- `Laya(device="auto", execution="workers")`;
+- cell P uses the default `ane_handoff`;
+- cell A uses `ane_handoff=False`, which is today's production path.
+
+There is no research model swap and no counter sampler. The harness wraps StagedHandoff.decide to
+log decisions and records the RequestTrace. Raw output goes to `raw-prod/`.
+
+**Runs,** each in a fresh process:
+
+| phase | model, lengths | schedule | runs |
+|---|---|---|---|
+| 4 | laya, L128 / L512 | mix | P r1, A r1, A r2, P r2 |
+| 5 | laya-typed-decisions, L128 / L1024 (its placement benchmark's lengths) | mix | P r1, A r1, A r2, P r2 |
+| 5b | laya-multilingual, L128 / L512 | mix, 5 s windows | P r1 (regression smoke) |
+| 6 | laya, L128 / L512 | product | P r1, A r1, A r2, P r2 |
+| 7 | laya, L128 / L512 | soak | P r1, A r1 |
+
+**Measures** are the ones above, with these substitutions, which production code forces:
+- **Native Core ML (no native stamp in production).** The ANE forward duration is used instead:
+  service_end − service_start in the RequestTrace. It contains the Core ML call. For P, it is the
+  mean over the ANE requests submitted in [t_h, end). For A, it is the mean over the whole hetero
+  window.
+- **GPU return:** received − service_end of the GPU requests in the RequestTrace.
+- **t_h:** the first logged async decision of the episode.
+- **The A references** are medians over the same phase's A transitions. In Phase 6 they are taken
+  per window position; in Phase 7 over all of A's soak episodes.
+
+**Gates per P hetero transition:** gates 1–5 above, with these adaptations.
+- **Phase 7 (8 s windows).**
+  - Steady host-slow is measured over [t_h + 1 s, end) instead of [t0 + 10, t0 + 20).
+  - Whole-window P99 is compared with A's soak median.
+- **Correctness also requires:**
+  - both workers alive at the end;
+  - the handoff not disabled at the end;
+  - routing checked in every window: hetero short → ANE and long → GPU, solo_short → ANE,
+    solo_long → GPU, gpu_only → GPU.
+- **Structure:** exactly one episode per hetero window, with exactly N sync forwards before t_h.
+
+**Extra gates:**
+- **Phase 6, windows that are not hetero** (the handoff must not affect them). For each
+  solo_short, solo_long and gpu_only window of P:
+  - its stream P99 ≤ allowed(A's median P99 at that position);
+  - its req/s ≥ 0.95 × A's.
+- **Phase 7, soak.** Every one of the following:
+  - every one of P's 60 episodes passes;
+  - every non-hetero window leaves the handoff re-armed: the first decision of the next hetero
+    window starts a new episode;
+  - the median window P99 of the last 15 hetero episodes is ≤ 1.05 × that of the first 15;
+  - 0 mismatches.
+- **Phase 5b (multilingual).**
+  - the handoff is not enabled: its placement is process;
+  - 0 mismatches and 0 routing failures;
+  - no crash.
+
+**Validity:**
+- **A windows in every phase:** 0 mismatches and 0 routing failures; hetero transient from t0 ≤ 1 s;
+  steady host-slow < 0.10. For laya, also #94's P99 and throughput ranges, in Phases 4 and 6
+  hetero windows only.
+- **An A validity failure is INCONCLUSIVE for that phase.** A P failure is a candidate failure.
+
+**Order:** Phase 4, then 5 and 5b, then 6, then 7. Each phase runs only if the previous one
+passed. A failure stops the campaign at RESEARCH-CLOSED, and the production change is not
+proposed.
