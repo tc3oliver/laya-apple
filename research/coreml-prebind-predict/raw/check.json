@@ -1,0 +1,603 @@
+{
+ "C_bit_identical_everywhere": true,
+ "PB_bit_identical_everywhere": true,
+ "coremltools": "9.0",
+ "laya_apple": "1.3.0",
+ "models": {
+  "laya": {
+   "buckets": {
+    "128": {
+     "C_bit_identical": true,
+     "PB_backings": {
+      "evidence": {
+       "cls": {
+        "backing_written": true,
+        "dtype": "float16",
+        "equal_to_returned": true,
+        "same_address": true,
+        "shape": [
+         1,
+         1024,
+         1,
+         1
+        ]
+       },
+       "logits": {
+        "backing_written": true,
+        "dtype": "float16",
+        "equal_to_returned": true,
+        "same_address": true,
+        "shape": [
+         1,
+         1,
+         1,
+         32
+        ]
+       }
+      },
+      "modes": {
+       "cls": "backed",
+       "logits": "backed"
+      }
+     },
+     "PB_bit_identical": true,
+     "PB_forward_bit_identical": true,
+     "crossings": {
+      "C": {
+       "ctypes": 1,
+       "objc_send": 216,
+       "pool_pop": 1,
+       "pool_push": 2,
+       "total": 220
+      },
+      "PB": {
+       "ctypes": 1,
+       "objc_send": 40,
+       "pool_pop": 1,
+       "pool_push": 2,
+       "total": 44
+      }
+     },
+     "rows": 11,
+     "stamps_ordered": {
+      "C": true,
+      "PB": true
+     }
+    },
+    "64": {
+     "C_bit_identical": true,
+     "PB_backings": {
+      "evidence": {
+       "cls": {
+        "backing_written": true,
+        "dtype": "float16",
+        "equal_to_returned": true,
+        "same_address": true,
+        "shape": [
+         1,
+         1024,
+         1,
+         1
+        ]
+       },
+       "logits": {
+        "backing_written": true,
+        "dtype": "float16",
+        "equal_to_returned": true,
+        "same_address": true,
+        "shape": [
+         1,
+         1,
+         1,
+         32
+        ]
+       }
+      },
+      "modes": {
+       "cls": "backed",
+       "logits": "backed"
+      }
+     },
+     "PB_bit_identical": true,
+     "PB_forward_bit_identical": true,
+     "crossings": {
+      "C": {
+       "ctypes": 1,
+       "objc_send": 216,
+       "pool_pop": 1,
+       "pool_push": 2,
+       "total": 220
+      },
+      "PB": {
+       "ctypes": 1,
+       "objc_send": 40,
+       "pool_pop": 1,
+       "pool_push": 2,
+       "total": 44
+      }
+     },
+     "rows": 11,
+     "stamps_ordered": {
+      "C": true,
+      "PB": true
+     }
+    },
+    "96": {
+     "C_bit_identical": true,
+     "PB_backings": {
+      "evidence": {
+       "cls": {
+        "backing_written": true,
+        "dtype": "float16",
+        "equal_to_returned": true,
+        "same_address": true,
+        "shape": [
+         1,
+         1024,
+         1,
+         1
+        ]
+       },
+       "logits": {
+        "backing_written": true,
+        "dtype": "float16",
+        "equal_to_returned": true,
+        "same_address": true,
+        "shape": [
+         1,
+         1,
+         1,
+         32
+        ]
+       }
+      },
+      "modes": {
+       "cls": "backed",
+       "logits": "backed"
+      }
+     },
+     "PB_bit_identical": true,
+     "PB_forward_bit_identical": true,
+     "crossings": {
+      "C": {
+       "ctypes": 1,
+       "objc_send": 216,
+       "pool_pop": 1,
+       "pool_push": 2,
+       "total": 220
+      },
+      "PB": {
+       "ctypes": 1,
+       "objc_send": 40,
+       "pool_pop": 1,
+       "pool_push": 2,
+       "total": 44
+      }
+     },
+     "rows": 11,
+     "stamps_ordered": {
+      "C": true,
+      "PB": true
+     }
+    }
+   }
+  },
+  "laya-multilingual": {
+   "buckets": {
+    "128": {
+     "C_bit_identical": true,
+     "PB_backings": {
+      "evidence": {
+       "cls": {
+        "backing_written": true,
+        "dtype": "float16",
+        "equal_to_returned": true,
+        "same_address": true,
+        "shape": [
+         1,
+         768,
+         1,
+         1
+        ]
+       },
+       "logits": {
+        "backing_written": true,
+        "dtype": "float16",
+        "equal_to_returned": true,
+        "same_address": true,
+        "shape": [
+         1,
+         1,
+         1,
+         32
+        ]
+       }
+      },
+      "modes": {
+       "cls": "backed",
+       "logits": "backed"
+      }
+     },
+     "PB_bit_identical": true,
+     "PB_forward_bit_identical": true,
+     "crossings": {
+      "C": {
+       "ctypes": 1,
+       "objc_send": 216,
+       "pool_pop": 1,
+       "pool_push": 2,
+       "total": 220
+      },
+      "PB": {
+       "ctypes": 1,
+       "objc_send": 40,
+       "pool_pop": 1,
+       "pool_push": 2,
+       "total": 44
+      }
+     },
+     "rows": 11,
+     "stamps_ordered": {
+      "C": true,
+      "PB": true
+     }
+    },
+    "256": {
+     "C_bit_identical": true,
+     "PB_backings": {
+      "evidence": {
+       "cls": {
+        "backing_written": true,
+        "dtype": "float16",
+        "equal_to_returned": true,
+        "same_address": true,
+        "shape": [
+         1,
+         768,
+         1,
+         1
+        ]
+       },
+       "logits": {
+        "backing_written": true,
+        "dtype": "float16",
+        "equal_to_returned": true,
+        "same_address": true,
+        "shape": [
+         1,
+         1,
+         1,
+         32
+        ]
+       }
+      },
+      "modes": {
+       "cls": "backed",
+       "logits": "backed"
+      }
+     },
+     "PB_bit_identical": true,
+     "PB_forward_bit_identical": true,
+     "crossings": {
+      "C": {
+       "ctypes": 1,
+       "objc_send": 216,
+       "pool_pop": 1,
+       "pool_push": 2,
+       "total": 220
+      },
+      "PB": {
+       "ctypes": 1,
+       "objc_send": 40,
+       "pool_pop": 1,
+       "pool_push": 2,
+       "total": 44
+      }
+     },
+     "rows": 11,
+     "stamps_ordered": {
+      "C": true,
+      "PB": true
+     }
+    },
+    "64": {
+     "C_bit_identical": true,
+     "PB_backings": {
+      "evidence": {
+       "cls": {
+        "backing_written": true,
+        "dtype": "float16",
+        "equal_to_returned": true,
+        "same_address": true,
+        "shape": [
+         1,
+         768,
+         1,
+         1
+        ]
+       },
+       "logits": {
+        "backing_written": true,
+        "dtype": "float16",
+        "equal_to_returned": true,
+        "same_address": true,
+        "shape": [
+         1,
+         1,
+         1,
+         32
+        ]
+       }
+      },
+      "modes": {
+       "cls": "backed",
+       "logits": "backed"
+      }
+     },
+     "PB_bit_identical": true,
+     "PB_forward_bit_identical": true,
+     "crossings": {
+      "C": {
+       "ctypes": 1,
+       "objc_send": 216,
+       "pool_pop": 1,
+       "pool_push": 2,
+       "total": 220
+      },
+      "PB": {
+       "ctypes": 1,
+       "objc_send": 40,
+       "pool_pop": 1,
+       "pool_push": 2,
+       "total": 44
+      }
+     },
+     "rows": 11,
+     "stamps_ordered": {
+      "C": true,
+      "PB": true
+     }
+    },
+    "96": {
+     "C_bit_identical": true,
+     "PB_backings": {
+      "evidence": {
+       "cls": {
+        "backing_written": true,
+        "dtype": "float16",
+        "equal_to_returned": true,
+        "same_address": true,
+        "shape": [
+         1,
+         768,
+         1,
+         1
+        ]
+       },
+       "logits": {
+        "backing_written": true,
+        "dtype": "float16",
+        "equal_to_returned": true,
+        "same_address": true,
+        "shape": [
+         1,
+         1,
+         1,
+         32
+        ]
+       }
+      },
+      "modes": {
+       "cls": "backed",
+       "logits": "backed"
+      }
+     },
+     "PB_bit_identical": true,
+     "PB_forward_bit_identical": true,
+     "crossings": {
+      "C": {
+       "ctypes": 1,
+       "objc_send": 216,
+       "pool_pop": 1,
+       "pool_push": 2,
+       "total": 220
+      },
+      "PB": {
+       "ctypes": 1,
+       "objc_send": 40,
+       "pool_pop": 1,
+       "pool_push": 2,
+       "total": 44
+      }
+     },
+     "rows": 11,
+     "stamps_ordered": {
+      "C": true,
+      "PB": true
+     }
+    }
+   }
+  },
+  "laya-typed-decisions": {
+   "buckets": {
+    "128": {
+     "C_bit_identical": true,
+     "PB_backings": {
+      "evidence": {
+       "cls": {
+        "backing_written": true,
+        "dtype": "float16",
+        "equal_to_returned": true,
+        "same_address": true,
+        "shape": [
+         1,
+         1024,
+         1,
+         1
+        ]
+       },
+       "logits": {
+        "backing_written": true,
+        "dtype": "float16",
+        "equal_to_returned": true,
+        "same_address": true,
+        "shape": [
+         1,
+         1,
+         1,
+         32
+        ]
+       }
+      },
+      "modes": {
+       "cls": "backed",
+       "logits": "backed"
+      }
+     },
+     "PB_bit_identical": true,
+     "PB_forward_bit_identical": true,
+     "crossings": {
+      "C": {
+       "ctypes": 1,
+       "objc_send": 216,
+       "pool_pop": 1,
+       "pool_push": 2,
+       "total": 220
+      },
+      "PB": {
+       "ctypes": 1,
+       "objc_send": 40,
+       "pool_pop": 1,
+       "pool_push": 2,
+       "total": 44
+      }
+     },
+     "rows": 11,
+     "stamps_ordered": {
+      "C": true,
+      "PB": true
+     }
+    },
+    "64": {
+     "C_bit_identical": true,
+     "PB_backings": {
+      "evidence": {
+       "cls": {
+        "backing_written": true,
+        "dtype": "float16",
+        "equal_to_returned": true,
+        "same_address": true,
+        "shape": [
+         1,
+         1024,
+         1,
+         1
+        ]
+       },
+       "logits": {
+        "backing_written": true,
+        "dtype": "float16",
+        "equal_to_returned": true,
+        "same_address": true,
+        "shape": [
+         1,
+         1,
+         1,
+         32
+        ]
+       }
+      },
+      "modes": {
+       "cls": "backed",
+       "logits": "backed"
+      }
+     },
+     "PB_bit_identical": true,
+     "PB_forward_bit_identical": true,
+     "crossings": {
+      "C": {
+       "ctypes": 1,
+       "objc_send": 216,
+       "pool_pop": 1,
+       "pool_push": 2,
+       "total": 220
+      },
+      "PB": {
+       "ctypes": 1,
+       "objc_send": 40,
+       "pool_pop": 1,
+       "pool_push": 2,
+       "total": 44
+      }
+     },
+     "rows": 11,
+     "stamps_ordered": {
+      "C": true,
+      "PB": true
+     }
+    },
+    "96": {
+     "C_bit_identical": true,
+     "PB_backings": {
+      "evidence": {
+       "cls": {
+        "backing_written": true,
+        "dtype": "float16",
+        "equal_to_returned": true,
+        "same_address": true,
+        "shape": [
+         1,
+         1024,
+         1,
+         1
+        ]
+       },
+       "logits": {
+        "backing_written": true,
+        "dtype": "float16",
+        "equal_to_returned": true,
+        "same_address": true,
+        "shape": [
+         1,
+         1,
+         1,
+         32
+        ]
+       }
+      },
+      "modes": {
+       "cls": "backed",
+       "logits": "backed"
+      }
+     },
+     "PB_bit_identical": true,
+     "PB_forward_bit_identical": true,
+     "crossings": {
+      "C": {
+       "ctypes": 1,
+       "objc_send": 216,
+       "pool_pop": 1,
+       "pool_push": 2,
+       "total": 220
+      },
+      "PB": {
+       "ctypes": 1,
+       "objc_send": 40,
+       "pool_pop": 1,
+       "pool_push": 2,
+       "total": 44
+      }
+     },
+     "rows": 11,
+     "stamps_ordered": {
+      "C": true,
+      "PB": true
+     }
+    }
+   }
+  }
+ },
+ "pyobjc": "12.2.2",
+ "rows_per_bucket": 11,
+ "seed": 0
+}
