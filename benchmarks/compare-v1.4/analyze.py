@@ -187,20 +187,29 @@ def pct(xs: list[float], q: float) -> float:
 
 
 def window_power(e: dict, w: dict) -> tuple[float | None, str]:
-    """Mean SoC power over the window itself when the sampler's timeline allows, else its mean.
+    """Mean SoC power over the window itself, when the sampler's timeline allows.
 
-    The sampler (research/energy-sampler) records cumulative per-rail joules against
-    CLOCK_UPTIME_RAW; the adapter stamps each window with the same clock. Samples inside the
-    window give the window's own energy, without the sampler's start and stop edges.
+    The sampler (research/energy-sampler) records cumulative per-rail joules since it started,
+    against CLOCK_UPTIME_RAW; the adapter stamps each window with the same clock. The window's
+    energy is soc(t1) - soc(t0), with soc = the sum of the rails, linearly interpolated at both
+    window edges (the method of the sampler's own `window_energy`). Without a timeline that
+    brackets the window, the sampler's whole-life mean is returned and labelled as such: it
+    includes the 1 s lead-in and the tail up to SIGINT, so it is not the window mean.
     """
-    samples = e.get("samples") or []
+    pts = sorted((s[0], sum(s[2].values())) for s in e.get("samples") or [] if isinstance(s, list) and len(s) >= 3)
     t0, t1 = w.get("t_start_uptime_ns"), w.get("t_end_uptime_ns")
-    if t0 is not None and t1 is not None:
-        inside = [s for s in samples if isinstance(s, list) and len(s) >= 3 and t0 <= s[0] <= t1]
-        if len(inside) >= 2 and inside[-1][0] > inside[0][0]:
-            joules = sum(inside[-1][2].values()) - sum(inside[0][2].values())
-            return joules / ((inside[-1][0] - inside[0][0]) / 1e9), "window samples"
-    return e.get("mean_power_w"), "sampler mean"
+
+    def soc(t):
+        for (ta, ja), (tb, jb) in zip(pts, pts[1:]):
+            if ta <= t <= tb and tb > ta:
+                return ja + (jb - ja) * (t - ta) / (tb - ta)
+        return None
+
+    if t0 is not None and t1 is not None and t1 > t0:
+        j0, j1 = soc(t0), soc(t1)
+        if j0 is not None and j1 is not None:
+            return (j1 - j0) / ((t1 - t0) / 1e9), "window (interpolated)"
+    return e.get("mean_power_w"), "sampler whole-life mean"
 
 
 def latency_tables(run: Path) -> tuple[list[dict], list[dict], list[dict]]:

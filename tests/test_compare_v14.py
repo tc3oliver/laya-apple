@@ -81,8 +81,13 @@ def test_window_power_uses_samples_inside_the_window():
     samples = [[t * 10**9, 0, {"cpu": 5.0 * t, "gpu": 5.0 * t}] for t in range(10)]
     e = {"mean_power_w": 99.0, "samples": samples}
     w = {"t_start_uptime_ns": 2 * 10**9, "t_end_uptime_ns": 7 * 10**9}
-    assert analyze.window_power(e, w) == (pytest.approx(10.0), "window samples")
-    assert analyze.window_power({"mean_power_w": 99.0}, w) == (99.0, "sampler mean")
+    assert analyze.window_power(e, w) == (pytest.approx(10.0), "window (interpolated)")
+    # edges between samples are interpolated, not dropped
+    w2 = {"t_start_uptime_ns": 2_300_000_000, "t_end_uptime_ns": 6_700_000_000}
+    assert analyze.window_power(e, w2)[0] == pytest.approx(10.0)
+    # no sample after the window end: fall back, labelled as the sampler's whole-life mean
+    w3 = {"t_start_uptime_ns": 2 * 10**9, "t_end_uptime_ns": 12 * 10**9}
+    assert analyze.window_power(e, w3) == (99.0, "sampler whole-life mean")
 
 
 def test_percentile_interpolates():

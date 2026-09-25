@@ -142,8 +142,11 @@ Fixed before the first run:
   writes JSON with `mean_power_w` and, optionally, CLOCK_UPTIME_RAW `samples`.
   - The adapter starts the sampler 1 s before each window, stops it after the window, and
     stamps the window with CLOCK_UPTIME_RAW.
-  - `analyze.py` computes the window's own SoC power from the samples inside it. Without
-    samples, it falls back to the sampler's mean.
+  - `analyze.py` computes the window's SoC energy as soc(end) − soc(start) from the sampler's
+    cumulative rails (CPU + GPU + ANE + DRAM), linearly interpolated at both window edges, and
+    divides by the window length. Without a timeline that brackets the window, it falls back
+    to the sampler's whole-life mean. That value includes the 1 s lead-in and the tail up to
+    SIGINT, so it is labelled as a fallback in `results.json`.
   - Each round starts with a 20 s idle window, whose power is subtracted, giving net J per call
     and per question.
   - Without a sampler, the energy table says "not measured" and nothing else changes.
