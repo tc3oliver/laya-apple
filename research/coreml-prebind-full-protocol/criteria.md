@@ -263,3 +263,128 @@ Applied to PB's final verdicts:
 
   The candidate / P short-P99 ratios are reported split by that preceding condition, as input to
   the protocol-history question. The split never gates.
+
+## Addendum 1 (2026-09-25): fast fail, slow pass
+
+Written during the campaign. No run file, result, table or summary had been read when it was
+written, and it is merged before the first interim look is computed. The budgets (5% on the P99s,
+5% on aggregate throughput, GPU return ≤ 1 ms and ≥ 5×) are unchanged, and #77's and #83's
+verdicts are unchanged.
+
+**Why.** The original design ran a fixed 36-run stage and then extended automatically, up to 108
+runs and about 8 h 38 min, with no human decision. That is not justified when PB is already
+clearly failing, or when the result stays unresolved. This addendum lets R1 stop early for
+futility. It never lets it pass early.
+
+**What happened before this addendum.**
+- The campaign started at 22:54 with the original controller.
+- At 23:17, during `laya-C-r2`, only the controller shells were stopped. The run in progress
+  finished normally.
+- A fixed-list runner then completed block 1 of both models. Block 1 is identical under the
+  original design and this one. The runner reads no results.
+- Runs completed at that point: `laya-A-r1`, `laya-C-r1`, `laya-PB-r1`, `laya-PB-r2`, with
+  `laya-C-r2` in progress.
+
+### 1. C runs only in block 1
+
+The production go/no-go is P against PB. C is the mechanistic control, and its verdict decides
+nothing.
+- C runs only in each model's first block (P C PB PB C P). That gives 6 matched hetero pairs per
+  model.
+- Those pairs are kept as the #77/#83 protocol-dependence diagnostic. C is judged there with the
+  paired gate, for reference only, and the window-history split is reported.
+- No C run is scheduled after block 1. If PB fails, C is used again in the protocol-history
+  experiment.
+- PB's formal gate does not change because C is shortened.
+
+### 2. The design after block 1
+
+Per model, only P and PB run, in ABBA blocks:
+
+| block | order | rounds |
+|---|---|---|
+| 1 (unchanged) | P C PB PB C P | 1–2 of P, C, PB |
+| 2 | PB P P PB | 3–4 of P, PB |
+| 3 | P PB PB P | 5–6 of P, PB |
+
+**Campaign order:**
+1. laya block 1, then typed block 1.
+2. **Look at n = 6** for both models.
+3. laya block 2, then the **look at n = 12** for laya.
+4. typed block 2, then the **look at n = 12** for typed.
+5. laya block 3, then typed block 3.
+6. **Final look at n = 18** for both models.
+
+A model's look is taken as soon as its block is complete. The n = 6 look waits until both models'
+first blocks exist.
+
+### 3. Early futility checks at n = 6 and n = 12 (never a PASS)
+
+These checks compare PB with P on the rounds so far. A look can only give **FUTILITY STOP**, which
+is a FAIL, or **CONTINUE**. PB stops, and R1 ends with a FAIL, if **any** of these holds:
+
+| criterion | futility stop if |
+|---|---|
+| correctness | any mismatch in any window of a P or PB run used |
+| GPU completion isolation | PB's pooled hetero GPU-return P50 > 1 ms, or P's P50 / PB's P50 < 5 |
+| short P99 | 99% t-interval lower bound > 1.05 |
+| long P99 | 99% t-interval lower bound > 1.05 |
+| aggregate throughput | 99% t-interval upper bound < 0.95 |
+| crashes | a second crash of the same PB run |
+
+- The intervals use the paired gate's pairs and the t-interval on the log ratios, at 99%, which is
+  more conservative than the final gate.
+- Anything else means continue. A 99% interval that sits inside the budget is **not** a pass.
+- **A futility stop on either model ends the campaign**, because PASS needs both models.
+- **A second crash of a P run** also stops the campaign. It is reported as invalid, not as a
+  futility verdict.
+
+### 4. Formal PASS only at n = 18, and no automatic extension
+
+At n = 18 (rounds 1–6), the original gate applies unchanged:
+- 0 mismatches;
+- the 95% t-interval: short P99 upper bound ≤ 1.05, long P99 upper bound ≤ 1.05, aggregate lower
+  bound ≥ 0.95;
+- GPU return P50 ≤ 1 ms, and ≥ 5× better than A.
+
+**Outcomes:**
+- **PASS on both laya and laya-typed-decisions:** R2.
+- **Any FAIL:** R1 is a FAIL, and the protocol-history experiment is preregistered next.
+- **Otherwise INCONCLUSIVE:** **the campaign stops.** Stages 2 and 3 and the looks at 36 and 54
+  pairs are removed, and nothing runs without a human decision.
+
+**What an INCONCLUSIVE result reports**, per criterion:
+- the point estimate (geometric mean);
+- the 95% interval;
+- the log-SD of the pair ratios;
+- which criterion is inconclusive;
+- the pairs needed, from the stage-1 spread. That is the smallest n for which
+  t(0.975, n − 1) · SD / √n is below |log(limit) − log(geometric mean)|, or "not resolvable at
+  this effect size".
+
+Any continuation is a new, targeted, preregistered replication.
+
+The Bonferroni-over-looks interval of the original design is dropped: there is one look that can
+pass. The bootstrap stays as sensitivity only.
+
+### 5. What this addendum replaces
+
+In the sections above, these parts are replaced:
+- the run order after block 1, and the stages;
+- "Sample size, power and sequential looks", except the power table;
+- the extension outcomes, and the machine-time figures.
+
+**Everything else stands:**
+- the protocol and the configurations;
+- the gate's definitions and budgets;
+- the valid-run rules, including one re-run of a crashed run;
+- the non-gating records.
+
+**Run count and machine time,** at about 4.65 min per run as measured in this campaign:
+
+| | runs |
+|---|---|
+| per model: block 1, block 2, block 3 | 6 + 4 + 4 = 14 |
+| both models | 28 |
+| the original stage 1 | 36 |
+| the original design at most | 108 |

@@ -1,7 +1,9 @@
 # Prebound predict under the full product-mix protocol (R1)
 
-**Status: preregistered, not run.** The criteria are in [`criteria.md`](criteria.md). They were
-committed before any campaign data or pre-campaign check.
+**Status: running.** The criteria are in [`criteria.md`](criteria.md). They were committed before
+any campaign data or pre-campaign check. Addendum 1 in the same file ("fast fail, slow pass") was
+merged before any result was read. It keeps C to the first block, adds early futility checks at
+n = 6 and n = 12, and stops at n = 18 with no automatic extension.
 
 ## Question
 
@@ -33,15 +35,15 @@ isolation?
   solo_short, solo_long, hetero and gpu_only windows over 3 cycles of 20 s.
 - **Order:** rotating ABBA blocks. The paired gate is #83's (`gate.py`), applied to matched hetero
   windows.
-- **Stages:** 18 matched pairs per candidate at the first look. If PB is INCONCLUSIVE, the look
-  is extended to 36 and then 54 pairs.
+- **Looks (Addendum 1):** futility-only looks at n = 6 and n = 12 (99% intervals). The formal gate
+  runs at n = 18. There is no automatic extension.
 - **The GIL probe:** #83's 1 ms probe thread is not run.
 
 ## Run
 
 ```sh
-# Pre-campaign check (~15 s), then stage 1 (36 runs x ~4.8 min, ~2 h 53 min); further stages
-# only as criteria.md's sequential rule requires (up to 108 runs, ~8 h 38 min). Idle machine on
+# Pre-campaign check (~15 s), then at most 28 runs x ~4.65 min (~2 h 10 min), stopping early on
+# futility (Addendum 1). Idle machine on
 # AC power, the local LLM server and other GPU/ANE services stopped. Resumable.
 LAYA_APPLE_CACHE=... HF_HUB_OFFLINE=1 sh research/coreml-prebind-full-protocol/scripts/run_all.sh
 uv run python research/coreml-prebind-full-protocol/scripts/analyze.py      # --check to verify

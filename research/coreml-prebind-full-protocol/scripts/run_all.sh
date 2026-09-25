@@ -5,9 +5,10 @@
 #
 # 1. The pre-campaign check (#83's check_prebind.py on laya and laya-typed-decisions): PB
 #    bit-identical to coremltools on every ANE bucket, or the campaign does not start.
-# 2. The sequential design (design.py, criteria.md): stage 1 for both models, then whatever
-#    `design.py next` requires (analyze.py applies the preregistered rule to the runs so far),
-#    until it prints nothing. Each run is #77's full #57 mix (12 windows of 20 s), ~4.8 min.
+# 2. The blocks of criteria.md's "fast fail, slow pass" addendum (design.py): `design.py next`
+#    (analyze.py applies the rule to the runs so far) prints the next block's runs, or STOP after
+#    a futility stop, the n=18 look, or an invalid campaign. No extension beyond 18 pairs.
+#    Each run is #77's full #57 mix (12 windows of 20 s), ~4.8 min.
 # A run whose output already exists is skipped, so an interrupted campaign resumes in order;
 # run_config.py writes each file only once its run has finished.
 set -e
@@ -61,22 +62,19 @@ run() {  # model short long config round
 
 prev=""
 while :; do
-  step=$(uv run python $S/design.py next)
-  [ -n "$step" ] || break
-  if [ "$step" = "$prev" ]; then
-    echo "design.py next still requires '$step' after all its runs exist: stopping" >&2
+  runs=$(uv run python $S/design.py next)
+  if [ -z "$runs" ] || [ "$runs" = STOP ]; then break; fi
+  if [ "$runs" = "$prev" ]; then
+    echo "design.py next still requires the same block after all its runs exist: stopping" >&2
     exit 1
   fi
-  prev=$step
-  set -- $step
-  stage=$1
-  shift
-  runs=$(uv run python $S/design.py runs --stage "$stage" --models "$@")
+  prev=$runs
   todo=0
   for f in $(echo "$runs" | awk -v d="$D" '{print d "/" $1 "-" $4 "-r" $5 ".json.gz"}'); do
     [ -e "$f" ] || todo=$((todo + 1))
   done
-  echo "stage $stage ($*): $todo runs to do x ~4.8 min (~$((todo * 48 / 10)) min), $(date '+%Y-%m-%d %H:%M:%S')"
+  echo "block: $(echo "$runs" | awk '{printf "%s%s %s r%s", (NR > 1 ? ", " : ""), $1, $4, $5}')"
+  echo "$todo runs to do x ~4.8 min (~$((todo * 48 / 10)) min), $(date '+%Y-%m-%d %H:%M:%S')"
   echo "$runs" | while read -r m short long config rnd; do
     run "$m" "$short" "$long" "$config" "$rnd"
   done
