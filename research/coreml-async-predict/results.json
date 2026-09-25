@@ -1,0 +1,1098 @@
+{
+ "cells": {
+  "A": {
+   "ane_stages_p50_ms_pooled": {
+    "completion": null,
+    "features": 0.156625,
+    "handoff": null,
+    "post": null,
+    "pre": null,
+    "predict": 9.6174795,
+    "submit": null,
+    "tail": 0.060041
+   },
+   "forwards_pooled": {
+    "ane": {
+     "n": 5874,
+     "placement": "thread",
+     "service_ms_p50": 9.8525415,
+     "thread_cpu_ms_mean": 0.5917229261150834
+    },
+    "gpu": {
+     "n": 1475,
+     "placement": "process",
+     "service_ms_p50": 35.758,
+     "thread_cpu_ms_mean": 1.779284078644068
+    }
+   },
+   "gpu_return_p50_ms_pooled": 4.302,
+   "mismatches": 0,
+   "rounds": [
+    1
+   ],
+   "slow_windows": 0,
+   "windows": 3
+  },
+  "PB-ASYNC": {
+   "ane_stages_p50_ms_pooled": {
+    "completion": 9.422459,
+    "features": 0.1585,
+    "handoff": 0.02225,
+    "post": 0.005583,
+    "pre": 0.014833,
+    "predict": 9.467667,
+    "submit": 0.008791,
+    "tail": 0.060334
+   },
+   "forwards_pooled": {
+    "ane": {
+     "n": 5887,
+     "placement": "thread",
+     "service_ms_p50": 9.687875,
+     "thread_cpu_ms_mean": 0.3729578075420418
+    },
+    "gpu": {
+     "n": 1643,
+     "placement": "process",
+     "service_ms_p50": 35.358792,
+     "thread_cpu_ms_mean": 2.4053388721850273
+    }
+   },
+   "gpu_return_p50_ms_pooled": 0.035,
+   "mismatches": 0,
+   "rounds": [
+    1
+   ],
+   "slow_windows": 2,
+   "windows": 3
+  },
+  "PB-SYNC": {
+   "ane_stages_p50_ms_pooled": {
+    "completion": 9.714583,
+    "features": 0.777125,
+    "handoff": 0.005666,
+    "post": 0.036542,
+    "pre": 0.089333,
+    "predict": 9.872333,
+    "submit": null,
+    "tail": 0.3465
+   },
+   "forwards_pooled": {
+    "ane": {
+     "n": 4915,
+     "placement": "thread",
+     "service_ms_p50": 11.032417,
+     "thread_cpu_ms_mean": 1.5362126164801626
+    },
+    "gpu": {
+     "n": 1457,
+     "placement": "process",
+     "service_ms_p50": 38.49425,
+     "thread_cpu_ms_mean": 7.695056091283459
+    }
+   },
+   "gpu_return_p50_ms_pooled": 0.242,
+   "mismatches": 0,
+   "rounds": [
+    1
+   ],
+   "slow_windows": 3,
+   "windows": 3
+  }
+ },
+ "decision": {
+  "outcome": "async_slow",
+  "round1": {
+   "conditions": {
+    "A_normal": true,
+    "PB_ASYNC_isolation": true,
+    "PB_ASYNC_normal": false,
+    "PB_SYNC_slow": true,
+    "no_mismatches": true
+   },
+   "holds": false,
+   "slow": {
+    "A": 0,
+    "PB-ASYNC": 2,
+    "PB-SYNC": 3
+   }
+  },
+  "text": "async does not solve the slow state: resume #89"
+ },
+ "design": {
+  "cycles": 3,
+  "isolation": {
+   "return_min_gain": 5.0,
+   "return_p50_max_ms": 1.0
+  },
+  "long": 512,
+  "model": "laya",
+  "round1": [
+   "A",
+   "PB-SYNC",
+   "PB-ASYNC"
+  ],
+  "round2": [
+   "PB-ASYNC",
+   "PB-SYNC",
+   "A"
+  ],
+  "seconds": 20.0,
+  "short": 128,
+  "slow_short_p99_ms": 13.0
+ },
+ "failed_runs": [],
+ "next": null,
+ "outcome": "async does not solve the slow state: resume #89",
+ "phase0": {
+  "all_pass": true,
+  "all_stamps": {
+   "callback_entry_after_submit": {
+    "max_ms": 586.059333,
+    "mean_ms": 8.882448555139648,
+    "n": 3473,
+    "p50_ms": 8.600375,
+    "p95_ms": 9.4408998,
+    "p99_ms": 9.64471672
+   },
+   "submit": {
+    "max_ms": 566.549833,
+    "mean_ms": 0.17280203599193772,
+    "n": 3473,
+    "p50_ms": 0.009167,
+    "p95_ms": 0.012709,
+    "p99_ms": 0.029463759999999957
+   },
+   "waiter_handoff": {
+    "max_ms": 0.123458,
+    "mean_ms": 0.011143350417506479,
+    "n": 3473,
+    "p50_ms": 0.009625,
+    "p95_ms": 0.022,
+    "p99_ms": 0.029087239999999882
+   }
+  },
+  "anomalies": [],
+  "buckets": {
+   "128": {
+    "PB-ASYNC_bit_identical": true,
+    "PB-ASYNC_forward_bit_identical": true,
+    "PB-SYNC_bit_identical": true,
+    "PB-SYNC_forward_bit_identical": true,
+    "backing_evidence": {
+     "cls": {
+      "backing_written": true,
+      "dtype": "float16",
+      "equal_to_returned": true,
+      "same_address": true,
+      "shape": [
+       1,
+       1024,
+       1,
+       1
+      ]
+     },
+     "logits": {
+      "backing_written": true,
+      "dtype": "float16",
+      "equal_to_returned": true,
+      "same_address": true,
+      "shape": [
+       1,
+       1,
+       1,
+       32
+      ]
+     }
+    },
+    "callbacks_per_forward": 1,
+    "crossings_per_forward": {
+     "ctypes": 0,
+     "nested_sends": 0,
+     "objc_send": 1,
+     "pool_pop": 1,
+     "pool_push": 2,
+     "reentries": 0,
+     "sites": {
+      "objc_send predictionFromFeatures:options:completionHandler: <- prebind_async.py:AsyncPrebindModel._send": 1,
+      "pool_pop __exit__ <- prebind_async.py:AsyncPrebindModel.predict": 1,
+      "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+      "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+     },
+     "total": 4
+    },
+    "modes": {
+     "cls": "backed",
+     "logits": "backed"
+    },
+    "repeat": {
+     "checked": 10,
+     "checked_bit_identical": true,
+     "forwards": 1000,
+     "rss_growth_mb": 0.359375,
+     "rss_mb": [
+      529.703125,
+      529.765625,
+      529.78125,
+      529.8125,
+      529.84375,
+      529.890625,
+      529.921875,
+      529.953125,
+      529.984375,
+      530.046875,
+      530.0625
+     ],
+     "seconds": 9.848514084005728,
+     "stamps": {
+      "callback_entry_after_submit": {
+       "max_ms": 24.419709,
+       "mean_ms": 9.40233776,
+       "n": 1000,
+       "p50_ms": 9.3968955,
+       "p95_ms": 9.4392521,
+       "p99_ms": 9.67981217
+      },
+      "submit": {
+       "max_ms": 0.040875,
+       "mean_ms": 0.009475240999999999,
+       "n": 1000,
+       "p50_ms": 0.009458,
+       "p95_ms": 0.011875,
+       "p99_ms": 0.01676949999999991
+      },
+      "waiter_handoff": {
+       "max_ms": 0.03125,
+       "mean_ms": 0.010115728999999999,
+       "n": 1000,
+       "p50_ms": 0.0095205,
+       "p95_ms": 0.013,
+       "p99_ms": 0.022209819999999998
+      }
+     }
+    }
+   },
+   "64": {
+    "PB-ASYNC_bit_identical": true,
+    "PB-ASYNC_forward_bit_identical": true,
+    "PB-SYNC_bit_identical": true,
+    "PB-SYNC_forward_bit_identical": true,
+    "backing_evidence": {
+     "cls": {
+      "backing_written": true,
+      "dtype": "float16",
+      "equal_to_returned": true,
+      "same_address": true,
+      "shape": [
+       1,
+       1024,
+       1,
+       1
+      ]
+     },
+     "logits": {
+      "backing_written": true,
+      "dtype": "float16",
+      "equal_to_returned": true,
+      "same_address": true,
+      "shape": [
+       1,
+       1,
+       1,
+       32
+      ]
+     }
+    },
+    "callbacks_per_forward": 1,
+    "crossings_per_forward": {
+     "ctypes": 0,
+     "nested_sends": 0,
+     "objc_send": 1,
+     "pool_pop": 1,
+     "pool_push": 2,
+     "reentries": 0,
+     "sites": {
+      "objc_send predictionFromFeatures:options:completionHandler: <- prebind_async.py:AsyncPrebindModel._send": 1,
+      "pool_pop __exit__ <- prebind_async.py:AsyncPrebindModel.predict": 1,
+      "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+      "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+     },
+     "total": 4
+    },
+    "modes": {
+     "cls": "backed",
+     "logits": "backed"
+    },
+    "repeat": {
+     "checked": 10,
+     "checked_bit_identical": true,
+     "forwards": 1000,
+     "rss_growth_mb": 0.359375,
+     "rss_mb": [
+      519.140625,
+      519.21875,
+      519.25,
+      519.3125,
+      519.34375,
+      519.34375,
+      519.359375,
+      519.40625,
+      519.421875,
+      519.46875,
+      519.5
+     ],
+     "seconds": 8.147175833000802,
+     "stamps": {
+      "callback_entry_after_submit": {
+       "max_ms": 14.599208,
+       "mean_ms": 7.84238458,
+       "n": 1000,
+       "p50_ms": 7.836187499999999,
+       "p95_ms": 7.8852205,
+       "p99_ms": 8.15671092
+      },
+      "submit": {
+       "max_ms": 0.053375,
+       "mean_ms": 0.009836909999999999,
+       "n": 1000,
+       "p50_ms": 0.009958,
+       "p95_ms": 0.012959,
+       "p99_ms": 0.01999141999999993
+      },
+      "waiter_handoff": {
+       "max_ms": 0.032084,
+       "mean_ms": 0.010149957,
+       "n": 1000,
+       "p50_ms": 0.009625,
+       "p95_ms": 0.01310479999999998,
+       "p99_ms": 0.02195941
+      }
+     }
+    }
+   },
+   "96": {
+    "PB-ASYNC_bit_identical": true,
+    "PB-ASYNC_forward_bit_identical": true,
+    "PB-SYNC_bit_identical": true,
+    "PB-SYNC_forward_bit_identical": true,
+    "backing_evidence": {
+     "cls": {
+      "backing_written": true,
+      "dtype": "float16",
+      "equal_to_returned": true,
+      "same_address": true,
+      "shape": [
+       1,
+       1024,
+       1,
+       1
+      ]
+     },
+     "logits": {
+      "backing_written": true,
+      "dtype": "float16",
+      "equal_to_returned": true,
+      "same_address": true,
+      "shape": [
+       1,
+       1,
+       1,
+       32
+      ]
+     }
+    },
+    "callbacks_per_forward": 1,
+    "crossings_per_forward": {
+     "ctypes": 0,
+     "nested_sends": 0,
+     "objc_send": 1,
+     "pool_pop": 1,
+     "pool_push": 2,
+     "reentries": 0,
+     "sites": {
+      "objc_send predictionFromFeatures:options:completionHandler: <- prebind_async.py:AsyncPrebindModel._send": 1,
+      "pool_pop __exit__ <- prebind_async.py:AsyncPrebindModel.predict": 1,
+      "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+      "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+     },
+     "total": 4
+    },
+    "modes": {
+     "cls": "backed",
+     "logits": "backed"
+    },
+    "repeat": {
+     "checked": 10,
+     "checked_bit_identical": true,
+     "forwards": 1000,
+     "rss_growth_mb": 0.078125,
+     "rss_mb": [
+      524.4375,
+      524.484375,
+      524.515625,
+      524.515625,
+      524.53125,
+      524.5,
+      524.5,
+      524.5,
+      524.5,
+      524.5,
+      524.515625
+     ],
+     "seconds": 8.964652957976796,
+     "stamps": {
+      "callback_entry_after_submit": {
+       "max_ms": 9.022542,
+       "mean_ms": 8.590432535,
+       "n": 1000,
+       "p50_ms": 8.590625,
+       "p95_ms": 8.6411681,
+       "p99_ms": 8.80727825
+      },
+      "submit": {
+       "max_ms": 0.099042,
+       "mean_ms": 0.009569534000000001,
+       "n": 1000,
+       "p50_ms": 0.009084,
+       "p95_ms": 0.012417,
+       "p99_ms": 0.02049573999999993
+      },
+      "waiter_handoff": {
+       "max_ms": 0.04125,
+       "mean_ms": 0.01018508,
+       "n": 1000,
+       "p50_ms": 0.009625,
+       "p95_ms": 0.012337149999999996,
+       "p99_ms": 0.02333342
+      }
+     }
+    }
+   }
+  },
+  "callback_errors": 0,
+  "callback_queue_labels": {
+   "com.apple.root.default-qos.overcommit": 3473
+  },
+  "callback_thread_ids": [
+   26358315,
+   26358320,
+   26358325
+  ],
+  "callbacks": 3473,
+  "calling_thread_ids": [
+   26358186,
+   26359334
+  ],
+  "coremltools": "9.0",
+  "errors": [],
+  "gate7": {
+   "bucket": 128,
+   "submit_over_callback_entry_p50": 0.0010065026263195115,
+   "submit_p50_ms": 0.009458
+  },
+  "gates": {
+   "1_callable": true,
+   "2_correctness": true,
+   "3_backings": true,
+   "4_callbacks": true,
+   "5_repeat": true,
+   "6_threading": true,
+   "7_submit_returns_early": true,
+   "8_gil": true
+  },
+  "gil_test": {
+   "lateness": {
+    "max_ms": 0.464417,
+    "mean_ms": 0.3393330758293839,
+    "n": 1899,
+    "p50_ms": 0.339375,
+    "p95_ms": 0.344583,
+    "p99_ms": 0.3470025
+   },
+   "loop_ms": 1899.695292,
+   "predicts": 200,
+   "ticks": 1899
+  },
+  "laya_apple": "1.4.0",
+  "limits": {
+   "check_every": 100,
+   "gil_max_ms": 1.0,
+   "gil_predicts": 200,
+   "grace_s": 0.5,
+   "repeat": 1000,
+   "rss_max_mb": 64.0,
+   "submit_max_fraction": 0.2,
+   "submit_max_ms": 1.0,
+   "timeout_s": 5.0
+  },
+  "macos": "26.6.2",
+  "model": "laya",
+  "pyobjc": "12.2.2",
+  "seed": 0,
+  "stamped": {
+   "built": true,
+   "label": "semantics check, not performance evidence",
+   "native_completion_to_callback_entry": {
+    "max_ms": 0.027708,
+    "mean_ms": 0.009512885,
+    "n": 200,
+    "p50_ms": 0.008917,
+    "p95_ms": 0.013679499999999995,
+    "p99_ms": 0.023169489999999997
+   },
+   "ordered": true,
+   "predicts": 200
+  },
+  "submits": 3473,
+  "timeouts": 0
+ },
+ "runs": {
+  "laya-A-r1": {
+   "ane_stages_p50_ms": {
+    "completion": null,
+    "features": 0.156625,
+    "handoff": null,
+    "post": null,
+    "pre": null,
+    "predict": 9.6174795,
+    "submit": null,
+    "tail": 0.060041
+   },
+   "backing_modes": null,
+   "callbacks": null,
+   "cell": "A",
+   "crossings_short_bucket": {
+    "ctypes": 0,
+    "nested_sends": 0,
+    "objc_send": 0,
+    "pool_pop": 0,
+    "pool_push": 0,
+    "reentries": 0,
+    "sites": {},
+    "total": 0
+   },
+   "forwards": {
+    "ane": {
+     "n": 5874,
+     "placement": "thread",
+     "service_ms_p50": 9.8525415,
+     "thread_cpu_ms_mean": 0.5917229261150834
+    },
+    "gpu": {
+     "n": 1475,
+     "placement": "process",
+     "service_ms_p50": 35.758,
+     "thread_cpu_ms_mean": 1.779284078644068
+    }
+   },
+   "gpu_return_p50_ms": 4.302,
+   "hetero_predicts": 5874,
+   "hetero_predicts_with_binding_stamps": 0,
+   "mismatches_all_windows": 0,
+   "round": 1,
+   "routing_failures": [],
+   "run_wall_s": 276.6387402919354,
+   "slow_windows": 0,
+   "versions": {
+    "coremltools": "9.0",
+    "laya_apple": "1.4.0",
+    "mlx": "0.32.2",
+    "pyobjc": "12.2.2"
+   },
+   "windows": [
+    {
+     "aggregate_req_s": 122.06347966322524,
+     "ane_stages_p50_ms": {
+      "completion": null,
+      "features": 0.1565,
+      "handoff": null,
+      "post": null,
+      "pre": null,
+      "predict": 9.629625,
+      "submit": null,
+      "tail": 0.060083
+     },
+     "callbacks": null,
+     "cycle": 0,
+     "devices": {
+      "long": {
+       "gpu": 491
+      },
+      "short": {
+       "ane": 1951
+      }
+     },
+     "gpu_return_p50_ms": 4.359500000000001,
+     "long_p99_ms": 42.51578778494151,
+     "mismatches": 0,
+     "short_p99_ms": 12.909249984659255,
+     "slow": false,
+     "thread_cpu_ms": {
+      "client-long": 225.387,
+      "client-short": 296.02,
+      "coreml-callback": null,
+      "other": 68.072
+     },
+     "thread_cpu_per_forward_ms": {
+      "ane": 0.6031075540748334,
+      "gpu": 1.8270939368635437
+     }
+    },
+    {
+     "aggregate_req_s": 122.67301043635928,
+     "ane_stages_p50_ms": {
+      "completion": null,
+      "features": 0.156625,
+      "handoff": null,
+      "post": null,
+      "pre": null,
+      "predict": 9.609396,
+      "submit": null,
+      "tail": 0.0600205
+     },
+     "callbacks": null,
+     "cycle": 1,
+     "devices": {
+      "long": {
+       "gpu": 492
+      },
+      "short": {
+       "ane": 1962
+      }
+     },
+     "gpu_return_p50_ms": 4.285,
+     "long_p99_ms": 41.74342808895744,
+     "mismatches": 0,
+     "short_p99_ms": 11.128546480322253,
+     "slow": false,
+     "thread_cpu_ms": {
+      "client-long": 215.547,
+      "client-short": 284.014,
+      "coreml-callback": null,
+      "other": 68.94
+     },
+     "thread_cpu_per_forward_ms": {
+      "ane": 0.5851863216106014,
+      "gpu": 1.7527077052845528
+     }
+    },
+    {
+     "aggregate_req_s": 122.63542966959064,
+     "ane_stages_p50_ms": {
+      "completion": null,
+      "features": 0.15675,
+      "handoff": null,
+      "post": null,
+      "pre": null,
+      "predict": 9.6095,
+      "submit": null,
+      "tail": 0.060041
+     },
+     "callbacks": null,
+     "cycle": 2,
+     "devices": {
+      "long": {
+       "gpu": 492
+      },
+      "short": {
+       "ane": 1961
+      }
+     },
+     "gpu_return_p50_ms": 4.272,
+     "long_p99_ms": 42.09404195542447,
+     "mismatches": 0,
+     "short_p99_ms": 11.00655859336257,
+     "slow": false,
+     "thread_cpu_ms": {
+      "client-long": 217.585,
+      "client-short": 285.982,
+      "coreml-callback": null,
+      "other": 68.35
+     },
+     "thread_cpu_per_forward_ms": {
+      "ane": 0.5869362911779705,
+      "gpu": 1.758147768292683
+     }
+    }
+   ]
+  },
+  "laya-PB-ASYNC-r1": {
+   "ane_stages_p50_ms": {
+    "completion": 9.422459,
+    "features": 0.1585,
+    "handoff": 0.02225,
+    "post": 0.005583,
+    "pre": 0.014833,
+    "predict": 9.467667,
+    "submit": 0.008791,
+    "tail": 0.060334
+   },
+   "backing_modes": [
+    "backed"
+   ],
+   "callbacks": {
+    "anomalies": 0,
+    "callbacks": 11929,
+    "errors": 0,
+    "per_forward_at_load": 1.0,
+    "queue_labels": {
+     "com.apple.root.default-qos.overcommit": 11929
+    },
+    "submits": 11929,
+    "thread_ids": 3
+   },
+   "cell": "PB-ASYNC",
+   "crossings_short_bucket": {
+    "ctypes": 0,
+    "nested_sends": 0,
+    "objc_send": 1,
+    "pool_pop": 1,
+    "pool_push": 2,
+    "reentries": 0,
+    "sites": {
+     "objc_send predictionFromFeatures:options:completionHandler: <- prebind_async.py:AsyncPrebindModel._send": 1,
+     "pool_pop __exit__ <- prebind_async.py:AsyncPrebindModel.predict": 1,
+     "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+     "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+    },
+    "total": 4
+   },
+   "forwards": {
+    "ane": {
+     "n": 5887,
+     "placement": "thread",
+     "service_ms_p50": 9.687875,
+     "thread_cpu_ms_mean": 0.3729578075420418
+    },
+    "gpu": {
+     "n": 1643,
+     "placement": "process",
+     "service_ms_p50": 35.358792,
+     "thread_cpu_ms_mean": 2.4053388721850273
+    }
+   },
+   "gpu_return_p50_ms": 0.035,
+   "hetero_predicts": 5887,
+   "hetero_predicts_with_binding_stamps": 5887,
+   "mismatches_all_windows": 0,
+   "round": 1,
+   "routing_failures": [],
+   "run_wall_s": 277.62076833297033,
+   "slow_windows": 2,
+   "versions": {
+    "coremltools": "9.0",
+    "laya_apple": "1.4.0",
+    "mlx": "0.32.2",
+    "pyobjc": "12.2.2"
+   },
+   "windows": [
+    {
+     "aggregate_req_s": 123.0819643369162,
+     "ane_stages_p50_ms": {
+      "completion": 9.438687,
+      "features": 0.157584,
+      "handoff": 0.022792,
+      "post": 0.005708,
+      "pre": 0.014667,
+      "predict": 9.4839585,
+      "submit": 0.008958,
+      "tail": 0.0607295
+     },
+     "callbacks": {
+      "completion_p99_ms": 10.54403061,
+      "errors": 0,
+      "n": 1921,
+      "threads": 1
+     },
+     "cycle": 0,
+     "devices": {
+      "long": {
+       "gpu": 541
+      },
+      "short": {
+       "ane": 1922
+      }
+     },
+     "gpu_return_p50_ms": 0.035,
+     "long_p99_ms": 44.40678299870342,
+     "mismatches": 0,
+     "short_p99_ms": 16.95527012576349,
+     "slow": true,
+     "thread_cpu_ms": {
+      "client-long": 439.172,
+      "client-short": 479.636,
+      "coreml-callback": 204.49,
+      "other": 328.721
+     },
+     "thread_cpu_per_forward_ms": {
+      "ane": 0.44888322372528616,
+      "gpu": 2.8954000739371533
+     }
+    },
+    {
+     "aggregate_req_s": 127.62108167473905,
+     "ane_stages_p50_ms": {
+      "completion": 9.4174585,
+      "features": 0.161084,
+      "handoff": 0.021958,
+      "post": 0.005458,
+      "pre": 0.015667,
+      "predict": 9.463396,
+      "submit": 0.00875,
+      "tail": 0.060042
+     },
+     "callbacks": {
+      "completion_p99_ms": 10.02914199,
+      "errors": 0,
+      "n": 1999,
+      "threads": 1
+     },
+     "cycle": 1,
+     "devices": {
+      "long": {
+       "gpu": 554
+      },
+      "short": {
+       "ane": 2000
+      }
+     },
+     "gpu_return_p50_ms": 0.035,
+     "long_p99_ms": 42.05264794873075,
+     "mismatches": 0,
+     "short_p99_ms": 12.77345678769052,
+     "slow": false,
+     "thread_cpu_ms": {
+      "client-long": 283.266,
+      "client-short": 326.897,
+      "coreml-callback": 154.264,
+      "other": 263.496
+     },
+     "thread_cpu_per_forward_ms": {
+      "ane": 0.3037225795,
+      "gpu": 1.948353344765343
+     }
+    },
+    {
+     "aggregate_req_s": 125.59011424005709,
+     "ane_stages_p50_ms": {
+      "completion": 9.41625,
+      "features": 0.15725,
+      "handoff": 0.022125,
+      "post": 0.005625,
+      "pre": 0.014666,
+      "predict": 9.46125,
+      "submit": 0.008708,
+      "tail": 0.0605
+     },
+     "callbacks": {
+      "completion_p99_ms": 10.485866759999999,
+      "errors": 0,
+      "n": 1964,
+      "threads": 1
+     },
+     "cycle": 2,
+     "devices": {
+      "long": {
+       "gpu": 548
+      },
+      "short": {
+       "ane": 1965
+      }
+     },
+     "gpu_return_p50_ms": 0.035,
+     "long_p99_ms": 43.468680925434434,
+     "mismatches": 0,
+     "short_p99_ms": 16.26017599832265,
+     "slow": true,
+     "thread_cpu_ms": {
+      "client-long": 358.077,
+      "client-short": 399.596,
+      "coreml-callback": 178.326,
+      "other": 293.567
+     },
+     "thread_cpu_per_forward_ms": {
+      "ane": 0.36916228905852416,
+      "gpu": 2.3835265948905113
+     }
+    }
+   ]
+  },
+  "laya-PB-SYNC-r1": {
+   "ane_stages_p50_ms": {
+    "completion": 9.714583,
+    "features": 0.777125,
+    "handoff": 0.005666,
+    "post": 0.036542,
+    "pre": 0.089333,
+    "predict": 9.872333,
+    "submit": null,
+    "tail": 0.3465
+   },
+   "backing_modes": [
+    "backed"
+   ],
+   "callbacks": null,
+   "cell": "PB-SYNC",
+   "crossings_short_bucket": {
+    "ctypes": 1,
+    "nested_sends": 0,
+    "objc_send": 0,
+    "pool_pop": 1,
+    "pool_push": 2,
+    "reentries": 0,
+    "sites": {
+     "ctypes laya_predict_options_stamped <- prebind.py:PrebindModel.predict": 1,
+     "pool_pop __exit__ <- prebind.py:PrebindModel.predict": 1,
+     "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+     "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+    },
+    "total": 4
+   },
+   "forwards": {
+    "ane": {
+     "n": 4915,
+     "placement": "thread",
+     "service_ms_p50": 11.032417,
+     "thread_cpu_ms_mean": 1.5362126164801626
+    },
+    "gpu": {
+     "n": 1457,
+     "placement": "process",
+     "service_ms_p50": 38.49425,
+     "thread_cpu_ms_mean": 7.695056091283459
+    }
+   },
+   "gpu_return_p50_ms": 0.242,
+   "hetero_predicts": 4915,
+   "hetero_predicts_with_binding_stamps": 4915,
+   "mismatches_all_windows": 0,
+   "round": 1,
+   "routing_failures": [],
+   "run_wall_s": 277.66088570898864,
+   "slow_windows": 3,
+   "versions": {
+    "coremltools": "9.0",
+    "laya_apple": "1.4.0",
+    "mlx": "0.32.2",
+    "pyobjc": "12.2.2"
+   },
+   "windows": [
+    {
+     "aggregate_req_s": 102.06957932179438,
+     "ane_stages_p50_ms": {
+      "completion": 9.737104500000001,
+      "features": 0.7949165,
+      "handoff": 0.006334,
+      "post": 0.039375,
+      "pre": 0.09418750000000001,
+      "predict": 9.900896,
+      "submit": null,
+      "tail": 0.3704585
+     },
+     "callbacks": null,
+     "cycle": 0,
+     "devices": {
+      "long": {
+       "gpu": 473
+      },
+      "short": {
+       "ane": 1570
+      }
+     },
+     "gpu_return_p50_ms": 0.247,
+     "long_p99_ms": 44.90195306017994,
+     "mismatches": 0,
+     "short_p99_ms": 16.872514269780368,
+     "slow": true,
+     "thread_cpu_ms": {
+      "client-long": 1293.532,
+      "client-short": 1338.338,
+      "coreml-callback": null,
+      "other": 57.362
+     },
+     "thread_cpu_per_forward_ms": {
+      "ane": 1.808798185987261,
+      "gpu": 8.916373287526428
+     }
+    },
+    {
+     "aggregate_req_s": 113.89443052839741,
+     "ane_stages_p50_ms": {
+      "completion": 9.634708,
+      "features": 0.53525,
+      "handoff": 0.004041,
+      "post": 0.027,
+      "pre": 0.067833,
+      "predict": 9.75825,
+      "submit": null,
+      "tail": 0.264292
+     },
+     "callbacks": null,
+     "cycle": 1,
+     "devices": {
+      "long": {
+       "gpu": 510
+      },
+      "short": {
+       "ane": 1769
+      }
+     },
+     "gpu_return_p50_ms": 0.184,
+     "long_p99_ms": 44.63817501906305,
+     "mismatches": 0,
+     "short_p99_ms": 16.668606493622065,
+     "slow": true,
+     "thread_cpu_ms": {
+      "client-long": 831.522,
+      "client-short": 888.604,
+      "coreml-callback": null,
+      "other": 62.708
+     },
+     "thread_cpu_per_forward_ms": {
+      "ane": 1.0798971678914642,
+      "gpu": 5.473660943137254
+     }
+    },
+    {
+     "aggregate_req_s": 102.43267753435221,
+     "ane_stages_p50_ms": {
+      "completion": 9.729,
+      "features": 0.7925,
+      "handoff": 0.006125,
+      "post": 0.037959,
+      "pre": 0.093125,
+      "predict": 9.893417,
+      "submit": null,
+      "tail": 0.36343749999999997
+     },
+     "callbacks": null,
+     "cycle": 2,
+     "devices": {
+      "long": {
+       "gpu": 474
+      },
+      "short": {
+       "ane": 1576
+      }
+     },
+     "gpu_return_p50_ms": 0.246,
+     "long_p99_ms": 45.16367568168789,
+     "mismatches": 0,
+     "short_p99_ms": 16.773968760389835,
+     "slow": true,
+     "thread_cpu_ms": {
+      "client-long": 1285.046,
+      "client-short": 1334.519,
+      "coreml-callback": null,
+      "other": 57.447
+     },
+     "thread_cpu_per_forward_ms": {
+      "ane": 1.7768615279187816,
+      "gpu": 8.86642421729958
+     }
+    }
+   ]
+  }
+ },
+ "unused_runs": []
+}
