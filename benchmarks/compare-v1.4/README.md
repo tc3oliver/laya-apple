@@ -113,9 +113,10 @@ Fixed before the first run:
 - **Machine state.** oMLX and other GPU/ANE workloads stopped (the driver refuses to start
   while oMLX is running), power connected, no other benchmark running. `manifest.json` records
   the load average, power source and `pmset -g therm` at the start and the end.
-- **Isolation.** One runtime process at a time. Each configuration runs in a fresh process
-  started with its own environment's python (`adapter.py`). Load time is recorded and is not
-  part of any latency.
+- **Isolation.** Latency windows run with one runtime process at a time. Parity tasks may run
+  side by side (see "Parity execution" under [Run](#run)); they never overlap a latency window.
+  Each configuration runs in a fresh process started with its own environment's python
+  (`adapter.py`). Load time is recorded and is not part of any latency.
 - **Timing boundary.** End to end in the calling process: `predict`/`system_one` from the
   request dict to the answers dict. This includes prompt building, tokenization, inference,
   calibration and formatting. It is measured with `time.perf_counter`, one call at a time,
@@ -186,9 +187,38 @@ uv run python benchmarks/compare-v1.4/analyze.py --check
 uv run python benchmarks/compare-v1.4/drive.py teardown --models   # remove envs and model files
 ```
 
+The two phases can also be scheduled separately. `--phase all` (the default, used by
+`campaign.sh`) runs parity, then latency, and needs a new run id. A single phase reuses the run
+directory, checks that the method, pins, checkpoints and laya-apple commit in `manifest.json`
+match, and skips every output that already exists, so an interrupted phase can be resumed:
+
+```bash
+uv run python benchmarks/compare-v1.4/drive.py setup                                    # setup only
+uv run python benchmarks/compare-v1.4/drive.py run --run-id <run-id> --phase parity     # parity only
+uv run python benchmarks/compare-v1.4/drive.py run --run-id <run-id> --phase latency    # latency only
+uv run python benchmarks/compare-v1.4/analyze.py                                        # after both
+```
+
+**Parity execution.** Parity answers are deterministic and do not depend on machine load, so
+the parity tasks of different configurations, including the upstream reference tasks, run
+concurrently, up to `--parity-jobs` processes at once (default 4). Each task is still its own
+process in its own environment. The exceptions are the configurations that use the Neural
+Engine: laya-apple `auto`, laya-coreml `ane` and laya-fast `fast`. laya-apple's ANE placement
+probe can raise `ComputeUnitMismatchError` when other processes contend for the ANE (seen in a
+smoke run), so these parity tasks run alone, one at a time, after the concurrent batch has
+ended. Load times and per-case times in parity files are therefore measured under load; they
+are not reported. Latency and throughput windows are unchanged: one process at a time, and
+only after every parity process has ended. `--parity-jobs 1` restores fully serial parity.
+
+This execution change was made before any campaign data existed. It does not change the
+method: the fixtures, the gate, the latency windows and their order are the same.
+
 Estimated duration on the reference machine (Apple M4 Max), from `drive.py plan`:
 - first setup: about 35 minutes;
-- campaign: about 3.6 h without energy sampling and 3.9 h with it (18 configurations).
+- parity: about 47 minutes with `--parity-jobs 4`, assuming each concurrent task runs 1.5×
+  slower (a planning guess; about 87 minutes fully serial);
+- latency: about 2.1 h without energy sampling and 2.4 h with it (3 rounds, 18 configurations);
+- campaign: about 2.9 h without energy sampling and 3.2 h with it.
 
 `drive.py smoke` runs one golden case and one short latency window per configuration. Its
 output stays under the scratch directory and is not committed.

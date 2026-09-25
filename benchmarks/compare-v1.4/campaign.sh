@@ -6,7 +6,8 @@
 # Estimated duration on the reference machine (`drive.py plan` prints the breakdown):
 #   setup, first time: ~35 min (environments, ~2.4 GB of Core ML bundles, laya-fast
 #                      conversion and six ANE body exports); ~1 min when already set up
-#   campaign:          ~3.6 h without energy sampling, ~3.9 h with it
+#   campaign:          ~2.9 h without energy sampling, ~3.2 h with it (non-ANE parity
+#                      tasks run 4 at a time; latency windows run alone, after parity)
 #
 # Before starting: stop oMLX and other GPU/ANE workloads, connect power, close other
 # applications. The driver refuses to start while oMLX is running.
