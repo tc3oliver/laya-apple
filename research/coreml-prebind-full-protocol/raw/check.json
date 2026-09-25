@@ -1,0 +1,589 @@
+{
+ "C_bit_identical_everywhere": true,
+ "PB_bit_identical_everywhere": true,
+ "coremltools": "9.0",
+ "laya_apple": "1.4.0",
+ "models": {
+  "laya": {
+   "buckets": {
+    "128": {
+     "C_bit_identical": true,
+     "PB_backings": {
+      "evidence": {
+       "cls": {
+        "backing_written": true,
+        "dtype": "float16",
+        "equal_to_returned": true,
+        "same_address": true,
+        "shape": [
+         1,
+         1024,
+         1,
+         1
+        ]
+       },
+       "logits": {
+        "backing_written": true,
+        "dtype": "float16",
+        "equal_to_returned": true,
+        "same_address": true,
+        "shape": [
+         1,
+         1,
+         1,
+         32
+        ]
+       }
+      },
+      "modes": {
+       "cls": "backed",
+       "logits": "backed"
+      }
+     },
+     "PB_bit_identical": true,
+     "PB_forward_bit_identical": true,
+     "crossings": {
+      "C": {
+       "ctypes": 1,
+       "nested_sends": 112,
+       "objc_send": 104,
+       "pool_pop": 1,
+       "pool_push": 2,
+       "reentries": 62,
+       "sites": {
+        "ctypes laya_predict_stamped <- nogil.py:StampedNoGilModel._predict": 1,
+        "nested objc_send longLongValue <- _pythonify.py:numberWrapper": 56,
+        "nested objc_send objCType <- _pythonify.py:numberWrapper": 56,
+        "objc_send alloc <- nogil.py:StampedNoGilModel._predict": 1,
+        "objc_send alloc <- nogil_predict.py:NoGilModel._array": 5,
+        "objc_send count <- _convenience_nsset.py:<lambda>": 1,
+        "objc_send dataPointer <- nogil_predict.py:_view": 7,
+        "objc_send dataType <- nogil.py:StampedNoGilModel._predict": 2,
+        "objc_send featureNames <- nogil.py:StampedNoGilModel._predict": 1,
+        "objc_send featureValueForName: <- nogil.py:StampedNoGilModel._predict": 2,
+        "objc_send featureValueWithMultiArray: <- nogil.py:StampedNoGilModel._predict": 5,
+        "objc_send initWithDictionary:error: <- nogil.py:StampedNoGilModel._predict": 1,
+        "objc_send initWithShape:dataType:error: <- nogil_predict.py:NoGilModel._array": 5,
+        "objc_send multiArrayValue <- nogil.py:StampedNoGilModel._predict": 2,
+        "objc_send nextObject <- _convenience.py:<lambda>": 45,
+        "objc_send nextObject <- _convenience_nsset.py:nsset__iter__.__next__": 3,
+        "objc_send objectEnumerator <- _convenience_nsarray.py:nsarray__iter__": 9,
+        "objc_send objectEnumerator <- _convenience_nsset.py:nsset__iter__.__init__": 1,
+        "objc_send shape <- nogil_predict.py:_view": 7,
+        "objc_send strides <- nogil_predict.py:_view": 7,
+        "pool_pop __exit__ <- nogil_predict.py:NoGilModel.predict": 1,
+        "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+        "pool_push init <- __init__.py:autorelease_pool.__enter__": 1,
+        "reentry <frozen abc>:ABCMeta.__instancecheck__": 6,
+        "reentry _pythonify.py:numberWrapper": 56
+       },
+       "total": 108
+      },
+      "PB": {
+       "ctypes": 1,
+       "nested_sends": 0,
+       "objc_send": 0,
+       "pool_pop": 1,
+       "pool_push": 2,
+       "reentries": 0,
+       "sites": {
+        "ctypes laya_predict_options_stamped <- prebind.py:PrebindModel.predict": 1,
+        "pool_pop __exit__ <- prebind.py:PrebindModel.predict": 1,
+        "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+        "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+       },
+       "total": 4
+      }
+     },
+     "rows": 11,
+     "stamps_ordered": {
+      "C": true,
+      "PB": true
+     }
+    },
+    "64": {
+     "C_bit_identical": true,
+     "PB_backings": {
+      "evidence": {
+       "cls": {
+        "backing_written": true,
+        "dtype": "float16",
+        "equal_to_returned": true,
+        "same_address": true,
+        "shape": [
+         1,
+         1024,
+         1,
+         1
+        ]
+       },
+       "logits": {
+        "backing_written": true,
+        "dtype": "float16",
+        "equal_to_returned": true,
+        "same_address": true,
+        "shape": [
+         1,
+         1,
+         1,
+         32
+        ]
+       }
+      },
+      "modes": {
+       "cls": "backed",
+       "logits": "backed"
+      }
+     },
+     "PB_bit_identical": true,
+     "PB_forward_bit_identical": true,
+     "crossings": {
+      "C": {
+       "ctypes": 1,
+       "nested_sends": 112,
+       "objc_send": 104,
+       "pool_pop": 1,
+       "pool_push": 2,
+       "reentries": 62,
+       "sites": {
+        "ctypes laya_predict_stamped <- nogil.py:StampedNoGilModel._predict": 1,
+        "nested objc_send longLongValue <- _pythonify.py:numberWrapper": 56,
+        "nested objc_send objCType <- _pythonify.py:numberWrapper": 56,
+        "objc_send alloc <- nogil.py:StampedNoGilModel._predict": 1,
+        "objc_send alloc <- nogil_predict.py:NoGilModel._array": 5,
+        "objc_send count <- _convenience_nsset.py:<lambda>": 1,
+        "objc_send dataPointer <- nogil_predict.py:_view": 7,
+        "objc_send dataType <- nogil.py:StampedNoGilModel._predict": 2,
+        "objc_send featureNames <- nogil.py:StampedNoGilModel._predict": 1,
+        "objc_send featureValueForName: <- nogil.py:StampedNoGilModel._predict": 2,
+        "objc_send featureValueWithMultiArray: <- nogil.py:StampedNoGilModel._predict": 5,
+        "objc_send initWithDictionary:error: <- nogil.py:StampedNoGilModel._predict": 1,
+        "objc_send initWithShape:dataType:error: <- nogil_predict.py:NoGilModel._array": 5,
+        "objc_send multiArrayValue <- nogil.py:StampedNoGilModel._predict": 2,
+        "objc_send nextObject <- _convenience.py:<lambda>": 45,
+        "objc_send nextObject <- _convenience_nsset.py:nsset__iter__.__next__": 3,
+        "objc_send objectEnumerator <- _convenience_nsarray.py:nsarray__iter__": 9,
+        "objc_send objectEnumerator <- _convenience_nsset.py:nsset__iter__.__init__": 1,
+        "objc_send shape <- nogil_predict.py:_view": 7,
+        "objc_send strides <- nogil_predict.py:_view": 7,
+        "pool_pop __exit__ <- nogil_predict.py:NoGilModel.predict": 1,
+        "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+        "pool_push init <- __init__.py:autorelease_pool.__enter__": 1,
+        "reentry <frozen abc>:ABCMeta.__instancecheck__": 6,
+        "reentry _pythonify.py:numberWrapper": 56
+       },
+       "total": 108
+      },
+      "PB": {
+       "ctypes": 1,
+       "nested_sends": 0,
+       "objc_send": 0,
+       "pool_pop": 1,
+       "pool_push": 2,
+       "reentries": 0,
+       "sites": {
+        "ctypes laya_predict_options_stamped <- prebind.py:PrebindModel.predict": 1,
+        "pool_pop __exit__ <- prebind.py:PrebindModel.predict": 1,
+        "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+        "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+       },
+       "total": 4
+      }
+     },
+     "rows": 11,
+     "stamps_ordered": {
+      "C": true,
+      "PB": true
+     }
+    },
+    "96": {
+     "C_bit_identical": true,
+     "PB_backings": {
+      "evidence": {
+       "cls": {
+        "backing_written": true,
+        "dtype": "float16",
+        "equal_to_returned": true,
+        "same_address": true,
+        "shape": [
+         1,
+         1024,
+         1,
+         1
+        ]
+       },
+       "logits": {
+        "backing_written": true,
+        "dtype": "float16",
+        "equal_to_returned": true,
+        "same_address": true,
+        "shape": [
+         1,
+         1,
+         1,
+         32
+        ]
+       }
+      },
+      "modes": {
+       "cls": "backed",
+       "logits": "backed"
+      }
+     },
+     "PB_bit_identical": true,
+     "PB_forward_bit_identical": true,
+     "crossings": {
+      "C": {
+       "ctypes": 1,
+       "nested_sends": 112,
+       "objc_send": 104,
+       "pool_pop": 1,
+       "pool_push": 2,
+       "reentries": 62,
+       "sites": {
+        "ctypes laya_predict_stamped <- nogil.py:StampedNoGilModel._predict": 1,
+        "nested objc_send longLongValue <- _pythonify.py:numberWrapper": 56,
+        "nested objc_send objCType <- _pythonify.py:numberWrapper": 56,
+        "objc_send alloc <- nogil.py:StampedNoGilModel._predict": 1,
+        "objc_send alloc <- nogil_predict.py:NoGilModel._array": 5,
+        "objc_send count <- _convenience_nsset.py:<lambda>": 1,
+        "objc_send dataPointer <- nogil_predict.py:_view": 7,
+        "objc_send dataType <- nogil.py:StampedNoGilModel._predict": 2,
+        "objc_send featureNames <- nogil.py:StampedNoGilModel._predict": 1,
+        "objc_send featureValueForName: <- nogil.py:StampedNoGilModel._predict": 2,
+        "objc_send featureValueWithMultiArray: <- nogil.py:StampedNoGilModel._predict": 5,
+        "objc_send initWithDictionary:error: <- nogil.py:StampedNoGilModel._predict": 1,
+        "objc_send initWithShape:dataType:error: <- nogil_predict.py:NoGilModel._array": 5,
+        "objc_send multiArrayValue <- nogil.py:StampedNoGilModel._predict": 2,
+        "objc_send nextObject <- _convenience.py:<lambda>": 45,
+        "objc_send nextObject <- _convenience_nsset.py:nsset__iter__.__next__": 3,
+        "objc_send objectEnumerator <- _convenience_nsarray.py:nsarray__iter__": 9,
+        "objc_send objectEnumerator <- _convenience_nsset.py:nsset__iter__.__init__": 1,
+        "objc_send shape <- nogil_predict.py:_view": 7,
+        "objc_send strides <- nogil_predict.py:_view": 7,
+        "pool_pop __exit__ <- nogil_predict.py:NoGilModel.predict": 1,
+        "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+        "pool_push init <- __init__.py:autorelease_pool.__enter__": 1,
+        "reentry <frozen abc>:ABCMeta.__instancecheck__": 6,
+        "reentry _pythonify.py:numberWrapper": 56
+       },
+       "total": 108
+      },
+      "PB": {
+       "ctypes": 1,
+       "nested_sends": 0,
+       "objc_send": 0,
+       "pool_pop": 1,
+       "pool_push": 2,
+       "reentries": 0,
+       "sites": {
+        "ctypes laya_predict_options_stamped <- prebind.py:PrebindModel.predict": 1,
+        "pool_pop __exit__ <- prebind.py:PrebindModel.predict": 1,
+        "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+        "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+       },
+       "total": 4
+      }
+     },
+     "rows": 11,
+     "stamps_ordered": {
+      "C": true,
+      "PB": true
+     }
+    }
+   }
+  },
+  "laya-typed-decisions": {
+   "buckets": {
+    "128": {
+     "C_bit_identical": true,
+     "PB_backings": {
+      "evidence": {
+       "cls": {
+        "backing_written": true,
+        "dtype": "float16",
+        "equal_to_returned": true,
+        "same_address": true,
+        "shape": [
+         1,
+         1024,
+         1,
+         1
+        ]
+       },
+       "logits": {
+        "backing_written": true,
+        "dtype": "float16",
+        "equal_to_returned": true,
+        "same_address": true,
+        "shape": [
+         1,
+         1,
+         1,
+         32
+        ]
+       }
+      },
+      "modes": {
+       "cls": "backed",
+       "logits": "backed"
+      }
+     },
+     "PB_bit_identical": true,
+     "PB_forward_bit_identical": true,
+     "crossings": {
+      "C": {
+       "ctypes": 1,
+       "nested_sends": 112,
+       "objc_send": 104,
+       "pool_pop": 1,
+       "pool_push": 2,
+       "reentries": 62,
+       "sites": {
+        "ctypes laya_predict_stamped <- nogil.py:StampedNoGilModel._predict": 1,
+        "nested objc_send longLongValue <- _pythonify.py:numberWrapper": 56,
+        "nested objc_send objCType <- _pythonify.py:numberWrapper": 56,
+        "objc_send alloc <- nogil.py:StampedNoGilModel._predict": 1,
+        "objc_send alloc <- nogil_predict.py:NoGilModel._array": 5,
+        "objc_send count <- _convenience_nsset.py:<lambda>": 1,
+        "objc_send dataPointer <- nogil_predict.py:_view": 7,
+        "objc_send dataType <- nogil.py:StampedNoGilModel._predict": 2,
+        "objc_send featureNames <- nogil.py:StampedNoGilModel._predict": 1,
+        "objc_send featureValueForName: <- nogil.py:StampedNoGilModel._predict": 2,
+        "objc_send featureValueWithMultiArray: <- nogil.py:StampedNoGilModel._predict": 5,
+        "objc_send initWithDictionary:error: <- nogil.py:StampedNoGilModel._predict": 1,
+        "objc_send initWithShape:dataType:error: <- nogil_predict.py:NoGilModel._array": 5,
+        "objc_send multiArrayValue <- nogil.py:StampedNoGilModel._predict": 2,
+        "objc_send nextObject <- _convenience.py:<lambda>": 45,
+        "objc_send nextObject <- _convenience_nsset.py:nsset__iter__.__next__": 3,
+        "objc_send objectEnumerator <- _convenience_nsarray.py:nsarray__iter__": 9,
+        "objc_send objectEnumerator <- _convenience_nsset.py:nsset__iter__.__init__": 1,
+        "objc_send shape <- nogil_predict.py:_view": 7,
+        "objc_send strides <- nogil_predict.py:_view": 7,
+        "pool_pop __exit__ <- nogil_predict.py:NoGilModel.predict": 1,
+        "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+        "pool_push init <- __init__.py:autorelease_pool.__enter__": 1,
+        "reentry <frozen abc>:ABCMeta.__instancecheck__": 6,
+        "reentry _pythonify.py:numberWrapper": 56
+       },
+       "total": 108
+      },
+      "PB": {
+       "ctypes": 1,
+       "nested_sends": 0,
+       "objc_send": 0,
+       "pool_pop": 1,
+       "pool_push": 2,
+       "reentries": 0,
+       "sites": {
+        "ctypes laya_predict_options_stamped <- prebind.py:PrebindModel.predict": 1,
+        "pool_pop __exit__ <- prebind.py:PrebindModel.predict": 1,
+        "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+        "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+       },
+       "total": 4
+      }
+     },
+     "rows": 11,
+     "stamps_ordered": {
+      "C": true,
+      "PB": true
+     }
+    },
+    "64": {
+     "C_bit_identical": true,
+     "PB_backings": {
+      "evidence": {
+       "cls": {
+        "backing_written": true,
+        "dtype": "float16",
+        "equal_to_returned": true,
+        "same_address": true,
+        "shape": [
+         1,
+         1024,
+         1,
+         1
+        ]
+       },
+       "logits": {
+        "backing_written": true,
+        "dtype": "float16",
+        "equal_to_returned": true,
+        "same_address": true,
+        "shape": [
+         1,
+         1,
+         1,
+         32
+        ]
+       }
+      },
+      "modes": {
+       "cls": "backed",
+       "logits": "backed"
+      }
+     },
+     "PB_bit_identical": true,
+     "PB_forward_bit_identical": true,
+     "crossings": {
+      "C": {
+       "ctypes": 1,
+       "nested_sends": 112,
+       "objc_send": 104,
+       "pool_pop": 1,
+       "pool_push": 2,
+       "reentries": 62,
+       "sites": {
+        "ctypes laya_predict_stamped <- nogil.py:StampedNoGilModel._predict": 1,
+        "nested objc_send longLongValue <- _pythonify.py:numberWrapper": 56,
+        "nested objc_send objCType <- _pythonify.py:numberWrapper": 56,
+        "objc_send alloc <- nogil.py:StampedNoGilModel._predict": 1,
+        "objc_send alloc <- nogil_predict.py:NoGilModel._array": 5,
+        "objc_send count <- _convenience_nsset.py:<lambda>": 1,
+        "objc_send dataPointer <- nogil_predict.py:_view": 7,
+        "objc_send dataType <- nogil.py:StampedNoGilModel._predict": 2,
+        "objc_send featureNames <- nogil.py:StampedNoGilModel._predict": 1,
+        "objc_send featureValueForName: <- nogil.py:StampedNoGilModel._predict": 2,
+        "objc_send featureValueWithMultiArray: <- nogil.py:StampedNoGilModel._predict": 5,
+        "objc_send initWithDictionary:error: <- nogil.py:StampedNoGilModel._predict": 1,
+        "objc_send initWithShape:dataType:error: <- nogil_predict.py:NoGilModel._array": 5,
+        "objc_send multiArrayValue <- nogil.py:StampedNoGilModel._predict": 2,
+        "objc_send nextObject <- _convenience.py:<lambda>": 45,
+        "objc_send nextObject <- _convenience_nsset.py:nsset__iter__.__next__": 3,
+        "objc_send objectEnumerator <- _convenience_nsarray.py:nsarray__iter__": 9,
+        "objc_send objectEnumerator <- _convenience_nsset.py:nsset__iter__.__init__": 1,
+        "objc_send shape <- nogil_predict.py:_view": 7,
+        "objc_send strides <- nogil_predict.py:_view": 7,
+        "pool_pop __exit__ <- nogil_predict.py:NoGilModel.predict": 1,
+        "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+        "pool_push init <- __init__.py:autorelease_pool.__enter__": 1,
+        "reentry <frozen abc>:ABCMeta.__instancecheck__": 6,
+        "reentry _pythonify.py:numberWrapper": 56
+       },
+       "total": 108
+      },
+      "PB": {
+       "ctypes": 1,
+       "nested_sends": 0,
+       "objc_send": 0,
+       "pool_pop": 1,
+       "pool_push": 2,
+       "reentries": 0,
+       "sites": {
+        "ctypes laya_predict_options_stamped <- prebind.py:PrebindModel.predict": 1,
+        "pool_pop __exit__ <- prebind.py:PrebindModel.predict": 1,
+        "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+        "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+       },
+       "total": 4
+      }
+     },
+     "rows": 11,
+     "stamps_ordered": {
+      "C": true,
+      "PB": true
+     }
+    },
+    "96": {
+     "C_bit_identical": true,
+     "PB_backings": {
+      "evidence": {
+       "cls": {
+        "backing_written": true,
+        "dtype": "float16",
+        "equal_to_returned": true,
+        "same_address": true,
+        "shape": [
+         1,
+         1024,
+         1,
+         1
+        ]
+       },
+       "logits": {
+        "backing_written": true,
+        "dtype": "float16",
+        "equal_to_returned": true,
+        "same_address": true,
+        "shape": [
+         1,
+         1,
+         1,
+         32
+        ]
+       }
+      },
+      "modes": {
+       "cls": "backed",
+       "logits": "backed"
+      }
+     },
+     "PB_bit_identical": true,
+     "PB_forward_bit_identical": true,
+     "crossings": {
+      "C": {
+       "ctypes": 1,
+       "nested_sends": 112,
+       "objc_send": 104,
+       "pool_pop": 1,
+       "pool_push": 2,
+       "reentries": 62,
+       "sites": {
+        "ctypes laya_predict_stamped <- nogil.py:StampedNoGilModel._predict": 1,
+        "nested objc_send longLongValue <- _pythonify.py:numberWrapper": 56,
+        "nested objc_send objCType <- _pythonify.py:numberWrapper": 56,
+        "objc_send alloc <- nogil.py:StampedNoGilModel._predict": 1,
+        "objc_send alloc <- nogil_predict.py:NoGilModel._array": 5,
+        "objc_send count <- _convenience_nsset.py:<lambda>": 1,
+        "objc_send dataPointer <- nogil_predict.py:_view": 7,
+        "objc_send dataType <- nogil.py:StampedNoGilModel._predict": 2,
+        "objc_send featureNames <- nogil.py:StampedNoGilModel._predict": 1,
+        "objc_send featureValueForName: <- nogil.py:StampedNoGilModel._predict": 2,
+        "objc_send featureValueWithMultiArray: <- nogil.py:StampedNoGilModel._predict": 5,
+        "objc_send initWithDictionary:error: <- nogil.py:StampedNoGilModel._predict": 1,
+        "objc_send initWithShape:dataType:error: <- nogil_predict.py:NoGilModel._array": 5,
+        "objc_send multiArrayValue <- nogil.py:StampedNoGilModel._predict": 2,
+        "objc_send nextObject <- _convenience.py:<lambda>": 45,
+        "objc_send nextObject <- _convenience_nsset.py:nsset__iter__.__next__": 3,
+        "objc_send objectEnumerator <- _convenience_nsarray.py:nsarray__iter__": 9,
+        "objc_send objectEnumerator <- _convenience_nsset.py:nsset__iter__.__init__": 1,
+        "objc_send shape <- nogil_predict.py:_view": 7,
+        "objc_send strides <- nogil_predict.py:_view": 7,
+        "pool_pop __exit__ <- nogil_predict.py:NoGilModel.predict": 1,
+        "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+        "pool_push init <- __init__.py:autorelease_pool.__enter__": 1,
+        "reentry <frozen abc>:ABCMeta.__instancecheck__": 6,
+        "reentry _pythonify.py:numberWrapper": 56
+       },
+       "total": 108
+      },
+      "PB": {
+       "ctypes": 1,
+       "nested_sends": 0,
+       "objc_send": 0,
+       "pool_pop": 1,
+       "pool_push": 2,
+       "reentries": 0,
+       "sites": {
+        "ctypes laya_predict_options_stamped <- prebind.py:PrebindModel.predict": 1,
+        "pool_pop __exit__ <- prebind.py:PrebindModel.predict": 1,
+        "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+        "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+       },
+       "total": 4
+      }
+     },
+     "rows": 11,
+     "stamps_ordered": {
+      "C": true,
+      "PB": true
+     }
+    }
+   }
+  }
+ },
+ "pyobjc": "12.2.2",
+ "rows_per_bucket": 11,
+ "seed": 0
+}
