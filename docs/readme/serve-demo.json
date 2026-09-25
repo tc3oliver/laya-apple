@@ -1,5 +1,5 @@
 {
- "about": "Recorded by scripts/capture_serve_demo.py; rendered to serve-demo.svg by scripts/generate_readme_svgs.py. Each output is the real output of its command.",
+ "about": "Recorded by scripts/capture_serve_demo.py; rendered to serve-demo.svg by scripts/generate_readme_svgs.py. Each output is the real output of an equivalent command.",
  "recorded": "2026-09-25",
  "laya_apple": "1.3.0",
  "platform": {

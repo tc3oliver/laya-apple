@@ -195,7 +195,7 @@ versions, commands and details):
 
 "Pass" means wire compatibility: the client decodes the response without an error. It does
 not mean the client makes the same decisions as with Jev. Canny and switchboard act only
-on confidences above thresholds tuned for Jev, and Laya's answers did not cross them in
+on confidences beyond thresholds tuned for Jev, and Laya's answers did not cross them in
 these runs, so both took their own fallback paths.
 
 ## Limits

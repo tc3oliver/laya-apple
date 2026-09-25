@@ -6,7 +6,7 @@
 `--client-python` is a Python with the released Jev SDK installed, unmodified
 (`uv venv && uv pip install typesafe-sdk==0.7.1`). The script needs `curl` and `jq` on PATH.
 
-It runs, for real, every command the figure shows, and records each command's output:
+It runs an equivalent of every command the figure shows, and records each real output:
 
 1. `laya-apple serve 2> serve.log &` from this checkout, on the default port 8642 (it
    refuses to start if the port is taken), then waits on `GET /health` until every loaded
@@ -170,7 +170,7 @@ def main(argv=None) -> int:
     profile = platform_profile()
     record = {
         "about": "Recorded by scripts/capture_serve_demo.py; rendered to serve-demo.svg by "
-        "scripts/generate_readme_svgs.py. Each output is the real output of its command.",
+        "scripts/generate_readme_svgs.py. Each output is the real output of an equivalent command.",
         "recorded": time.strftime("%Y-%m-%d"),
         "laya_apple": __version__,
         "platform": {"soc": profile.get("soc"), "macos": profile.get("macos")},
