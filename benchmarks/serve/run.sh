@@ -15,6 +15,7 @@
 #   OMLX_SETTINGS     the LLM server's JSON settings file; its auth.api_key is read at run time
 #                     and only ever sent in the Authorization header. Or LLM_API_KEY.
 #   LLM_URL           default http://127.0.0.1:8000
+#   CRITERIA          criteria file to run under, default benchmarks/serve/criteria-r2.json
 #
 #   LAYA_APPLE_CACHE=... HF_HUB_OFFLINE=1 OMLX_SETTINGS=... sh benchmarks/serve/run.sh benchmarks/serve/m4-max
 set -e
@@ -36,6 +37,17 @@ if [ -e "$CAMPAIGN_DIR" ] && [ -n "$(find "$CAMPAIGN_DIR" -mindepth 1 -maxdepth 
   echo "refusing to start: $CAMPAIGN_DIR already has data; every campaign is a new directory" >&2
   exit 1
 fi
+
+# The criteria the campaign runs under are copied into it before any data exists; analyze.py
+# reads that copy. Default: the current preregistration (run 2). Run 1 had no copy and uses
+# criteria.json.
+CRITERIA="${CRITERIA:-benchmarks/serve/criteria-r2.json}"
+if [ ! -f "$CRITERIA" ]; then
+  echo "criteria file not found: $CRITERIA" >&2
+  exit 1
+fi
+mkdir -p "$CAMPAIGN_DIR"
+cp "$CRITERIA" "$CAMPAIGN_DIR/criteria.json"
 
 uv run python scripts/bench_serve.py campaign --out "$CAMPAIGN_DIR" --llm-url "${LLM_URL:-http://127.0.0.1:8000}"
 uv run python benchmarks/serve/analyze.py "$CAMPAIGN_DIR"

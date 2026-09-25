@@ -1,10 +1,12 @@
 """Serve decisions beside a local LLM: results.json and tables.md for one campaign.
 
-    uv run python benchmarks/serve/analyze.py benchmarks/serve/<campaign> [--check]
+    uv run python benchmarks/serve/analyze.py benchmarks/serve/<campaign> [--check] [--criteria FILE]
 
-Inputs: <campaign>/raw/ from scripts/bench_serve.py. The criteria are in criteria.json next
-to this file and were committed before any campaign ran; this file implements them. Throughput,
-latency and correctness are reported as separate results, with no overall PASS/FAIL.
+Inputs: <campaign>/raw/ from scripts/bench_serve.py. The criteria are the campaign's own copy,
+<campaign>/criteria.json, which run.sh writes before the campaign starts; a campaign without
+one (run 1, m4-max) uses criteria.json next to this file. Both were committed before the data
+they apply to; this file implements them. Throughput, latency and correctness are reported as
+separate results, with no overall PASS/FAIL.
 """
 
 from __future__ import annotations
@@ -90,13 +92,77 @@ def exclusive(w: dict) -> dict:
     return {"checked": True, "ok": bool(idle and delta == ours), "delta": delta, "ours": ours, "idle_at_start": idle}
 
 
+def busy_coverage(w: dict) -> float:
+    """V2 (run 2): fraction of the window with at least one harness LLM request in flight at the
+    server, each request from its start to its last chunk, so prefill counts as busy."""
+    start, end = w["window_ns"]
+    spans = [(r["start_ns"], r["chunks"][-1][0]) for r in w["llm"]["requests"] if r.get("chunks") and "start_ns" in r]
+    return bench.coverage(spans, start, end)
+
+
+def short_routing(w: dict, spill_reason: str) -> dict:
+    """V4 (run 2): how an auto window's short_1q answers were routed.
+
+    policy_share counts the product policy's short path: the ANE, or the GPU with the
+    scheduler's backlog spill reason. spill_share (not gated) is the spilled part alone."""
+    ok = [r for r in w["decisions"] if not r.get("warmup") and r["cls"] == "short_1q" and r.get("status") == 200]
+    ane = sum(r.get("device") == "ane" for r in ok)
+    spill = sum(r.get("device") == "gpu" and r.get("reason") == spill_reason for r in ok)
+    other: dict = {}
+    for r in ok:
+        if r.get("device") != "ane" and not (r.get("device") == "gpu" and r.get("reason") == spill_reason):
+            k = f"{r.get('device')}:{r.get('reason')}"
+            other[k] = other.get(k, 0) + 1
+    n = len(ok)
+    return {
+        "index": w["index"],
+        "n": n,
+        "policy_share": (ane + spill) / n if n else None,
+        "spill_share": spill / n if n else None,
+        "other": other,
+    }
+
+
+def load_criteria(campaign: Path, override: Path | None = None) -> dict:
+    """The campaign's own criteria copy if it has one, else the run-1 criteria.json."""
+    for p in (override, campaign / "criteria.json", HERE / "criteria.json"):
+        if p is not None and p.exists():
+            return json.loads(p.read_text())
+    raise FileNotFoundError("no criteria file")
+
+
 def med(xs):
     xs = [x for x in xs if x is not None]
     return float(np.median(xs)) if xs else None
 
 
-def summarise(campaign: Path) -> dict:
-    crit = json.loads((HERE / "criteria.json").read_text())
+def v2(c2: dict, llm_ws: list[dict], raw_llm_ws: list[dict]) -> dict:
+    """V2: run 1 gates generating coverage; run 2 (busy_coverage_min) gates busy coverage and
+    reports generating coverage without a limit."""
+    errors = sum(x["llm"]["errors"] for x in llm_ws)
+    gen = [x["llm"]["generating_coverage"] for x in llm_ws]
+    if "busy_coverage_min" not in c2:  # run 1
+        return {
+            "worst_coverage": min(gen, default=None),
+            "llm_errors": errors,
+            "ok": all(
+                x["llm"]["generating_coverage"] >= c2["generating_coverage_min"]
+                and x["llm"]["errors"] <= c2["llm_errors_max"]
+                for x in llm_ws
+            ),
+        }
+    busy = [busy_coverage(w) for w in raw_llm_ws]
+    return {
+        "worst_busy_coverage": min(busy, default=None),
+        "worst_generating_coverage": min(gen, default=None),  # reported, not gated
+        "llm_errors": errors,
+        "ok": all(b >= c2["busy_coverage_min"] for b in busy)
+        and all(x["llm"]["errors"] <= c2["llm_errors_max"] for x in llm_ws),
+    }
+
+
+def summarise(campaign: Path, criteria: Path | None = None) -> dict:
+    crit = load_criteria(campaign, criteria)
     raw = campaign / "raw"
     meta = json.loads((raw / "campaign.json").read_text())
     windows = load_windows(raw)
@@ -176,29 +242,35 @@ def summarise(campaign: Path) -> dict:
                 (x["decisions"]["lag_p99_ms"] or 0.0) <= vc["V1_open_loop_client_lag_p99_ms"]["max"] for x in dec_ws
             ),
         },
-        "V2_llm_saturated": {
-            "worst_coverage": min((x["llm"]["generating_coverage"] for x in llm_ws), default=None),
-            "llm_errors": sum(x["llm"]["errors"] for x in llm_ws),
-            "ok": all(
-                x["llm"]["generating_coverage"] >= vc["V2_llm_saturated"]["generating_coverage_min"]
-                and x["llm"]["errors"] <= vc["V2_llm_saturated"]["llm_errors_max"]
-                for x in llm_ws
-            ),
-        },
+        "V2_llm_saturated": v2(vc["V2_llm_saturated"], llm_ws, [w for w in windows if "llm" in w]),
         "V3_llm_exclusive": {
             "windows_failed": [x["index"] for x in per_window if x["exclusive"]["ok"] is False],
             "windows_unchecked": [x["index"] for x in per_window if not x["exclusive"]["checked"]],
             "ok": all(x["exclusive"]["ok"] for x in per_window),
         },
-        "V4_auto_short_on_ane": {
+    }
+    if "V4_auto_short_policy_path" in vc:  # run 2
+        c4 = vc["V4_auto_short_policy_path"]
+        routes = [
+            short_routing(w, c4["spill_reason"]) for w in windows if w.get("config") == "auto" and "decisions" in w
+        ]
+        validity["V4_auto_short_policy_path"] = {
+            "worst_policy_share": min((r["policy_share"] for r in routes if r["n"]), default=None),
+            "spill_share_windows": {str(r["index"]): r["spill_share"] for r in routes},  # reported, not gated
+            "other_routes": {
+                k: sum(r["other"].get(k, 0) for r in routes) for k in sorted({k for r in routes for k in r["other"]})
+            },
+            "ok": bool(routes) and all(r["n"] and r["policy_share"] >= c4["min_share"] for r in routes),
+        }
+    else:  # run 1
+        validity["V4_auto_short_on_ane"] = {
             "worst_share": min((s["devices"].get("ane", 0) / s["n"] for s in auto_short if s["n"]), default=None),
             "ok": all(
                 s["n"] and s["devices"].get("ane", 0) / s["n"] >= vc["V4_auto_short_on_ane"]["min_share"]
                 for s in auto_short
             ),
-        },
-        "V5_references_on_expected_devices": {"ok": ref_ok},
-    }
+        }
+    validity["V5_references_on_expected_devices"] = {"ok": ref_ok}
     valid = all(v["ok"] for v in validity.values())
 
     # criteria
@@ -262,7 +334,7 @@ def summarise(campaign: Path) -> dict:
                 r["verdict"] = "invalid"
             else:
                 r["verdict"] = "pass" if r["pass"] else "fail"
-    return {
+    out = {
         "campaign": campaign.name,
         "smoke": meta.get("smoke", False),
         "laya_apple": meta.get("laya_apple"),
@@ -278,6 +350,9 @@ def summarise(campaign: Path) -> dict:
         "results": results,
         "windows": per_window,
     }
+    if crit.get("revision"):  # absent in run 1's criteria, whose outputs stay as committed
+        out["criteria_revision"] = crit["revision"]
+    return out
 
 
 def f(x, d=1):
@@ -292,6 +367,8 @@ def tables(res: dict) -> str:
     L = [f"# Serve decisions beside a local LLM: {res['campaign']}\n"]
     if res["smoke"]:
         L.append("**Smoke run: not a result.**\n")
+    if res.get("criteria_revision"):
+        L.append(f"Criteria revision `{res['criteria_revision']}` (see README.md).\n")
     L.append(
         f"Offered decision load {res['offered_req_s']:g} req/s ({res['arrivals']}); LLM `{res['llm_model']}`. "
         f"Medians over windows; P99 is the median of per-window P99s.\n"
@@ -357,8 +434,9 @@ def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("campaign", type=Path)
     ap.add_argument("--check", action="store_true")
+    ap.add_argument("--criteria", type=Path, help="criteria file (default: the campaign's criteria.json, else run 1's)")
     a = ap.parse_args(argv)
-    res = summarise(a.campaign)
+    res = summarise(a.campaign, a.criteria)
     js = json.dumps(res, indent=1, sort_keys=True) + "\n"
     md = tables(res)
     outs = ((a.campaign / "results.json", js), (a.campaign / "tables.md", md))

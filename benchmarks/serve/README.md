@@ -11,8 +11,10 @@ measures what that costs each side while the LLM generates at saturation:
 ("Limits": *No performance claim yet*).
 
 **Status: preregistered.** The criteria in [`criteria.json`](criteria.json) and below were
-committed before any campaign data existed. No campaign has run yet. Smoke runs of the
-harness are not results and are not committed.
+committed before any campaign data existed. Smoke runs of the harness are not results and are
+not committed. Run 1 ([`m4-max/`](m4-max/)) was **invalid** under its own validity checks and
+draws no result; run 2 is preregistered with two revised validity definitions and has not run
+yet. See [Run 1](#run-1-m4-max-invalid) and [Run 2](#run-2-preregistered).
 
 ## Question and criteria
 
@@ -158,6 +160,10 @@ uv run python benchmarks/serve/analyze.py benchmarks/serve/<machine> --check
 - `run.sh` refuses to start if another laya-apple process is running or the campaign
   directory already has data. It runs `scripts/bench_serve.py campaign` and then
   `analyze.py`, which writes `results.json` and `tables.md` next to `raw/`.
+- Before the campaign starts, `run.sh` copies the criteria file it runs under (`$CRITERIA`,
+  default [`criteria-r2.json`](criteria-r2.json)) into the campaign directory as
+  `criteria.json`. `analyze.py` reads that copy; a campaign without one (run 1) is analyzed
+  with [`criteria.json`](criteria.json). `--criteria FILE` overrides both.
 - The harness never starts, stops or reconfigures the LLM server. Before each window it waits
   while the server reports other active or waiting requests (up to 10 min, then stops).
 - **The LLM server's API key** is read at run time, from `$LLM_API_KEY` or from `auth.api_key`
@@ -186,3 +192,59 @@ with the reference), every LLM request (chunk times and sizes, usage), the LLM s
 and machine state before and after. `raw/refs-stepNN-<config>.json`: each serve process's
 health at start-up and its reference answers. `raw/serve-stepNN-<config>.log`: the serve
 process's log (warnings and errors only).
+
+## Run 1 (`m4-max`): invalid
+
+[`m4-max/`](m4-max/): M4 Max, LLM `Qwen3.8-27B-oQ4e-mtp` on oMLX, default parameters, analyzed
+with [`criteria.json`](criteria.json) ([`m4-max/tables.md`](m4-max/tables.md),
+[`m4-max/results.json`](m4-max/results.json)). Two of the five validity checks failed, so every
+result of run 1 is **invalid**: neither pass nor fail. No result is drawn from it, and its
+raw data, analysis and verdict stay as recorded. Its eight `raw/serve-stepNN-<config>.log`
+files are not committed, because they carry the checkout's absolute path; each held the same
+single warning (checkpoint temperatures outside [0.5, 5.0] replaced, as upstream does) and
+nothing else. From run 2 the harness writes these logs with the checkout path replaced by
+`<repo>`.
+
+| # | Check | Limit | Run 1 | ok |
+|---|---|---|---|---|
+| V1 | open-loop client lag, P99, worst window | ≤ 5 ms | 3.13 ms | yes |
+| V2 | LLM generating coverage, worst window; LLM errors | ≥ 0.90, 0 | 0.8955 (window 20, `gpu/decisions_llm`; the other 16 LLM windows 0.918–0.989); 0 | **no** |
+| V3 | LLM exclusive | every window | every window | yes |
+| V4 | `auto` short decisions on the Neural Engine, worst window | ≥ 99% | 95.2% (374 / 393, window 14) | **no** |
+| V5 | references on the expected devices | all | all | yes |
+
+Why the two checks failed. Neither is a harness fault or a product fault; both definitions
+did not describe the system being measured.
+- **V4.** Over the 8 `auto` windows, 3,144 short decisions: 3,008 on the Neural Engine with
+  reason `validated_short_single_question_path`, and 136 (4.3%) on the GPU with reason
+  `ane_backlog_shorter_on_gpu`. No other reason occurs. That is the product scheduler's
+  designed spill ([`docs/no-silent-fallback.md`](../../docs/no-silent-fallback.md), row 2): a
+  short request goes to the GPU when the Neural Engine backlog is the longer wait. The 99%
+  limit assumed no spill at 8 req/s.
+- **V2.** The LLM server runs one request at a time, and this 27B model takes about 6 s to
+  first token (server TTFT, [`m4-max/tables.md`](m4-max/tables.md)). `generating_coverage`
+  counts only the time tokens were streaming, so a request's prefill between the other
+  stream's requests counts as idle although the server is busy with it.
+
+## Run 2: preregistered
+
+Criteria: [`criteria-r2.json`](criteria-r2.json). **Written after run 1's data was seen**, and
+before any run-2 data. It changes **only** the V2 and V4 definitions below, for the reasons in
+Run 1. Every result criterion and limit (G1, G2, L1, L2, C1, E1) is unchanged, as are V1, V3,
+V5, the workload, the cells, the ABBA order, the windows and the warm-up. Run 1 is not
+re-analyzed under these definitions.
+
+| # | Check | Limit |
+|---|---|---|
+| V2 | LLM server busy: fraction of the window during which at least one of the harness's LLM requests is in flight at the server, each request from its start (`start_ns`) to its last chunk, so prefill counts; and LLM errors, every LLM window | ≥ 0.90, 0 |
+| V4 | serve `auto` routed short decisions by the product policy's short path: on the Neural Engine, **or** on the GPU with reason `ane_backlog_shorter_on_gpu`. A short decision on the GPU for any other reason counts against it | ≥ 99% per window |
+
+- Both are computed from fields every raw window file already records (per-request
+  `start_ns` and chunk times; per-decision `device` and `reason`).
+- **Reported, not gated:** generating coverage (run 1's V2 metric) per LLM window, and the
+  spill share (short decisions on the GPU with `ane_backlog_shorter_on_gpu`) per `auto`
+  window.
+- **L1 and L2 include the spilled requests.** The short-decision P99 is over every `short_1q`
+  answer of the `auto` windows, wherever it ran; it is the latency a client sees.
+- The run directory is `m4-max-r2/`. `run.sh` copies the criteria file it runs under into
+  the run directory (`criteria.json` there), and `analyze.py` uses that copy.
