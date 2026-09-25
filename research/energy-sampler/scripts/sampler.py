@@ -1,6 +1,6 @@
 """No-sudo energy sampler for Apple silicon: IOReport per-rail energy counters + SMC PSTR.
 
-    python3 research/energy-sampler/scripts/sampler.py --out PATH.json [--interval 0.5] [--seconds N]
+    python3 research/energy-sampler/scripts/sampler.py --out PATH.json [--interval 1.0] [--seconds N]
 
 Standard library only (ctypes). Runs until SIGINT/SIGTERM (or --seconds), then writes PATH.json
 atomically (temporary file + rename) and exits 0. Output keys:
@@ -15,7 +15,8 @@ atomically (temporary file + rename) and exits 0. Output keys:
   t0, t1               {"uptime_ns", "unix_ns"} of the first / last sample
   samples              [[uptime_ns, unix_ns, {rail: cumulative J since t0}], ...]
   pstr                 [[uptime_ns, W], ...], one entry per observed change of PSTR
-  meta                 SoC, macOS, interval, channel names, sampler CPU seconds
+  meta                 SoC, macOS, interval, channel names, sampler version, sampler CPU
+                       seconds (total, per sample, and as a fraction of one core)
 
 Nothing is idle-subtracted here. The analysis (analyze.py) interpolates the cumulative series
 at window boundaries and subtracts idle windows recorded with the same sampler.
@@ -41,6 +42,9 @@ from sources import SMC, IOReportEnergy  # noqa: E402
 RAILS = {"cpu": "CPU Energy", "gpu": "GPU Energy", "ane": "ANE", "dram": "DRAM"}
 SOC_RAILS = ("cpu", "gpu", "ane", "dram")
 PSTR = "PSTR"
+SAMPLER_VERSION = 2  # 1: whole-group subscription + delta objects (run 1); 2: 4-channel read()
+DEFAULT_INTERVAL_S = 1.0  # README.md, "Sampler": why 1 s is enough
+DEFAULT_PSTR_INTERVAL_S = 0.5  # SMC PSTR polling, unchanged from run 1
 
 
 def uptime_ns() -> int:
@@ -60,9 +64,14 @@ def soc_name() -> str:
 
 
 class Sampler:
-    def __init__(self, interval: float = 0.5) -> None:
+    def __init__(self, interval: float = DEFAULT_INTERVAL_S, pstr_interval: float = DEFAULT_PSTR_INTERVAL_S) -> None:
+        ratio = interval / pstr_interval
+        if pstr_interval <= 0 or ratio < 1 or abs(ratio - round(ratio)) > 1e-9:
+            raise ValueError("interval must be a whole multiple of pstr_interval")
         self.interval = interval
-        self.io = IOReportEnergy()
+        self.pstr_interval = pstr_interval
+        self._every = round(ratio)
+        self.io = IOReportEnergy(tuple(RAILS.values()))
         try:
             self.smc: SMC | None = SMC()
             self.smc.read(PSTR)
@@ -71,7 +80,6 @@ class Sampler:
         self.samples: list = []
         self.pstr: list = []
         self._stop = threading.Event()
-        self._only = tuple(RAILS.values())
 
     def stop(self) -> None:
         self._stop.set()
@@ -94,27 +102,40 @@ class Sampler:
             self.loop_cpu_s = time.thread_time() - cpu0
 
     def _run(self) -> None:
-        cum = dict.fromkeys(RAILS, 0.0)
-        prev = self.io.sample()
+        # Cumulative joules per rail since the first sample, from the raw cumulative counters:
+        # one IOReportCreateSamples call per tick and a few C calls, no delta object and no
+        # CF-to-Python string conversion (sources.IOReportEnergy.read).
+        rails = tuple(RAILS)
+        scales = self.io.scales
+        s = self.io.sample()
+        try:
+            raw0 = self.io.read(s)
+        finally:
+            self.io.release(s)
         t_mono, t_unix = uptime_ns(), time.time_ns()
-        self.samples.append([t_mono, t_unix, dict(cum)])
+        self.samples.append([t_mono, t_unix, dict.fromkeys(rails, 0.0)])
         self._poll_pstr(t_mono)
-        nxt = time.monotonic() + self.interval
+        # One tick per pstr_interval; IOReport is sampled on every `_every`-th tick and on the
+        # last one. PSTR (an SMC read, ~0.02 ms) keeps run 1's 0.5 s polling.
+        nxt = time.monotonic() + self.pstr_interval
+        tick = 0
         while True:
             stopping = self._stop.wait(max(0.0, nxt - time.monotonic()))
-            nxt += self.interval
-            cur = self.io.sample()
+            nxt += self.pstr_interval
+            tick += 1
+            if not stopping and tick % self._every:
+                self._poll_pstr(uptime_ns())
+                continue
+            s = self.io.sample()
+            try:
+                raw = self.io.read(s)
+            finally:
+                self.io.release(s)
             t_mono, t_unix = uptime_ns(), time.time_ns()
-            d = self.io.delta(prev, cur, self._only)
-            self.io.release(prev)
-            prev = cur
-            for rail, chan in RAILS.items():
-                cum[rail] += d.get(chan, 0.0)
-            self.samples.append([t_mono, t_unix, dict(cum)])
+            self.samples.append([t_mono, t_unix, {r: (v - v0) * k for r, v, v0, k in zip(rails, raw, raw0, scales)}])
             self._poll_pstr(t_mono)
             if stopping:
                 break
-        self.io.release(prev)
 
     def result(self) -> dict:
         s0, s1 = self.samples[0], self.samples[-1]
@@ -149,12 +170,19 @@ class Sampler:
                 "macos": platform.mac_ver()[0],
                 "python": platform.python_version(),
                 "interval_s": self.interval,
+                "pstr_interval_s": self.pstr_interval,
                 "ioreport_group": IOReportEnergy.GROUP,
                 "ioreport_channels": RAILS,
                 "smc_key": PSTR if self.smc is not None else None,
+                "sampler_version": SAMPLER_VERSION,
+                "subscribed_channels": len(self.io.names),
                 "sampler_loop_cpu_s": getattr(self, "loop_cpu_s", None),
+                "sampler_loop_cpu_ms_per_sample": (
+                    getattr(self, "loop_cpu_s", 0.0) * 1e3 / len(self.samples) if self.samples else None
+                ),
                 "sampler_loop_cpu_frac": getattr(self, "loop_cpu_s", 0.0) / dur if dur > 0 else None,
                 "process_cpu_s": ru.ru_utime + ru.ru_stime,
+                "process_cpu_frac": (ru.ru_utime + ru.ru_stime) / dur if dur > 0 else None,
                 "pid": os.getpid(),
             },
         }
@@ -169,10 +197,21 @@ def write_atomic(path: Path, obj: dict) -> None:
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--out", required=True, type=Path)
-    ap.add_argument("--interval", type=float, default=0.5, help="IOReport sample interval, s (default 0.5)")
+    ap.add_argument(
+        "--interval",
+        type=float,
+        default=DEFAULT_INTERVAL_S,
+        help=f"IOReport sample interval, s (default {DEFAULT_INTERVAL_S})",
+    )
+    ap.add_argument(
+        "--pstr-interval",
+        type=float,
+        default=DEFAULT_PSTR_INTERVAL_S,
+        help=f"SMC PSTR polling interval, s; --interval must be a whole multiple (default {DEFAULT_PSTR_INTERVAL_S})",
+    )
     ap.add_argument("--seconds", type=float, default=None, help="stop after this many seconds")
     a = ap.parse_args(argv)
-    s = Sampler(a.interval)
+    s = Sampler(a.interval, a.pstr_interval)
     for sig in (signal.SIGINT, signal.SIGTERM):
         signal.signal(sig, lambda *_: s.stop())
     if a.seconds is not None:
@@ -180,7 +219,9 @@ def main(argv=None) -> int:
     th = threading.Thread(target=s.run, name="sampler")
     th.start()
     while th.is_alive():
-        th.join(0.2)  # the main thread stays interruptible for the signal handlers
+        # Lock waits are interruptible by signals, so the handlers still run; a long timeout
+        # keeps the main thread from waking the process 5 times a second.
+        th.join(5.0)
     write_atomic(a.out, s.result())
     return 0
 

@@ -29,7 +29,7 @@ are not in `raw/`.
 | Channels used | `PSTR` (also readable: `PDTR`, `PHPC`, `PZC0`; `PPBR` and `PMVC` do not exist on M4 Max, SMC result 132) | `CPU Energy` (mJ), `GPU Energy` (nJ), `ANE` (mJ), `DRAM` (mJ), out of 331 channels |
 | Update rate | Once per second: 3 value changes in 3 s of 200 µs polling, both idle and under GPU load | Every ≤10 ms: every 10 ms delta was non-zero at idle |
 | Resolution | float W | 1 mJ (CPU, ANE, DRAM), 1 nJ (GPU) |
-| Cost per read | ~0.2 ms | ~3.3 ms of CPU per sample, whether the subscription holds all 331 channels or only 4 |
+| Cost per read | ~0.02 ms | Almost all kernel time in `IOReportCreateSamples`: ~0.1 ms user + ~3.6 ms system back to back for all 331 channels, ~2.9 ms for a 4-channel subscription; 6–11 ms per sample when taken periodically (see [Sampler](#sampler)) |
 | Energy of an interval | Integral of 1 Hz readings (zero-order hold); ±1 update of edge uncertainty | Difference of two counter samples; covers the whole interval, with no aliasing |
 | Per rail | No: whole system (SoC, fans, SSD, PSU losses, other processes' peripherals) | Yes: CPU, GPU, ANE, DRAM separately |
 
@@ -56,19 +56,75 @@ coarser system-level view.
 GIL:
 
 ```
-python3 research/energy-sampler/scripts/sampler.py --out PATH.json [--interval 0.5] [--seconds N]
+python3 research/energy-sampler/scripts/sampler.py --out PATH.json [--interval 1.0] [--pstr-interval 0.5] [--seconds N]
 ```
 
-- It samples IOReport every `--interval` s (default 0.5 s) and polls `PSTR` on the same tick.
+- It samples IOReport every `--interval` s (default 1.0 s) and polls `PSTR` every
+  `--pstr-interval` s (default 0.5 s).
 - Samples are stamped with `CLOCK_UPTIME_RAW`, which is system-wide, and with the wall clock.
 - It stops on SIGINT or SIGTERM and writes the JSON atomically. The keys are listed in the
   module docstring: `energy_j`, `mean_power_w`, `rails_j`, the cumulative `samples`, the `pstr`
   changes and `meta`.
 - `meta.sampler_loop_cpu_frac` records the sampling loop's own CPU time as a fraction of one
-  core. At 3.3 ms per sample, the expected cost at 0.5 s is about 0.7%.
+  core, and `meta.sampler_loop_cpu_ms_per_sample` the same per sample.
 - The sampler runs through idle windows too, so its own cost cancels in the idle subtraction.
 - The energy of a window is the cumulative counter linearly interpolated at the window's
   start and end (`energy.window_energy`).
+
+**Sampler versions.** `meta.sampler_version` records which one produced a run.
+
+- **Version 1 (run 1).** Subscribed to the whole group (331 channels), sampled every 0.5 s,
+  and built an `IOReportCreateSamplesDelta` object per sample, whose four rails were found by
+  converting channel names to Python strings. The README expected about 0.7% of a core from
+  a 3.3 ms back-to-back cost. Run 1 measured 11.9 ms per sample and 2.38%. A sample taken
+  once per interval costs about 2.5–3 times as much as one taken back to back (below). This
+  is consistent with each sample running on a core that has just woken and is not at full
+  clock; the cause was not measured further.
+- **Version 2 (run 2).** Subscribes to the four rails only, reads their cumulative counters
+  directly (`IOReportEnergy.read`: no delta object, channel order checked with `CFEqual`,
+  no string conversion per sample), samples every 1.0 s, and wakes the main thread every
+  5 s instead of every 0.2 s.
+
+Breakdown of one version-1 sample, measured back to back with no model loaded, under `nice`,
+on the M4 Max while other work was running:
+
+| Step | CPU per sample |
+|---|---|
+| `IOReportCreateSamples`, 331 channels | 3.6 ms (0.1 ms user, 3.6 ms system) |
+| `IOReportCreateSamples`, 4 channels | 2.9 ms |
+| `IOReportCreateSamplesDelta` + reading 4 cached rails | 0.24 ms |
+| Delta + full walk of 331 channels with string conversion (first sample, or after a reorder) | 1.2 ms |
+| SMC `PSTR` read | 0.02 ms |
+
+The kernel call dominates, so the cost is set mostly by how often a sample is taken.
+Sampler-only runs with no model, back to back under the same conditions (6 s each, twice;
+then 15 s):
+
+| Sampler | Interval | Loop CPU, % of one core | CPU per sample |
+|---|---|---|---|
+| version 1 | 0.5 s | 2.34%, 2.38% | 10.1, 11.0 ms |
+| version 2 | 0.5 s | 1.37%, 1.32% | 5.9, 6.1 ms |
+| version 2 | 1.0 s | 0.81%, 0.74% (15 s run: 0.83%) | 6.1, 6.4 ms (7.3 ms) |
+
+Version 1 reproduces run 1's 2.38% in this setting, so the setting is comparable to the
+campaign. The short runs overstate the steady-state fraction slightly, because the first
+sample is counted against only a few seconds. At 1.0 s, version 2 is below the 2% limit
+by a factor of about 2.5. These measurements were made interactively; they are not in
+`raw/`. Criterion 3 is judged on each run's own recorded `sampler_loop_cpu_frac`.
+
+**Why 1.0 s is enough.** A window's energy is the cumulative counter interpolated at the
+window's edges, so the interval affects only the two edge intervals of a 30 s (or 60 s)
+window, not the energy between them. Decimating run 1's 0.5 s series to 1.0 s and
+re-running the unchanged analysis changes:
+
+- no loaded window's net J/decision by more than 0.10%;
+- no window's mean SoC power by more than 1.95%. The largest changes are in idle windows
+  near 0.1 W, and the idle spread changes by at most 0.0015 W.
+
+At 2.0 s the changes are 0.15% and 2.9%. The `powermetrics` cross-check pairs 1 s
+reference intervals with the sampler's interpolated energy over the same interval, inside
+phases trimmed by 3 s at each edge, so a 1 s sampler interval does not change what is
+compared.
 
 ## Harness
 
