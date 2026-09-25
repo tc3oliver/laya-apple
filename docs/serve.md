@@ -198,6 +198,40 @@ not mean the client makes the same decisions as with Jev. Canny and switchboard 
 on confidences beyond thresholds tuned for Jev, and Laya's answers did not cross them in
 these runs, so both took their own fallback paths.
 
+## Beside a local LLM
+
+One run on an Apple M4 Max (macOS 26.6.2) measured `serve` on the same Mac as a local LLM
+generating at saturation: `Qwen3.8-27B-oQ4e-mtp` on oMLX 0.7.0.dev4, two streaming requests
+at a time, 256 tokens each. Beside it, 8 plugin-like clients sent 8 decision requests per
+second, open loop: 80% short, one question at 96 tokens, and 20% with three questions at
+128 tokens. `serve --model laya` ran once with `--device gpu` and once with `--device auto`
+(the default). Method, preregistered criteria and raw data:
+[`benchmarks/serve/README.md`](../benchmarks/serve/README.md), run 2
+([`m4-max-r2/tables.md`](../benchmarks/serve/m4-max-r2/tables.md)).
+
+| | `--device gpu` | `--device auto` |
+|---|---:|---:|
+| Short-decision P99, LLM idle | 55.9 ms | 43.2 ms |
+| Short-decision P99, LLM busy | 122.3 ms | 47.2 ms |
+| Three-question P99, LLM idle | 79.4 ms | 84.1 ms |
+| Three-question P99, LLM busy | 153.1 ms | 117.1 ms |
+| LLM tok/s beside serve (LLM alone: 42.2) | 40.0 (−5.3%) | 40.5 (−4.0%) |
+
+- **Latency:** P99 runs from each request's scheduled arrival, so queueing counts. It is the
+  median of four 60 s windows' P99s per cell.
+- **Where short decisions ran with `auto`:** about 4% (130 of 3,144) went to the GPU, by the
+  scheduler's designed spill when the Neural Engine backlog was the longer wait
+  ([`no-silent-fallback.md`](no-silent-fallback.md), row 2); the rest ran on the Neural
+  Engine. The P99 includes both.
+- **Correctness:** 0 hard mismatches and 0 errors over 7,728 decisions, each compared with
+  the same server's answer with the LLM idle; max probability error 0.0039.
+- **The two configurations' cost to the LLM** differ by 1.31 points. The LLM-alone windows
+  of the same run spread over 1.28 points, so the difference is barely above the noise.
+- Every preregistered criterion passed (G1, G2, L1, L2, C1, E1). The criteria are separate
+  results with no overall verdict.
+- **Run 1** of the same benchmark ([`m4-max/`](../benchmarks/serve/m4-max/)) was invalid
+  under its own validity checks, and no result is drawn from it.
+
 ## Limits
 
 - **No Jev accuracy claim.** Only runtime fidelity to upstream Laya is guaranteed and tested.
@@ -206,7 +240,15 @@ these runs, so both took their own fallback paths.
 - **`auto` routes between English and multilingual only.** Upstream's opt-in typed-decisions
   workflow detection (`LAYA_AUTO_TASK`) and caller language hints are not implemented. Name
   the checkpoint or use `--model` instead.
-- **No performance claim yet.** No claim is made about how the server affects a local LLM on
-  the same GPU; that is measured separately.
+- **Performance is one run in one setting** (see "Beside a local LLM"): one M4 Max, one LLM
+  server and model, a decode-heavy LLM load with short prompts, `--model laya`, 8 decision
+  requests per second. Other LLM servers and models, prefill-heavy LLM loads, `--model auto`
+  (language routing and `laya-multilingual`) and other request rates are not measured.
+- **`auto` still costs the LLM throughput:** 4.0% in that run, 1.31 points less than
+  `--device gpu`, against a 1.28-point window-to-window spread of the LLM alone. It is not
+  shown to leave the GPU to the LLM by more than that.
+- **Multi-question decisions always run on the GPU,** so they do share it with the LLM: their
+  P99 grew from 84.1 ms to 117.1 ms with `auto`, and from 79.4 ms to 153.1 ms with
+  `--device gpu`, when the LLM was busy.
 - **Truncation.** Long states are cut to the checkpoint's maximum length: 512 tokens for
   `laya`, 1,024 for the others. `laya_apple.truncated` reports it.
