@@ -2,6 +2,7 @@
 
 | Files | Sources |
 |---|---|
+| `jev-local.gif`, `jev-local.mp4` | [`jev-local.md`](jev-local.md) |
 | `switchyard-launch.gif`, `switchyard-launch.mp4` | [`switchyard-launch.md`](switchyard-launch.md) |
 | `switchyard-gpu-only.png`, `switchyard-gpu-ane.png`, `switchyard-result.png` | [`switchyard.md`](switchyard.md) |
 | `heterogeneous-serving.{mp4,gif,png}` | this page, below |
