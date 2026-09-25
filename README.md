@@ -8,6 +8,37 @@
 **Correctness-validated heterogeneous [Laya](https://github.com/NandhaKishorM/laya) runtime
 for Apple silicon:** the MLX GPU and the Apple Neural Engine, at the same time.
 
+## Replace the Jev API with a local backend on your Mac
+
+`laya-apple serve` is a local alternative to the Jev API. It serves a Jev-compatible API
+(`POST /v1/systemone`) on loopback and answers with upstream Laya, running on your Mac.
+Point an existing Jev client at it through its base-URL setting; its code does not change.
+
+```bash
+pip install 'laya-apple[serve,ane]'
+laya-apple serve                                   # http://127.0.0.1:8642
+export TYPESAFE_BASE_URL=http://127.0.0.1:8642     # then run your Jev client as usual
+```
+
+A Jev client needs some API key to start. Any placeholder works, such as
+`TYPESAFE_API_KEY=local-placeholder`, unless you set `LAYA_API_KEY` on the server.
+
+![A terminal: laya-apple serve starts locally; the released typesafe-sdk 0.7.1 for Python, unmodified, is pointed at it with TYPESAFE_BASE_URL and gets the answer fix_code; the same request with curl shows that laya-apple answered it with the laya checkpoint on the Apple Neural Engine](https://raw.githubusercontent.com/tc3oliver/laya-apple/main/docs/readme/serve-demo.svg)
+
+- **Tested unmodified with 7 Jev clients** at their released versions, including the Python
+  and JS SDKs and two Claude Code plugins. Each completed its requests, pointed here only
+  through its base-URL setting ([`integrations/jev-plugins/README.md`](integrations/jev-plugins/README.md)).
+- **The answers are Laya's, not Jev's.** What is guaranteed is fidelity to upstream Laya:
+  792 of 792 requests matched unmodified upstream `laya.serve` 0.3.20 within the FP16
+  parity gate, 365 of them answered on the Neural Engine
+  ([`benchmarks/serve-compat/`](benchmarks/serve-compat/README.md)). Laya is a different,
+  smaller model, so there is no Jev-level accuracy claim, and a client whose thresholds
+  were tuned on Jev may take its fallback path more often.
+- laya-apple is not affiliated with TypeSafe or Jev. The figure above is a recorded run
+  ([`scripts/capture_serve_demo.py`](scripts/capture_serve_demo.py)).
+
+Models, API, security and limits: [`docs/serve.md`](docs/serve.md).
+
 ## Have a Mac? Try Switchyard.
 
 ```bash
@@ -75,6 +106,7 @@ Optional extras:
 ```bash
 pip install "laya-apple[ane]"       # + the Neural Engine runtime (coremltools 9.0)
 pip install "laya-apple[convert]"   # + building ANE artifacts on this Mac (torch 2.7.0)
+pip install "laya-apple[serve]"     # + laya-apple serve, the local Jev-compatible server
 laya-apple artifacts build laya-typed-decisions   # optional: build + parity-validate ANE artifacts here (~5 min)
 ```
 
@@ -315,10 +347,22 @@ the command above and open a PR with `hardware-results/`
 - **`choice` decisions can depend on option order.** This comes from upstream Laya, and
   laya-apple reproduces it exactly ([`research/option-order/`](research/option-order/)).
 - **Not measured yet:** energy use, quantized artifacts and cross-SoC validation.
+- **`laya-apple serve` answers with Laya, not Jev.** Only fidelity to upstream Laya is
+  measured, not Jev-level accuracy. Clients with thresholds tuned on Jev may take their
+  fallback path more often; two of the seven tested did
+  ([`integrations/jev-plugins/README.md`](integrations/jev-plugins/README.md)).
+- **`laya-apple serve` makes no performance claim.** Its latency, its throughput and its
+  effect on a local LLM sharing the GPU are not measured.
+- **Client compatibility was tested once,** on 2026-09-25, at the client versions listed and
+  on the tested M4 Max. A later client release may change what it sends or accepts.
+- **`serve --model auto` routes between English and multilingual only.** Upstream's opt-in
+  typed-decisions workflow detection (`LAYA_AUTO_TASK`) and caller language hints are not
+  implemented ([`docs/serve.md`](docs/serve.md#limits)).
 
 ## More
 
 - User guide: [`docs/guide.md`](docs/guide.md).
+- Local Jev-compatible server: [`docs/serve.md`](docs/serve.md).
 - Stable API: [`docs/api.md`](docs/api.md).
 - Architecture: [`docs/architecture.md`](docs/architecture.md).
 - Changes: [`CHANGELOG.md`](CHANGELOG.md).

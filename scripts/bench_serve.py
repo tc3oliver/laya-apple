@@ -456,7 +456,15 @@ class Serve:
                     self.proc.kill()
                     self.proc.wait()
         self.log.close()
+        p = Path(self.log.name)
+        p.write_text(scrub_paths(p.read_text()))
         return self.proc.returncode
+
+
+def scrub_paths(text: str) -> str:
+    """The serve log is committed with the campaign: no machine-specific absolute paths."""
+    root = str(Path(__file__).resolve().parents[1])
+    return text.replace(root, "<repo>").replace(str(Path.home()), "~")
 
 
 # ---------------------------------------------------------------------------------------

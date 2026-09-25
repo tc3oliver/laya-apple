@@ -50,10 +50,19 @@ under [Re-running everything](#re-running-everything).
 | Option order: upstream changes its decision in 35% (typed-decisions) and 22.5% (laya) of cases; MLX FP32 reproduces upstream exactly | [Option order](../benchmarks/v1.0.md#option-order-robustness) | `option-order-upstream-*.json`, `option-order-{gpu-float32,gpu-float16,ane-float16}.json` | `scripts/option_order.py run`, `research/option-order/upstream.py` (step 5) | `scripts/option_order.py compare` | not recorded in these files |
 | Cold start 3–5 minutes per model (v0.3, not v1.0) | — | `benchmarks/v0.3/coldstart.json` | `scripts/bench_coldstart.py` | [`benchmarks/v0.3.md`](../benchmarks/v0.3.md) | in the file |
 | Per-stream P99 under concurrency is above its solo value (v0.2, not v1.0) | — | `benchmarks/v0.2/` | `scripts/bench_concurrency.py` | [`benchmarks/v0.2.md`](../benchmarks/v0.2.md) | in the files |
+| `laya-apple serve`: 792 of 792 requests match unmodified upstream `laya.serve` 0.3.20 within the FP16 parity gate (1.3.0, not v1.0) | [`benchmarks/serve-compat/README.md`](../benchmarks/serve-compat/README.md), "Results" | `benchmarks/serve-compat/*.json`: `passed` per file and per case, 9 files, 792 cases | `scripts/upstream_serve_pinned.py`, `laya-apple serve --preload typed-decisions`, then `scripts/compare_serve_upstream.py` per file ([Reproduce](../benchmarks/serve-compat/README.md#reproduce)) | count `cases[].passed` over the 9 files | "Setup" in the report; not recorded in the files |
+| `laya-apple serve`: 365 of those answered on the Neural Engine | same | `benchmarks/serve-compat/*-split.json`, `cases[].ours_device == "ane"` (122 + 121 + 122) | the `--split` runs above | count `ours_device` | same |
+| `laya-apple serve`: tested unmodified with 7 Jev clients | [`integrations/jev-plugins/README.md`](../integrations/jev-plugins/README.md) | [`integrations/jev-plugins/runs/2026-09-25.md`](../integrations/jev-plugins/runs/2026-09-25.md): versions, install and run commands, decoded output per client | by hand, per client, as in the run record | — | `integrations/jev-plugins/README.md`, "Tested" (Apple M4 Max); macOS not recorded |
 
-Two README figures are not benchmark data: the Quickstart output (`high`, its
-probabilities and 11.2 ms) and "probabilities within 0.002" on `device="gpu"`. Both come
-from running the Quickstart; re-run it to see the values on your machine.
+Three README figures are not benchmark data:
+- the Quickstart output (`high`, its probabilities and 11.2 ms);
+- "probabilities within 0.002" on `device="gpu"`;
+- the `laya-apple serve` terminal figure (`docs/readme/serve-demo.svg`, answer `fix_code`
+  on the ANE). It is one recorded session, `docs/readme/serve-demo.json`, captured by
+  `scripts/capture_serve_demo.py` and rendered by `scripts/generate_readme_svgs.py`.
+
+The first two come from running the Quickstart; re-run it to see the values on your
+machine. Re-run `scripts/capture_serve_demo.py` for the third.
 
 ## Re-running everything
 
