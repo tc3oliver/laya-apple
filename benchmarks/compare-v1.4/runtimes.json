@@ -1,0 +1,84 @@
+{
+ "note": "Pinned runtimes for benchmarks/compare-v1.4. drive.py installs each one into its own throwaway uv environment; nothing here is installed into the laya-apple environment except laya-apple itself.",
+ "python": "3.12",
+ "checkpoints_from": "laya_apple.registry (the revisions laya-apple pins); every runtime that can load the upstream checkpoint loads exactly these snapshots",
+ "runtimes": {
+  "laya-apple": {
+   "env": "repo",
+   "install": "uv sync --inexact --extra ane (this checkout)",
+   "license": "Apache-2.0",
+   "variants": {
+    "auto": ["laya", "laya-multilingual", "laya-typed-decisions"],
+    "gpu": ["laya", "laya-multilingual", "laya-typed-decisions"]
+   },
+   "variant_notes": {
+    "auto": "default: MLX GPU, validated ANE artifacts for short single questions (execution=inline)",
+    "gpu": "MLX GPU only"
+   },
+   "weights": "upstream checkpoint snapshot (laya_apple.registry)"
+  },
+  "laya-mlx": {
+   "pip": ["laya-mlx==0.2.0"],
+   "license": "Apache-2.0",
+   "source": {"repo": "mizorewww/laya-mlx", "commit": "0a859518634112655cb97c745dbf04f5191aaf13", "pyproject_version": "0.2.0"},
+   "upstream_basis": "NandhaKishorM/laya prompt and output code at 573e5b62 plus the v0.3.5 temperature clamp (README)",
+   "variants": {
+    "fp16": ["laya", "laya-multilingual", "laya-typed-decisions"],
+    "fp16-opt": ["laya", "laya-multilingual", "laya-typed-decisions"]
+   },
+   "variant_notes": {
+    "fp16": "default: laya_mlx.load(snapshot, dtype='float16'), eager",
+    "fp16-opt": "documented opt-in: compile=True, pad_to_multiple=16, cache_prompts=True"
+   },
+   "weights": "the same upstream checkpoint snapshot as laya-apple (laya_mlx.load accepts a local checkpoint directory)"
+  },
+  "laya-coreml": {
+   "pip": ["laya-coreml==0.1.0"],
+   "license": "Apache-2.0",
+   "source": {"repo": "mizorewww/laya-coreml", "commit": "4619e0483f07adf39068532e85b42ec2347edb83", "pyproject_version": "0.1.1", "note": "the source tree is only used for its published fixtures (benchmarks/results/reference.json); the runtime is the 0.1.0 wheel"},
+   "upstream_basis": "NandhaKishorM/laya at 573e5b62 plus the v0.3.5 temperature clamp (README)",
+   "bundles": {
+    "default": {
+     "laya": {"repo": "aac6fef/laya-coreml", "revision": "fff78b2d9750c6b748fe8c90fcbf8bed0a1522a9", "bundle_bytes": 847232451},
+     "laya-multilingual": {"repo": "aac6fef/laya-multilingual-coreml", "revision": "8139e9089273319512c730218903784074133187", "bundle_bytes": 679891646},
+     "laya-typed-decisions": {"repo": "aac6fef/laya-typed-decisions-coreml", "revision": "28d24fa8d67a3264556b23391ec6c3fd98573056", "bundle_bytes": 848150375}
+    },
+    "ane": {
+     "laya-multilingual": {"repo": "aac6fef/laya-multilingual-coreml-ane", "revision": "39d6a9b3d0f67f06da74fbade6121ea134cbdb21", "bundle_bytes": 679920639}
+    }
+   },
+   "variants": {
+    "default": ["laya", "laya-multilingual", "laya-typed-decisions"],
+    "ane": ["laya-multilingual"]
+   },
+   "variant_notes": {
+    "default": "enumerated-shape Core ML export, compute_units cpu_gpu (the package default)",
+    "ane": "fixed B1/L96 ANE bundle, compute_units cpu_ne; requests over 96 tokens raise a capacity error"
+   },
+   "weights": "the project's own Core ML bundles, exported from the same upstream revisions (bundle manifests record the source weight hash; checked at run time)"
+  },
+  "laya-fast": {
+   "pip_from_source": ["-r requirements-lock.txt", "-r requirements-export.txt"],
+   "license": "Apache-2.0",
+   "source": {"repo": "DJLougen/laya-fast", "commit": "3a9d534642cadb54c4cdb531f9abfa694acbefc8"},
+   "upstream_basis": "the Hugging Face convaiinnovations/laya reference code (rl_agent_api.py) at 1c5edc17 (NOTICE)",
+   "checkpoint_note": "The README pins convaiinnovations/laya@1c5edc17. Every file drive.py uses (model.safetensors, rl_agent_config.json, encoder/, tokenizer/) is identical to the c5d78730 snapshot laya-apple pins; only README.md differs (Hugging Face tree API, checked by drive.py setup). convert.py therefore runs on laya-apple's snapshot.",
+   "ane_buckets": [64, 80, 96, 128, 256, 512],
+   "variants": {
+    "mlx": ["laya"],
+    "fast": ["laya"]
+   },
+   "variant_notes": {
+    "mlx": "LayaMLX(converted-fp16, dtype=float16, compile=True): the CLI default --agent mlx",
+    "fast": "LayaFast(converted-fp16) with the ANE bodies exported by ane/export.py for every bucket in ane_buckets"
+   },
+   "weights": "convert.py output (MLX fp16) of the same upstream snapshot; English checkpoint only"
+  },
+  "upstream": {
+   "pip": ["laya==0.3.20", "torch==2.7.0", "transformers==5.17.0", "tokenizers==0.23.2"],
+   "license": "Apache-2.0",
+   "role": "reference: unmodified upstream Laya, PyTorch CPU FP32 (the golden recipe), for fixtures that have no committed goldens",
+   "variants": {"cpu-fp32": ["laya", "laya-multilingual", "laya-typed-decisions"]}
+  }
+ }
+}
