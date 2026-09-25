@@ -81,7 +81,7 @@ tolerances and the published v1.0 measurements are unchanged.
   `laya-typed-decisions` (aggregate 1.049, short P99 0.963 [0.952, 0.974]), INCONCLUSIVE on
   `laya-multilingual` (short P99 0.851 [0.524, 1.384]). As preregistered for this outcome,
   production is unchanged and a larger preregistered replication decides. PB's short P99 was
-  about 4–5% lower than C's in the same campaign.
+  about 3–5% lower than C's in the same campaign.
   - Unplanned observation: under this experiment's hetero-only protocol, C (#77's binding)
     also passes on `laya` and `laya-typed-decisions`, where #77 recorded it as FAIL. #77's
     regression therefore depends on the protocol; its verdict stands, and the protocol
