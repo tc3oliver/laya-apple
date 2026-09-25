@@ -1,0 +1,291 @@
+{
+ "note": "Request shapes for benchmarks/compare-v1.4 (make_shapes.py). Text written for this project.",
+ "prompt_tokens": {
+  "laya": {
+   "short": [
+    62
+   ],
+   "long": [
+    401
+   ],
+   "mixed3": [
+    62,
+    68,
+    73
+   ],
+   "uniform3": [
+    73,
+    72,
+    72
+   ],
+   "batch16": [
+    66,
+    72,
+    77,
+    76,
+    66,
+    72,
+    77,
+    76,
+    66,
+    72,
+    77,
+    76,
+    66,
+    72,
+    77,
+    76
+   ]
+  },
+  "laya-multilingual": {
+   "short": [
+    65
+   ],
+   "long": [
+    441
+   ],
+   "mixed3": [
+    65,
+    73,
+    76
+   ],
+   "uniform3": [
+    76,
+    75,
+    75
+   ],
+   "batch16": [
+    70,
+    78,
+    81,
+    80,
+    70,
+    78,
+    81,
+    80,
+    70,
+    79,
+    82,
+    81,
+    71,
+    79,
+    82,
+    81
+   ]
+  },
+  "laya-typed-decisions": {
+   "short": [
+    62
+   ],
+   "long": [
+    401
+   ],
+   "mixed3": [
+    62,
+    68,
+    73
+   ],
+   "uniform3": [
+    73,
+    72,
+    72
+   ],
+   "batch16": [
+    66,
+    72,
+    77,
+    76,
+    66,
+    72,
+    77,
+    76,
+    66,
+    72,
+    77,
+    76,
+    66,
+    72,
+    77,
+    76
+   ]
+  }
+ },
+ "shapes": {
+  "short": {
+   "state": "Order 7731 arrived yesterday with a cracked screen. The customer attached two photos of the damage, says the box was dented on one corner, and asks for a replacement before the weekend.",
+   "questions": {
+    "next_step": {
+     "type": "choice",
+     "instructions": "What should support do next?",
+     "criteria": [
+      "send replacement",
+      "issue refund",
+      "ask for more details"
+     ]
+    }
+   }
+  },
+  "long": {
+   "state": "The warehouse scanner logged parcel 7731 at the loading dock at 06:12, then again at the sorting belt at 06:40, where the weight reading was two hundred grams under the manifest. The courier note says the outer box was dented on one corner. The customer later reported that the screen was cracked on arrival and attached two photos of the damage. The warehouse scanner logged parcel 7731 at the loading dock at 06:12, then again at the sorting belt at 06:40, where the weight reading was two hundred grams under the manifest. The courier note says the outer box was dented on one corner. The customer later reported that the screen was cracked on arrival and attached two photos of the damage. The warehouse scanner logged parcel 7731 at the loading dock at 06:12, then again at the sorting belt at 06:40, where the weight reading was two hundred grams under the manifest. The courier note says the outer box was dented on one corner. The customer later reported that the screen was cracked on arrival and attached two photos of the damage. The warehouse scanner logged parcel 7731 at the loading dock at 06:12, then again at the sorting belt at 06:40, where the weight reading was two hundred grams under the manifest. The courier note says the outer box was dented on one corner. The customer later reported that the screen was cracked on arrival and attached two photos of the damage. The warehouse scanner logged parcel 7731 at the loading dock at 06:12, then again at the sorting belt at 06:40, where the weight reading was two hundred grams under the manifest. The courier note says the outer box was dented on one corner. The customer later reported that the screen was cracked on arrival and attached two photos of the damage. ",
+   "questions": {
+    "evidence": {
+     "type": "noul",
+     "instructions": "Did the customer provide evidence of the damage?"
+    }
+   }
+  },
+  "mixed3": {
+   "state": "Order 7731 arrived yesterday with a cracked screen. The customer attached two photos of the damage, says the box was dented on one corner, and asks for a replacement before the weekend.",
+   "questions": {
+    "next_step": {
+     "type": "choice",
+     "instructions": "What should support do next?",
+     "criteria": [
+      "send replacement",
+      "issue refund",
+      "ask for more details"
+     ]
+    },
+    "severity": {
+     "type": "score",
+     "instructions": "How severe is the damage?",
+     "criteria": [
+      "cosmetic",
+      "partly usable",
+      "unusable"
+     ]
+    },
+    "evidence": {
+     "type": "noul",
+     "instructions": "Did the customer provide evidence of the damage?"
+    }
+   }
+  },
+  "uniform3": {
+   "state": "Order 7731 arrived yesterday with a cracked screen. The customer attached two photos of the damage, says the box was dented on one corner, and asks for a replacement before the weekend.",
+   "questions": {
+    "evidence": {
+     "type": "noul",
+     "instructions": "Did the customer provide evidence of the damage?"
+    },
+    "refund": {
+     "type": "noul",
+     "instructions": "Is the customer asking for a refund?"
+    },
+    "order": {
+     "type": "noul",
+     "instructions": "Does the message mention an order number?"
+    }
+   }
+  },
+  "batch16": {
+   "state": "Order 7731 arrived yesterday with a cracked screen. The customer attached two photos of the damage, says the box was dented on one corner, and asks for a replacement before the weekend.",
+   "questions": {
+    "q00": {
+     "type": "choice",
+     "instructions": "What should support do next? (check 1)",
+     "criteria": [
+      "send replacement",
+      "issue refund",
+      "ask for more details"
+     ]
+    },
+    "q01": {
+     "type": "score",
+     "instructions": "How severe is the damage? (check 2)",
+     "criteria": [
+      "cosmetic",
+      "partly usable",
+      "unusable"
+     ]
+    },
+    "q02": {
+     "type": "noul",
+     "instructions": "Did the customer provide evidence of the damage? (check 3)"
+    },
+    "q03": {
+     "type": "noul",
+     "instructions": "Is the customer asking for a refund? (check 4)"
+    },
+    "q04": {
+     "type": "choice",
+     "instructions": "What should support do next? (check 5)",
+     "criteria": [
+      "send replacement",
+      "issue refund",
+      "ask for more details"
+     ]
+    },
+    "q05": {
+     "type": "score",
+     "instructions": "How severe is the damage? (check 6)",
+     "criteria": [
+      "cosmetic",
+      "partly usable",
+      "unusable"
+     ]
+    },
+    "q06": {
+     "type": "noul",
+     "instructions": "Did the customer provide evidence of the damage? (check 7)"
+    },
+    "q07": {
+     "type": "noul",
+     "instructions": "Is the customer asking for a refund? (check 8)"
+    },
+    "q08": {
+     "type": "choice",
+     "instructions": "What should support do next? (check 9)",
+     "criteria": [
+      "send replacement",
+      "issue refund",
+      "ask for more details"
+     ]
+    },
+    "q09": {
+     "type": "score",
+     "instructions": "How severe is the damage? (check 10)",
+     "criteria": [
+      "cosmetic",
+      "partly usable",
+      "unusable"
+     ]
+    },
+    "q10": {
+     "type": "noul",
+     "instructions": "Did the customer provide evidence of the damage? (check 11)"
+    },
+    "q11": {
+     "type": "noul",
+     "instructions": "Is the customer asking for a refund? (check 12)"
+    },
+    "q12": {
+     "type": "choice",
+     "instructions": "What should support do next? (check 13)",
+     "criteria": [
+      "send replacement",
+      "issue refund",
+      "ask for more details"
+     ]
+    },
+    "q13": {
+     "type": "score",
+     "instructions": "How severe is the damage? (check 14)",
+     "criteria": [
+      "cosmetic",
+      "partly usable",
+      "unusable"
+     ]
+    },
+    "q14": {
+     "type": "noul",
+     "instructions": "Did the customer provide evidence of the damage? (check 15)"
+    },
+    "q15": {
+     "type": "noul",
+     "instructions": "Is the customer asking for a refund? (check 16)"
+    }
+   }
+  }
+ }
+}
