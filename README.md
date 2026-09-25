@@ -10,7 +10,7 @@
 **Correctness-validated heterogeneous [Laya](https://github.com/NandhaKishorM/laya) runtime
 for Apple silicon:** the MLX GPU and the Apple Neural Engine, at the same time.
 
-## Decisions stay fast while your local LLM is busy
+## Short decisions stay fast while your local LLM is busy
 
 `laya-apple serve` answers decision requests from Jev clients on your Mac, with upstream
 Laya. With its default `--device auto`, short single-question decisions run on the Apple
@@ -24,9 +24,11 @@ export TYPESAFE_BASE_URL=http://127.0.0.1:8642     # then run your Jev client as
 
 ![laya-apple serve beside a busy local LLM, one run on an Apple M4 Max with Qwen3.8-27B-oQ4e-mtp: short-decision P99 47.2 ms with serve auto against 122.3 ms with --device gpu while the LLM generates (43.2 and 55.9 ms with the LLM idle); LLM throughput 42.2 tok/s alone, 40.0 beside serve --device gpu and 40.5 beside serve auto](https://raw.githubusercontent.com/tc3oliver/laya-apple/main/docs/readme/serve-llm-load.svg)
 
-One run on one Apple M4 Max: a 27B local LLM (`Qwen3.8-27B-oQ4e-mtp` on oMLX) generating at
-saturation, and 8 decision requests per second beside it, 80% of them short single-question
-decisions ([`benchmarks/serve/`](benchmarks/serve/README.md), run 2):
+One run of `laya-apple serve --model laya` on one Apple M4 Max: a 27B local LLM
+(`Qwen3.8-27B-oQ4e-mtp` on oMLX) generating at saturation, and 8 decision requests per second
+offered beside it, 80% of them short single-question decisions
+([`benchmarks/serve/`](benchmarks/serve/README.md), run 2). Measured with `--model laya`; the
+default `--model auto` was not measured.
 
 - **Short-decision P99 with the LLM busy: 47.2 ms with `auto`, against 122.3 ms with
   `--device gpu`.** With the LLM idle it is 43.2 ms with `auto` and 55.9 ms with
@@ -389,9 +391,11 @@ the command above and open a PR with `hardware-results/`
   ([`integrations/jev-plugins/README.md`](integrations/jev-plugins/README.md)).
 - **`laya-apple serve` performance is one run in one setting:** one M4 Max, one LLM
   (`Qwen3.8-27B-oQ4e-mtp` on oMLX, decode-heavy, short prompts), `--model laya`, 8 decision
-  requests per second ([`benchmarks/serve/`](benchmarks/serve/README.md)). Other LLM
-  servers and models, prefill-heavy LLM loads, `--model auto` and other request rates are
-  not measured.
+  requests per second offered ([`benchmarks/serve/`](benchmarks/serve/README.md)). Not
+  measured: other LLM servers and models, prefill-heavy LLM loads, other request rates,
+  serve's maximum decision throughput (run 2 used a fixed 8 req/s offered load), and the
+  other checkpoints (`laya-typed-decisions`, `--model laya-multilingual`) and
+  `--model auto`.
 - **Serve `auto` still costs the LLM throughput:** 4.0% in that run, only 1.31 points less
   than `--device gpu`, against a 1.28-point window-to-window spread of the LLM alone.
 - **Multi-question decisions always run on the GPU,** and their P99 grows with the LLM

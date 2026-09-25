@@ -328,6 +328,8 @@ def serve_llm_data() -> dict:
         sys.exit(f"{SERVE_LLM_RUN.name}: not a valid campaign; the figure draws only valid runs")
     camp = json.loads((SERVE_LLM_RUN / "raw" / "campaign.json").read_text())
     cells = res["cells"]
+    if camp["args"]["llm_model"] != res["llm_model"]:
+        sys.exit(f"{SERVE_LLM_RUN.name}: campaign and results name different LLM models")
 
     def p99(cell):
         return cells[cell]["classes"]["short_1q"]["p99_ms_median"]
@@ -335,8 +337,11 @@ def serve_llm_data() -> dict:
     return {
         "run": res["campaign"],
         "platform": camp["platform"],
-        "llm_model": res["llm_model"],
+        "llm_model": camp["args"]["llm_model"],
         "offered_req_s": res["offered_req_s"],
+        "short_share": camp["args"]["short_share"],
+        "serve_model": camp["args"]["model"],
+        "window_s": camp["args"]["window"],
         "windows": cells["auto/decisions_llm"]["windows"],
         "alone_windows": cells["llm_alone"]["windows"],
         "p99": [
@@ -366,8 +371,8 @@ def serve_llm() -> str:
         _text(
             24,
             58,
-            f"Decisions at {d['offered_req_s']:g} req/s while the LLM generates at saturation · "
-            "serve auto sends short decisions to the Neural Engine",
+            f"Decisions at {d['offered_req_s']:g} req/s offered ({d['short_share']:.0%} short) beside a saturated "
+            "LLM · serve auto sends most short decisions to the Neural Engine",
             cls="m",
         ),
     ]
@@ -393,7 +398,7 @@ def serve_llm() -> str:
     for label, v, drop, cls in d["tok_s"]:
         b.append(_text(x_label, y + 12.5, label, size=12))
         b.append(f'<rect x="{x0}" y="{y}" width="{v * scale:.1f}" height="{bar_h}" rx="2" class="{cls}"/>')
-        note = f"{v:.1f} tok/s" + ("" if drop is None else f" (−{drop * 100:.1f}%)")
+        note = f"{v:.1f} tok/s" + ("" if drop is None else f" ({-drop * 100:+.1f}%)".replace("-", "−"))
         b.append(_text(x0 + v * scale + 8, y + 12.5, note, size=12))
         y += row_h
     y += 8
@@ -404,7 +409,7 @@ def serve_llm() -> str:
             24,
             y + 24,
             f"One run ({d['run']}) on {plat['soc']} · macOS {plat['macos']} · LLM {d['llm_model']} · "
-            f"serve --model laya",
+            f"serve --model {d['serve_model']}",
             cls="m",
             size=12,
         )
@@ -413,7 +418,7 @@ def serve_llm() -> str:
         _text(
             24,
             y + 44,
-            f"Medians over {d['windows']} windows of 60 s per cell ({d['alone_windows']} for the LLM alone); "
+            f"Medians over {d['windows']} windows of {d['window_s']:g} s per cell ({d['alone_windows']} for the LLM alone); "
             "P99 from scheduled arrival, queueing included",
             cls="m",
             size=12,

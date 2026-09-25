@@ -14,7 +14,7 @@
 </style>
 <rect x="0.5" y="0.5" width="879" height="439" rx="10" class="bg"/>
 <text x="24" y="34" class="t" font-size="18" font-weight="600">laya-apple serve beside a busy local LLM</text>
-<text x="24" y="58" class="m" font-size="13">Decisions at 8 req/s while the LLM generates at saturation · serve auto sends short decisions to the Neural Engine</text>
+<text x="24" y="58" class="m" font-size="13">Decisions at 8 req/s offered (80% short) beside a saturated LLM · serve auto sends most short decisions to the Neural Engine</text>
 <text x="24" y="96" class="t" font-size="14" font-weight="600">Short-decision P99 latency, ms (lower is better)</text>
 <text x="24" y="124.5" class="m" font-size="12">serve --device gpu · LLM idle</text>
 <rect x="260" y="112" width="196.4" height="16" rx="2" class="gpu" fill-opacity="0.45"/>

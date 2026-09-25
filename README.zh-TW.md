@@ -12,7 +12,7 @@
 **經過正確性驗證，可同時使用 MLX GPU 與 Apple Neural Engine（ANE）的
 [Laya](https://github.com/NandhaKishorM/laya) runtime，適用於 Apple silicon。**
 
-## 本機 LLM 忙碌時，決策依然快速
+## 本機 LLM 忙碌時，簡短決策依然快速
 
 `laya-apple serve` 在你的 Mac 上用上游 Laya 回答 Jev 用戶端送來的決策請求。預設的
 `--device auto` 會把簡短的單一問題決策交給 Apple Neural Engine 執行，不必在 GPU 上排在本機 LLM
@@ -26,9 +26,10 @@ export TYPESAFE_BASE_URL=http://127.0.0.1:8642     # then run your Jev client as
 
 ![laya-apple serve 與忙碌的本機 LLM 同時執行，在 Apple M4 Max 上以 Qwen3.8-27B-oQ4e-mtp 跑一次的結果：LLM 生成時，簡短決策的 P99 在 serve auto 下是 47.2 ms，--device gpu 則是 122.3 ms（LLM 閒置時分別是 43.2 與 55.9 ms）；LLM 吞吐量單獨執行時 42.2 tok/s，搭配 serve --device gpu 時 40.0，搭配 serve auto 時 40.5](https://raw.githubusercontent.com/tc3oliver/laya-apple/main/docs/readme/serve-llm-load.svg)
 
-以下是在一台 Apple M4 Max 上跑一次的結果：27B 本機 LLM（oMLX 上的 `Qwen3.8-27B-oQ4e-mtp`）
-滿載生成，同時每秒送出 8 個決策請求，其中 80% 是簡短的單一問題決策
-（[`benchmarks/serve/`](benchmarks/serve/README.md)，第 2 次執行）：
+以下是 `laya-apple serve --model laya` 在一台 Apple M4 Max 上跑一次的結果：27B 本機 LLM
+（oMLX 上的 `Qwen3.8-27B-oQ4e-mtp`）滿載生成，同時以每秒 8 個的速率送出決策請求，其中 80%
+是簡短的單一問題決策（[`benchmarks/serve/`](benchmarks/serve/README.md)，第 2 次執行）。
+這些數字是用 `--model laya` 量測的；預設的 `--model auto` 沒有量測。
 
 - **LLM 忙碌時，簡短決策的 P99：`auto` 為 47.2 ms，`--device gpu` 為 122.3 ms。** LLM 閒置時，
   `auto` 為 43.2 ms，`--device gpu` 為 55.9 ms。
@@ -370,9 +371,11 @@ uv run python scripts/hardware_report.py --quick
   測試的七個用戶端中有兩個出現這種情況
   （[`integrations/jev-plugins/README.md`](integrations/jev-plugins/README.md)）。
 - **`laya-apple serve` 的效能只在一種設定下跑過一次：** 一台 M4 Max、一個 LLM（oMLX 上的
-  `Qwen3.8-27B-oQ4e-mtp`，以 decode 為主、prompt 很短）、`--model laya`、每秒 8 個決策請求
-  （[`benchmarks/serve/`](benchmarks/serve/README.md)）。其他 LLM 伺服器與模型、以 prefill
-  為主的 LLM 負載、`--model auto` 以及其他請求速率都還沒量測。
+  `Qwen3.8-27B-oQ4e-mtp`，以 decode 為主、prompt 很短）、`--model laya`、每秒送出 8 個決策請求
+  （[`benchmarks/serve/`](benchmarks/serve/README.md)）。還沒量測的有：其他 LLM 伺服器與模型、
+  以 prefill 為主的 LLM 負載、其他請求速率、serve 的最大決策吞吐量（第 2 次執行固定以每秒 8 個
+  請求送出），以及其他 checkpoint（`laya-typed-decisions`、`--model laya-multilingual`）與
+  `--model auto`。
 - **serve `auto` 仍會拖慢 LLM 的吞吐量：** 那次執行中下降 4.0%，只比 `--device gpu` 少 1.31
   個百分點，而 LLM 單獨執行時各 window 之間的波動就有 1.28 個百分點。
 - **多問題決策一律在 GPU 上執行，** LLM 忙碌時它們的 P99 會變高：`auto` 下為 117.1 ms，
