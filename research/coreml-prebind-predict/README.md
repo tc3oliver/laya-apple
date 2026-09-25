@@ -1,11 +1,100 @@
 # One prediction crossing on the ANE request path
 
-**Status: preregistered, not run.** The criteria are in [`criteria.md`](criteria.md). It was
-committed before any campaign data or bit-identity check, in its own commit. `raw/`,
-`results.json` and `tables.md` do not exist yet.
+**Status: run.**
+- **Verdict:** PB PASS on laya and laya-typed-decisions, INCONCLUSIVE on laya-multilingual.
+  So no production change follows, and a larger preregistered replication decides
+  multilingual.
+- **An unplanned observation limits what the passes mean.** Under this protocol, C also
+  passes on laya and laya-typed-decisions. See [Results](#results).
+- **Where things are:**
+  - the criteria: [`criteria.md`](criteria.md), committed before any campaign data, in its own
+    commit;
+  - the numbers: [`tables.md`](tables.md), [`results.json`](results.json);
+  - the raw data: [`raw/`](raw/).
 
 Machine: Mac Studio M4 Max, macOS 26, Python 3.12.14, coremltools 9.0, MLX 0.32.2,
 PyObjC 12.2.2.
+
+## Results
+
+18 runs, in the order P C PB PB C P per model: 6 matched hetero-window pairs per candidate per
+model. Every run finished in 78–81 s, with 0 mismatches in every window. PB was bit-identical
+to coremltools on every bucket of all three models (`raw/check.json`).
+
+**The laya block was re-run** under the addendum in `criteria.md`: an unrelated package install
+overlapped the first laya run. The re-run is the primary laya result. The original six laya
+runs are kept unchanged in `raw/contaminated/`. They are reported alongside in
+[`tables-contaminated-laya.md`](tables-contaminated-laya.md), outside the verdict. They show
+the same pattern: PB and C both pass on laya, with PB short P99 0.954 [0.933, 0.977] and C
+0.991 [0.967, 1.016].
+
+### Preregistered verdict (PB vs production, paired gate, 95% t-interval)
+
+| model | aggregate throughput | short P99 | long P99 | GPU return P50 | verdict |
+|---|---|---|---|---|---|
+| laya (vs A) | 1.060 [1.057, 1.062] | 0.957 [0.953, 0.962] | 0.862 [0.857, 0.867] | 0.034 ms, ×129 | **PASS** |
+| laya-typed-decisions (vs A) | 1.049 [1.047, 1.051] | 0.963 [0.952, 0.974] | 0.882 [0.881, 0.883] | 0.039 ms, ×225 | **PASS** |
+| laya-multilingual (vs B) | 1.171 [0.905, 1.515] | 0.851 [0.524, 1.384] | 0.952 [0.812, 1.116] | 0.032 ms | **INCONCLUSIVE** |
+
+Per the preregistered outcome, **no production change follows**, and a larger preregistered
+replication (for example 9 cycles, n = 18 pairs) decides laya-multilingual. The bootstrap
+sensitivity check agrees with every verdict above except multilingual's aggregate, where its
+interval is [0.961, 1.364]. It does not change the verdict.
+
+### Unplanned observation: C also passes under this protocol
+
+Under this hetero-only protocol, C passes on laya and laya-typed-decisions:
+- laya: short P99 1.004 [1.000, 1.008], aggregate 1.032;
+- laya-typed-decisions: short P99 0.996 [0.990, 1.002], aggregate 1.022.
+
+#77, which had solo and gpu_only windows between its hetero windows, recorded C as a FAIL on
+both models. The same C binding, the same shapes and the same request are used here.
+
+**What differs.** The protocol differences are the removed solo_short, solo_long and gpu_only
+windows (with the gpu_only instance) and the fixed 2 s warm-up before each hetero window. The
+paired gate also replaced #77's pooled point estimate, but #77's C short P99 regressions were
++12.9% and +83.0% on those models, far beyond either rule.
+
+**What this means:**
+- #77's regression depends on the protocol or on what ran before each hetero window.
+- PB's pass on laya and laya-typed-decisions **cannot be attributed to handoff reduction
+  alone**.
+- #77's FAIL is not rewritten: it stands as recorded under its own protocol.
+- Why the regression depends on the protocol is a new question, not answered here.
+
+On laya-multilingual, C fails under this protocol too: short P99 1.423 [1.063, 1.904].
+
+### PB vs C, same campaign (not gating)
+
+- **laya and laya-typed-decisions.** PB is better than C, with non-overlapping intervals:
+  - short P99 by about 3–5%: PB 0.957 and 0.963 against C 1.004 and 0.996;
+  - aggregate throughput by about 3%: PB 1.060 and 1.049 against C 1.032 and 1.022.
+- **ANE thread CPU per forward** fell from 0.64 ms (C) to 0.34 ms (PB) on both models. PB's
+  pre and post stages are 0.014 ms and 0.005–0.006 ms, against C's 0.13–0.15 ms and
+  0.08–0.09 ms.
+- **laya-multilingual.** C fails, while PB's point estimates are better than production B:
+  - short P99 4.41 ms against B's 5.85 ms;
+  - aggregate 293 req/s against 243.
+
+  PB's ANE dispatcher thread used 1431 ms of CPU per window, against C's 6505 ms. PB's
+  intervals are wide, so this is not a verdict.
+- **Crossings per forward:** PB 4 (predict 1, pool 3) with 0 re-entries. C 108 with 62
+  re-entries.
+
+### Diagnostics and their limits
+
+- **Slow-CPU flag: not informative in this campaign.** It needs the `client-short` thread's CPU
+  in both the candidate window and P's matched window. That thread is only in a window's
+  closing snapshot when the short client finishes last, and in P's windows it never did. So
+  no pair has a ratio on any model, and `tables.md` marks every cell "not computable". The
+  per-window `client-short` column is also missing wherever the long client finished last. It
+  appears only for laya C and PB.
+- **The GIL probe:**
+  - Its P99 lateness in A windows is about 10 ms, against about 0.6 ms for C and PB. That fits
+    coremltools holding the GIL through each `predict`.
+  - In laya-multilingual, C's probe P99 (2.2 ms) is above B's (1.6 ms) and PB's (0.65 ms).
+- **Collision diagnostics** (fixed exposure window) are in `tables.md`. They are association
+  only.
 
 ## Purpose and question
 
@@ -229,7 +318,17 @@ LAYA_APPLE_CACHE=... HF_HUB_OFFLINE=1 uv run --with pyobjc-framework-CoreML==12.
   8 s of load and references (#77 measured that part), plus uv start-up. That is about 85 s.
 - **The campaign:** 18 runs, about 26 min, so about 30 min in all.
 
-This is an estimate. The hetero-only driver has not yet been run end to end.
+Measured: each campaign run took 78–81 s, and the 18 runs took 24 min in total.
+
+The contaminated laya block is analysed separately with:
+
+```sh
+uv run python research/coreml-prebind-predict/scripts/analyze.py \
+  --raw research/coreml-prebind-predict/raw/contaminated --models laya --tag contaminated-laya
+```
+
+This writes `results-contaminated-laya.json` and `tables-contaminated-laya.md`. Add `--check`
+to verify them.
 
 | file | what |
 |---|---|

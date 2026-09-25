@@ -213,6 +213,9 @@ def windows_records(runs: list[dict], prod_runs: list[dict] | None) -> dict:
             "client_short_ratios": ratios,
             "flags": flags,
             "flagged_windows": sum(1 for f in flags if f),
+            # client-short CPU exists only when the short client finished its window last (its
+            # thread is gone from the closing snapshot otherwise), so some pairs have no ratio
+            "computable_windows": sum(1 for f in flags if f is not None),
             "ane_thread_cpu_ratios": ane_ratios,
         },
     }
@@ -331,6 +334,8 @@ def summarise(raw: Path, rounds, models) -> dict:
         }
     res["per_model"] = {c: {m: x["verdicts"][c]["verdict"] for m, x in res["models"].items()} for c in CANDIDATES}
     res["outcome"] = outcome(res["per_model"]["PB"])
+    if set(models) != set(MODELS):
+        res["outcome"] = f"partial model set ({', '.join(models)}): no preregistered outcome"
     return res
 
 
@@ -355,6 +360,8 @@ def short_bucket(load: dict, short: int) -> int | None:
 
 def tables(res: dict) -> str:
     L = ["# One prediction crossing on the ANE request path (hetero-only v1.0 closed-loop mix)\n"]
+    if res.get("label"):
+        L.append(f"**Not the verdict.** {res['label']}.\n")
     L += [
         "| model | config | aggregate req/s | short req/s | short P99 | long req/s | long P99 "
         "| GPU return P50 / P99 | mismatches |",
@@ -474,7 +481,12 @@ def tables(res: dict) -> str:
             w, fc = e["windows"], e["forwards"]
             t = w["thread_cpu_ms_per_window_median"]
             sc = w["slow_cpu"]
-            slow = "– (reference)" if sc is None else f"{sc['flagged_windows']} / {len(sc['flags'])}"
+            if sc is None:
+                slow = "– (reference)"
+            elif not sc["computable_windows"]:
+                slow = f"not computable (0 of {len(sc['flags'])})"
+            else:
+                slow = f"{sc['flagged_windows']} of {sc['computable_windows']} computable ({len(sc['flags'])} pairs)"
 
             def th(name, t=t):
                 return f(t.get(name), 0)
@@ -514,11 +526,23 @@ def main():
     ap.add_argument("--out", type=Path, default=EXP)
     ap.add_argument("--rounds", type=int, nargs="+", default=list(ROUNDS))
     ap.add_argument("--models", nargs="+", choices=list(MODELS), default=list(MODELS))
+    ap.add_argument(
+        "--tag",
+        help="a labelled output outside the verdict: writes results-<tag>.json and tables-<tag>.md "
+        "(e.g. --raw raw/contaminated --models laya --tag contaminated-laya, criteria.md addendum)",
+    )
     a = ap.parse_args()
     res = summarise(a.raw, a.rounds, a.models)
+    suffix = ""
+    if a.tag:
+        suffix = f"-{a.tag}"
+        res["label"] = (
+            f"{a.tag}: runs from {a.raw.resolve().relative_to(EXP.resolve())}/, reported alongside and outside "
+            "the verdict (criteria.md, addendum)"
+        )
     js = json.dumps(res, indent=1, sort_keys=True) + "\n"
     md = tables(res)
-    targets = ((a.out / "results.json", js), (a.out / "tables.md", md))
+    targets = ((a.out / f"results{suffix}.json", js), (a.out / f"tables{suffix}.md", md))
     if a.check:
         stale = [p.name for p, s in targets if not p.exists() or p.read_text() != s]
         if stale:
