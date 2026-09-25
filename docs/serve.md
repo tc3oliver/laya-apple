@@ -144,11 +144,31 @@ as oMLX already use it.
 
 ## Client compatibility
 
-<!-- matrix: filled from the recorded client runs (integrations/jev-plugins/README.md) -->
+Seven Jev clients were tested at their released versions, unmodified, pointed here only
+through their base-URL setting. All seven completed their requests
+([`integrations/jev-plugins/README.md`](../integrations/jev-plugins/README.md) has the
+versions, commands and details):
+
+| Client | Version | Base-URL setting | Result |
+|---|---|---|---|
+| typesafe-sdk (Python) | 0.7.1 | `TYPESAFE_BASE_URL` | Pass |
+| @typesafe-ai/sdk (JS) | 0.6.0 | `TYPESAFE_BASE_URL` | Pass |
+| jev-axi | 0.7.2 | `TYPESAFE_BASE_URL` | Pass |
+| jev-belay (Claude Code plugin) | v0.2.0 | `JEV_BASE_URL` | Pass |
+| Canny (Claude Code plugin) | v0.3.0 | `CANNY_JEV_URL` (full `/v1/systemone` URL) | Pass |
+| typesafe-mcp | v0.4.5 | `TYPESAFE_BASE_URL` | Pass |
+| switchboard | 0.1.0 | `TYPESAFE_BASE_URL` | Pass |
+
+"Pass" means wire compatibility: the client decodes the response without an error. It does
+not mean the client makes the same decisions as with Jev. Canny and switchboard act only
+on confidences above thresholds tuned for Jev, and Laya's answers did not cross them in
+these runs, so both took their own fallback paths.
 
 ## Limits
 
 - **No Jev accuracy claim.** Only runtime fidelity to upstream Laya is guaranteed and tested.
+- **Client thresholds tuned on Jev** may rarely trigger on Laya's confidences (see
+  "Client compatibility").
 - **`auto` routes between English and multilingual only.** Upstream's opt-in typed-decisions
   workflow detection (`LAYA_AUTO_TASK`) and caller language hints are not implemented. Name
   the checkpoint or use `--model` instead.
