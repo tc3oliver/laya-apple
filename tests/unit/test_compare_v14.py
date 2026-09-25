@@ -8,7 +8,7 @@ import pytest
 
 from laya_apple.parity import TOLERANCE
 
-HERE = Path(__file__).resolve().parents[1] / "benchmarks" / "compare-v1.4"
+HERE = Path(__file__).resolve().parents[2] / "benchmarks" / "compare-v1.4"
 
 
 def _load(name):
