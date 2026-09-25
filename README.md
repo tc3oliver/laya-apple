@@ -104,7 +104,7 @@ pip install laya-apple
 Optional extras:
 
 ```bash
-pip install "laya-apple[ane]"       # + the Neural Engine runtime (coremltools 9.0)
+pip install "laya-apple[ane]"       # + the Neural Engine runtime (coremltools 9.0, PyObjC Core ML)
 pip install "laya-apple[convert]"   # + building ANE artifacts on this Mac (torch 2.7.0)
 pip install "laya-apple[serve]"     # + laya-apple serve, the local Jev-compatible server
 laya-apple artifacts build laya-typed-decisions   # optional: build + parity-validate ANE artifacts here (~5 min)

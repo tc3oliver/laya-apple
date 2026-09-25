@@ -278,8 +278,14 @@ def _stamp_path(directory: Path) -> Path:
     return cache_root() / "verified" / "artifacts" / (str(rel).replace("/", "__") + ".json")
 
 
-def load_verified(spec: ModelSpec, bucket: int, *, compute_units: str = ANE_COMPUTE_UNITS, full: bool = False):
-    """Return (CompiledMLModel, Manifest) after every check, or raise.
+def load_verified(
+    spec: ModelSpec, bucket: int, *, compute_units: str = ANE_COMPUTE_UNITS, full: bool = False, open_model=None
+):
+    """Return (model, Manifest) after every check, or raise.
+
+    The model is coremltools' CompiledMLModel, or `open_model(compiled_path, compute_units)`
+    if given (the GIL-releasing binding, backends/coreml_nogil.py). Every check below runs
+    before either opens the artifact.
 
     Manifest, profile and compute-unit checks run on every load. The file hash and the
     Core ML compute-plan placement check (together ~1.1 s per bucket) run on the first load
@@ -331,6 +337,8 @@ def load_verified(spec: ModelSpec, bucket: int, *, compute_units: str = ANE_COMP
         tmp = stamp.with_suffix(f".{os.getpid()}.tmp")
         tmp.write_text(json.dumps({"key": key, "placement": placement}))
         os.replace(tmp, stamp)
+    if open_model is not None:
+        return open_model(d / COMPILED, compute_units), manifest
     model = ct.models.CompiledMLModel(str(d / COMPILED), compute_units=getattr(ct.ComputeUnit, compute_units))
     return model, manifest
 

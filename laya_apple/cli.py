@@ -78,6 +78,7 @@ def cmd_info(a):
             "platform": platform_profile(),
             "platform_validated_for_auto_ane": platform_validated(),
             "coremltools_available": _coremltools_available(),
+            "ane_predict": _ane_predict_info(),
             "models": {
                 s.name: {
                     "repo": s.repo,
@@ -93,6 +94,23 @@ def cmd_info(a):
             },
         }
     )
+
+
+def _ane_predict_info() -> dict:
+    """Which Core ML predict binding a thread-placed ANE would use here, and why (nothing loads)."""
+    import os
+
+    from .backends import coreml_nogil
+    from .errors import LayaAppleError
+
+    out = {"env": os.environ.get(coreml_nogil.ENV) or None, "pyobjc_unavailable": coreml_nogil.pyobjc_import_error()}
+    try:
+        impl, reason = coreml_nogil.select_predict("auto")
+    except (ValueError, LayaAppleError) as e:
+        impl, reason = None, f"{type(e).__name__}: {e}"
+    out["thread_placement"] = {"ane_predict": impl, "reason": reason}
+    out["process_placement_and_inline"] = {"ane_predict": coreml_nogil.COREMLTOOLS}
+    return out
 
 
 def cmd_download(a):

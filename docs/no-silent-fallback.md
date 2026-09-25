@@ -62,6 +62,7 @@ decision in `laya_apple/`, as of the 1.0.0 release.
 | 19 | An unreadable or unknown-format local profile | Ignored with a `RuntimeWarning` | `test_no_silent_fallback.py::test_unreadable_local_profile_is_warned` |
 | 20 | Offline requested and the checkpoint is not cached | `BackendUnavailableError` with download instructions; never goes online | `test_no_silent_fallback.py::test_offline_with_an_uncached_checkpoint_raises_and_never_downloads` |
 | 21 | Worker processes' warnings | Only laya-apple's own load warnings, which the parent re-issues, are filtered; Core ML, coremltools and NumPy warnings stay visible | — |
+| 22 | Thread-placed ANE: the GIL-releasing predict binding (`backends/coreml_nogil.py`) cannot be imported or cannot load an artifact (unreleased) | Not a device change: every bucket loads through coremltools, on the same artifacts and compute units, and the reason is recorded in `RuntimeInfo.ane_predict_reason` and `info()["ane_predict_reason"]`. With `LAYA_APPLE_ANE_PREDICT=nogil` it raises `BackendUnavailableError` instead. A failed placement probe is never retried through the other binding. Inputs that the binding could only copy with rounding, or with another shape, are refused | `tests/unit/test_ane_nogil.py` |
 
 **Paths that catch an exception and carry on.** Every `except` clause in the package
 falls into one of these kinds:
@@ -86,6 +87,9 @@ The probe works like this:
   loaded model, then with a `CPU_ONLY` instance of the same artifact, back to back.
   Machine load slows both alike, so the ratio does not depend on how busy the machine is
   or on any stored reference time. It therefore also runs on uncalibrated machines.
+- **Binding:** both instances are called through the predict binding that serves the
+  bucket's requests: coremltools, or the GIL-releasing binding of a thread-placed ANE
+  (row 22).
 - **Evidence:** on the tested profile the ratio was 0.32–0.50 for every shipped artifact.
   A model running on the CPU measures about 1.0. Raw data is in
   [`benchmarks/v1.0/probe.json`](../benchmarks/v1.0/probe.json), from

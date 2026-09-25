@@ -7,6 +7,10 @@ as validated in research/phase-0-feasibility/scripts/backends.py.
 Each request row is padded to the smallest offered bucket that holds it. A row that fits
 no offered bucket raises UnsupportedShapeError: nothing is truncated, and nothing runs on
 another device.
+
+Core ML's predict is called through coremltools, or, for the thread-placed ANE, through the
+GIL-releasing PyObjC binding (backends/coreml_nogil.py). The binding changes how the call is
+made, never which artifact, compute units or device run it.
 """
 
 from __future__ import annotations
@@ -17,8 +21,15 @@ from pathlib import Path
 import numpy as np
 
 from ..artifacts import COMPILED, artifact_dir, load_verified
-from ..errors import ArtifactError, ArtifactMissingError, ComputeUnitMismatchError, UnsupportedShapeError
+from ..errors import (
+    ArtifactError,
+    ArtifactMissingError,
+    BackendUnavailableError,
+    ComputeUnitMismatchError,
+    UnsupportedShapeError,
+)
 from ..registry import ANE_COMPUTE_UNITS, ANE_MAX_OPTIONS, ModelSpec
+from . import coreml_nogil
 
 
 def ane_features(rows, L, B, embedding, type_embedding, window, pad_id):
@@ -72,13 +83,20 @@ def _fastest_ms(model, feats, runs: int) -> float:
     return best
 
 
-def probe_placement(spec: ModelSpec, bucket: int, model, compiled_path: Path, feats: dict) -> dict:
-    """Refuse a loaded model that runs no faster than the same artifact on the CPU.
-
-    Returns {"ane_ms", "cpu_ms", "ratio"} or raises ComputeUnitMismatchError."""
+def _open_coremltools(compiled_path: Path, compute_units: str):
     import coremltools as ct
 
-    cpu = ct.models.CompiledMLModel(str(compiled_path), compute_units=ct.ComputeUnit.CPU_ONLY)
+    return ct.models.CompiledMLModel(str(compiled_path), compute_units=getattr(ct.ComputeUnit, compute_units))
+
+
+def probe_placement(spec: ModelSpec, bucket: int, model, compiled_path: Path, feats: dict, open_model=None) -> dict:
+    """Refuse a loaded model that runs no faster than the same artifact on the CPU.
+
+    The CPU_ONLY reference is opened with `open_model(compiled_path, compute_units)`, the
+    binding the loaded model uses (coremltools when None), so both sides of the ratio pay the
+    same call overhead. Returns {"ane_ms", "cpu_ms", "ratio"} or raises
+    ComputeUnitMismatchError."""
+    cpu = (open_model or _open_coremltools)(compiled_path, "CPU_ONLY")
     ane_ms, cpu_ms = _fastest_ms(model, feats, PROBE_RUNS), _fastest_ms(cpu, feats, PROBE_RUNS)
     del cpu
     ratio = ane_ms / cpu_ms
@@ -160,6 +178,9 @@ class ANEShapes:
         self.artifact_sha256 = dict(artifact_sha256)
         self.load_errors = dict(load_errors)
         self.probes: dict = getattr(self, "probes", {})  # runtime placement probe results per bucket
+        # Which Core ML predict binding serves requests (coreml_nogil.select_predict), and why.
+        self.predict_impl: str = getattr(self, "predict_impl", coreml_nogil.COREMLTOOLS)
+        self.predict_reason: str = getattr(self, "predict_reason", coreml_nogil.NOT_THREAD_PLACED)
 
     @property
     def buckets(self) -> tuple:
@@ -200,6 +221,7 @@ class ANEBackend(ANEShapes):
         buckets,
         *,
         strict=True,
+        predict: str = coreml_nogil.COREMLTOOLS,
     ):
         """Load and verify every offered bucket.
 
@@ -208,26 +230,49 @@ class ANEBackend(ANEShapes):
         usable bucket at all. Non-strict (device="auto"): every artifact failure is recorded
         and the bucket is simply not offered to auto routing.
 
-        Every loaded bucket also passes the runtime placement probe (probe_placement).
+        predict: "coremltools" (inline and process placement), or "auto" (thread placement:
+        the GIL-releasing binding when it can be used, coreml_nogil.select_predict). If the
+        binding cannot load or run a bucket, every bucket is loaded again through coremltools
+        and the reason is recorded in `predict_reason`; with LAYA_APPLE_ANE_PREDICT=nogil it
+        raises instead. The artifacts, compute units and device are the same either way.
+
+        Every loaded bucket also passes the runtime placement probe (probe_placement),
+        through the binding that serves its requests.
         """
         self.pad_id = pad_id
         self.host = HostWeights(checkpoint, local_attention)
-        self.models, self.manifests, load_errors = {}, {}, {}
-        self.probes: dict = {}
+        self.predict_impl, self.predict_reason = coreml_nogil.select_predict(predict)
         tolerated = ArtifactMissingError if strict else ArtifactError
+        try:
+            load_errors = self._load(spec, buckets, tolerated)
+        except coreml_nogil.NoGilBindingError as e:
+            if coreml_nogil.forced():
+                raise BackendUnavailableError(
+                    f"{coreml_nogil.ENV}=nogil, but the GIL-releasing Core ML binding failed: {e}"
+                ) from e
+            self.predict_impl = coreml_nogil.COREMLTOOLS
+            self.predict_reason = f"{coreml_nogil.NOGIL_LOAD_FAILED}: {e}"
+            load_errors = self._load(spec, buckets, tolerated)
+        if strict and not self.models:
+            raise next(iter(load_errors.values()))
+        super().__init__(spec, buckets, {b: m.artifact_sha256 for b, m in self.manifests.items()}, load_errors)
+
+    def _load(self, spec: ModelSpec, buckets, tolerated) -> dict:
+        """Load, verify and probe every bucket through `self.predict_impl`; returns load_errors."""
+        open_model = coreml_nogil.open_model if self.predict_impl == coreml_nogil.NOGIL else None
+        self.models, self.manifests, self.probes = {}, {}, {}
+        load_errors: dict = {}
         for b in sorted(buckets):
             try:
-                self.models[b], self.manifests[b] = load_verified(spec, b)
+                self.models[b], self.manifests[b] = load_verified(spec, b, open_model=open_model)
                 self.probes[b] = probe_placement(
-                    spec, b, self.models[b], artifact_dir(spec, b) / COMPILED, self._probe_features(b)
+                    spec, b, self.models[b], artifact_dir(spec, b) / COMPILED, self._probe_features(b), open_model
                 )
             except tolerated as e:
                 self.models.pop(b, None)
                 self.manifests.pop(b, None)
                 load_errors[b] = e
-        if strict and not self.models:
-            raise next(iter(load_errors.values()))
-        super().__init__(spec, buckets, {b: m.artifact_sha256 for b, m in self.manifests.items()}, load_errors)
+        return load_errors
 
     def _probe_features(self, b: int) -> dict:
         row = {"ids": [self.pad_id] * b, "markers": [1, 2], "qtype": 0}

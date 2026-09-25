@@ -28,6 +28,10 @@ class RuntimeInfo:
     ane_backlog_ms: float | None = None
     request_id: int | None = None  # this instance's id for the request; RequestTrace.request_id
     truncated: bool = False  # the state was cut to fit the model's max_len (as upstream does)
+    # Core ML only: the predict binding that ran ("nogil" | "coremltools") and why it was chosen
+    # (laya_apple/backends/coreml_nogil.py). Never a device choice: both run the same artifact.
+    ane_predict: str | None = None
+    ane_predict_reason: str | None = None
 
     def __str__(self) -> str:
         return (

@@ -83,6 +83,9 @@ class RequestTrace:
     service_end_ns: int
     received_ns: int
     response_ns: int
+    # target "ane": the Core ML predict binding that served it ("nogil" | "coremltools"),
+    # as RuntimeInfo.ane_predict. None for the GPU.
+    ane_predict: str | None = None
 
     # --------------------------------------------------------------- router inputs, flat
 

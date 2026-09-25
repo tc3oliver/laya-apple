@@ -8,7 +8,8 @@ Placement per device, chosen from measurements (research/v0.2-concurrency/):
   measurement (laya_apple/data/placement.json).
   - Thread: with the GPU busy, a device fed over cross-process IPC runs its host-side
     work 4-6x slower (a cache-resident probe slows from ~0.3 to 1.2-1.7 ms). An in-process
-    ANE is not slowed this way.
+    ANE is not slowed this way. Its predict releases the GIL when PyObjC is available
+    (backends/coreml_nogil.py), so the Core ML call does not hold the caller's GIL.
   - Process: Core ML's Python predict holds the GIL for much of an ANE call, which costs
     the caller's interpreter more at high short-request rates (mmBERT-base, ~250 req/s).
 
@@ -56,7 +57,15 @@ def load_backend(kind: str, args: dict):
         return MLXBackend(spec, ckpt, args["pad_id"], dtype=args["dtype"], batch_size=args["batch_size"])
     from .backends.coreml_ane import ANEBackend
 
-    return ANEBackend(spec, ckpt, args["pad_id"], args["local_attention"], args["buckets"], strict=args["strict"])
+    return ANEBackend(
+        spec,
+        ckpt,
+        args["pad_id"],
+        args["local_attention"],
+        args["buckets"],
+        strict=args["strict"],
+        predict=args.get("ane_predict", "coremltools"),
+    )
 
 
 def warm(kind: str, backend, pad_id: int) -> None:
@@ -80,6 +89,8 @@ def backend_info(kind: str, backend) -> dict:
         info["artifact_sha256"] = dict(backend.artifact_sha256)
         info["load_errors"] = {b: _portable(e) for b, e in backend.load_errors.items()}
         info["probes"] = {b: dict(v) for b, v in backend.probes.items()}
+        info["ane_predict"] = backend.predict_impl
+        info["ane_predict_reason"] = backend.predict_reason
     return info
 
 
@@ -169,8 +180,14 @@ class DeviceWorker:
             self.wait_ready()
 
     def _load_here(self):
+        args = self._args
+        if self.kind == "ane":
+            # Thread placement: Core ML's predict runs on the dispatcher thread in the caller's
+            # interpreter, so it uses the GIL-releasing binding unless told otherwise
+            # (backends/coreml_nogil.py). A process-placed worker keeps coremltools.
+            args = {"ane_predict": "auto", **args}
         try:
-            backend = load_backend(self.kind, self._args)
+            backend = load_backend(self.kind, args)
             warm(self.kind, backend, self._args["pad_id"])
             self._loaded["backend"] = backend
         except BaseException as e:

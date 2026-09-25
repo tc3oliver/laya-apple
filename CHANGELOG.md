@@ -5,6 +5,38 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- **The thread-placed ANE releases the GIL during Core ML predict.** With
+  `execution="workers"` and the ANE on a thread, Core ML is now called through PyObjC
+  (`laya_apple/backends/coreml_nogil.py`) instead of coremltools, so the call no longer holds
+  the GIL of the caller's interpreter. This is the in-process design the GIL research
+  identified (`research/coreml-gil-completion-path/`, `research/coreml-nogil-product-mix/`).
+  - Only the binding changes: the same verified artifact, the same `CPU_AND_NE` compute
+    units, lossless input copies, and outputs with coremltools' names, shapes and dtypes.
+    Every call runs in its own autorelease pool, which prevents the IOSurface leak found in
+    the research.
+  - The runtime placement probe and the other load-time checks run through the binding that
+    serves the requests. `device="ane"` still runs on the Neural Engine or raises.
+  - Process-placed and inline ANE backends keep coremltools. The per-model placement
+    (`placement.json`) is unchanged.
+  - If PyObjC cannot be imported, or cannot load an artifact, the thread-placed ANE uses
+    coremltools and records why.
+  - No performance result is claimed for this change yet.
+
+### Added
+
+- `LAYA_APPLE_ANE_PREDICT` (`auto` | `nogil` | `coremltools`) selects the thread-placed ANE's
+  predict binding; `nogil` makes an unusable binding an error instead of a recorded fallback.
+- `RuntimeInfo.ane_predict` / `ane_predict_reason`, `RequestTrace.ane_predict`, and
+  `Laya.info()["ane_predict"]` / `["ane_predict_reason"]` record which binding ran and why.
+  `laya-apple info` reports the binding a thread-placed ANE would use on this machine.
+- `pyobjc-framework-CoreML>=12.2.2,<13` joins the `[ane]` extra.
+- Tests: mocked unit tests of the selection, the fallback record, the autorelease pool and
+  the conversions; `parity`/`ane` tests requiring bit-identical outputs against coremltools
+  on every golden row; an `integration`/`ane` GIL-release check; and a `stress` soak of
+  20,000 predicts with flat RSS and flat predict time.
+
 ## [1.3.0] - 2026-09-25
 
 Adds `laya-apple serve`: a local, loopback-only decision server with a Jev-compatible API,

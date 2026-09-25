@@ -170,6 +170,43 @@ If the ANE worker process dies:
   issued once;
 - explicit `device="ane"` requests keep raising.
 
+## The ANE predict binding
+
+coremltools' `predict` holds the GIL for the whole Core ML call. When the ANE runs on a
+thread in your process, that blocks your other Python threads for the call, including
+the dispatcher that collects the GPU worker's replies
+([`research/coreml-gil-completion-path/`](../research/coreml-gil-completion-path/)).
+
+A thread-placed ANE therefore calls Core ML through PyObjC
+(`pyobjc-framework-CoreML`, part of the `[ane]` extra), which releases the GIL for the call.
+Only the binding changes:
+- the same verified `model.mlmodelc`, loaded with the same compute units (`CPU_AND_NE`);
+- inputs copied losslessly into the dtype and shape the model declares, and outputs
+  returned with coremltools' names, shapes and dtypes; the parity tests check that the
+  outputs are bit-identical to coremltools';
+- the runtime placement probe and every other load-time check run through the binding
+  that serves the requests.
+
+Where each binding is used:
+
+| ANE placement | Binding |
+|---|---|
+| `thread` (workers) | `nogil` when PyObjC is importable; otherwise `coremltools`, with the reason recorded |
+| `process` (workers) | `coremltools`, in the worker process |
+| inline (`execution="inline"`) | `coremltools` |
+
+`LAYA_APPLE_ANE_PREDICT` overrides the choice for the thread-placed ANE:
+- `coremltools` keeps the thread-placed ANE on coremltools;
+- `nogil` requires the binding: if PyObjC cannot be imported, or the binding cannot load an
+  artifact, loading raises `BackendUnavailableError` instead of using coremltools;
+- unset or `auto` is the default above. Any other value raises `ValueError` when the ANE loads.
+
+This is a choice of binding, not of device. Either binding runs the same artifact on the
+Neural Engine, and an explicit `device="ane"` still runs there or raises. The binding that
+ran is recorded in `RuntimeInfo.ane_predict` and `RequestTrace.ane_predict`, and
+`Laya.info()` has `ane_predict` and `ane_predict_reason`. `laya-apple info` reports which
+binding a thread-placed ANE would use on this machine, without loading a model.
+
 ## The ANE path: building artifacts
 
 `device="ane"` and the auto-ANE path need a Core ML artifact for the exact
@@ -461,5 +498,8 @@ Every `Result.runtime` (a `RuntimeInfo`) records:
 - `dtype`;
 - `latency_ms`, from the call to the result (queueing included);
 - `execution` (`inline` / `workers`); with workers, `queue_wait_ms` and the
-  `gpu_backlog_ms` / `ane_backlog_ms` estimates the router used.
+  `gpu_backlog_ms` / `ane_backlog_ms` estimates the router used;
+- `ane_predict` and `ane_predict_reason` (Core ML only): which Core ML predict binding
+  ran the request, `nogil` or `coremltools`, and why it was chosen. See
+  [The ANE predict binding](#the-ane-predict-binding).
 

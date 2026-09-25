@@ -76,6 +76,7 @@ The `laya-apple` subcommands, and their arguments as listed in the CLI reference
 | Item | Contract |
 |---|---|
 | `LAYA_APPLE_CACHE`, `XDG_CACHE_HOME`, `HF_HUB_OFFLINE` | Their meaning as documented in [`docs/guide.md`](guide.md) |
+| `LAYA_APPLE_ANE_PREDICT` (unreleased) | `auto` (default), `nogil` or `coremltools`: the Core ML predict binding of the thread-placed ANE, as documented in [`docs/guide.md`](guide.md#the-ane-predict-binding). Which binding the default picks is not part of the API; the one that ran is always recorded in `RuntimeInfo.ane_predict` |
 | Artifact manifest, `format: "laya-apple-artifact"`, `format_version: 1` | The shipped JSON Schema is [`laya_apple/data/manifest.schema.json`](../laya_apple/data/manifest.schema.json). Fields may be added without a version change, and readers ignore fields they do not know. Removing a field or changing its meaning requires `format_version: 2`. A release that reads v2 keeps reading v1 for at least one major version |
 | Export archive (`artifacts export`) | A `.tar.gz` holding `manifest.json` and `model.mlmodelc/` |
 | Local capability profile, `format: "laya-apple-profile"`, `format_version: 1` | `<cache>/profiles/<profile>.json` |

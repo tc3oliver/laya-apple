@@ -360,6 +360,8 @@ class Laya:
             self.spec, info["offered"], {int(b): h for b, h in info["artifact_sha256"].items()}, load_errors
         )
         shapes.probes = {int(b): v for b, v in info.get("probes", {}).items()}
+        shapes.predict_impl = info.get("ane_predict", shapes.predict_impl)
+        shapes.predict_reason = info.get("ane_predict_reason", shapes.predict_reason)
         if self.device == "auto":
             self._warn_rejected(load_errors)
         if shapes.buckets:
@@ -568,6 +570,7 @@ class Laya:
                             service_end_ns=end_ns,
                             received_ns=received_ns,
                             response_ns=response_ns,
+                            ane_predict=result.runtime.ane_predict,
                         ),
                     )
                 if not out.cancelled():  # the caller may have given up (asyncio cancellation)
@@ -635,6 +638,8 @@ class Laya:
             ane_backlog_ms=ane_backlog_ms,
             request_id=request_id,
             truncated=prep.truncated,
+            ane_predict=getattr(backend, "predict_impl", None) if decision.target == "ane" else None,
+            ane_predict_reason=getattr(backend, "predict_reason", None) if decision.target == "ane" else None,
         )
         return Result(answers=answers, usage={"input_tokens": prep.input_tokens, "output_tokens": 0}, runtime=runtime)
 
@@ -670,6 +675,8 @@ class Laya:
                 str(b): f"{type(e).__name__}: {e}" for b, e in (self.ane.load_errors.items() if self.ane else [])
             },
             "ane_probes": {str(b): v for b, v in getattr(self.ane, "probes", {}).items()},
+            "ane_predict": getattr(self.ane, "predict_impl", None),
+            "ane_predict_reason": getattr(self.ane, "predict_reason", None),
             "routing_profile": self.routing_profile,
             "ane_ready": bool(self.ane) and self.ane_state.unavailable is None,
             "auto_ane": {
