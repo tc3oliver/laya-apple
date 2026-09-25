@@ -276,3 +276,131 @@ def test_crosscheck_aligns_powermetrics_and_reports_agreement(tmp_path):
     assert gpu_phase["gpu"]["rel"] == pytest.approx(20.0 / 20.6 - 1, abs=1e-6)
     assert got["ok"]
     assert analyze.crosscheck(tmp_path / "missing.json.gz", tmp_path / "pm.txt") is None
+
+
+# --------------------------------------------------------------------- criteria revisions
+
+TRACK = SCRIPTS.parent
+
+
+def test_criteria_r2_keeps_every_r1_threshold():
+    r1, r2 = analyze.load_criteria("r1"), analyze.load_criteria("r2")
+    assert r2["thresholds"] == r1["thresholds"]
+    # the values analyze.py applied to run 1 before the thresholds moved into files
+    assert r1["thresholds"] == {
+        "xc_rel_tol": 0.05,
+        "xc_abs_floor_w": 1.0,
+        "xc_abs_tol_w": 0.10,
+        "xc_trim_s": 3.0,
+        "xc_min_pairs": 20,
+        "sampler_max_cpu_frac": 0.02,
+        "rate_tol": 0.02,
+        "idle_spread_max": 0.10,
+    }
+
+
+def test_each_run_names_its_criteria_revision():
+    assert analyze.criteria_rev({}) == "r1"
+    assert analyze.criteria_rev({"method_version": 1}) == "r1"
+    assert analyze.criteria_rev({"method_version": 2, "criteria": "r2"}) == "r2"
+    with pytest.raises(ValueError):
+        analyze.criteria_rev({"method_version": 2})
+
+
+def test_run_1_still_reproduces_under_r1():
+    raw = TRACK / "raw" / "campaign-laya-typed-decisions.json.gz"
+    committed = json.loads((TRACK / "results.json").read_text())["campaigns"]["campaign-laya-typed-decisions"]
+    got = json.loads(json.dumps(analyze.campaign(analyze.load_gz(raw))))
+    assert got == committed
+    assert got["sampler_overhead"]["ok"] is False
+    assert got["sampler_overhead"]["loop_cpu_frac"] == pytest.approx(0.0238, abs=1e-4)
+    assert got["shapes"]["short"]["idle"]["spread_w"] == pytest.approx(0.194, abs=1e-3)
+    assert got["shapes"]["mixed"]["idle"]["spread_w"] == pytest.approx(0.447, abs=1e-3)
+    assert not got["shapes"]["short"]["idle"]["ok"] and not got["shapes"]["mixed"]["idle"]["ok"]
+
+
+# --------------------------------------------------------------------- disturbance (run 2)
+
+
+def test_burst_excess_is_zero_for_steady_power_and_catches_a_burst():
+    steady = [(5.0 * k, 0.05 * 5.0 * k) for k in range(13)]  # 0.05 W for 60 s
+    assert energy.burst_excess(steady) == pytest.approx(0.0, abs=1e-12)
+    burst = [(t, e + (16.0 if t >= 30.0 else 0.0)) for t, e in steady]  # 16 J in the 25-30 s bin
+    # the mean rises by 16 J / 60 s; the median of the 12 bins does not move
+    assert energy.burst_excess(burst) == pytest.approx(16.0 / 60.0)
+    assert energy.burst_excess([(0.0, 0.0), (5.0, 1.0)]) is None
+
+
+def test_ps_parsing_keeps_names_only_and_sums_cpu_by_process():
+    assert energy.parse_ps_time("1:02.50") == pytest.approx(62.5)
+    assert energy.parse_ps_time("2:01:02.50") == pytest.approx(7262.5)
+    assert energy.parse_ps_time("1-00:00:01.00") == pytest.approx(86401.0)
+    before = energy.parse_ps("  10   0:01.00 /usr/libexec/logd\n  20   0:05.00 /opt/x/bin/python3\n  30 0:00.10 mds\n")
+    assert before[10] == ("logd", 1.0) and before[20] == ("python3", 5.0)
+    after = energy.parse_ps(
+        "  10   0:01.50 /usr/libexec/logd\n  20   0:07.00 /opt/x/bin/python3\n  30 0:00.10 mds\n  40 0:03.00 mdworker\n"
+    )
+    assert energy.cpu_by_process(before, after, own={20: "harness"}) == [
+        ["mdworker", 3.0],
+        ["harness", 2.0],
+        ["logd", 0.5],
+    ]
+
+
+def _v2_window(cfg, index, m0, dur, attempt, superseded, excess):
+    reqs = []
+    if cfg != "idle":
+        for k in range(int(20 * dur)):
+            s = int((m0 + k / 20) * 1e9)
+            reqs.append([k, 0, 1, s, s, s + int(0.01e9), cfg, "x", {}, None])
+    return {
+        "shape": "short",
+        "config": cfg,
+        "index": index,
+        "rate": None if cfg == "idle" else 20.0,
+        "measure_ns": [int(m0 * 1e9), int((m0 + dur) * 1e9)],
+        "requests": reqs,
+        "attempt": attempt,
+        "disturbed": excess > 0.1,
+        "superseded": superseded,
+        "cpu_excess_w": excess,
+        "cpu_by_process": [],
+    }
+
+
+def test_a_superseded_idle_attempt_is_reported_but_not_used_as_baseline():
+    # idle 1 W; a CPU burst makes the first attempt of the middle idle window read 3 W
+    plan = [
+        ("idle", 0, 0, False, 0.0),
+        ("gpu", 1, 0, False, 0.0),
+        ("idle", 2, 0, True, 2.0),
+        ("idle", 2, 1, False, 0.0),
+        ("gpu", 3, 0, False, 0.0),
+        ("idle", 4, 0, False, 0.0),
+    ]
+    dur, windows, spans = 10.0, [], []
+    for k, (cfg, idx, att, sup, ex) in enumerate(plan):
+        m0 = 1.0 + k * dur
+        spans.append((m0, m0 + dur, cfg, ex))
+        windows.append(_v2_window(cfg, idx, m0, dur, att, sup, ex))
+
+    def power(t):
+        p = {"cpu": 1.0}
+        for a, b, cfg, ex in spans:
+            if a <= t < b and cfg == "gpu":
+                p["gpu"] = 10.0
+            if a <= t < b and ex:
+                p["cpu"] += ex
+        return p
+
+    meta = {"method_version": 2, "criteria": "r2"}
+    run = {"meta": meta, "args": {}, "windows": windows, "sampler": _sampler(power, 1.0 + len(plan) * dur + 1.0)}
+    s = analyze.campaign(run)["shapes"]["short"]
+    assert s["idle"]["soc_w"]["n"] == 3
+    assert s["idle"]["spread_w"] == pytest.approx(0.0, abs=1e-9)
+    assert s["idle"]["ok"]
+    d = s["disturbance"]
+    assert (d["attempts"], d["repeated"], d["repeated_idle"], d["disturbed_but_kept"]) == (6, 1, 1, 0)
+    assert d["idle_spread_all_attempts_w"] == pytest.approx(2.0)
+    # 10 W above idle over 10 s for 200 decisions
+    assert s["cells"]["gpu"]["net_j_per_decision"]["median"] == pytest.approx(0.5)

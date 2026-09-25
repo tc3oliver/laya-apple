@@ -1,0 +1,29 @@
+{
+ "revision": "r2",
+ "written": "after run 1 was found invalid under r1 (sampler loop CPU 2.38% of one core, limit 2%; idle spread above 10% of the smallest net loaded SoC power in both shapes) and before any run-2 or r2 cross-check data",
+ "applies_to": "campaign and cross-check runs recorded with harness method_version 2 (run 2)",
+ "statement": "Every acceptance threshold is unchanged from r1. Only the sampler implementation (sampler_version, sampler_interval_s) and the idle/disturbance protocol (idle_seconds, disturbance_*) changed. README.md, \"Run 2\", gives the reasons and the run-1 evidence behind each change.",
+ "thresholds": {
+  "xc_rel_tol": 0.05,
+  "xc_abs_floor_w": 1.0,
+  "xc_abs_tol_w": 0.1,
+  "xc_trim_s": 3.0,
+  "xc_min_pairs": 20,
+  "sampler_max_cpu_frac": 0.02,
+  "rate_tol": 0.02,
+  "idle_spread_max": 0.1
+ },
+ "protocol": {
+  "sampler_version": 2,
+  "sampler_interval_s": 1.0,
+  "pstr_interval_s": 0.5,
+  "warmup_s": 10.0,
+  "loaded_seconds": 30.0,
+  "idle_seconds": 60.0,
+  "disturbance_repeats": true,
+  "disturbance_bin_s": 5.0,
+  "disturbance_cpu_excess_w": 0.1,
+  "disturbance_max_repeats_per_window": 2,
+  "disturbance_max_repeats_per_run": 8
+ }
+}
