@@ -59,6 +59,56 @@ These records are observations. They do not change the outcome above.
   windows. Whether that tail comes from the same mechanism as PB-SYNC's slow state is not tested
   here.
 
+## Post-hoc: where the PB-ASYNC short tail occurs (existing data only, not a gate)
+
+`scripts/tail_decomposition.py` splits every short request of #92's hetero windows into stages. It
+uses the recorded request trace, the binding's stamps and the client's own latency. The outputs
+are [`tail_decomposition.md`](tail_decomposition.md) and `tail_decomposition.json`.
+- **This analysis does not change #92's outcome.** Async did not pass the 13 ms classifier, round 2
+  did not run, and async is not claimed to solve anything.
+- **The tail is a transient episode at the start of each hetero window.** It is neither a shift of
+  the whole distribution nor scattered requests.
+  - A request counts as "host-slow" when its client-thread `prepare` is above 0.3 ms (normally
+    about 0.12 ms). By that measure, each of PB-ASYNC's windows opens with a host-slow episode of
+    0.8–3.4 s and then stays normal for the rest of the window.
+  - The two windows above 13 ms are the two with the longest episodes.
+  - Outside the episodes, PB-ASYNC's client P99 is 10.4 ms, against A's 11.9 ms over all
+    requests.
+  - PB-ASYNC's slowest requests cluster in time: P(next of the slowest 10% | slowest 10%) is 0.94,
+    against 0.12 for A and 0.02 for PB-SYNC.
+- **The three cells differ in how long the host-slow state lasts:**
+
+  | cell | host-slow state |
+  |---|---|
+  | A | at most about 0.3 s at each window's start |
+  | PB-ASYNC | 0.8–3.4 s at the start |
+  | PB-SYNC | almost the whole window: 100% of two windows, and 11 s of the third |
+
+- **The episode has the same signature as PB-SYNC's slow state.** CPU time rises with wall time,
+  so the work itself runs slower; it is not only waiting. In PB-ASYNC's slowest 10% of requests:
+  - ANE dispatcher CPU per forward is 1.35 ms, against 0.27 ms;
+  - client-thread `prepare` is 0.66 ms, against 0.12 ms.
+
+  That is about 5× in every Python stage, close to PB-SYNC's whole-window levels (1.46 ms and
+  0.59 ms).
+- **Where the extra time goes.** Against the fastest 90%, the slowest 1% of PB-ASYNC requests add
+  about 9 ms:
+
+  | stage | added |
+  |---|---|
+  | features | +3.8 ms |
+  | Core ML plus the callback taking the GIL | +2.9 ms |
+  | client `prepare` | +0.8 ms |
+  | action head | +0.3 ms |
+  | queue, async send, callback → waiter and the response path | about 0.1 ms each |
+
+  The slowest 1% also overlap more GPU completions during service: 0.86 on average, against 0.28.
+- **What the recorded data cannot separate:**
+  - native completion from the callback's GIL acquisition inside the "Core ML + callback" span
+    (the stamping C block ran only in Phase 0);
+  - which CPU cores or frequencies the threads ran on;
+  - what starts the episode at hetero onset, and what ends it.
+
 ## Question
 
 Can Core ML's official asynchronous prediction path provide GPU completion isolation without
