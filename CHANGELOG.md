@@ -5,6 +5,14 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-09-25
+
+Adds `laya-apple serve`: a local, loopback-only decision server with a Jev-compatible API,
+so an existing Jev client can use Laya on the Mac by changing only its base URL. The answers
+are upstream Laya's, not Jev's: 792 of 792 requests matched unmodified upstream `laya.serve`
+0.3.20 within the FP16 parity gate. Parity now tracks upstream Laya 0.3.20. Routing
+thresholds and the published v1.0 measurements are unchanged.
+
 ### Added
 
 - **`laya-apple serve`, a local Jev-compatible decision server** (`pip install
@@ -21,6 +29,14 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
       concurrently;
     - the Neural Engine warms in the background;
     - the default port is 8642, not 8000.
+  - **Fidelity:** against unmodified upstream `laya.serve` 0.3.20 serving the same pinned
+    weights, 792 of 792 requests matched in wire shape, language routing and values
+    within the FP16 parity gate; 365 of them were answered on the Neural Engine
+    ([`benchmarks/serve-compat/`](benchmarks/serve-compat/README.md)).
+  - **Clients:** seven Jev clients, at their released versions and unmodified, completed
+    their requests against it
+    ([`integrations/jev-plugins/README.md`](integrations/jev-plugins/README.md)). This is
+    wire compatibility, not Jev-level decisions.
   - Docs: [`docs/serve.md`](docs/serve.md).
 - **`RuntimeInfo.truncated`.** It is true when a state was cut to fit the checkpoint's
   maximum length. Upstream truncates too, without reporting it.
@@ -57,6 +73,13 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
+- **README leads with `laya-apple serve`.** The new first section has the three-line
+  quickstart, the client and fidelity results, and a terminal figure,
+  `docs/readme/serve-demo.svg`. The figure is rendered by `scripts/generate_readme_svgs.py`
+  (and covered by its `--check`) from `docs/readme/serve-demo.json`, which
+  `scripts/capture_serve_demo.py` records from a real run: the released `typesafe-sdk` 0.7.1,
+  unmodified, against a local server. The Switchyard section follows it, unchanged. The
+  README's limitations gain the `serve` limits.
 - **Switchyard launch media.** `docs/media/switchyard-launch.gif` and `.mp4` are re-cut for
   readability. Both are cropped to the rail yard, with the whole-round result in large type.
   The result card is simplified to trains late and P99 decision latency. The MP4 is now 20 s

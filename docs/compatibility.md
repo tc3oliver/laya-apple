@@ -55,6 +55,8 @@ three so far, all `--quick` runs of `laya-typed-decisions`:
 | `ane_placement="thread"` | validated for `laya`, `laya-typed-decisions` | — | — |
 | `ane_placement="process"` | validated for `laya-multilingual` | — | — |
 | Offline operation | validated (`local_files_only=True`, `HF_HUB_OFFLINE=1`, `--offline`) — no network access once checkpoints/artifacts are cached | — | — |
+| `laya-apple serve` against upstream `laya.serve` | validated since 1.3.0 against unmodified `laya.serve` 0.3.20 on the same pinned weights: 792 of 792 requests within the FP16 parity gate, 365 of them answered on the ANE ([`serve-compat`](../benchmarks/serve-compat/README.md)) | — | Other upstream `laya.serve` versions; upstream's `LAYA_AUTO_TASK` routing and caller language hints (not implemented) |
+| `laya-apple serve` with Jev clients | 7 clients at their released versions, unmodified, on 2026-09-25 ([list](../integrations/jev-plugins/README.md)): wire compatibility only | Other clients that speak the same `POST /v1/systemone` wire format | Other versions of the tested clients; decision quality against Jev (Laya is a different model); latency, throughput and the effect on a local LLM sharing the GPU |
 
 ## What happens on an untested profile
 

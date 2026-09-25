@@ -76,7 +76,8 @@ A response looks like this:
               "reason": "Latin script, language not identified and no non-English letters; using default (english)",
               "detection": {"script": "latin", "language": null, "is_english": true, "...": "..."},
               "workflow": null},
-  "laya_apple": {"model": "laya", "device": "ane", "backend": "coreml",
+  "laya_apple": {"model": "laya", "model_revision": "c5d78730f3493e4fe16d61507ef4b78eef7318cf",
+                 "device": "ane", "backend": "coreml",
                  "routing_reason": "validated_short_single_question_path", "request_id": 1,
                  "truncated": false, "sequence_length": 35, "question_count": 1,
                  "latency_ms": 38.6, "queue_wait_ms": 0.02, "device_ms": 38.1}
@@ -99,7 +100,8 @@ A response looks like this:
   `convaiinnovations/laya-multilingual`. Stock upstream names its bundle repository,
   `convaiinnovations/laya/multilingual`.
 - **The `laya_apple` block** is our addition:
-  - which checkpoint and which device (GPU or Neural Engine) answered, and why;
+  - which checkpoint (and its pinned revision) and which device (GPU or Neural Engine)
+    answered, and why;
   - `truncated: true` when the state was cut to fit the model's maximum length. Upstream
     cuts too, without reporting it.
 - **Timing headers:** `Server-Timing: inference;dur=<ms>` and `X-Inference-Time-Ms`.
@@ -193,7 +195,7 @@ versions, commands and details):
 
 "Pass" means wire compatibility: the client decodes the response without an error. It does
 not mean the client makes the same decisions as with Jev. Canny and switchboard act only
-on confidences above thresholds tuned for Jev, and Laya's answers did not cross them in
+on confidences beyond thresholds tuned for Jev, and Laya's answers did not cross them in
 these runs, so both took their own fallback paths.
 
 ## Limits
