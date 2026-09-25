@@ -9,8 +9,8 @@ from dataclasses import asdict, dataclass, field
 class RuntimeInfo:
     """Everything needed to explain how one request was executed."""
 
-    backend: str  # "mlx" | "coreml"
-    device: str  # "gpu" | "ane"
+    backend: str  # "mlx" | "coreml" | "none" (questions={}: nothing ran)
+    device: str  # "gpu" | "ane" | "none"
     model: str
     model_revision: str
     sequence_length: int  # longest prompt row, tokens

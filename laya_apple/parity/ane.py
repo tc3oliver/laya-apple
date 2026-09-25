@@ -15,7 +15,7 @@ from ..prompt import Tokenizer, prepare
 from ..registry import ANE_COMPUTE_UNITS, ANE_MAX_OPTIONS, ANE_PRECISION, ModelSpec
 from . import evaluate
 
-REFERENCE = "upstream laya 0.3.5 (NandhaKishorM/laya@573e5b6), PyTorch CPU FP32"
+REFERENCE = "upstream laya 0.3.20 (NandhaKishorM/laya@23a1752), PyTorch CPU FP32"
 
 
 def ane_parity(spec: ModelSpec, compiled: Path, length: int, checkpoint: Path) -> dict:

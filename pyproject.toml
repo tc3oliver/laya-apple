@@ -41,7 +41,7 @@ ane = ["coremltools==9.0", "numpy>=1.26,<2.2"]
 # Building ANE artifacts (conversion + parity gate).
 convert = ["coremltools==9.0", "numpy>=1.26,<2.2", "torch==2.7.0"]
 # Regenerating the PyTorch FP32 goldens with unmodified upstream Laya.
-reference = ["torch==2.7.0", "transformers==5.17.0", "laya==0.3.5"]
+reference = ["torch==2.7.0", "transformers==5.17.0", "laya==0.3.20"]
 dev = ["pytest>=8", "ruff>=0.12", "psutil>=6"]
 
 [project.scripts]

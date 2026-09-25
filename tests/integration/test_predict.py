@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import asyncio
+
 import pytest
 
 from laya_apple import Laya
@@ -64,3 +66,12 @@ def test_normalised_outputs_have_input_and_output_token_usage(laya_gpu):
     r = laya_gpu.predict(context="ctx", questions={"q": {"type": "noul", "instructions": "x?"}})
     assert r.usage["input_tokens"] > 0
     assert r.usage["output_tokens"] == 0
+
+
+def test_empty_questions_return_empty_answers_without_a_device(laya_gpu):
+    """Upstream v0.3.20: questions={} answers {} with zero usage; nothing is routed or run."""
+    r = laya_gpu.predict(context="ctx", questions={})
+    assert r.answers == {}
+    assert r.usage == {"input_tokens": 0, "output_tokens": 0}
+    assert (r.runtime.backend, r.runtime.device, r.runtime.routing_reason) == ("none", "none", "no_questions")
+    assert asyncio.run(laya_gpu.apredict(context="ctx", questions={})).answers == {}

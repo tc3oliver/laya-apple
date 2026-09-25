@@ -95,6 +95,24 @@ Fixed before measurement
   mismatches, all outputs finite, and repeated calls bit-identical.
 - **FP32 gate:** the same, at a 1e-4 tolerance.
 
+### Golden set
+
+The goldens are recorded from upstream Laya 0.3.20 (`scripts/make_reference.py`, raw files
+in `research/upstream-reference/raw/laya-0.3.20/`). They hold every Phase -1 case, whose
+token ids, decision logits and action logits are identical to the Phase -1 record made with
+upstream 0.3.5. They also hold five cases per model for the upstream prompt changes after
+0.3.5:
+
+- a left-truncated conversation;
+- non-ASCII structured instructions;
+- noul `labels`;
+- mixed-case noul criteria keys;
+- option text over the 48-token cap.
+
+These add 13 rows per model. The v1.0 parity tables were measured before these cases
+existed, over 29 cases for laya and 32 for each of the other two models. A parity run on the
+current goldens covers more rows and is not the same measurement.
+
 ## Checks after validation
 
 - **On import.** `laya-apple artifacts import` re-runs the full parity gate, the compute

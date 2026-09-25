@@ -45,6 +45,9 @@ from .trace import QueueSnapshot, RequestTrace, TraceCallback
 EXECUTIONS = ("inline", "workers")
 ANE_PLACEMENTS = ("auto", "thread", "process")
 ANE_STARTUPS = ("wait", "background")
+# `questions={}` is answered without a device, as upstream v0.3.20 does (empty answers, zero
+# usage). Its RuntimeInfo says so: backend and device "none", this routing reason, no trace.
+NO_QUESTIONS = "no_questions"
 # Request ids are unique within the process, across Laya instances, so traces, worker-side
 # records and logs from several instances join on the id alone.
 _REQUEST_IDS = itertools.count(1)
@@ -469,6 +472,8 @@ class Laya:
         t0 = time.monotonic_ns()
         request_id = next(_REQUEST_IDS)
         prep = self.prepare(context, questions)
+        if not prep.items:
+            return self._empty_result(t0, request_id)
         decision = self.route(prep)
         backend = self.ane if decision.target == "ane" else self.mlx
         if backend is None:  # unreachable by construction; never substitute another device
@@ -497,6 +502,10 @@ class Laya:
         request_id = next(_REQUEST_IDS)
         trace = self._trace
         prep = self.prepare(context, questions)
+        if not prep.items:
+            done: Future = Future()
+            done.set_result(self._empty_result(t0, request_id))
+            return done
         prepared_ns = time.monotonic_ns() if trace is not None else 0
         # One reading per device: the router decides on it and the trace records the same values.
         gpu_w, ane_w = self._workers.get("gpu"), self._workers.get("ane")  # "ane" may be popped concurrently
@@ -625,6 +634,23 @@ class Laya:
             request_id=request_id,
         )
         return Result(answers=answers, usage={"input_tokens": prep.input_tokens, "output_tokens": 0}, runtime=runtime)
+
+    def _empty_result(self, t0_ns, request_id) -> Result:
+        """`questions={}`: no tokenization, routing, device work or trace; nothing ran anywhere."""
+        runtime = RuntimeInfo(
+            backend="none",
+            device="none",
+            model=self.spec.name,
+            model_revision=self.spec.revision,
+            sequence_length=0,
+            question_count=0,
+            routing_reason=NO_QUESTIONS,
+            artifact_revision="",
+            latency_ms=(time.monotonic_ns() - t0_ns) / 1e6,
+            execution=self.execution,
+            request_id=request_id,
+        )
+        return Result(answers={}, usage={"input_tokens": 0, "output_tokens": 0}, runtime=runtime)
 
     def info(self) -> dict:
         return {
