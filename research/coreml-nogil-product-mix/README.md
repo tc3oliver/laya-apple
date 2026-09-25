@@ -174,3 +174,12 @@ to 20 s.
 | `scripts/worker_entry.py` | process-worker entry: the executor unchanged, plus per-forward thread CPU |
 | `scripts/run_all.sh` | the campaign, in order |
 | `scripts/analyze.py` | `results.json`, `tables.md` (`--check`) |
+
+## Follow-up
+
+The stop rule above names a Swift-worker study as the next step. A post-hoc diagnosis of the
+recorded data found dozens of PyObjC/GIL handoffs per ANE forward on the request path, so a
+smaller, request-path study (prebound predict,
+[#80](https://github.com/tc3oliver/laya-apple/issues/80)) was preregistered first; the Swift
+worker is deferred. This is a deviation from the recorded stop rule, noted here; the raw data,
+`results.json`, `tables.md` and the FAIL verdict are unchanged.

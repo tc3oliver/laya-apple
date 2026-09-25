@@ -7,14 +7,13 @@ measures what that costs each side while the LLM generates at saturation:
   decision on the GPU (`--device gpu`)?
 - do decisions stay fast and correct while the LLM holds the GPU?
 
-`docs/serve.md` makes no performance claim about this until a campaign here has run
-("Limits": *No performance claim yet*).
-
-**Status: preregistered.** The criteria in [`criteria.json`](criteria.json) and below were
-committed before any campaign data existed. Smoke runs of the harness are not results and are
-not committed. Run 1 ([`m4-max/`](m4-max/)) was **invalid** under its own validity checks and
-draws no result; run 2 is preregistered with two revised validity definitions and has not run
-yet. See [Run 1](#run-1-m4-max-invalid) and [Run 2](#run-2-preregistered).
+**Status: run 2 valid; every result criterion passed.** The criteria in
+[`criteria.json`](criteria.json) and below were committed before any campaign data existed.
+Smoke runs of the harness are not results and are not committed. Run 1 ([`m4-max/`](m4-max/))
+was **invalid** under its own validity checks and draws no result. Run 2
+([`m4-max-r2/`](m4-max-r2/)) ran under two revised validity definitions, preregistered before
+its data, and is valid. See [Run 1](#run-1-m4-max-invalid), [Run 2](#run-2-preregistered) and
+[Run 2 results](#run-2-m4-max-r2-results).
 
 ## Question and criteria
 
@@ -248,3 +247,30 @@ re-analyzed under these definitions.
   answer of the `auto` windows, wherever it ran; it is the latency a client sees.
 - The run directory is `m4-max-r2/`. `run.sh` copies the criteria file it runs under into
   the run directory (`criteria.json` there), and `analyze.py` uses that copy.
+
+## Run 2 (`m4-max-r2`): results
+
+[`m4-max-r2/`](m4-max-r2/): the same machine, LLM server, model and default parameters as run
+1, analyzed with the run's copy of [`criteria-r2.json`](criteria-r2.json)
+([`m4-max-r2/tables.md`](m4-max-r2/tables.md), [`m4-max-r2/results.json`](m4-max-r2/results.json)).
+All five validity checks passed, so its results are valid. They are recorded here as the
+analysis wrote them; nothing was re-analyzed.
+
+| Result | # | Value | Limit | Verdict |
+|---|---|---|---|---|
+| Leaves the GPU free | G1 | LLM tok/s drop beside serve `auto`: 4.0% | ≤ 5% | pass |
+| | G2 | drop with `gpu` (5.3%) − drop with `auto` (4.0%): 1.31 points | > 1.28 points (LLM-alone window spread) | pass |
+| Decision latency beside the LLM | L1 | short-decision P99 under LLM load, `auto`: 47.2 ms (`gpu`: 122.3 ms) | ≤ 50 ms | pass |
+| | L2 | loaded / unloaded, `auto`: 47.2 / 43.2 ms = 1.09× | ≤ 1.5× | pass |
+| Correctness | C1 | max probability error 0.0039, act 0.0, 0 hard mismatches, 0 near-tie flips | ≤ 0.02, ≤ 0.02, 0, listed | pass |
+| | E1 | 0 of 7,728 decisions without an HTTP 200 answer | 0 | pass |
+
+- **G2 passed by a small margin:** 1.31 against 1.28 points. The run does not separate the
+  two configurations' cost to the LLM by much more than its own noise, so "leaves the GPU
+  free" is supported only at that margin.
+- **Spill (reported, not gated):** 130 of 3,144 `auto` short decisions (3.6–4.6% per window)
+  ran on the GPU with `ane_backlog_shorter_on_gpu`; L1 and L2 include them.
+- **Not gated:** three-question P99 under LLM load rose to 117.1 ms with `auto` (84.1 ms
+  unloaded) and 153.1 ms with `gpu` (79.4 ms unloaded). The LLM server TTFT median was 6.48 s
+  alone, 6.73 s beside `gpu` and 6.70 s beside `auto`.
+- The run used laya-apple 1.3.0; no runtime change followed it in 1.4.0.

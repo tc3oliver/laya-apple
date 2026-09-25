@@ -10,6 +10,42 @@
 **Correctness-validated heterogeneous [Laya](https://github.com/NandhaKishorM/laya) runtime
 for Apple silicon:** the MLX GPU and the Apple Neural Engine, at the same time.
 
+## Short decisions stay fast while your local LLM is busy
+
+`laya-apple serve` answers decision requests from Jev clients on your Mac, with upstream
+Laya. With its default `--device auto`, short single-question decisions run on the Apple
+Neural Engine instead of queueing on the GPU behind a local LLM.
+
+```bash
+pip install 'laya-apple[serve,ane]'
+laya-apple serve                                   # http://127.0.0.1:8642
+export TYPESAFE_BASE_URL=http://127.0.0.1:8642     # then run your Jev client as usual
+```
+
+![laya-apple serve beside a busy local LLM, one run on an Apple M4 Max with Qwen3.8-27B-oQ4e-mtp: short-decision P99 47.2 ms with serve auto against 122.3 ms with --device gpu while the LLM generates (43.2 and 55.9 ms with the LLM idle); LLM throughput 42.2 tok/s alone, 40.0 beside serve --device gpu and 40.5 beside serve auto](https://raw.githubusercontent.com/tc3oliver/laya-apple/main/docs/readme/serve-llm-load.svg)
+
+One run of `laya-apple serve --model laya` on one Apple M4 Max: a 27B local LLM
+(`Qwen3.8-27B-oQ4e-mtp` on oMLX) generating at saturation, and 8 decision requests per second
+offered beside it, 80% of them short single-question decisions
+([`benchmarks/serve/`](benchmarks/serve/README.md), run 2). Measured with `--model laya`; the
+default `--model auto` was not measured.
+
+- **Short-decision P99 with the LLM busy: 47.2 ms with `auto`, against 122.3 ms with
+  `--device gpu`.** With the LLM idle it is 43.2 ms with `auto` and 55.9 ms with
+  `--device gpu`.
+- **The LLM's throughput drops 4.0% beside serve `auto` and 5.3% beside `--device gpu`,**
+  from 42.2 tok/s alone. The gap between the two, 1.31 points, is just above the LLM's own
+  window-to-window spread in the same run, 1.28 points.
+- **Correct under load:** 0 hard mismatches and 0 errors over 7,728 decisions, each checked
+  against the same server's answer with the LLM idle.
+- About 4% of `auto`'s short decisions went to the GPU by design, when the Neural Engine's
+  backlog was the longer wait; the P99 above includes them.
+- Run 1 of this benchmark was invalid under its own validity checks, and no result is drawn
+  from it.
+
+The API is Jev-compatible; laya-apple is not affiliated with TypeSafe or Jev, and the
+answers are Laya's, not Jev's.
+
 ## Replace the Jev API with a local backend on your Mac
 
 `laya-apple serve` is a local alternative to the Jev API. It serves a Jev-compatible API
@@ -353,8 +389,17 @@ the command above and open a PR with `hardware-results/`
   measured, not Jev-level accuracy. Clients with thresholds tuned on Jev may take their
   fallback path more often; two of the seven tested did
   ([`integrations/jev-plugins/README.md`](integrations/jev-plugins/README.md)).
-- **`laya-apple serve` makes no performance claim.** Its latency, its throughput and its
-  effect on a local LLM sharing the GPU are not measured.
+- **`laya-apple serve` performance is one run in one setting:** one M4 Max, one LLM
+  (`Qwen3.8-27B-oQ4e-mtp` on oMLX, decode-heavy, short prompts), `--model laya`, 8 decision
+  requests per second offered ([`benchmarks/serve/`](benchmarks/serve/README.md)). Not
+  measured: other LLM servers and models, prefill-heavy LLM loads, other request rates,
+  serve's maximum decision throughput (run 2 used a fixed 8 req/s offered load), and the
+  other checkpoints (`laya-typed-decisions`, `--model laya-multilingual`) and
+  `--model auto`.
+- **Serve `auto` still costs the LLM throughput:** 4.0% in that run, only 1.31 points less
+  than `--device gpu`, against a 1.28-point window-to-window spread of the LLM alone.
+- **Multi-question decisions always run on the GPU,** and their P99 grows with the LLM
+  busy: 117.1 ms against 84.1 ms idle with `auto`.
 - **Client compatibility was tested once,** on 2026-09-25, at the client versions listed and
   on the tested M4 Max. A later client release may change what it sends or accepts.
 - **`serve --model auto` routes between English and multilingual only.** Upstream's opt-in

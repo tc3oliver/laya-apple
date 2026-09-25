@@ -63,7 +63,9 @@ backends and routing as the Python API; this table covers only what the server a
 | Wire format of upstream `laya.serve` 0.3.20 | **Tested** on the release profile: 792 of 792 requests matched unmodified upstream, 365 of them answered on the ANE ([`benchmarks/serve-compat/`](../benchmarks/serve-compat/README.md)). The status codes that deliberately differ are listed in [`serve.md`](serve.md) |
 | `--model auto` language routing | **Tested** against upstream's router on the golden cases (the `auto-*` files in the same directory). English vs multilingual only; `LAYA_AUTO_TASK` and caller language hints are **not implemented** |
 | Jev clients | **Tested**, wire compatibility only: 7 clients at their released versions, unmodified ([`integrations/jev-plugins/`](../integrations/jev-plugins/README.md)). Other versions are **unknown** |
-| Latency, throughput, effect on a local LLM on the same GPU | **Not measured** |
+| Decision latency and the effect on a local LLM on the same GPU, at a fixed offered load | **Tested once** (published in 1.4.0; measured on 1.3.0), in one setting: one run on the release profile beside `Qwen3.8-27B-oQ4e-mtp` on oMLX, `--model laya`, 8 req/s offered. Short-decision P99 with the LLM busy 47.2 ms (`auto`) against 122.3 ms (`--device gpu`); LLM tok/s −4.0% against −5.3%; 0 hard mismatches, 0 errors ([`serve.md`](serve.md#beside-a-local-llm), [`benchmarks/serve/`](../benchmarks/serve/README.md)) |
+| Maximum decision throughput | **Not measured** (run 2 used a fixed 8 req/s offered load) |
+| The same beside other LLM servers and models, under prefill-heavy LLM loads, at other request rates; the other checkpoints (`laya-typed-decisions`, `--model laya-multilingual`) and `--model auto` | **Not measured** |
 | Bind address | Loopback by default. A non-loopback bind needs `--allow-remote` and `LAYA_API_KEY` |
 
 ## Compute-unit terminology

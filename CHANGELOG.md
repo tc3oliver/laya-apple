@@ -5,11 +5,87 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-09-25
+
+No runtime change. This release publishes the measurements and research recorded since
+1.3.0: `laya-apple serve` measured beside a busy local LLM, the FAIL of GIL-released Core ML
+predict on the product mix and the prebound-predict result (no production change), new
+research tooling, and Chinese READMEs. The package code, routing thresholds, parity
+tolerances and the published v1.0 measurements are unchanged.
+
 ### Added
 
+- **`laya-apple serve` measured beside a local LLM** (run 2,
+  [`benchmarks/serve/m4-max-r2/`](benchmarks/serve/m4-max-r2/tables.md)). One run on an
+  Apple M4 Max, `Qwen3.8-27B-oQ4e-mtp` on oMLX generating at saturation, 8 decision requests
+  per second offered beside it (80% short), `serve --model laya`; the default
+  `--model auto` was not measured:
+  - short-decision P99 with the LLM busy: 47.2 ms with `--device auto`, 122.3 ms with
+    `--device gpu`; with the LLM idle, 43.2 ms and 55.9 ms;
+  - LLM tok/s: −4.0% beside serve `auto`, −5.3% beside `--device gpu`, from 42.2 tok/s alone.
+    The 1.31-point gap is just above the LLM-alone window spread of 1.28 points;
+  - 0 hard mismatches and 0 errors over 7,728 decisions. About 4% of `auto` short decisions
+    went to the GPU by the designed backlog spill, and the P99 includes them;
+  - every preregistered criterion passed (G1, G2, L1, L2, C1, E1), each reported as its own
+    result. Run 1 ([`benchmarks/serve/m4-max/`](benchmarks/serve/m4-max/tables.md)) was
+    invalid under its own validity checks, and no result is drawn from it. Run 2 used
+    revised V2 and V4 definitions, preregistered before its data
+    ([`benchmarks/serve/README.md`](benchmarks/serve/README.md)).
 - **Chinese READMEs:** [`README.zh-TW.md`](README.zh-TW.md) (Traditional Chinese) and
   [`README.zh-CN.md`](README.zh-CN.md) (Simplified Chinese), translated from `README.md`,
   with a language switcher at the top of all three. The English README stays authoritative.
+- **Research tooling** (not part of the package; no results claimed from it):
+  - a same-machine comparison harness for Apple-silicon Laya runtimes
+    ([`benchmarks/compare-v1.4/`](benchmarks/compare-v1.4/README.md)): method, pins and
+    tooling; no campaign has run yet;
+  - the no-sudo energy sampler and its J/decision harness
+    ([`research/energy-sampler/`](research/energy-sampler/README.md)). Energy sampler run 1
+    recorded: it is invalid under its own criteria, and run 2 is preregistered. Energy use
+    stays unmeasured.
+
+### Changed
+
+- **README leads with `serve` beside a busy local LLM** ("Short decisions stay fast while
+  your local LLM is busy"), measured with `--model laya`. The new first section has the
+  three-line quickstart and a chart of short-decision P99 and LLM tok/s, `--device gpu`
+  against `auto`, with the LLM idle and busy, labelled with the machine, the LLM model and
+  that it is one run. The chart, `docs/readme/serve-llm-load.svg`, is drawn by
+  `scripts/generate_readme_svgs.py` from `benchmarks/serve/m4-max-r2/results.json` (and
+  covered by its `--check`); it refuses a run that is not valid under its own checks. The
+  1.3 serve section follows, unchanged.
+- **The `serve` "no performance claim" limitation is replaced** by what run 2 measured and
+  what it does not cover (other LLM servers and models, prefill-heavy loads, other request
+  rates, serve's maximum decision throughput, the other checkpoints and `--model auto`),
+  plus the costs it did measure: `auto` still costs
+  the LLM 4.0% tok/s, and multi-question decisions, which always run on the GPU, reach a P99
+  of 117.1 ms with the LLM busy. `docs/serve.md` gains a "Beside a local LLM" section;
+  `docs/support-matrix.md`, `docs/compatibility.md` and `docs/reproducibility.md` are
+  updated to match.
+- **GIL-released Core ML predict on the product mix: FAIL, production unchanged**
+  ([`research/coreml-nogil-product-mix/`](research/coreml-nogil-product-mix/README.md)).
+  Neither candidate (C: GIL-released predict with the GPU in its worker process; D: the same
+  with the GPU on a thread) passed the preregistered production gate on any of the three
+  models. Correctness and GPU completion isolation passed everywhere; short (ANE) P99
+  regressed in every cell (+11.8% to +83.0%) and aggregate throughput failed in four of six
+  (down to −15.6%). Production stays thread-placed coremltools for `laya` and
+  `laya-typed-decisions`, and process placement for `laya-multilingual`.
+  - The study's stop rule named a Swift-worker study as the next step. A post-hoc diagnosis
+    of the recorded data found dozens of PyObjC/GIL handoffs per ANE forward on the request
+    path, so a smaller, request-path study (prebound predict, #80) was preregistered first;
+    the Swift worker is deferred.
+- **Prebound Core ML predict: no production change**
+  ([`research/coreml-prebind-predict/`](research/coreml-prebind-predict/README.md), #80).
+  PB prebinds the inputs' and output's backings: 4 PyObjC/GIL crossings per ANE forward
+  against C's 108. Preregistered paired verdict against production (ratio, 95% interval):
+  PASS on `laya` (aggregate 1.060 [1.057, 1.062], short P99 0.957 [0.953, 0.962]), PASS on
+  `laya-typed-decisions` (aggregate 1.049, short P99 0.963 [0.952, 0.974]), INCONCLUSIVE on
+  `laya-multilingual` (short P99 0.851 [0.524, 1.384]). As preregistered for this outcome,
+  production is unchanged and a larger preregistered replication decides. PB's short P99 was
+  about 3–5% lower than C's in the same campaign.
+  - Unplanned observation: under this experiment's hetero-only protocol, C (#77's binding)
+    also passes on `laya` and `laya-typed-decisions`, where #77 recorded it as FAIL. #77's
+    regression therefore depends on the protocol; its verdict stands, and the protocol
+    dependence is an open question.
 
 ## [1.3.0] - 2026-09-25
 

@@ -12,6 +12,38 @@
 **經過正確性驗證，可同時使用 MLX GPU 與 Apple Neural Engine（ANE）的
 [Laya](https://github.com/NandhaKishorM/laya) runtime，適用於 Apple silicon。**
 
+## 本機 LLM 忙碌時，簡短決策依然快速
+
+`laya-apple serve` 在你的 Mac 上用上游 Laya 回答 Jev 用戶端送來的決策請求。預設的
+`--device auto` 會把簡短的單一問題決策交給 Apple Neural Engine 執行，不必在 GPU 上排在本機 LLM
+後面等待。
+
+```bash
+pip install 'laya-apple[serve,ane]'
+laya-apple serve                                   # http://127.0.0.1:8642
+export TYPESAFE_BASE_URL=http://127.0.0.1:8642     # then run your Jev client as usual
+```
+
+![laya-apple serve 與忙碌的本機 LLM 同時執行，在 Apple M4 Max 上以 Qwen3.8-27B-oQ4e-mtp 跑一次的結果：LLM 生成時，簡短決策的 P99 在 serve auto 下是 47.2 ms，--device gpu 則是 122.3 ms（LLM 閒置時分別是 43.2 與 55.9 ms）；LLM 吞吐量單獨執行時 42.2 tok/s，搭配 serve --device gpu 時 40.0，搭配 serve auto 時 40.5](https://raw.githubusercontent.com/tc3oliver/laya-apple/main/docs/readme/serve-llm-load.svg)
+
+以下是 `laya-apple serve --model laya` 在一台 Apple M4 Max 上跑一次的結果：27B 本機 LLM
+（oMLX 上的 `Qwen3.8-27B-oQ4e-mtp`）滿載生成，同時以每秒 8 個的速率送出決策請求，其中 80%
+是簡短的單一問題決策（[`benchmarks/serve/`](benchmarks/serve/README.md)，第 2 次執行）。
+這些數字是用 `--model laya` 量測的；預設的 `--model auto` 沒有量測。
+
+- **LLM 忙碌時，簡短決策的 P99：`auto` 為 47.2 ms，`--device gpu` 為 122.3 ms。** LLM 閒置時，
+  `auto` 為 43.2 ms，`--device gpu` 為 55.9 ms。
+- **LLM 的吞吐量從單獨執行時的 42.2 tok/s，搭配 serve `auto` 時下降 4.0%，搭配 `--device gpu`
+  時下降 5.3%。** 兩者相差 1.31 個百分點，只比同一次執行中 LLM 本身各 window 之間的波動
+  （1.28 個百分點）略高。
+- **負載下結果依然正確：** 7,728 個決策中 0 個 hard mismatch、0 個錯誤；每個決策都與同一個伺服器
+  在 LLM 閒置時的回答比對。
+- `auto` 的簡短決策約有 4% 依設計改送 GPU：當 Neural Engine 的 backlog 等待時間較長時就會這樣做。
+  上面的 P99 已包含這些請求。
+- 這個 benchmark 的第 1 次執行依它自己的有效性檢查判定無效，不從中得出任何結論。
+
+API 與 Jev 相容；laya-apple 與 TypeSafe 或 Jev 沒有任何關係，回答來自 Laya，不是 Jev。
+
 ## 在 Mac 上用本機 backend 取代 Jev API
 
 `laya-apple serve` 可以在本機取代 Jev API。它在 loopback 上提供 Jev 相容的 API
@@ -209,7 +241,7 @@ laya-typed-decisions 突發 workload 中的一段突發。動畫中的 P99 就�
 
 效能提升來自同時使用兩個引擎，而不是 ANE 本身的延遲比較低。這是在一台 Apple M4 Max、macOS 26.6.2
 上跑的 v1.0 benchmark：一條短請求串流與一條長請求串流，送進同一個 `Laya(execution="workers")` instance。
-其他 Mac 不在這個 benchmark 的範圍內，相關結果請看[社群矩陣](#community-benchmarks)。方法與原始資料在
+其他 Mac 不在這個 benchmark 的範圍內，相關結果請看[社群矩陣](#社群-benchmark)。方法與原始資料在
 [`benchmarks/v1.0.md`](benchmarks/v1.0.md)。
 
 ```python
@@ -338,8 +370,16 @@ uv run python scripts/hardware_report.py --quick
   沒有量測 Jev 等級的準確度。門檻值針對 Jev 調校的用戶端可能會更常觸發 fallback；
   測試的七個用戶端中有兩個出現這種情況
   （[`integrations/jev-plugins/README.md`](integrations/jev-plugins/README.md)）。
-- **`laya-apple serve` 不提出任何效能宣稱。** 它的延遲、吞吐量，以及對共用 GPU 的本機 LLM
-  的影響都還沒量測。
+- **`laya-apple serve` 的效能只在一種設定下跑過一次：** 一台 M4 Max、一個 LLM（oMLX 上的
+  `Qwen3.8-27B-oQ4e-mtp`，以 decode 為主、prompt 很短）、`--model laya`、每秒送出 8 個決策請求
+  （[`benchmarks/serve/`](benchmarks/serve/README.md)）。還沒量測的有：其他 LLM 伺服器與模型、
+  以 prefill 為主的 LLM 負載、其他請求速率、serve 的最大決策吞吐量（第 2 次執行固定以每秒 8 個
+  請求送出），以及其他 checkpoint（`laya-typed-decisions`、`--model laya-multilingual`）與
+  `--model auto`。
+- **serve `auto` 仍會拖慢 LLM 的吞吐量：** 那次執行中下降 4.0%，只比 `--device gpu` 少 1.31
+  個百分點，而 LLM 單獨執行時各 window 之間的波動就有 1.28 個百分點。
+- **多問題決策一律在 GPU 上執行，** LLM 忙碌時它們的 P99 會變高：`auto` 下為 117.1 ms，
+  閒置時為 84.1 ms。
 - **用戶端相容性只測過一次：** 2026-09-25，使用列出的用戶端版本，在測試用的 M4 Max 上進行。
   之後的用戶端版本可能會改變它送出或接受的內容。
 - **`serve --model auto` 只會在英文與多語模型之間路由。** 上游需手動啟用的 typed-decisions
