@@ -483,3 +483,15 @@ Every record below except the crossings count is taken during the campaign.
   stopped. The Core ML E5 cache is not cleared.
 - **Versions:** as locked in `uv.lock` (coremltools 9.0, mlx 0.32.x). pyobjc-framework-CoreML
   12.2.2 is added through `uv run --with`, for research only.
+
+## Addendum (2026-09-25, written during the campaign, before any result was read)
+
+An unrelated package install and import on the same machine (a clean-install check of the
+published 1.3.0 wheel) ran from before the campaign start until 20:21:57 local time, overlapping
+the first run, `laya-A-r1` (finished 20:21:58). No other run overlapped it. Rule, fixed now:
+
+- All six laya runs of the campaign are moved to `raw/contaminated/` and kept unchanged.
+- The laya block is re-run in full, in the same order (A C PB PB C A), immediately after the
+  campaign, on the idle machine. The re-run is the primary laya result.
+- The contaminated laya block is reported alongside, labelled as such, and does not enter the
+  verdict. laya-typed-decisions and laya-multilingual are unaffected.
