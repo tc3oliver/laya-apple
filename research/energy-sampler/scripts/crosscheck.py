@@ -31,7 +31,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-from harness import SamplerProcess, machine_meta  # noqa: E402
+from harness import PROTOCOL, SamplerProcess, machine_meta  # noqa: E402
 from sampler import uptime_ns  # noqa: E402
 
 PHASES = [("idle", None, 20.0), ("gpu", "gpu", 40.0), ("idle", None, 20.0), ("ane", "ane", 40.0), ("idle", None, 20.0)]
@@ -78,7 +78,7 @@ def main(argv=None) -> int:
     r = sub.add_parser("run")
     r.add_argument("--out", type=Path, default=HERE.parent / "raw" / "crosscheck-sampler.json.gz")
     r.add_argument("--model", default="laya-typed-decisions")
-    r.add_argument("--interval", type=float, default=0.5)
+    r.add_argument("--interval", type=float, default=PROTOCOL["sampler_interval_s"])
     c = sub.add_parser("compare")
     c.add_argument("--sampler", type=Path, default=HERE.parent / "raw" / "crosscheck-sampler.json.gz")
     c.add_argument("--powermetrics", type=Path, default=HERE.parent / "raw" / "crosscheck-powermetrics.txt")
