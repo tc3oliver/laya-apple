@@ -105,7 +105,7 @@ def _ane_predict_info() -> dict:
 
     out = {"env": os.environ.get(coreml_nogil.ENV) or None, "pyobjc_unavailable": coreml_nogil.pyobjc_import_error()}
     try:
-        impl, reason = coreml_nogil.select_predict("auto")
+        impl, reason, _ = coreml_nogil.select_predict("auto")
     except (ValueError, LayaAppleError) as e:
         impl, reason = None, f"{type(e).__name__}: {e}"
     out["thread_placement"] = {"ane_predict": impl, "reason": reason}

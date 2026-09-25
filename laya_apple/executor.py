@@ -12,6 +12,9 @@ Placement per device, chosen from measurements (research/v0.2-concurrency/):
     (backends/coreml_nogil.py), so the Core ML call does not hold the caller's GIL.
   - Process: Core ML's Python predict holds the GIL for much of an ANE call, which costs
     the caller's interpreter more at high short-request rates (mmBERT-base, ~250 req/s).
+  - The evidence behind placement.json predates the GIL-releasing binding: every placement
+    was measured with coremltools' GIL-holding predict on the thread. The binding changes
+    the thread side of that comparison; the per-model choice has not been re-measured.
 
 Process workers are started as `python -m laya_apple.executor` subprocesses, not
 multiprocessing children, so the caller's main module is never re-imported (works from a

@@ -13,7 +13,7 @@ from laya_apple import Laya
 from laya_apple.artifacts import COMPILED, artifact_dir
 from laya_apple.backends import coreml_nogil
 from laya_apple.backends.coreml_ane import ANEBackend, ane_features
-from laya_apple.errors import ArtifactError, UnsupportedShapeError
+from laya_apple.errors import ArtifactError, ArtifactMissingError, BackendUnavailableError, UnsupportedShapeError
 from laya_apple.parity import evaluate, load_goldens
 from laya_apple.registry import ANE_COMPUTE_UNITS, models
 
@@ -24,14 +24,15 @@ pytestmark = [pytest.mark.parity, pytest.mark.ane]
 def pair(model_name, monkeypatch):
     """(coremltools ANEBackend, nogil ANEBackend) over the same artifacts, or skip."""
     pytest.importorskip("CoreML")
-    monkeypatch.delenv(coreml_nogil.ENV, raising=False)
+    # Forced: whatever DEFAULT_AUTO is, and a binding failure raises instead of falling back.
+    monkeypatch.setenv(coreml_nogil.ENV, "nogil")
     spec = models()[model_name]
     if not spec.ane_buckets:
         pytest.skip(f"{model_name} has no ANE buckets")
     try:
         laya = Laya.from_pretrained(model_name, device="ane", local_files_only=True)  # inline: coremltools
-    except Exception:
-        pytest.skip(f"{model_name}: no validated ANE artifacts present")
+    except (ArtifactMissingError, BackendUnavailableError) as e:  # anything else is a failure
+        pytest.skip(f"{model_name}: no validated ANE artifacts or runtime here ({type(e).__name__}: {e})")
     ref = laya.ane
     assert ref.predict_impl == coreml_nogil.COREMLTOOLS
     nogil = ANEBackend(
@@ -43,7 +44,7 @@ def pair(model_name, monkeypatch):
         strict=True,
         predict="auto",
     )
-    assert (nogil.predict_impl, nogil.predict_reason) == (coreml_nogil.NOGIL, coreml_nogil.DEFAULT)
+    assert (nogil.predict_impl, nogil.predict_reason) == (coreml_nogil.NOGIL, coreml_nogil.ENV_NOGIL)
     assert nogil.buckets == ref.buckets and nogil.artifact_sha256 == ref.artifact_sha256
     return laya, ref, nogil
 

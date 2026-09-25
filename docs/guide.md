@@ -191,21 +191,33 @@ Where each binding is used:
 
 | ANE placement | Binding |
 |---|---|
-| `thread` (workers) | `nogil` when PyObjC is importable; otherwise `coremltools`, with the reason recorded |
+| `thread` (workers) | `nogil` when PyObjC is importable; otherwise `coremltools`, with the reason recorded and a `RuntimeWarning` |
 | `process` (workers) | `coremltools`, in the worker process |
 | inline (`execution="inline"`) | `coremltools` |
 
+If the binding cannot load or run an artifact while the ANE loads (including the placement
+probe), every bucket is loaded again through coremltools, the reason is recorded, and a
+`RuntimeWarning` names it. The placement evidence in `placement.json` was measured before
+the binding existed, with coremltools' GIL-holding predict on the thread.
+
 `LAYA_APPLE_ANE_PREDICT` overrides the choice for the thread-placed ANE:
-- `coremltools` keeps the thread-placed ANE on coremltools;
-- `nogil` requires the binding: if PyObjC cannot be imported, or the binding cannot load an
-  artifact, loading raises `BackendUnavailableError` instead of using coremltools;
-- unset or `auto` is the default above. Any other value raises `ValueError` when the ANE loads.
+- `coremltools` keeps the thread-placed ANE on coremltools, without a warning;
+- `nogil` requires the binding: if PyObjC cannot be imported, or the binding fails while
+  the ANE loads, loading raises `BackendUnavailableError` instead of using coremltools;
+- unset or `auto` is the default above.
+
+The value is validated wherever an ANE backend loads, including the placements it does not
+affect (process and inline): any other value raises `ValueError` there too, so a typo never
+passes silently.
 
 This is a choice of binding, not of device. Either binding runs the same artifact on the
 Neural Engine, and an explicit `device="ane"` still runs there or raises. The binding that
-ran is recorded in `RuntimeInfo.ane_predict` and `RequestTrace.ane_predict`, and
-`Laya.info()` has `ane_predict` and `ane_predict_reason`. `laya-apple info` reports which
-binding a thread-placed ANE would use on this machine, without loading a model.
+ran is recorded in `RuntimeInfo.ane_predict` and `RequestTrace.ane_predict`, and why in
+`RuntimeInfo.ane_predict_reason` (a code: `default`, `env_nogil`, `env_coremltools`,
+`not_thread_placed`, `pyobjc_unavailable`, `nogil_load_failed`). `Laya.info()` has
+`ane_predict` and `ane_predict_reason`, the latter with the full detail. `laya-apple info`
+reports which binding a thread-placed ANE would use on this machine, without loading a
+model.
 
 ## The ANE path: building artifacts
 

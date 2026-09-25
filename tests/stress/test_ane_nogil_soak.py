@@ -4,6 +4,8 @@ Guards the leak #46 found (research/coreml-gil-completion-path/): a Python threa
 autorelease pool, so without one per call every predict leaked Core ML's IOSurface-backed
 outputs. The ANE then slowed down within minutes (predict 10.2 -> 11.1 ms) until IOSurface
 allocation failed. With the pool, 20,000 calls held predict at 9.85-9.98 ms and RSS flat.
+phys_footprint is sampled as well: it counts IOSurface memory mapped into the process,
+which RSS can miss.
 """
 
 from __future__ import annotations
@@ -15,6 +17,7 @@ import threading
 import time
 
 import pytest
+from _footprint import phys_footprint  # tests/stress/_footprint.py
 
 from laya_apple import Laya
 from laya_apple.artifacts import COMPILED, artifact_dir
@@ -25,11 +28,11 @@ pytestmark = [pytest.mark.ane]
 MODEL = "laya-typed-decisions"
 CALLS = 20_000
 WINDOW = 1_000  # calls per timing window and RSS sample
-MAX_RSS_GROWTH = 64 * 1024 * 1024  # after the first window
+MAX_GROWTH = 64 * 1024 * 1024  # RSS and phys_footprint, after the first window
 MAX_SLOWDOWN = 1.10  # last window's median predict against the first's
 
 
-def test_nogil_predict_soak_has_flat_rss_and_flat_time():
+def test_nogil_predict_soak_has_flat_memory_and_flat_time():
     psutil = pytest.importorskip("psutil")
     pytest.importorskip("CoreML")
     os.environ.setdefault("HF_HUB_OFFLINE", "1")
@@ -40,6 +43,7 @@ def test_nogil_predict_soak_has_flat_rss_and_flat_time():
     proc = psutil.Process(os.getpid())
     windows: list[float] = []
     rss: list[int] = []
+    footprint: list[int] = []
     errors: list[BaseException] = []
 
     def run():  # a non-main Python thread, as the product's ANE dispatcher is
@@ -53,6 +57,7 @@ def test_nogil_predict_soak_has_flat_rss_and_flat_time():
                 windows.append(statistics.median(times) * 1e3)
                 gc.collect()
                 rss.append(proc.memory_info().rss)
+                footprint.append(phys_footprint())
         except BaseException as e:
             errors.append(e)
 
@@ -61,6 +66,7 @@ def test_nogil_predict_soak_has_flat_rss_and_flat_time():
     t.join()
     assert not errors, errors[0]
     assert len(windows) == CALLS // WINDOW
-    growth = rss[-1] - rss[0]
-    assert growth < MAX_RSS_GROWTH, f"RSS grew {growth / 1e6:.1f} MB over {CALLS} calls; samples={rss}"
+    for name, samples in (("RSS", rss), ("phys_footprint", footprint)):
+        growth = samples[-1] - samples[0]
+        assert growth < MAX_GROWTH, f"{name} grew {growth / 1e6:.1f} MB over {CALLS} calls; samples={samples}"
     assert windows[-1] <= MAX_SLOWDOWN * windows[0], f"predict median per {WINDOW} calls (ms): {windows}"

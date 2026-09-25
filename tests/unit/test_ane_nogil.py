@@ -13,17 +13,18 @@ import contextlib
 import sys
 import time
 import types
+import warnings
 from pathlib import Path
 from types import SimpleNamespace
 
 import numpy as np
 import pytest
 
-from laya_apple import executor, model, routing
+from laya_apple import executor, model, routing, scheduling
 from laya_apple.backends import coreml_ane, coreml_nogil
 from laya_apple.backends.coreml_nogil import COREMLTOOLS, ENV, NOGIL, NoGilBindingError, NoGilModel, select_predict
 from laya_apple.errors import ArtifactMissingError, BackendUnavailableError, ComputeUnitMismatchError
-from laya_apple.registry import ANE_MAX_OPTIONS, resolve
+from laya_apple.registry import ANE_MAX_OPTIONS, resolve, routing_table
 from laya_apple.trace import RequestTrace
 
 MODEL = "laya-typed-decisions"
@@ -31,6 +32,7 @@ MODEL = "laya-typed-decisions"
 # MLMultiArrayDataType and MLComputeUnits values, as Core ML defines them.
 FLOAT16, FLOAT32, DOUBLE, INT32 = 0x10010, 0x10020, 0x10040, 0x20020
 CPU_ONLY, CPU_AND_NE = 0, 3
+UNSPECIFIED, ENUMERATED, RANGE = 1, 2, 3  # MLMultiArrayShapeConstraintType
 NP = {FLOAT16: np.float16, FLOAT32: np.float32, DOUBLE: np.float64, INT32: np.int32}
 
 
@@ -50,6 +52,7 @@ class FakeArray:
         self._strides = list(strides)
         span = 1 + sum((n - 1) * s for n, s in zip(self._shape, self._strides))
         self.buf = np.zeros(span, NP[code])
+        self.short_by = 0  # bytes getBytesWithHandler: hands over fewer than the strides need
 
     def shape(self):
         return self._shape
@@ -63,6 +66,10 @@ class FakeArray:
     def dataPointer(self):
         buf = self.buf
         return SimpleNamespace(as_buffer=lambda n: memoryview(buf.view(np.uint8))[:n])
+
+    def getBytesWithHandler_(self, handler):  # PyObjC hands the block a bytes copy and its size
+        data = self.buf.tobytes()[: self.buf.nbytes - self.short_by]
+        handler(data, len(data))
 
     def logical(self):
         item = self.buf.itemsize
@@ -96,7 +103,13 @@ class FakeMLModel:
     def modelDescription(self):
         descs = {
             name: SimpleNamespace(
-                multiArrayConstraint=(lambda c=code, s=shape: SimpleNamespace(dataType=lambda: c, shape=lambda: s))
+                multiArrayConstraint=(
+                    lambda c=code, s=shape: SimpleNamespace(
+                        dataType=lambda: c,
+                        shape=lambda: s,
+                        shapeConstraint=lambda: SimpleNamespace(type=lambda: self.env.shape_constraint),
+                    )
+                )
             )
             for name, (code, shape) in self.inputs.items()
         }
@@ -131,6 +144,8 @@ class FakePyObjC:
         self.loaded: list[tuple] = []
         self.models: list[FakeMLModel] = []
         self.fail_load = self.fail_predict = False
+        self.alloc_error: BaseException | None = None  # raised by MLMultiArray.alloc()
+        self.shape_constraint = UNSPECIFIED
         env = self
 
         class MLModel:
@@ -156,13 +171,12 @@ class FakePyObjC:
             MLMultiArrayDataTypeInt32=INT32,
             MLComputeUnitsCPUAndNeuralEngine=CPU_AND_NE,
             MLComputeUnitsCPUOnly=CPU_ONLY,
+            MLMultiArrayShapeConstraintTypeUnspecified=UNSPECIFIED,
+            MLMultiArrayShapeConstraintTypeEnumerated=ENUMERATED,
+            MLMultiArrayShapeConstraintTypeRange=RANGE,
             MLModel=MLModel,
             MLModelConfiguration=SimpleNamespace(alloc=lambda: SimpleNamespace(init=Config)),
-            MLMultiArray=SimpleNamespace(
-                alloc=lambda: SimpleNamespace(
-                    initWithShape_dataType_error_=lambda shape, code, err: (FakeArray(shape, code), None)
-                )
-            ),
+            MLMultiArray=SimpleNamespace(alloc=self._alloc_array),
             MLFeatureValue=SimpleNamespace(
                 featureValueWithMultiArray_=lambda a: SimpleNamespace(multiArrayValue=lambda: a)
             ),
@@ -174,6 +188,11 @@ class FakePyObjC:
         )
         self.Foundation = SimpleNamespace(NSURL=SimpleNamespace(fileURLWithPath_=lambda p: f"file://{p}"))
         self.objc = SimpleNamespace(autorelease_pool=self.pool)
+
+    def _alloc_array(self):
+        if self.alloc_error is not None:
+            raise self.alloc_error
+        return SimpleNamespace(initWithShape_dataType_error_=lambda shape, code, err: (FakeArray(shape, code), None))
 
     def modules(self):
         return self.CoreML, self.Foundation, self.objc
@@ -219,24 +238,39 @@ def feats(seed=0):
 
 
 def test_thread_placement_selects_nogil_when_pyobjc_imports(pyobjc):
-    assert select_predict("auto") == (NOGIL, coreml_nogil.DEFAULT)
+    assert coreml_nogil.DEFAULT_AUTO == NOGIL  # until the product-mix experiment decides
+    assert select_predict("auto") == (NOGIL, coreml_nogil.DEFAULT, False)
+
+
+def test_default_auto_is_the_one_switch_to_opt_in(pyobjc, monkeypatch):
+    monkeypatch.setattr(coreml_nogil, "DEFAULT_AUTO", COREMLTOOLS)
+    assert select_predict("auto") == (COREMLTOOLS, coreml_nogil.DEFAULT, False)
+    monkeypatch.setenv(ENV, "auto")
+    assert select_predict("auto") == (COREMLTOOLS, coreml_nogil.DEFAULT, False)
+    monkeypatch.setenv(ENV, "nogil")  # opting in still works
+    assert select_predict("auto") == (NOGIL, coreml_nogil.ENV_NOGIL, True)
+
+
+def test_default_auto_coremltools_does_not_need_pyobjc(no_pyobjc, monkeypatch):
+    monkeypatch.setattr(coreml_nogil, "DEFAULT_AUTO", COREMLTOOLS)
+    assert select_predict("auto") == (COREMLTOOLS, coreml_nogil.DEFAULT, False)
 
 
 def test_env_forces_coremltools_even_when_pyobjc_imports(pyobjc, monkeypatch):
     monkeypatch.setenv(ENV, "coremltools")
-    assert select_predict("auto") == (COREMLTOOLS, coreml_nogil.ENV_COREMLTOOLS)
+    assert select_predict("auto") == (COREMLTOOLS, coreml_nogil.ENV_COREMLTOOLS, False)
 
 
 def test_env_nogil_is_recorded_as_forced(pyobjc, monkeypatch):
     monkeypatch.setenv(ENV, "nogil")
-    assert select_predict("auto") == (NOGIL, coreml_nogil.ENV_NOGIL)
-    assert coreml_nogil.forced()
+    assert select_predict("auto") == (NOGIL, coreml_nogil.ENV_NOGIL, True)
 
 
 def test_missing_pyobjc_falls_back_to_coremltools_with_the_reason(no_pyobjc):
-    impl, reason = select_predict("auto")
-    assert impl == COREMLTOOLS
+    impl, reason, forced = select_predict("auto")
+    assert impl == COREMLTOOLS and not forced
     assert reason.startswith(coreml_nogil.PYOBJC_UNAVAILABLE + ": ImportError") and "CoreML" in reason
+    assert coreml_nogil.reason_code(reason) == coreml_nogil.PYOBJC_UNAVAILABLE
 
 
 def test_missing_pyobjc_with_env_nogil_raises(no_pyobjc, monkeypatch):
@@ -249,21 +283,24 @@ def test_missing_pyobjc_with_env_nogil_raises(no_pyobjc, monkeypatch):
 def test_inline_and_process_placement_always_use_coremltools(pyobjc, monkeypatch, env):
     if env:
         monkeypatch.setenv(ENV, env)
-    assert select_predict("coremltools") == (COREMLTOOLS, coreml_nogil.NOT_THREAD_PLACED)
+    assert select_predict("coremltools") == (COREMLTOOLS, coreml_nogil.NOT_THREAD_PLACED, False)
 
 
-def test_unknown_env_value_or_request_is_refused(pyobjc, monkeypatch):
+@pytest.mark.parametrize("requested", ["auto", "coremltools"])
+def test_unknown_env_value_is_refused_on_every_path(pyobjc, monkeypatch, requested):
     monkeypatch.setenv(ENV, "pyobjc")
     with pytest.raises(ValueError, match=ENV):
-        select_predict("auto")
-    monkeypatch.delenv(ENV)
+        select_predict(requested)
+
+
+def test_unknown_request_is_refused(pyobjc):
     with pytest.raises(ValueError, match="predict request"):
         select_predict("nogil")
 
 
 def test_pyobjc_without_autorelease_pool_is_unusable(pyobjc):
     del pyobjc.objc.autorelease_pool
-    impl, reason = select_predict("auto")
+    impl, reason, _ = select_predict("auto")
     assert impl == COREMLTOOLS and "autorelease_pool" in reason
 
 
@@ -366,38 +403,105 @@ def test_a_non_multiarray_input_is_a_binding_error(pyobjc, monkeypatch):
     assert pyobjc.pool.depth == 0
 
 
+@pytest.mark.parametrize("constraint", [ENUMERATED, RANGE])
+def test_a_flexible_shape_input_is_a_binding_error(pyobjc, constraint):
+    pyobjc.shape_constraint = constraint
+    with pytest.raises(NoGilBindingError, match="flexible shape"):
+        NoGilModel(Path("/a"))
+
+
+def test_an_objc_exception_while_loading_is_a_binding_error(pyobjc, monkeypatch):
+    def boom(url, config, error):
+        raise RuntimeError("objc.error (test)")
+
+    monkeypatch.setattr(pyobjc.CoreML.MLModel, "modelWithContentsOfURL_configuration_error_", boom)
+    with pytest.raises(NoGilBindingError, match="objc.error"):
+        NoGilModel(Path("/a"))
+    assert pyobjc.pool.depth == 0
+
+
+@pytest.mark.parametrize(
+    "where",
+    ["alloc", "feature_value", "provider", "predict", "read"],
+)
+def test_every_objc_call_in_predict_fails_as_a_binding_error(pyobjc, monkeypatch, where):
+    m = NoGilModel(Path("/a"))
+    err = RuntimeError(f"objc.error in {where} (test)")
+
+    def boom(*a, **k):
+        raise err
+
+    if where == "alloc":
+        pyobjc.alloc_error = err
+    elif where == "feature_value":
+        monkeypatch.setattr(pyobjc.CoreML.MLFeatureValue, "featureValueWithMultiArray_", boom)
+    elif where == "provider":
+        monkeypatch.setattr(pyobjc.CoreML, "MLDictionaryFeatureProvider", SimpleNamespace(alloc=boom))
+    elif where == "predict":
+        monkeypatch.setattr(m._model, "predictionFromFeatures_error_", boom, raising=False)
+    else:
+        monkeypatch.setattr(FakeArray, "getBytesWithHandler_", boom)
+    with pytest.raises(NoGilBindingError, match=where) as e:
+        m.predict(feats())
+    assert e.value.__cause__ is err
+    assert pyobjc.pool.depth == 0 and pyobjc.pool.closed == pyobjc.pool.opened
+
+
+def test_caller_errors_stay_value_and_type_errors_before_any_objc_call(pyobjc):
+    m = NoGilModel(Path("/a"))
+    pyobjc.alloc_error = RuntimeError("must not be reached")
+    f = feats()
+    with pytest.raises(TypeError):
+        m.predict({**f, "embeddings": f["embeddings"].astype(np.float32)})
+    with pytest.raises(ValueError):
+        m.predict({**f, "type_vectors": f["type_vectors"][..., :0]})
+    assert pyobjc.pool.opened == 1  # only the load's pool: no predict pool was opened
+
+
 # ----------------------------------------------------------------------------- conversion helpers
 
 
 @pytest.mark.parametrize("code", [FLOAT16, FLOAT32, DOUBLE, INT32])
-def test_view_honours_padded_strides(code):
+def test_write_and_to_numpy_honour_padded_strides(code):
     arr = FakeArray((2, 3), code, strides=(8, 2))
-    arr.buf[:] = np.arange(arr.buf.size).astype(NP[code])
-    v = coreml_nogil.view(arr, NP[code])
-    assert v.shape == (2, 3)
-    assert v.tolist() == [[0, 2, 4], [8, 10, 12]]
+    value = np.array([[0, 2, 4], [8, 10, 12]], NP[code])
+    coreml_nogil.write(arr, np.dtype(NP[code]), value)
+    assert arr.buf[1] == 0 and arr.buf[3] == 0  # padding untouched
+    assert arr.logical().tolist() == value.tolist()
+    back = coreml_nogil.to_numpy(arr, {code: np.dtype(NP[code])})
+    want = value.astype(np.float32) if code == FLOAT16 else value
+    assert back.dtype == want.dtype and back.tobytes() == want.tobytes() and back.flags.writeable
 
 
-def test_fill_writes_through_the_strides_and_to_numpy_reads_them_back():
+def test_fp16_round_trip_is_exact_including_specials():
     arr = FakeArray((2, 3), FLOAT16, strides=(8, 2))
     value = np.array([[1, -2, 3.5], [np.inf, -0.0, 6e-8]], np.float16)
-    coreml_nogil.fill(arr, np.dtype(np.float16), (2, 3), value)
-    assert arr.buf[1] == 0 and arr.buf[3] == 0  # padding untouched
+    coreml_nogil.write(arr, np.dtype(np.float16), coreml_nogil.check_input(value, np.dtype(np.float16), (2, 3)))
     back = coreml_nogil.to_numpy(arr, {FLOAT16: np.dtype(np.float16)})
     assert back.dtype == np.float32 and back.tobytes() == value.astype(np.float32).tobytes()
 
 
-def test_fill_accepts_lossless_widening_only():
-    arr = FakeArray((3,), FLOAT32)
-    coreml_nogil.fill(arr, np.dtype(np.float32), (3,), np.array([1, 2, 3], np.float16))
-    assert arr.buf.tolist() == [1, 2, 3]
-    with pytest.raises(TypeError):
-        coreml_nogil.fill(arr, np.dtype(np.float32), (3,), np.array([1, 2, 3], np.float64))
+def test_check_input_accepts_lossless_numeric_widening_only():
+    f32 = np.dtype(np.float32)
+    assert coreml_nogil.check_input(np.array([1, 2, 3], np.float16), f32, (3,)).dtype == np.float16
+    with pytest.raises(TypeError, match="without rounding"):
+        coreml_nogil.check_input(np.array([1, 2, 3], np.float64), f32, (3,))
+    with pytest.raises(TypeError, match="not a numeric"):
+        coreml_nogil.check_input(np.array([True, False, True]), f32, (3,))
+    with pytest.raises(ValueError, match="shape"):
+        coreml_nogil.check_input(np.zeros((1, 3), np.float16), f32, (3,))
 
 
 def test_to_numpy_refuses_an_unknown_data_type():
     arr = FakeArray((1,), INT32)
     with pytest.raises(NoGilBindingError, match="unsupported data type"):
+        coreml_nogil.to_numpy(arr, {FLOAT16: np.dtype(np.float16)})
+
+
+def test_to_numpy_fails_loudly_on_a_buffer_shorter_than_its_strides():
+    arr = FakeArray((1, 1, 1, 4), FLOAT16, strides=(64, 64, 16, 1))
+    arr.short_by = 2
+    with pytest.raises(NoGilBindingError, match="needs 8"):
         coreml_nogil.to_numpy(arr, {FLOAT16: np.dtype(np.float16)})
 
 
@@ -459,7 +563,9 @@ def make_backend(predict, buckets=(64, 128), strict=True):
 
 
 def test_thread_placed_backend_loads_probes_and_serves_through_nogil(pyobjc, backend_env, no_coremltools):
-    b = make_backend("auto")
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")  # the default path warns about nothing
+        b = make_backend("auto")
     assert (b.predict_impl, b.predict_reason) == (NOGIL, coreml_nogil.DEFAULT)
     assert all(isinstance(m, NoGilModel) for m in b.models.values())
     assert [o for _, o in backend_env.load] == [coreml_nogil.open_model] * 2
@@ -491,15 +597,17 @@ def test_inline_and_process_backends_keep_coremltools(pyobjc, backend_env):
     assert pyobjc.loaded == []
 
 
-def test_missing_pyobjc_loads_through_coremltools_and_records_why(no_pyobjc, backend_env):
-    b = make_backend("auto")
+def test_missing_pyobjc_loads_through_coremltools_records_and_warns(no_pyobjc, backend_env):
+    with pytest.warns(RuntimeWarning, match="pyobjc_unavailable: ImportError"):
+        b = make_backend("auto")
     assert b.predict_impl == COREMLTOOLS and b.predict_reason.startswith(coreml_nogil.PYOBJC_UNAVAILABLE)
     assert all(isinstance(m, CoremltoolsModel) for m in b.models.values())
 
 
-def test_a_binding_failure_reloads_every_bucket_through_coremltools_and_records_it(pyobjc, backend_env):
+def test_a_binding_failure_reloads_every_bucket_through_coremltools_records_and_warns(pyobjc, backend_env):
     backend_env.fail_nogil_bucket = 128
-    b = make_backend("auto")
+    with pytest.warns(RuntimeWarning, match="nogil_load_failed: test: L128"):
+        b = make_backend("auto")
     assert b.predict_impl == COREMLTOOLS
     assert b.predict_reason.startswith(coreml_nogil.NOGIL_LOAD_FAILED) and "L128" in b.predict_reason
     assert all(isinstance(m, CoremltoolsModel) for m in b.models.values())  # no mix of bindings
@@ -541,6 +649,21 @@ def test_a_missing_bucket_under_nogil_is_recorded_as_before(pyobjc, backend_env,
     assert b.predict_impl == NOGIL
 
 
+def test_a_binding_error_raised_by_the_probe_triggers_the_fallback(pyobjc, backend_env, monkeypatch):
+    real = coreml_ane.probe_placement
+
+    def probe(spec, b, m, path, feats, open_model=None):
+        if open_model is not None:
+            raise NoGilBindingError(f"test: L{b} predict failed through PyObjC")
+        return real(spec, b, m, path, feats, open_model)
+
+    monkeypatch.setattr(coreml_ane, "probe_placement", probe)
+    with pytest.warns(RuntimeWarning, match="nogil_load_failed"):
+        b = make_backend("auto")
+    assert b.predict_impl == COREMLTOOLS and "predict failed through PyObjC" in b.predict_reason
+    assert all(isinstance(m, CoremltoolsModel) for m in b.models.values()) and sorted(b.probes) == [64, 128]
+
+
 # ----------------------------------------------------------------------------- placement probe
 
 
@@ -562,6 +685,28 @@ def test_probe_opens_its_cpu_reference_through_the_same_binding(no_coremltools):
     assert r["ratio"] < coreml_ane.PROBE_MAX_RATIO
     assert opened == [(Path("/x"), "CPU_ONLY")]
     assert loaded.calls == coreml_ane.PROBE_RUNS + 1  # the probe timed the model that serves requests
+
+
+def test_an_mlmultiarray_failure_in_the_real_probe_falls_back_to_coremltools(pyobjc, monkeypatch, no_coremltools):
+    """The real probe_placement, through the (fake) PyObjC binding: MLMultiArray.alloc raises."""
+    monkeypatch.setattr(coreml_ane, "HostWeights", lambda checkpoint, local_attention: FakeHost())
+    monkeypatch.setattr(coreml_ane, "ane_features", lambda rows, L, *a: feats())
+    monkeypatch.setattr(coreml_ane, "_open_coremltools", lambda path, units: SlowModel(path, units))
+
+    def load_verified(spec, b, *, open_model=None):
+        path = Path(f"/artifacts/L{b}/model.mlmodelc")
+        m = open_model(path, "CPU_AND_NE") if open_model else CoremltoolsModel(path, "CPU_AND_NE")
+        return m, SimpleNamespace(artifact_sha256=f"{b:064d}")
+
+    monkeypatch.setattr(coreml_ane, "load_verified", load_verified)
+    pyobjc.alloc_error = RuntimeError("objc.error: MLMultiArray alloc (test)")
+    with pytest.warns(RuntimeWarning, match="nogil_load_failed"):
+        b = make_backend("auto")
+    assert b.predict_impl == COREMLTOOLS
+    assert coreml_nogil.reason_code(b.predict_reason) == coreml_nogil.NOGIL_LOAD_FAILED
+    assert "MLMultiArray alloc" in b.predict_reason
+    assert all(isinstance(m, CoremltoolsModel) for m in b.models.values())
+    assert all(p["ratio"] < coreml_ane.PROBE_MAX_RATIO for p in b.probes.values())  # probed via coremltools
 
 
 # ----------------------------------------------------------------------------- executor wiring
@@ -647,7 +792,8 @@ def _laya(ane):
 def test_runtime_info_and_info_record_the_binding_for_ane_requests_only():
     spec = resolve(MODEL)
     ane = coreml_ane.ANEShapes(spec, (64,), {64: "0" * 64}, {})
-    ane.predict_impl, ane.predict_reason = NOGIL, coreml_nogil.DEFAULT
+    detail = "nogil_load_failed: PyObjC Core ML predict failed: RuntimeError: objc.error (test)"
+    ane.predict_impl, ane.predict_reason = COREMLTOOLS, detail
     laya = _laya(ane)
     prep = SimpleNamespace(
         sequence_length=10,
@@ -657,13 +803,14 @@ def test_runtime_info_and_info_record_the_binding_for_ane_requests_only():
         items=[{"ids": [0] * 10, "markers": [1, 2]}],
     )
     r = laya._result(prep, routing.Decision("ane", routing.ANE_REQUESTED), ane, (64,), {}, 0, 1, 1)
-    assert (r.runtime.ane_predict, r.runtime.ane_predict_reason) == (NOGIL, coreml_nogil.DEFAULT)
-    assert r.to_dict()["runtime"]["ane_predict"] == NOGIL
+    # RuntimeInfo carries the reason's code only; info() keeps the detail
+    assert (r.runtime.ane_predict, r.runtime.ane_predict_reason) == (COREMLTOOLS, coreml_nogil.NOGIL_LOAD_FAILED)
+    assert r.to_dict()["runtime"]["ane_predict"] == COREMLTOOLS
     gpu = model._GPUView(spec, "float16")
     r = laya._result(prep, routing.Decision("gpu", routing.GPU_REQUESTED), gpu, (), {}, 0, 1, 2)
     assert (r.runtime.ane_predict, r.runtime.ane_predict_reason) == (None, None)
     info = laya.info()
-    assert (info["ane_predict"], info["ane_predict_reason"]) == (NOGIL, coreml_nogil.DEFAULT)
+    assert (info["ane_predict"], info["ane_predict_reason"]) == (COREMLTOOLS, detail)
 
 
 def test_finish_ane_carries_the_workers_binding_to_the_parent_view():
@@ -691,13 +838,55 @@ def test_request_trace_carries_the_binding():
     assert RequestTrace(1, 10, 1, "gpu", "gpu_requested", 1.0, None, None, *range(9)).ane_predict is None
 
 
+def test_submit_emits_a_trace_with_the_binding_that_served_the_request(monkeypatch):
+    """Laya.submit's trace path, over a thread-placed fake ANE worker (no model)."""
+
+    class FakeANE:
+        name, device = "coreml", "ane"
+
+        def forward(self, rows):
+            return np.zeros((len(rows), ANE_MAX_OPTIONS), np.float32), np.zeros((len(rows), 3), np.float32)
+
+    monkeypatch.setattr(executor, "load_backend", lambda kind, args: FakeANE())
+    monkeypatch.setattr(executor, "warm", lambda *a: None)
+    monkeypatch.setattr(executor, "backend_info", lambda kind, backend: {})
+    monkeypatch.setattr(model, "format_answers", lambda prep, logits, act, cal: {})
+    spec = resolve(MODEL)
+    ane = coreml_ane.ANEShapes(spec, spec.ane_buckets, {b: "0" * 64 for b in spec.ane_buckets}, {})
+    ane.predict_impl, ane.predict_reason = NOGIL, coreml_nogil.DEFAULT
+    traces: list = []
+    laya = _laya(ane)
+    laya._closed, laya._ane_thread, laya._ane_dead_warned = False, None, False
+    laya._trace, laya._trace_warned = traces.append, False
+    laya._service = scheduling.ServiceModel(routing_table()["models"][spec.name]["service_ms"])
+    laya._workers = {"ane": executor.DeviceWorker("ane", {"pad_id": 0}, placement="thread")}
+    laya.calibration = None
+    prep = SimpleNamespace(
+        sequence_length=10,
+        question_count=1,
+        input_tokens=10,
+        truncated=False,
+        items=[{"ids": [0] * 10, "markers": [1, 2], "qtype": 0}],
+    )
+    laya.prepare = lambda context, questions: prep
+    try:
+        r = laya.submit("ctx", {"q": {}}).result(10)
+    finally:
+        laya._workers["ane"].close()
+    assert (r.runtime.device, r.runtime.ane_predict, r.runtime.ane_predict_reason) == ("ane", NOGIL, "default")
+    assert len(traces) == 1 and traces[0].target == "ane" and traces[0].ane_predict == NOGIL
+
+
 # ----------------------------------------------------------------------------- laya-apple info
 
 
 def test_cli_info_reports_the_thread_placement_binding(pyobjc, monkeypatch):
     from laya_apple import cli
 
-    assert cli._ane_predict_info()["thread_placement"] == {"ane_predict": NOGIL, "reason": coreml_nogil.DEFAULT}
+    assert cli._ane_predict_info()["thread_placement"] == {
+        "ane_predict": coreml_nogil.DEFAULT_AUTO,
+        "reason": coreml_nogil.DEFAULT,
+    }
     monkeypatch.setenv(ENV, "bogus")
     out = cli._ane_predict_info()
     assert out["env"] == "bogus" and out["thread_placement"]["ane_predict"] is None

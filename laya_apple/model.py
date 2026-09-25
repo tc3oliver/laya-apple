@@ -30,6 +30,7 @@ from pathlib import Path
 
 from . import routing, scheduling
 from .artifacts import platform_profile, profile_matches
+from .backends import coreml_nogil
 from .errors import (
     ArtifactMissingError,
     BackendUnavailableError,
@@ -639,7 +640,9 @@ class Laya:
             request_id=request_id,
             truncated=prep.truncated,
             ane_predict=getattr(backend, "predict_impl", None) if decision.target == "ane" else None,
-            ane_predict_reason=getattr(backend, "predict_reason", None) if decision.target == "ane" else None,
+            ane_predict_reason=(
+                coreml_nogil.reason_code(getattr(backend, "predict_reason", None)) if decision.target == "ane" else None
+            ),
         )
         return Result(answers=answers, usage={"input_tokens": prep.input_tokens, "output_tokens": 0}, runtime=runtime)
 

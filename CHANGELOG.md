@@ -19,9 +19,11 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - The runtime placement probe and the other load-time checks run through the binding that
     serves the requests. `device="ane"` still runs on the Neural Engine or raises.
   - Process-placed and inline ANE backends keep coremltools. The per-model placement
-    (`placement.json`) is unchanged.
-  - If PyObjC cannot be imported, or cannot load an artifact, the thread-placed ANE uses
-    coremltools and records why.
+    (`placement.json`) is unchanged; its evidence predates the binding (it was measured
+    with coremltools' GIL-holding predict on the thread).
+  - If PyObjC cannot be imported, or the binding cannot load or run an artifact while the
+    ANE loads, the thread-placed ANE uses coremltools, records why and issues a
+    `RuntimeWarning`.
   - No performance result is claimed for this change yet.
 
 ### Added
@@ -35,7 +37,7 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Tests: mocked unit tests of the selection, the fallback record, the autorelease pool and
   the conversions; `parity`/`ane` tests requiring bit-identical outputs against coremltools
   on every golden row; an `integration`/`ane` GIL-release check; and a `stress` soak of
-  20,000 predicts with flat RSS and flat predict time.
+  20,000 predicts with flat RSS, flat `phys_footprint` and flat predict time.
 
 ## [1.3.0] - 2026-09-25
 

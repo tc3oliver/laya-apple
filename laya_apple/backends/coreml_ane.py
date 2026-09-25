@@ -16,6 +16,7 @@ made, never which artifact, compute units or device run it.
 from __future__ import annotations
 
 import math
+import warnings
 from pathlib import Path
 
 import numpy as np
@@ -108,6 +109,17 @@ def probe_placement(spec: ModelSpec, bucket: int, model, compiled_path: Path, fe
             "persists, rebuild the artifact."
         )
     return {"ane_ms": round(ane_ms, 3), "cpu_ms": round(cpu_ms, 3), "ratio": round(ratio, 3)}
+
+
+def _warn_binding(spec: ModelSpec, reason: str) -> None:
+    """The thread-placed ANE uses coremltools instead of the GIL-releasing binding: say why."""
+    warnings.warn(
+        f"laya-apple: {spec.name}: the ANE's Core ML predict uses coremltools, not the GIL-releasing binding "
+        f"({reason}); the device, artifacts and compute units are unchanged. Set "
+        f"{coreml_nogil.ENV}=coremltools to choose this explicitly.",
+        RuntimeWarning,
+        stacklevel=3,
+    )
 
 
 class HostWeights:
@@ -232,26 +244,31 @@ class ANEBackend(ANEShapes):
 
         predict: "coremltools" (inline and process placement), or "auto" (thread placement:
         the GIL-releasing binding when it can be used, coreml_nogil.select_predict). If the
-        binding cannot load or run a bucket, every bucket is loaded again through coremltools
-        and the reason is recorded in `predict_reason`; with LAYA_APPLE_ANE_PREDICT=nogil it
-        raises instead. The artifacts, compute units and device are the same either way.
+        binding cannot load or run a bucket during loading (including the placement probe),
+        every bucket is loaded again through coremltools, and the reason is recorded in
+        `predict_reason` and warned; with LAYA_APPLE_ANE_PREDICT=nogil it raises instead. The
+        artifacts, compute units and device are the same either way.
 
         Every loaded bucket also passes the runtime placement probe (probe_placement),
         through the binding that serves its requests.
         """
         self.pad_id = pad_id
         self.host = HostWeights(checkpoint, local_attention)
-        self.predict_impl, self.predict_reason = coreml_nogil.select_predict(predict)
+        self.predict_impl, self.predict_reason, forced = coreml_nogil.select_predict(predict)
+        if self.predict_reason.startswith(coreml_nogil.PYOBJC_UNAVAILABLE):
+            _warn_binding(spec, self.predict_reason)
         tolerated = ArtifactMissingError if strict else ArtifactError
         try:
             load_errors = self._load(spec, buckets, tolerated)
         except coreml_nogil.NoGilBindingError as e:
-            if coreml_nogil.forced():
+            # Raised while loading or probing any bucket, before a request could use it.
+            if forced:
                 raise BackendUnavailableError(
                     f"{coreml_nogil.ENV}=nogil, but the GIL-releasing Core ML binding failed: {e}"
                 ) from e
             self.predict_impl = coreml_nogil.COREMLTOOLS
             self.predict_reason = f"{coreml_nogil.NOGIL_LOAD_FAILED}: {e}"
+            _warn_binding(spec, self.predict_reason)
             load_errors = self._load(spec, buckets, tolerated)
         if strict and not self.models:
             raise next(iter(load_errors.values()))

@@ -80,20 +80,26 @@ def test_the_binding_releases_the_gil_during_predict(inline_ane, monkeypatch):
     assert released < 0.5 * held, f"nogil {released:.2f} ms vs coremltools {held:.2f} ms late"
 
 
-def test_thread_placed_workers_use_the_binding_and_answer_as_coremltools(inline_ane, monkeypatch):
-    monkeypatch.delenv(coreml_nogil.ENV, raising=False)
+@pytest.mark.parametrize("env", [None, "nogil"])
+def test_thread_placed_workers_use_the_selected_binding_and_answer_as_coremltools(inline_ane, monkeypatch, env):
+    if env is None:  # the default: DEFAULT_AUTO
+        monkeypatch.delenv(coreml_nogil.ENV, raising=False)
+        want = (coreml_nogil.DEFAULT_AUTO, coreml_nogil.DEFAULT)
+    else:  # forced: a binding failure would raise here instead of falling back
+        monkeypatch.setenv(coreml_nogil.ENV, env)
+        want = (coreml_nogil.NOGIL, coreml_nogil.ENV_NOGIL)
     with Laya.from_pretrained(
         MODEL, device="ane", execution="workers", ane_placement="thread", local_files_only=True
     ) as laya:
         info = laya.info()
-        assert (info["ane_predict"], info["ane_predict_reason"]) == (coreml_nogil.NOGIL, coreml_nogil.DEFAULT)
-        # the load-time placement probe ran through the binding and passed
+        assert (info["ane_predict"], info["ane_predict_reason"]) == want
+        # the load-time placement probe ran through that binding and passed
         assert set(info["ane_probes"]) == {str(b) for b in laya.ane.buckets}
         assert all(p["ratio"] < PROBE_MAX_RATIO for p in info["ane_probes"].values())
         for state, qs in _requests(inline_ane):
             r, ref = laya.predict(context=state, questions=qs), inline_ane.predict(context=state, questions=qs)
             assert (r.runtime.device, r.runtime.compute_units) == ("ane", ANE_COMPUTE_UNITS)
-            assert (r.runtime.ane_predict, r.runtime.ane_predict_reason) == (coreml_nogil.NOGIL, coreml_nogil.DEFAULT)
+            assert (r.runtime.ane_predict, r.runtime.ane_predict_reason) == want
             assert r.runtime.artifact_revision == ref.runtime.artifact_revision
             assert r.answers == ref.answers
 
