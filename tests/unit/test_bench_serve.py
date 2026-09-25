@@ -174,3 +174,9 @@ def test_api_key_from_env_then_settings_file(tmp_path):
     assert bs.read_api_key(None, env={}) is None
     settings.write_text(json.dumps({"auth": {}}))
     assert bs.read_api_key(str(settings), env={}) is None
+
+
+def test_serve_log_has_no_machine_paths():
+    text = f"{ROOT}/laya_apple/model.py:191: RuntimeWarning: x\n{Path.home()}/.cache/y\n"
+    out = bs.scrub_paths(text)
+    assert out == "<repo>/laya_apple/model.py:191: RuntimeWarning: x\n~/.cache/y\n"

@@ -160,6 +160,10 @@ uv run python benchmarks/serve/analyze.py benchmarks/serve/<machine> --check
 - `run.sh` refuses to start if another laya-apple process is running or the campaign
   directory already has data. It runs `scripts/bench_serve.py campaign` and then
   `analyze.py`, which writes `results.json` and `tables.md` next to `raw/`.
+- Before the campaign starts, `run.sh` copies the criteria file it runs under (`$CRITERIA`,
+  default [`criteria-r2.json`](criteria-r2.json)) into the campaign directory as
+  `criteria.json`. `analyze.py` reads that copy; a campaign without one (run 1) is analyzed
+  with [`criteria.json`](criteria.json). `--criteria FILE` overrides both.
 - The harness never starts, stops or reconfigures the LLM server. Before each window it waits
   while the server reports other active or waiting requests (up to 10 min, then stops).
 - **The LLM server's API key** is read at run time, from `$LLM_API_KEY` or from `auth.api_key`
