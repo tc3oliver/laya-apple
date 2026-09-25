@@ -240,7 +240,7 @@ laya-typed-decisions 突发 workload 中的一次突发。其中的 P99 就是�
 
 性能提升来自同时使用两个引擎，而不是 ANE 本身的延迟更低。这是在一台 Apple M4 Max、macOS 26.6.2
 上运行的 v1.0 benchmark：一条短请求流和一条长请求流，送入同一个 `Laya(execution="workers")` 实例。
-其他 Mac 不在这个 benchmark 的范围内，相关结果见[社区矩阵](#community-benchmarks)。方法和原始数据见
+其他 Mac 不在这个 benchmark 的范围内，相关结果见[社区矩阵](#社区-benchmark)。方法和原始数据见
 [`benchmarks/v1.0.md`](benchmarks/v1.0.md)。
 
 ```python

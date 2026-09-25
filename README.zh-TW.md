@@ -240,7 +240,7 @@ laya-typed-decisions 突發 workload 中的一段突發。動畫中的 P99 就�
 
 效能提升來自同時使用兩個引擎，而不是 ANE 本身的延遲比較低。這是在一台 Apple M4 Max、macOS 26.6.2
 上跑的 v1.0 benchmark：一條短請求串流與一條長請求串流，送進同一個 `Laya(execution="workers")` instance。
-其他 Mac 不在這個 benchmark 的範圍內，相關結果請看[社群矩陣](#community-benchmarks)。方法與原始資料在
+其他 Mac 不在這個 benchmark 的範圍內，相關結果請看[社群矩陣](#社群-benchmark)。方法與原始資料在
 [`benchmarks/v1.0.md`](benchmarks/v1.0.md)。
 
 ```python
