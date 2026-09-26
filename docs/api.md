@@ -12,7 +12,7 @@ Import these from the top-level `laya_apple` package:
 
 | Name | Contract |
 |---|---|
-| `Laya.from_pretrained(model_id, device="auto", *, dtype="float16", local_files_only=False, batch_size=16, execution="inline", ane_placement="auto", ane_startup="wait", trace=None, ane_handoff=False)` | Loads a pinned checkpoint. Invalid arguments raise `ValueError`. Every other failure raises a `LayaAppleError` subclass |
+| `Laya.from_pretrained(model_id, device="auto", *, dtype="float16", local_files_only=False, batch_size=16, execution="inline", ane_placement="auto", ane_startup="wait", trace=None)` | Loads a pinned checkpoint. Invalid arguments raise `ValueError`. Every other failure raises a `LayaAppleError` subclass |
 | `Laya.predict(context=None, questions=None, *, state=None) -> Result` | Blocking and thread-safe |
 | `Laya.submit(...) -> concurrent.futures.Future[Result]` | Same arguments as `predict` |
 | `await Laya.apredict(...) -> Result` | Same arguments as `predict` |
@@ -40,7 +40,6 @@ Import these from the top-level `laya_apple` package:
 | `execution` | `inline`, `workers` |
 | `ane_placement` | `auto`, `thread`, `process` |
 | `ane_startup` | `wait`, `background` |
-| `ane_handoff` | `False` (default), `True` (opt in, off by default; [`guide.md`](guide.md#staged-core-ml-handoff-in-process-ane-opt-in)) |
 
 ### Routing reasons
 

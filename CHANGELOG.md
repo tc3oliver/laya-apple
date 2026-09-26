@@ -5,22 +5,6 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-### Added
-
-- **Staged Core ML handoff for an in-process ANE** (opt-in, off by default;
-  `laya_apple/handoff.py`, `laya_apple/backends/coreml_async.py`,
-  [`docs/guide.md`](docs/guide.md#staged-core-ml-handoff-in-process-ane-opt-in)). With
-  `ane_handoff=True`, `execution="workers"`, `device="auto"` and a model whose ANE runs on a
-  thread, the first 64 ANE forwards of each GPU+ANE overlap run coremltools' `predict` and
-  later ones Core ML's asynchronous predict with prebound buffers, on the same verified
-  artifact, whose outputs must be identical to coremltools' at load. The default
-  `ane_handoff=False` changes nothing, `info()` included. `laya-multilingual` (ANE in a worker
-  process) cannot use it. An ineligible configuration raises `ValueError`; an async load
-  failure raises `BackendUnavailableError`; an async predict failure fails its request (never
-  re-run) and disables the handoff with one warning. The `ane` extra adds
-  `pyobjc-framework-CoreML==12.2.2`. Evidence and status:
-  [`research/coreml-staged-handoff/`](research/coreml-staged-handoff/).
-
 ## [1.4.0] - 2026-09-25
 
 No runtime change. This release publishes the measurements and research recorded since

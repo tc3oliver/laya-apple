@@ -37,9 +37,7 @@ dependencies = [
 [project.optional-dependencies]
 # Core ML runtime for the Neural Engine path. coremltools 9.0 was the version validated
 # in Phase -1 and breaks on NumPy >= 2.5; NumPy < 2.2 is the tested range.
-# pyobjc-framework-CoreML: the asynchronous Core ML path of the opt-in staged handoff
-# (ane_handoff=True), at the version research/coreml-staged-handoff/ ran.
-ane = ["coremltools==9.0", "numpy>=1.26,<2.2", "pyobjc-framework-CoreML==12.2.2; sys_platform == 'darwin'"]
+ane = ["coremltools==9.0", "numpy>=1.26,<2.2"]
 # Building ANE artifacts (conversion + parity gate).
 convert = ["coremltools==9.0", "numpy>=1.26,<2.2", "torch==2.7.0"]
 # Regenerating the PyTorch FP32 goldens with unmodified upstream Laya.

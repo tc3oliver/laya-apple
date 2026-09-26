@@ -12,7 +12,6 @@ another device.
 from __future__ import annotations
 
 import math
-import warnings
 from pathlib import Path
 
 import numpy as np
@@ -192,11 +191,6 @@ class ANEShapes:
 
 
 class ANEBackend(ANEShapes):
-    handoff = None  # a laya_apple.handoff.StagedHandoff, attached by Laya once loaded (opt-in)
-    async_models: dict = {}  # bucket -> coreml_async.AsyncPrebindModel, when requested and verified
-    async_probes: dict = {}
-    async_error: BaseException | None = None  # why the async models did not load
-
     def __init__(
         self,
         spec: ModelSpec,
@@ -206,7 +200,6 @@ class ANEBackend(ANEShapes):
         buckets,
         *,
         strict=True,
-        async_models=False,
     ):
         """Load and verify every offered bucket.
 
@@ -216,12 +209,6 @@ class ANEBackend(ANEShapes):
         and the bucket is simply not offered to auto routing.
 
         Every loaded bucket also passes the runtime placement probe (probe_placement).
-
-        async_models (only with ane_handoff=True): also load the prebound asynchronous Core ML
-        path for every loaded bucket (_load_async), for the staged handoff. Its failure does not
-        fail this load: it is recorded in `async_error`, no async model is kept, and Laya raises
-        BackendUnavailableError when it attaches the handoff. False (the default) imports and
-        loads nothing for it.
         """
         self.pad_id = pad_id
         self.host = HostWeights(checkpoint, local_attention)
@@ -241,50 +228,6 @@ class ANEBackend(ANEShapes):
         if strict and not self.models:
             raise next(iter(load_errors.values()))
         super().__init__(spec, buckets, {b: m.artifact_sha256 for b, m in self.manifests.items()}, load_errors)
-        if async_models:
-            self._load_async(spec)
-
-    def _load_async(self, spec: ModelSpec) -> None:
-        """Load, verify and warm one AsyncPrebindModel per loaded bucket, or none at all.
-
-        Each one loads the same verified model.mlmodelc with CPU_AND_NE and checks its output
-        backings (coreml_async.verify_backings). On every check input (_check_features: the
-        pad probe and one non-pad row) its outputs must be exactly the coremltools model's:
-        the same names, shapes and dtypes, and np.array_equal values. It must also run as fast
-        relative to the probe's CPU_ONLY time as probe_placement requires (PROBE_MAX_RATIO;
-        this also warms it). Any failure drops every async model."""
-        from .coreml_async import AsyncPrebindModel
-
-        models, probes = {}, {}
-        try:
-            for b in sorted(self.models):
-                model = AsyncPrebindModel(artifact_dir(spec, b) / COMPILED)
-                checks = self._check_features(b)
-                for i, feats in enumerate(checks):
-                    ref, out = self.models[b].predict(feats), model.predict(feats)
-                    if set(ref) != set(out) or any(
-                        ref[k].shape != out[k].shape
-                        or ref[k].dtype != out[k].dtype
-                        or not np.array_equal(ref[k], out[k])
-                        for k in ref
-                    ):
-                        raise ArtifactError(
-                            f"{spec.name} L{b}: the async Core ML outputs are not identical to coremltools' "
-                            f"(check input {i})"
-                        )
-                ms = _fastest_ms(model, checks[0], PROBE_RUNS)
-                ratio = ms / self.probes[b]["cpu_ms"]
-                if ratio > PROBE_MAX_RATIO:
-                    raise ComputeUnitMismatchError(
-                        f"{spec.name} L{b}: the async Core ML model takes {ms:.1f} ms (ratio {ratio:.2f} > "
-                        f"{PROBE_MAX_RATIO} against CPU_ONLY), so it is not running on the Neural Engine"
-                    )
-                models[b] = model
-                probes[b] = {"async_ms": round(ms, 3), "ratio": round(ratio, 3)}
-        except Exception as e:
-            self.async_error = e
-            return
-        self.async_models, self.async_probes = models, probes
 
     def _probe_features(self, b: int) -> dict:
         row = {"ids": [self.pad_id] * b, "markers": [1, 2], "qtype": 0}
@@ -292,50 +235,15 @@ class ANEBackend(ANEShapes):
             [row], b, 1, self.host.embedding, self.host.type_embedding, self.host.window(b), self.pad_id
         )
 
-    def _check_features(self, b: int) -> list[dict]:
-        """The async load check's inputs for bucket b: the pad probe, and one row of
-        deterministic non-pad token ids within the vocabulary."""
-        vocab = len(self.host.embedding)
-        ids = [(7 + 13 * i) % vocab for i in range(b)]
-        row = {"ids": ids, "markers": [1, 2], "qtype": 0}
-        real = ane_features(
-            [row], b, 1, self.host.embedding, self.host.type_embedding, self.host.window(b), self.pad_id
-        )
-        return [self._probe_features(b), real]
-
     def forward(self, items):
-        """One Core ML path per forward: the coremltools models, or with an attached staged
-        handoff the path its one decision picks. An async predict failure fails this forward
-        with its own error (never retried on the other path) and disables the handoff, so
-        every later forward runs the coremltools path."""
         buckets = self.check(items)
-        handoff = self.handoff
-        path = "sync"
-        if handoff is not None and self.async_models:
-            path = handoff.decide()[0]
-        models = self.async_models if path == "async" else self.models
         logits = np.full((len(items), ANE_MAX_OPTIONS), -1e4, np.float32)
         acts = []
         for r, (it, b) in enumerate(zip(items, buckets)):
             feats = ane_features(
                 [it], b, 1, self.host.embedding, self.host.type_embedding, self.host.window(b), self.pad_id
             )
-            try:
-                out = models[b].predict(feats)
-            except Exception as e:
-                if path == "async":
-                    self._async_failed(e)
-                raise
-            lg, ac = self.host.tail(out, [it])
+            lg, ac = self.host.tail(self.models[b].predict(feats), [it])
             logits[r] = lg[0]
             acts.append(ac[0])
         return logits, np.stack(acts)
-
-    def _async_failed(self, e: BaseException) -> None:
-        if self.handoff.disable(f"async predict failed: {type(e).__name__}: {e}"):
-            warnings.warn(
-                f"laya-apple: the asynchronous Core ML predict failed ({type(e).__name__}: {e}); that request "
-                "fails, and the staged handoff is disabled: every later ANE forward runs the coremltools path",
-                RuntimeWarning,
-                stacklevel=3,
-            )
