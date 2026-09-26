@@ -60,7 +60,7 @@ flowchart TD
 
 The dotted branch is not work in this repository. #46's finding is that coremltools'
 `CompiledMLModel.predict` holds the GIL for the whole native call. That could become an upstream
-coremltools contribution. No upstream issue or pull request exists yet.
+coremltools contribution. This repository does not record an upstream issue or pull request.
 
 ## Research map
 
