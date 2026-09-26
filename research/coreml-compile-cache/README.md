@@ -3,7 +3,7 @@
 Issue: [#8](https://github.com/tc3oliver/laya-apple/issues/8) (cold start). Preregistration:
 [#121](https://github.com/tc3oliver/laya-apple/issues/121), which holds the "Preregistered
 criteria" below verbatim, opened before any data. They are not edited after a run. Status:
-**planned, no data**.
+**planned, no data; the ~17 min screen in the scope addendum runs first**.
 
 ## Question
 
@@ -174,6 +174,49 @@ have `R ≤ 10 s`. Anything else is inconclusive.
 No criterion here is edited after the first Phase A row is written. A change of scope after
 the results goes into a new, separately preregistered experiment. It never changes this
 verdict.
+
+## Scope addendum: the screen runs first
+
+Posted on [#121](https://github.com/tc3oliver/laya-apple/issues/121#issuecomment-5848321081) before any data.
+
+Per a maintainer policy of no multi-hour runs up front, this experiment is cut to a **screen of about 20 minutes**. Nothing has been measured yet. The criteria above are not edited. This addendum only reduces what runs first and adds screen-level labels for n = 1.
+
+### The screen (one model, one repeat, `wait`)
+
+```bash
+export LAYA_APPLE_CACHE=<cache> HF_HUB_OFFLINE=1
+OUT=research/coreml-compile-cache/raw
+# Phase C (read-only). Its fresh-copy run is also the screen's baseline C.
+MARK=$(mktemp); sleep 1
+uv run python scripts/bench_coldstart.py laya-typed-decisions --modes wait --repeats 1 --location fresh-copy --out $OUT/c-fresh-copy.json
+UCACHE=$(getconf DARWIN_USER_CACHE_DIR)
+find "$UCACHE" -newer "$MARK" -maxdepth 4 -print 2>/dev/null | sed "s|$UCACHE|<user-cache>|" > $OUT/c-new-paths.txt
+du -sk "$UCACHE"/* 2>/dev/null | sort -n | tail -20 | sed "s|$UCACHE|<user-cache>|" > $OUT/c-sizes.txt
+rm -f "$MARK"
+# Phase A, one arm: move (same files and inodes, new path)
+uv run python scripts/bench_coldstart.py laya-typed-decisions --modes wait --repeats 1 --location move --out $OUT/screen-move.json
+```
+
+- **Estimated time:**
+  - Phase C: about 6 min (one cold compile of ~300 s, plus the warm re-open).
+  - `move`: up to about 11 min (a preparation compile of ~300 s, then a measured start that is either a few seconds or ~300 s).
+  - **Total ≤ about 17 min.** It is timing-sensitive, so it needs an exclusive slot.
+- **Why `move` only:** it is the arm that decides whether a location change keeps the compile. That covers both relocating a cache and `artifacts import`'s rename from staging to the final path (Q2). `same-path-recopy` and `touch` describe cache eviction on restore. They are deferred.
+
+### Screen labels (n = 1)
+
+`C` = `ready_s` of `c-fresh-copy.json`; `W` = its `warm_ready_s`. The validity guard above applies unchanged.
+- **screen-REUSED:** `move` has `ready_s ≤ W + 10 s`.
+- **screen-RECOMPILED:** `move` has `ready_s ≥ 0.5 × C`.
+- **screen-INCONCLUSIVE:** anything else.
+
+### What runs next
+
+- **screen-REUSED:** the preregistered Phase A (3 repeats, all arms) and Phase B run as written, each in a slot approved separately.
+- **screen-RECOMPILED:** no reusable compile across a path change. The rest of Phase A and Phase B do not run up front. The screen result is written up as a screen, not as the preregistered verdict, and decision 1 is not taken on n = 1. Any follow-up (for example, Phase B alone, to check whether `import` compiles twice) needs its own approval.
+- **screen-INCONCLUSIVE:** the result is reported, and the maintainer decides whether a repeat is worth a slot.
+
+Decisions 3 and 4 above (no shipped compile cache; the < 30 s target is met only if `C < 30 s`) are unaffected and can be read from the screen's `C`.
 
 ## Files
 
