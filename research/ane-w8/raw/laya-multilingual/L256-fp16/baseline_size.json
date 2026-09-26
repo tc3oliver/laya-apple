@@ -1,0 +1,9 @@
+{
+ "experiment": "ane-w8/baseline-size",
+ "model": "laya-multilingual",
+ "length": 256,
+ "artifact_sha256": "044e8e748edca85a8be2452100812def6de265480b96c1cd20a0a4c35e5247c7",
+ "laya_apple_version": "0.1.0",
+ "compiled_bytes": 251893383,
+ "weight_bin_bytes": 250256320
+}
