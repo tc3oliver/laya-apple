@@ -117,10 +117,15 @@ class _GPUView:
     name, device = "mlx", "gpu"
 
     def __init__(self, spec: ModelSpec, dtype: str):
-        self.spec, self.dtype = spec, dtype
+        from .backends.mlx import compile_enabled
+
+        # The worker inherits this process's environment, so it compiles exactly when this is set.
+        self.spec, self.dtype, self.compiled = spec, dtype, compile_enabled()
 
     def artifact_revision(self, items) -> str:
-        return f"mlx:{self.spec.weights_sha256[:12]}:{self.dtype}"
+        from .backends.mlx import mlx_revision
+
+        return mlx_revision(self.spec, self.dtype, self.compiled)
 
 
 class Laya:

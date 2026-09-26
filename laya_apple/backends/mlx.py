@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 import json
+import os
+import threading
+from collections import OrderedDict
 from pathlib import Path
 
 import numpy as np
@@ -10,10 +13,32 @@ import numpy as np
 from ..errors import BackendUnavailableError
 from ..registry import DTYPES, ModelSpec
 
+# Opt-in compiled forward (mx.compile). Off by default: it is not yet shown to be bitwise
+# identical to the eager forward (fused kernels may round differently), only expected to stay
+# inside the FP16 parity gate with identical decisions (tests/integration/test_mlx_compile_checkpoints.py).
+COMPILE_ENV = "LAYA_APPLE_MLX_COMPILE"
+# A compiled graph is traced per input shape, so the compiled path pads each batch's length up
+# to a multiple of COMPILE_LENGTH_STEP and its option count up to a power of two: at most
+# max_len / 32 lengths per batch size. Padded tokens and options are masked exactly as the
+# eager batch padding is. COMPILE_CACHE_SIZE bounds the traced graphs kept (LRU).
+COMPILE_LENGTH_STEP = 32
+COMPILE_CACHE_SIZE = 32
 
-def collate(items: list[dict], pad_id: int) -> dict:
-    n, length = len(items), max(len(it["ids"]) for it in items)
-    count = max(2, max(len(it["markers"]) for it in items))
+
+def compile_enabled() -> bool:
+    return os.environ.get(COMPILE_ENV, "") == "1"
+
+
+def compiled_shape(n: int, length: int, count: int) -> tuple[int, int, int]:
+    """The (rows, padded length, padded option count) a compiled forward is traced for."""
+    step = COMPILE_LENGTH_STEP
+    return n, -(-length // step) * step, 1 << (max(2, count) - 1).bit_length()
+
+
+def collate(items: list[dict], pad_id: int, *, length: int = 0, count: int = 0) -> dict:
+    """Pad a batch to its longest row (at least `length`) and most options (at least `count`)."""
+    n, length = len(items), max(length, max(len(it["ids"]) for it in items))
+    count = max(count, 2, max(len(it["markers"]) for it in items))
     batch = {
         "input_ids": np.full((n, length), pad_id, np.int32),
         "attention_mask": np.zeros((n, length), np.bool_),
@@ -30,11 +55,25 @@ def collate(items: list[dict], pad_id: int) -> dict:
     return batch
 
 
+def mlx_revision(spec: ModelSpec, dtype: str, compiled: bool) -> str:
+    """RuntimeInfo.artifact_revision of the MLX path; the compiled forward is marked."""
+    return f"mlx:{spec.weights_sha256[:12]}:{dtype}" + (":compiled" if compiled else "")
+
+
 class MLXBackend:
     name = "mlx"
     device = "gpu"
 
-    def __init__(self, spec: ModelSpec, checkpoint: Path, pad_id: int, *, dtype: str = "float16", batch_size: int = 16):
+    def __init__(
+        self,
+        spec: ModelSpec,
+        checkpoint: Path,
+        pad_id: int,
+        *,
+        dtype: str = "float16",
+        batch_size: int = 16,
+        compile_forward: bool | None = None,
+    ):
         if dtype not in DTYPES:
             raise ValueError(f"dtype must be one of {DTYPES}")
         if not isinstance(batch_size, int) or batch_size < 1:
@@ -47,6 +86,9 @@ class MLXBackend:
             raise BackendUnavailableError(f"MLX is not available: {e}") from e
         self.mx = mx
         self.spec, self.dtype, self.batch_size, self.pad_id = spec, dtype, batch_size, pad_id
+        # None: the LAYA_APPLE_MLX_COMPILE environment variable decides (it also reaches workers).
+        self.compile_forward = compile_enabled() if compile_forward is None else bool(compile_forward)
+        self._compiled: OrderedDict = OrderedDict()
         agent_cfg = json.loads((checkpoint / "rl_agent_config.json").read_text())
         enc_cfg = EncoderConfig.from_dict(json.loads((checkpoint / "encoder/config.json").read_text()))
         mdtype = {"float16": mx.float16, "float32": mx.float32}[dtype]
@@ -58,17 +100,44 @@ class MLXBackend:
             mx.eval(self.model.parameters())
 
     def artifact_revision(self, items) -> str:
-        return f"mlx:{self.spec.weights_sha256[:12]}:{self.dtype}"
+        return mlx_revision(self.spec, self.dtype, self.compile_forward)
+
+    def _compiled_for(self, shape: tuple[int, int, int]):
+        """The compiled forward for one padded shape. MLX keeps compiled graphs per thread,
+        so the key includes the calling thread; evicting an entry frees its graphs."""
+        key = (threading.get_ident(), shape)
+        fn = self._compiled.get(key)
+        if fn is not None:
+            self._compiled.move_to_end(key)
+            return fn
+        model = self.model
+
+        def run(input_ids, attention_mask, marker_pos, marker_mask, qtype):
+            return model(input_ids, attention_mask, marker_pos, marker_mask, qtype)
+
+        fn = self._compiled[key] = self.mx.compile(run)
+        while len(self._compiled) > COMPILE_CACHE_SIZE:
+            self._compiled.popitem(last=False)
+        return fn
 
     def forward(self, items: list[dict]):
         mx = self.mx
         logits, acts = [], []
         for start in range(0, len(items), self.batch_size):
-            batch = collate(items[start : start + self.batch_size], self.pad_id)
+            chunk = items[start : start + self.batch_size]
+            if self.compile_forward:
+                width = max(2, max(len(it["markers"]) for it in chunk))  # the eager output width
+                shape = compiled_shape(len(chunk), max(len(it["ids"]) for it in chunk), width)
+                batch = collate(chunk, self.pad_id, length=shape[1], count=shape[2])
+                fn = self._compiled_for(shape)
+            else:
+                batch = collate(chunk, self.pad_id)
+                width, fn = batch["marker_pos"].shape[1], self.model
+            args = [batch[k] for k in ("input_ids", "attention_mask", "marker_pos", "marker_mask", "qtype")]
             with mx.stream(mx.gpu):
-                lg, ac = self.model(**{k: mx.array(v) for k, v in batch.items()})
+                lg, ac = fn(*(mx.array(v) for v in args))
                 mx.eval(lg, ac)
-            logits.append(np.asarray(lg, np.float32))
+            logits.append(np.asarray(lg, np.float32)[:, :width])
             acts.append(np.asarray(ac, np.float32))
         # chunks can have different option counts; pad with the same -1e4 the model uses
         width = max(x.shape[1] for x in logits)
