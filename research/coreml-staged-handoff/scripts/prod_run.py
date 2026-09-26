@@ -51,7 +51,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import bench_concurrency  # noqa: E402  #92's closed loop and stats, unchanged
 
 CELLS = ("A", "P")
-SCHEDULES = ("mix", "product", "soak")
+SCHEDULES = ("mix", "product", "soak", "soak55")
 TRACE_COLUMNS = [
     "target",
     "submit_ns",
@@ -89,6 +89,14 @@ def schedule(name: str, seconds: float = 20.0) -> list[dict]:
             out.append({"condition": c, "seconds": s, "gap_s": 1.0})
             out.append({"condition": "hetero", "seconds": 8.0, "gap_s": 1.0})
         return out
+    if name == "soak55":  # evaluation.md: 55 hetero episodes per run, 11 of each predecessor kind
+        before = [("idle", 3.0), ("solo_short", 4.0), ("solo_long", 4.0), ("gpu_only", 4.0), ("hetero", 8.0)]
+        out = []
+        for i in range(55):
+            c, s = before[i % len(before)]
+            out.append({"condition": c, "seconds": s, "gap_s": 1.0, "role": "before"})
+            out.append({"condition": "hetero", "seconds": 8.0, "gap_s": 1.0, "role": "episode"})
+        return out
     raise ValueError(name)
 
 
@@ -110,7 +118,28 @@ def parse():
     ap.add_argument("--schedule", choices=SCHEDULES, required=True)
     ap.add_argument("--seconds", type=float, default=20.0, help="mix window length (20 in the campaign)")
     ap.add_argument("--output", required=True, help=".json.gz")
+    ap.add_argument(
+        "--expect-rejected",
+        action="store_true",
+        help="evaluation.md's multilingual smoke: first check that ane_handoff=True raises ValueError",
+    )
     return ap.parse_args()
+
+
+def runtime_revision() -> dict:
+    """The laya-apple code under test: HEAD and whether laya_apple/ or the lock differ from it."""
+    import subprocess
+
+    def git(*args):
+        return subprocess.run(["git", "-C", str(ROOT), *args], capture_output=True, text=True).stdout.strip()
+
+    return {
+        "head": git("rev-parse", "HEAD"),
+        "laya_apple_tree": git("rev-parse", "HEAD:laya_apple"),
+        "pyproject_blob": git("rev-parse", "HEAD:pyproject.toml"),
+        "uv_lock_blob": git("rev-parse", "HEAD:uv.lock"),
+        "dirty": bool(git("status", "--porcelain", "--", "laya_apple", "pyproject.toml", "uv.lock")),
+    }
 
 
 def main():
@@ -141,7 +170,16 @@ def main():
         with tlock:
             trace_rows.append(row)
 
-    kw = {"ane_handoff": a.cell == "P"}  # addendum 3: the prototype's handoff is opt-in
+    # addendum 3: the handoff is opt-in. Cell A passes nothing, so it runs the default production path
+    # on any laya-apple version (with the handoff code, the default is ane_handoff=False).
+    kw = {"ane_handoff": True} if a.cell == "P" else {}
+    rejected = None
+    if a.expect_rejected:
+        try:
+            Laya.from_pretrained(a.model, device="auto", execution="workers", local_files_only=True, ane_handoff=True)
+            rejected = {"raised": None}
+        except Exception as e:  # recorded: evaluation.md requires ValueError, nothing else
+            rejected = {"raised": type(e).__name__, "message": str(e)}
     laya_auto = Laya.from_pretrained(
         a.model, device="auto", execution="workers", local_files_only=True, trace=record, **kw
     )
@@ -157,10 +195,11 @@ def main():
     reqs = {"short": req(a.short), "long": req(a.long)}
     refs = {}
     for k, r in reqs.items():
-        refs[k] = {
-            "gpu": ref_gpu.predict(context=r["state"], questions=r["questions"]).answers,
-            "ane": ref_ane.predict(context=r["state"], questions=r["questions"]).answers,
-        }
+        refs[k] = {"gpu": ref_gpu.predict(context=r["state"], questions=r["questions"]).answers}
+        try:  # as #92's bench_concurrency: a length beyond the ANE buckets has no ANE reference
+            refs[k]["ane"] = ref_ane.predict(context=r["state"], questions=r["questions"]).answers
+        except laya_apple.LayaAppleError:
+            refs[k]["ane"] = None
     ref_gpu.close()
     ref_ane.close()
     for laya in (laya_auto, laya_gpu):  # warm both worker paths, as #92
@@ -239,6 +278,8 @@ def main():
         rows = sorted(trace_rows, key=lambda r: r[1])
     record_out = {
         "experiment": "coreml-staged-handoff production",
+        "runtime": runtime_revision(),
+        "expect_rejected": rejected,
         "args": vars(a),
         "laya_apple": laya_apple.__version__,
         "python": platform.python_version(),

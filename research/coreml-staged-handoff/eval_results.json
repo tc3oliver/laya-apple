@@ -1,0 +1,4336 @@
+{
+ "design": {
+  "A_signature_share": 0.1,
+  "gap_s": 1.0,
+  "gpu_return": {
+   "A_from_t0_s": 1.0,
+   "from_t_h_s": 1.0,
+   "p50_ms": 1.0,
+   "p99_ms": 1.0
+  },
+  "guard": 64,
+  "host_slow": {
+   "bin_s": 0.5,
+   "prepare_ms": 0.3,
+   "share": 0.1
+  },
+  "latency": {
+   "B": 20000,
+   "median_ms": 0.5,
+   "q": 95,
+   "seed": 20260926,
+   "upper_ms": 1.0
+  },
+  "phases": {
+   "1": {
+    "expect_rejected": false,
+    "long": 512,
+    "model": "laya",
+    "schedule": "mix",
+    "seconds": 20.0,
+    "short": 128
+   },
+   "2": {
+    "expect_rejected": false,
+    "long": 1024,
+    "model": "laya-typed-decisions",
+    "schedule": "mix",
+    "seconds": 20.0,
+    "short": 128
+   },
+   "3": {
+    "expect_rejected": true,
+    "long": 512,
+    "model": "laya-multilingual",
+    "schedule": "mix",
+    "seconds": 5.0,
+    "short": 128
+   },
+   "4": {
+    "expect_rejected": false,
+    "long": 512,
+    "model": "laya",
+    "schedule": "product",
+    "seconds": 20.0,
+    "short": 128
+   },
+   "5": {
+    "expect_rejected": false,
+    "long": 512,
+    "model": "laya",
+    "schedule": "soak55",
+    "seconds": 20.0,
+    "short": 128
+   }
+  },
+  "runs": {
+   "1": [
+    "P1",
+    "A1",
+    "A2",
+    "P2",
+    "A3",
+    "P3",
+    "P4",
+    "A4",
+    "P5",
+    "A5",
+    "A6",
+    "P6"
+   ],
+   "2": [
+    "P1",
+    "A1",
+    "A2",
+    "P2",
+    "A3",
+    "P3",
+    "P4",
+    "A4"
+   ],
+   "3": [
+    "A1"
+   ],
+   "4": [
+    "P1",
+    "A1",
+    "A2",
+    "P2",
+    "A3",
+    "P3",
+    "P4",
+    "A4"
+   ],
+   "5": [
+    "P1",
+    "A1",
+    "A2",
+    "P2"
+   ]
+  },
+  "runtime_tree": "d541fdc820f59fcb7b27a5f20110f828892be16f",
+  "slow_span": {
+   "ratio": 1.2,
+   "span_s": 1.0
+  },
+  "soak": {
+   "group": 6,
+   "min_P_episodes": 100
+  },
+  "tail": {
+   "factor": 2,
+   "isolated_ms": 0.3,
+   "min": 2,
+   "ms": 2.0
+  },
+  "throughput_ratio": 0.95
+ },
+ "failed_logs": [],
+ "outcome": "CLOSE: phase 1 failed: H5 mix-laya-P-r5 w5: 30 consecutive host-slow bins. H64 is closed and 1.4 stays.",
+ "phases": {
+  "1": {
+   "A_pooled_short_median_ms": 10.045291855931282,
+   "A_signatures": {
+    "episodes": 12,
+    "share": 0.0,
+    "with_H5_or_H6": 0
+   },
+   "P_episodes": 12,
+   "P_episodes_expected": 12,
+   "fail": [
+    "H5 mix-laya-P-r5 w5: 30 consecutive host-slow bins",
+    "H6 mix-laya-P-r5 w5: 15 consecutive slow spans"
+   ],
+   "gpu_return_ms": {
+    "A": {
+     "n": 5606,
+     "p50": 4.325021,
+     "p95": 5.0442395,
+     "p99": 5.7258583499999975
+    },
+    "P": {
+     "n": 6104,
+     "p50": 0.034833,
+     "p95": 0.06924384999999998,
+     "p99": 0.20773248000000014
+    }
+   },
+   "hard_gates": {
+    "H3_episode_max_p50_ms": 0.231458,
+    "H3_pooled_p99": {
+     "limit": 1.0,
+     "op": "<=",
+     "pass": true,
+     "value": 0.20773248000000014
+    },
+    "H4_min_ratio": 1.047375353642469,
+    "H5_longest_bins": 30,
+    "H6_longest_spans": 15,
+    "H7": {
+     "A": 0,
+     "P": 0,
+     "limit": 2
+    },
+    "pooled_P_gpu_p50": {
+     "limit": 1.0,
+     "op": "<=",
+     "pass": true,
+     "value": 0.034833
+    }
+   },
+   "invalid": [],
+   "latency": {
+    "cluster_size": 2,
+    "cluster_upper_ms": -0.2561320469249031,
+    "clusters": 6,
+    "gates": {
+     "cluster_upper": {
+      "limit": 1.0,
+      "op": "<=",
+      "pass": true,
+      "value": -0.2561320469249031
+     },
+     "median": {
+      "limit": 0.5,
+      "op": "<=",
+      "pass": true,
+      "value": -0.3651994199026465
+     }
+    },
+    "median_ms": -0.3651994199026465,
+    "n": 12,
+    "n_clusters": 6,
+    "pass": true,
+    "reported_median_deltas": {
+     "median": -0.1867814571596682,
+     "p95": -0.5561434663832188,
+     "p999": 0.08225050871263129,
+     "req_s": 5.924941862431979
+    },
+    "transition_upper_ms": -0.06806665915067
+   },
+   "pairs": [
+    {
+     "A": "mix-laya-A-r1",
+     "A_aggregate_req_s": 122.61203482343805,
+     "H4": {
+      "limit": 116.48143308226615,
+      "op": ">=",
+      "pass": true,
+      "value": 128.42082333402115
+     },
+     "P": "mix-laya-P-r1",
+     "P_aggregate_req_s": 128.42082333402115,
+     "deltas": [
+      {
+       "index": 2,
+       "median": -0.1937919296324253,
+       "p95": -0.44728878419846296,
+       "p99": 0.1789512974209675,
+       "p999": 0.380438465159445,
+       "preceded_by": "solo_long",
+       "req_s": 5.863455505936599,
+       "req_s_ratio": 1.0478470132782618
+      },
+      {
+       "index": 5,
+       "median": -0.17274916172027588,
+       "p95": -0.5129163502715528,
+       "p99": -0.29516041744499866,
+       "p999": 0.13824324868625304,
+       "preceded_by": "gpu_only",
+       "req_s": 5.754121515229585,
+       "req_s_ratio": 1.0469042025102209
+      }
+     ],
+     "ratio": 1.047375353642469
+    },
+    {
+     "A": "mix-laya-A-r2",
+     "A_aggregate_req_s": 122.14099725402504,
+     "H4": {
+      "limit": 116.03394739132378,
+      "op": ">=",
+      "pass": true,
+      "value": 128.42866608023198
+     },
+     "P": "mix-laya-P-r2",
+     "P_aggregate_req_s": 128.42866608023198,
+     "deltas": [
+      {
+       "index": 2,
+       "median": -0.18104154150933027,
+       "p95": -0.6151040317490697,
+       "p99": -2.1079271472990513,
+       "p999": -3.139078011503516,
+       "preceded_by": "solo_long",
+       "req_s": 6.469157601738303,
+       "req_s_ratio": 1.0530269635239102
+      },
+      {
+       "index": 5,
+       "median": -0.19043800421059132,
+       "p95": -0.5947600002400577,
+       "p99": -0.4288312164135313,
+       "p999": -0.694599946728216,
+       "preceded_by": "gpu_only",
+       "req_s": 6.106180050675576,
+       "req_s_ratio": 1.0499342182208367
+      }
+     ],
+     "ratio": 1.0514787742655323
+    },
+    {
+     "A": "mix-laya-A-r3",
+     "A_aggregate_req_s": 122.36408161421306,
+     "H4": {
+      "limit": 116.24587753350241,
+      "op": ">=",
+      "pass": true,
+      "value": 128.41830411498336
+     },
+     "P": "mix-laya-P-r3",
+     "P_aggregate_req_s": 128.41830411498336,
+     "deltas": [
+      {
+       "index": 2,
+       "median": -0.20033400505781174,
+       "p95": -0.5703743081539869,
+       "p99": -0.3150846157223075,
+       "p999": -0.5289116716012696,
+       "preceded_by": "solo_long",
+       "req_s": 6.170194922638245,
+       "req_s_ratio": 1.050429639618474
+      },
+      {
+       "index": 5,
+       "median": -0.17639657016843557,
+       "p95": -0.5617393413558602,
+       "p99": -0.21710367640480754,
+       "p999": 0.026257768739009535,
+       "preceded_by": "gpu_only",
+       "req_s": 5.938250078902314,
+       "req_s_ratio": 1.0485247823893364
+      }
+     ],
+     "ratio": 1.0494771212344642
+    },
+    {
+     "A": "mix-laya-A-r4",
+     "A_aggregate_req_s": 122.1628292299921,
+     "H4": {
+      "limit": 116.05468776849249,
+      "op": ">=",
+      "pass": true,
+      "value": 128.2903353489284
+     },
+     "P": "mix-laya-P-r4",
+     "P_aggregate_req_s": 128.2903353489284,
+     "deltas": [
+      {
+       "index": 2,
+       "median": -0.19291648641228676,
+       "p95": -0.6351705407723784,
+       "p99": -0.5098920431919485,
+       "p999": 0.44863937003553644,
+       "preceded_by": "solo_long",
+       "req_s": 6.123590592274894,
+       "req_s_ratio": 1.0500609390491462
+      },
+      {
+       "index": 5,
+       "median": -0.19154162146151066,
+       "p95": -0.6085283705033362,
+       "p99": 0.8992629172280697,
+       "p999": -0.37931724917135057,
+       "preceded_by": "gpu_only",
+       "req_s": 6.131421645597712,
+       "req_s_ratio": 1.0502563469899622
+      }
+     ],
+     "ratio": 1.0501585151355675
+    },
+    {
+     "A": "mix-laya-A-r5",
+     "A_aggregate_req_s": 122.51750528066458,
+     "H4": {
+      "limit": 116.39163001663134,
+      "op": ">=",
+      "pass": true,
+      "value": 128.36351113313378
+     },
+     "P": "mix-laya-P-r5-b",
+     "P_aggregate_req_s": 128.36351113313378,
+     "deltas": [
+      {
+       "index": 2,
+       "median": -0.17593742813915014,
+       "p95": -0.4983270773664117,
+       "p99": -0.7434404618106569,
+       "p999": -0.5091868585441546,
+       "preceded_by": "solo_long",
+       "req_s": 5.804590755125531,
+       "req_s_ratio": 1.0473269806884784
+      },
+      {
+       "index": 5,
+       "median": -0.19779149442911148,
+       "p95": -0.5338437971659022,
+       "p99": 1.21391774155199,
+       "p999": 2.2874397477138313,
+       "preceded_by": "gpu_only",
+       "req_s": 5.887420949812906,
+       "req_s_ratio": 1.0481052087468383
+      }
+     ],
+     "ratio": 1.0477156781724954
+    },
+    {
+     "A": "mix-laya-A-r6",
+     "A_aggregate_req_s": 122.55978551354156,
+     "H4": {
+      "limit": 116.43179623786448,
+      "op": ">=",
+      "pass": true,
+      "value": 128.46971746957328
+     },
+     "P": "mix-laya-P-r6",
+     "P_aggregate_req_s": 128.46971746957328,
+     "deltas": [
+      {
+       "index": 2,
+       "median": -0.18106191419065,
+       "p95": -0.48677694285288453,
+       "p99": -0.41531422408298546,
+       "p999": 0.20634143403740524,
+       "preceded_by": "solo_long",
+       "req_s": 5.911633645961643,
+       "req_s_ratio": 1.048226772196662
+      },
+      {
+       "index": 5,
+       "median": -0.1831249101087451,
+       "p95": -0.5505475914105773,
+       "p99": -0.544728226959732,
+       "p999": 0.3387641080189656,
+       "preceded_by": "gpu_only",
+       "req_s": 5.908230266101825,
+       "req_s_ratio": 1.0482148429906164
+      }
+     ],
+     "ratio": 1.048220808573288
+    }
+   ],
+   "pending": [],
+   "pooled_short_ms": {
+    "A": {
+     "median": 10.045291855931282,
+     "p95": 10.640603955835104,
+     "p99": 11.136566824279724,
+     "p999": 16.128589783329808
+    },
+    "P": {
+     "median": 9.858541889116168,
+     "p95": 10.073566995561123,
+     "p99": 10.804221211001268,
+     "p999": 15.862888192292328
+    }
+   },
+   "reasons": [
+    "H5 mix-laya-P-r5 w5: 30 consecutive host-slow bins"
+   ],
+   "runs": {
+    "mix-laya-A-r1": {
+     "H1": [],
+     "H2": [],
+     "cell": "A",
+     "crash_logs": [],
+     "decisions": 0,
+     "episodes": [
+      {
+       "aggregate_req_s": 122.54590421008618,
+       "cycle": 0,
+       "gpu_return_ms": {
+        "from_s": 1.0,
+        "n": 468,
+        "p50": 4.347583,
+        "p95": 4.723702299999999,
+        "p99": 5.401192499999999
+       },
+       "host_slow": {
+        "bins": 38,
+        "from_s": 1.0,
+        "longest": 0,
+        "slow_bins": 0
+       },
+       "index": 2,
+       "latency_source": "client",
+       "n_short": 1960,
+       "n_short_trace": 1960,
+       "preceded_by": "solo_long",
+       "req_s": {
+        "long": 24.563636350109455,
+        "short": 97.98226785997672
+       },
+       "short_ms": {
+        "median": 10.046999901533127,
+        "p95": 10.568055720068514,
+        "p99": 10.911231066565971,
+        "p999": 15.428468914236891
+       },
+       "slow_spans": {
+        "longest": 0,
+        "slow": 0,
+        "spans": 19
+       },
+       "structure": null,
+       "t_h_s": null
+      },
+      {
+       "aggregate_req_s": 122.67816543678994,
+       "cycle": 1,
+       "gpu_return_ms": {
+        "from_s": 1.0,
+        "n": 468,
+        "p50": 4.270771,
+        "p95": 4.57692095,
+        "p99": 5.307893609999999
+       },
+       "host_slow": {
+        "bins": 38,
+        "from_s": 1.0,
+        "longest": 0,
+        "slow_bins": 0
+       },
+       "index": 5,
+       "latency_source": "client",
+       "n_short": 1962,
+       "n_short_trace": 1962,
+       "preceded_by": "gpu_only",
+       "req_s": {
+        "long": 24.580004984304257,
+        "short": 98.09816045248569
+       },
+       "short_ms": {
+        "median": 10.031416080892086,
+        "p95": 10.574058152269572,
+        "p99": 11.01329534314572,
+        "p999": 15.214772740844879
+       },
+       "slow_spans": {
+        "longest": 0,
+        "slow": 0,
+        "spans": 19
+       },
+       "structure": null,
+       "t_h_s": null
+      }
+     ],
+     "expect_rejected": null,
+     "handoff_snapshot": null,
+     "info": {
+      "end": {
+       "ane_buckets": [
+        64,
+        96,
+        128
+       ],
+       "ane_load_errors": {},
+       "ane_placement": "thread",
+       "ane_probes": {
+        "128": {
+         "ane_ms": 9.505,
+         "cpu_ms": 26.849,
+         "ratio": 0.354
+        },
+        "64": {
+         "ane_ms": 7.933,
+         "cpu_ms": 16.2,
+         "ratio": 0.49
+        },
+        "96": {
+         "ane_ms": 8.676,
+         "cpu_ms": 24.739,
+         "ratio": 0.351
+        }
+       },
+       "ane_ready": true,
+       "auto_ane": {
+        "buckets": [
+         64,
+         96,
+         128
+        ],
+        "tie_buckets": [],
+        "unavailable": null
+       },
+       "device": "auto",
+       "dtype": "float16",
+       "execution": "workers",
+       "mlx": true,
+       "model": "laya",
+       "repo": "convaiinnovations/laya",
+       "revision": "c5d78730f3493e4fe16d61507ef4b78eef7318cf",
+       "routing_profile": "shipped"
+      },
+      "start": {
+       "ane_buckets": [
+        64,
+        96,
+        128
+       ],
+       "ane_load_errors": {},
+       "ane_placement": "thread",
+       "ane_probes": {
+        "128": {
+         "ane_ms": 9.505,
+         "cpu_ms": 26.849,
+         "ratio": 0.354
+        },
+        "64": {
+         "ane_ms": 7.933,
+         "cpu_ms": 16.2,
+         "ratio": 0.49
+        },
+        "96": {
+         "ane_ms": 8.676,
+         "cpu_ms": 24.739,
+         "ratio": 0.351
+        }
+       },
+       "ane_ready": true,
+       "auto_ane": {
+        "buckets": [
+         64,
+         96,
+         128
+        ],
+        "tie_buckets": [],
+        "unavailable": null
+       },
+       "device": "auto",
+       "dtype": "float16",
+       "execution": "workers",
+       "mlx": true,
+       "model": "laya",
+       "repo": "convaiinnovations/laya",
+       "revision": "c5d78730f3493e4fe16d61507ef4b78eef7318cf",
+       "routing_profile": "shipped"
+      }
+     },
+     "mismatches": 0,
+     "phase": "1",
+     "protocol": {
+      "a_default_path": true,
+      "cell": true,
+      "expect_rejected": true,
+      "lengths": true,
+      "model": true,
+      "schedule": true,
+      "seconds": true,
+      "window_lengths": true,
+      "windows": true
+     },
+     "protocol_ok": true,
+     "routing_failures": [],
+     "run": "mix-laya-A-r1",
+     "run_wall_s": 185.7122229579836,
+     "runtime": {
+      "dirty": false,
+      "head": "94980c09bb3396c45b7a6a2d5806f070ba3ea2ff",
+      "laya_apple_tree": "d541fdc820f59fcb7b27a5f20110f828892be16f",
+      "pyproject_blob": "2d2d3d684b086c0c651cd1ea96e09550ce2e5e85",
+      "uv_lock_blob": "10f6ba84dd28791684cc102d651c1d5c38cc0178"
+     },
+     "runtime_ok": true,
+     "workers_alive": true,
+     "workers_alive_at_end": {
+      "ane": true,
+      "gpu": true
+     }
+    },
+    "mix-laya-A-r2": {
+     "H1": [],
+     "H2": [],
+     "cell": "A",
+     "crash_logs": [],
+     "decisions": 0,
+     "episodes": [
+      {
+       "aggregate_req_s": 121.99751167764522,
+       "cycle": 0,
+       "gpu_return_ms": {
+        "from_s": 1.0,
+        "n": 467,
+        "p50": 4.29425,
+        "p95": 5.4088626,
+        "p99": 6.52863322
+       },
+       "host_slow": {
+        "bins": 38,
+        "from_s": 1.0,
+        "longest": 0,
+        "slow_bins": 0
+       },
+       "index": 2,
+       "latency_source": "client",
+       "n_short": 1950,
+       "n_short_trace": 1950,
+       "preceded_by": "solo_long",
+       "req_s": {
+        "long": 24.49941471878621,
+        "short": 97.49809695885901
+       },
+       "short_ms": {
+        "median": 10.039708577096462,
+        "p95": 10.669218481052667,
+        "p99": 12.721716568339614,
+        "p999": 17.364270774182007
+       },
+       "slow_spans": {
+        "longest": 0,
+        "slow": 0,
+        "spans": 19
+       },
+       "structure": null,
+       "t_h_s": null
+      },
+      {
+       "aggregate_req_s": 122.28448283040485,
+       "cycle": 1,
+       "gpu_return_ms": {
+        "from_s": 1.0,
+        "n": 466,
+        "p50": 4.3771875,
+        "p95": 4.7154792500000005,
+        "p99": 5.28626075
+       },
+       "host_slow": {
+        "bins": 38,
+        "from_s": 1.0,
+        "longest": 0,
+        "slow_bins": 0
+       },
+       "index": 5,
+       "latency_source": "client",
+       "n_short": 1956,
+       "n_short_trace": 1956,
+       "preceded_by": "gpu_only",
+       "req_s": {
+        "long": 24.496799594812384,
+        "short": 97.78768323559247
+       },
+       "short_ms": {
+        "median": 10.055708931759,
+        "p95": 10.65657299477607,
+        "p99": 11.061825009528551,
+        "p999": 15.173367905663698
+       },
+       "slow_spans": {
+        "longest": 0,
+        "slow": 0,
+        "spans": 19
+       },
+       "structure": null,
+       "t_h_s": null
+      }
+     ],
+     "expect_rejected": null,
+     "handoff_snapshot": null,
+     "info": {
+      "end": {
+       "ane_buckets": [
+        64,
+        96,
+        128
+       ],
+       "ane_load_errors": {},
+       "ane_placement": "thread",
+       "ane_probes": {
+        "128": {
+         "ane_ms": 9.463,
+         "cpu_ms": 26.823,
+         "ratio": 0.353
+        },
+        "64": {
+         "ane_ms": 7.92,
+         "cpu_ms": 16.096,
+         "ratio": 0.492
+        },
+        "96": {
+         "ane_ms": 8.669,
+         "cpu_ms": 24.809,
+         "ratio": 0.349
+        }
+       },
+       "ane_ready": true,
+       "auto_ane": {
+        "buckets": [
+         64,
+         96,
+         128
+        ],
+        "tie_buckets": [],
+        "unavailable": null
+       },
+       "device": "auto",
+       "dtype": "float16",
+       "execution": "workers",
+       "mlx": true,
+       "model": "laya",
+       "repo": "convaiinnovations/laya",
+       "revision": "c5d78730f3493e4fe16d61507ef4b78eef7318cf",
+       "routing_profile": "shipped"
+      },
+      "start": {
+       "ane_buckets": [
+        64,
+        96,
+        128
+       ],
+       "ane_load_errors": {},
+       "ane_placement": "thread",
+       "ane_probes": {
+        "128": {
+         "ane_ms": 9.463,
+         "cpu_ms": 26.823,
+         "ratio": 0.353
+        },
+        "64": {
+         "ane_ms": 7.92,
+         "cpu_ms": 16.096,
+         "ratio": 0.492
+        },
+        "96": {
+         "ane_ms": 8.669,
+         "cpu_ms": 24.809,
+         "ratio": 0.349
+        }
+       },
+       "ane_ready": true,
+       "auto_ane": {
+        "buckets": [
+         64,
+         96,
+         128
+        ],
+        "tie_buckets": [],
+        "unavailable": null
+       },
+       "device": "auto",
+       "dtype": "float16",
+       "execution": "workers",
+       "mlx": true,
+       "model": "laya",
+       "repo": "convaiinnovations/laya",
+       "revision": "c5d78730f3493e4fe16d61507ef4b78eef7318cf",
+       "routing_profile": "shipped"
+      }
+     },
+     "mismatches": 0,
+     "phase": "1",
+     "protocol": {
+      "a_default_path": true,
+      "cell": true,
+      "expect_rejected": true,
+      "lengths": true,
+      "model": true,
+      "schedule": true,
+      "seconds": true,
+      "window_lengths": true,
+      "windows": true
+     },
+     "protocol_ok": true,
+     "routing_failures": [],
+     "run": "mix-laya-A-r2",
+     "run_wall_s": 185.71576079213992,
+     "runtime": {
+      "dirty": false,
+      "head": "94980c09bb3396c45b7a6a2d5806f070ba3ea2ff",
+      "laya_apple_tree": "d541fdc820f59fcb7b27a5f20110f828892be16f",
+      "pyproject_blob": "2d2d3d684b086c0c651cd1ea96e09550ce2e5e85",
+      "uv_lock_blob": "10f6ba84dd28791684cc102d651c1d5c38cc0178"
+     },
+     "runtime_ok": true,
+     "workers_alive": true,
+     "workers_alive_at_end": {
+      "ane": true,
+      "gpu": true
+     }
+    },
+    "mix-laya-A-r3": {
+     "H1": [],
+     "H2": [],
+     "cell": "A",
+     "crash_logs": [],
+     "decisions": 0,
+     "episodes": [
+      {
+       "aggregate_req_s": 122.35254840841449,
+       "cycle": 0,
+       "gpu_return_ms": {
+        "from_s": 1.0,
+        "n": 467,
+        "p50": 4.385583,
+        "p95": 4.8437000999999995,
+        "p99": 5.2971070000000005
+       },
+       "host_slow": {
+        "bins": 38,
+        "from_s": 1.0,
+        "longest": 0,
+        "slow_bins": 0
+       },
+       "index": 2,
+       "latency_source": "client",
+       "n_short": 1957,
+       "n_short_trace": 1957,
+       "preceded_by": "solo_long",
+       "req_s": {
+        "long": 24.515083422790962,
+        "short": 97.83746498562353
+       },
+       "short_ms": {
+        "median": 10.052666999399662,
+        "p95": 10.63214153982699,
+        "p99": 11.024758098647,
+        "p999": 15.979326714761667
+       },
+       "slow_spans": {
+        "longest": 0,
+        "slow": 0,
+        "spans": 19
+       },
+       "structure": null,
+       "t_h_s": null
+      },
+      {
+       "aggregate_req_s": 122.37561482001163,
+       "cycle": 1,
+       "gpu_return_ms": {
+        "from_s": 1.0,
+        "n": 467,
+        "p50": 4.364583,
+        "p95": 4.6431876,
+        "p99": 5.424518119999997
+       },
+       "host_slow": {
+        "bins": 38,
+        "from_s": 1.0,
+        "longest": 0,
+        "slow_bins": 0
+       },
+       "index": 5,
+       "latency_source": "client",
+       "n_short": 1958,
+       "n_short_trace": 1958,
+       "preceded_by": "gpu_only",
+       "req_s": {
+        "long": 24.51955952830489,
+        "short": 97.85605529170675
+       },
+       "short_ms": {
+        "median": 10.048854514025152,
+        "p95": 10.641189268790185,
+        "p99": 10.829488530289384,
+        "p999": 15.21031311014669
+       },
+       "slow_spans": {
+        "longest": 0,
+        "slow": 0,
+        "spans": 19
+       },
+       "structure": null,
+       "t_h_s": null
+      }
+     ],
+     "expect_rejected": null,
+     "handoff_snapshot": null,
+     "info": {
+      "end": {
+       "ane_buckets": [
+        64,
+        96,
+        128
+       ],
+       "ane_load_errors": {},
+       "ane_placement": "thread",
+       "ane_probes": {
+        "128": {
+         "ane_ms": 9.473,
+         "cpu_ms": 26.835,
+         "ratio": 0.353
+        },
+        "64": {
+         "ane_ms": 7.913,
+         "cpu_ms": 16.379,
+         "ratio": 0.483
+        },
+        "96": {
+         "ane_ms": 8.543,
+         "cpu_ms": 24.836,
+         "ratio": 0.344
+        }
+       },
+       "ane_ready": true,
+       "auto_ane": {
+        "buckets": [
+         64,
+         96,
+         128
+        ],
+        "tie_buckets": [],
+        "unavailable": null
+       },
+       "device": "auto",
+       "dtype": "float16",
+       "execution": "workers",
+       "mlx": true,
+       "model": "laya",
+       "repo": "convaiinnovations/laya",
+       "revision": "c5d78730f3493e4fe16d61507ef4b78eef7318cf",
+       "routing_profile": "shipped"
+      },
+      "start": {
+       "ane_buckets": [
+        64,
+        96,
+        128
+       ],
+       "ane_load_errors": {},
+       "ane_placement": "thread",
+       "ane_probes": {
+        "128": {
+         "ane_ms": 9.473,
+         "cpu_ms": 26.835,
+         "ratio": 0.353
+        },
+        "64": {
+         "ane_ms": 7.913,
+         "cpu_ms": 16.379,
+         "ratio": 0.483
+        },
+        "96": {
+         "ane_ms": 8.543,
+         "cpu_ms": 24.836,
+         "ratio": 0.344
+        }
+       },
+       "ane_ready": true,
+       "auto_ane": {
+        "buckets": [
+         64,
+         96,
+         128
+        ],
+        "tie_buckets": [],
+        "unavailable": null
+       },
+       "device": "auto",
+       "dtype": "float16",
+       "execution": "workers",
+       "mlx": true,
+       "model": "laya",
+       "repo": "convaiinnovations/laya",
+       "revision": "c5d78730f3493e4fe16d61507ef4b78eef7318cf",
+       "routing_profile": "shipped"
+      }
+     },
+     "mismatches": 0,
+     "phase": "1",
+     "protocol": {
+      "a_default_path": true,
+      "cell": true,
+      "expect_rejected": true,
+      "lengths": true,
+      "model": true,
+      "schedule": true,
+      "seconds": true,
+      "window_lengths": true,
+      "windows": true
+     },
+     "protocol_ok": true,
+     "routing_failures": [],
+     "run": "mix-laya-A-r3",
+     "run_wall_s": 185.74222866701894,
+     "runtime": {
+      "dirty": false,
+      "head": "94980c09bb3396c45b7a6a2d5806f070ba3ea2ff",
+      "laya_apple_tree": "d541fdc820f59fcb7b27a5f20110f828892be16f",
+      "pyproject_blob": "2d2d3d684b086c0c651cd1ea96e09550ce2e5e85",
+      "uv_lock_blob": "10f6ba84dd28791684cc102d651c1d5c38cc0178"
+     },
+     "runtime_ok": true,
+     "workers_alive": true,
+     "workers_alive_at_end": {
+      "ane": true,
+      "gpu": true
+     }
+    },
+    "mix-laya-A-r4": {
+     "H1": [],
+     "H2": [],
+     "cell": "A",
+     "crash_logs": [],
+     "decisions": 0,
+     "episodes": [
+      {
+       "aggregate_req_s": 122.32272723176851,
+       "cycle": 0,
+       "gpu_return_ms": {
+        "from_s": 1.0,
+        "n": 467,
+        "p50": 4.325125,
+        "p95": 5.1980919,
+        "p99": 5.503959279999999
+       },
+       "host_slow": {
+        "bins": 38,
+        "from_s": 1.0,
+        "longest": 0,
+        "slow_bins": 0
+       },
+       "index": 2,
+       "latency_source": "client",
+       "n_short": 1956,
+       "n_short_trace": 1956,
+       "preceded_by": "solo_long",
+       "req_s": {
+        "long": 24.528991531777027,
+        "short": 97.79373569999149
+       },
+       "short_ms": {
+        "median": 10.047833435237408,
+        "p95": 10.698395548388362,
+        "p99": 11.261337588075557,
+        "p999": 16.309467502869808
+       },
+       "slow_spans": {
+        "longest": 0,
+        "slow": 0,
+        "spans": 19
+       },
+       "structure": null,
+       "t_h_s": null
+      },
+      {
+       "aggregate_req_s": 122.00293122821567,
+       "cycle": 1,
+       "gpu_return_ms": {
+        "from_s": 1.0,
+        "n": 465,
+        "p50": 4.416709,
+        "p95": 5.2748668,
+        "p99": 5.780146760000003
+       },
+       "host_slow": {
+        "bins": 38,
+        "from_s": 1.0,
+        "longest": 0,
+        "slow_bins": 0
+       },
+       "index": 5,
+       "latency_source": "client",
+       "n_short": 1952,
+       "n_short_trace": 1952,
+       "preceded_by": "gpu_only",
+       "req_s": {
+        "long": 24.440476310075848,
+        "short": 97.56245491813982
+       },
+       "short_ms": {
+        "median": 10.067624505609274,
+        "p95": 10.730053775478154,
+        "p99": 10.92226015869528,
+        "p999": 16.21320851054049
+       },
+       "slow_spans": {
+        "longest": 0,
+        "slow": 0,
+        "spans": 19
+       },
+       "structure": null,
+       "t_h_s": null
+      }
+     ],
+     "expect_rejected": null,
+     "handoff_snapshot": null,
+     "info": {
+      "end": {
+       "ane_buckets": [
+        64,
+        96,
+        128
+       ],
+       "ane_load_errors": {},
+       "ane_placement": "thread",
+       "ane_probes": {
+        "128": {
+         "ane_ms": 9.484,
+         "cpu_ms": 26.869,
+         "ratio": 0.353
+        },
+        "64": {
+         "ane_ms": 7.911,
+         "cpu_ms": 16.274,
+         "ratio": 0.486
+        },
+        "96": {
+         "ane_ms": 8.542,
+         "cpu_ms": 24.868,
+         "ratio": 0.344
+        }
+       },
+       "ane_ready": true,
+       "auto_ane": {
+        "buckets": [
+         64,
+         96,
+         128
+        ],
+        "tie_buckets": [],
+        "unavailable": null
+       },
+       "device": "auto",
+       "dtype": "float16",
+       "execution": "workers",
+       "mlx": true,
+       "model": "laya",
+       "repo": "convaiinnovations/laya",
+       "revision": "c5d78730f3493e4fe16d61507ef4b78eef7318cf",
+       "routing_profile": "shipped"
+      },
+      "start": {
+       "ane_buckets": [
+        64,
+        96,
+        128
+       ],
+       "ane_load_errors": {},
+       "ane_placement": "thread",
+       "ane_probes": {
+        "128": {
+         "ane_ms": 9.484,
+         "cpu_ms": 26.869,
+         "ratio": 0.353
+        },
+        "64": {
+         "ane_ms": 7.911,
+         "cpu_ms": 16.274,
+         "ratio": 0.486
+        },
+        "96": {
+         "ane_ms": 8.542,
+         "cpu_ms": 24.868,
+         "ratio": 0.344
+        }
+       },
+       "ane_ready": true,
+       "auto_ane": {
+        "buckets": [
+         64,
+         96,
+         128
+        ],
+        "tie_buckets": [],
+        "unavailable": null
+       },
+       "device": "auto",
+       "dtype": "float16",
+       "execution": "workers",
+       "mlx": true,
+       "model": "laya",
+       "repo": "convaiinnovations/laya",
+       "revision": "c5d78730f3493e4fe16d61507ef4b78eef7318cf",
+       "routing_profile": "shipped"
+      }
+     },
+     "mismatches": 0,
+     "phase": "1",
+     "protocol": {
+      "a_default_path": true,
+      "cell": true,
+      "expect_rejected": true,
+      "lengths": true,
+      "model": true,
+      "schedule": true,
+      "seconds": true,
+      "window_lengths": true,
+      "windows": true
+     },
+     "protocol_ok": true,
+     "routing_failures": [],
+     "run": "mix-laya-A-r4",
+     "run_wall_s": 185.68035495793447,
+     "runtime": {
+      "dirty": false,
+      "head": "94980c09bb3396c45b7a6a2d5806f070ba3ea2ff",
+      "laya_apple_tree": "d541fdc820f59fcb7b27a5f20110f828892be16f",
+      "pyproject_blob": "2d2d3d684b086c0c651cd1ea96e09550ce2e5e85",
+      "uv_lock_blob": "10f6ba84dd28791684cc102d651c1d5c38cc0178"
+     },
+     "runtime_ok": true,
+     "workers_alive": true,
+     "workers_alive_at_end": {
+      "ane": true,
+      "gpu": true
+     }
+    },
+    "mix-laya-A-r5": {
+     "H1": [],
+     "H2": [],
+     "cell": "A",
+     "crash_logs": [],
+     "decisions": 0,
+     "episodes": [
+      {
+       "aggregate_req_s": 122.64865982753571,
+       "cycle": 0,
+       "gpu_return_ms": {
+        "from_s": 1.0,
+        "n": 468,
+        "p50": 4.257604499999999,
+        "p95": 4.523225,
+        "p99": 5.338425609999998
+       },
+       "host_slow": {
+        "bins": 38,
+        "from_s": 1.0,
+        "longest": 0,
+        "slow_bins": 0
+       },
+       "index": 2,
+       "latency_source": "client",
+       "n_short": 1962,
+       "n_short_trace": 1962,
+       "preceded_by": "solo_long",
+       "req_s": {
+        "long": 24.589620926231124,
+        "short": 98.05903890130459
+       },
+       "short_ms": {
+        "median": 10.030707926489413,
+        "p95": 10.554524953477085,
+        "p99": 11.429387952666707,
+        "p999": 15.363512749318094
+       },
+       "slow_spans": {
+        "longest": 0,
+        "slow": 0,
+        "spans": 19
+       },
+       "structure": null,
+       "t_h_s": null
+      },
+      {
+       "aggregate_req_s": 122.38635073379345,
+       "cycle": 1,
+       "gpu_return_ms": {
+        "from_s": 1.0,
+        "n": 467,
+        "p50": 4.351625,
+        "p95": 4.8204877,
+        "p99": 5.73438622
+       },
+       "host_slow": {
+        "bins": 38,
+        "from_s": 1.0,
+        "longest": 0,
+        "slow_bins": 0
+       },
+       "index": 5,
+       "latency_source": "client",
+       "n_short": 1958,
+       "n_short_trace": 1958,
+       "preceded_by": "gpu_only",
+       "req_s": {
+        "long": 24.521551067653828,
+        "short": 97.86479966613962
+       },
+       "short_ms": {
+        "median": 10.053333477117121,
+        "p95": 10.61443736543879,
+        "p99": 10.929184027481828,
+        "p999": 14.899870099965485
+       },
+       "slow_spans": {
+        "longest": 0,
+        "slow": 0,
+        "spans": 19
+       },
+       "structure": null,
+       "t_h_s": null
+      }
+     ],
+     "expect_rejected": null,
+     "handoff_snapshot": null,
+     "info": {
+      "end": {
+       "ane_buckets": [
+        64,
+        96,
+        128
+       ],
+       "ane_load_errors": {},
+       "ane_placement": "thread",
+       "ane_probes": {
+        "128": {
+         "ane_ms": 9.375,
+         "cpu_ms": 26.863,
+         "ratio": 0.349
+        },
+        "64": {
+         "ane_ms": 7.865,
+         "cpu_ms": 16.261,
+         "ratio": 0.484
+        },
+        "96": {
+         "ane_ms": 8.676,
+         "cpu_ms": 24.793,
+         "ratio": 0.35
+        }
+       },
+       "ane_ready": true,
+       "auto_ane": {
+        "buckets": [
+         64,
+         96,
+         128
+        ],
+        "tie_buckets": [],
+        "unavailable": null
+       },
+       "device": "auto",
+       "dtype": "float16",
+       "execution": "workers",
+       "mlx": true,
+       "model": "laya",
+       "repo": "convaiinnovations/laya",
+       "revision": "c5d78730f3493e4fe16d61507ef4b78eef7318cf",
+       "routing_profile": "shipped"
+      },
+      "start": {
+       "ane_buckets": [
+        64,
+        96,
+        128
+       ],
+       "ane_load_errors": {},
+       "ane_placement": "thread",
+       "ane_probes": {
+        "128": {
+         "ane_ms": 9.375,
+         "cpu_ms": 26.863,
+         "ratio": 0.349
+        },
+        "64": {
+         "ane_ms": 7.865,
+         "cpu_ms": 16.261,
+         "ratio": 0.484
+        },
+        "96": {
+         "ane_ms": 8.676,
+         "cpu_ms": 24.793,
+         "ratio": 0.35
+        }
+       },
+       "ane_ready": true,
+       "auto_ane": {
+        "buckets": [
+         64,
+         96,
+         128
+        ],
+        "tie_buckets": [],
+        "unavailable": null
+       },
+       "device": "auto",
+       "dtype": "float16",
+       "execution": "workers",
+       "mlx": true,
+       "model": "laya",
+       "repo": "convaiinnovations/laya",
+       "revision": "c5d78730f3493e4fe16d61507ef4b78eef7318cf",
+       "routing_profile": "shipped"
+      }
+     },
+     "mismatches": 0,
+     "phase": "1",
+     "protocol": {
+      "a_default_path": true,
+      "cell": true,
+      "expect_rejected": true,
+      "lengths": true,
+      "model": true,
+      "schedule": true,
+      "seconds": true,
+      "window_lengths": true,
+      "windows": true
+     },
+     "protocol_ok": true,
+     "routing_failures": [],
+     "run": "mix-laya-A-r5",
+     "run_wall_s": 185.68119987496175,
+     "runtime": {
+      "dirty": false,
+      "head": "94980c09bb3396c45b7a6a2d5806f070ba3ea2ff",
+      "laya_apple_tree": "d541fdc820f59fcb7b27a5f20110f828892be16f",
+      "pyproject_blob": "2d2d3d684b086c0c651cd1ea96e09550ce2e5e85",
+      "uv_lock_blob": "10f6ba84dd28791684cc102d651c1d5c38cc0178"
+     },
+     "runtime_ok": true,
+     "workers_alive": true,
+     "workers_alive_at_end": {
+      "ane": true,
+      "gpu": true
+     }
+    },
+    "mix-laya-A-r6": {
+     "H1": [],
+     "H2": [],
+     "cell": "A",
+     "crash_logs": [],
+     "decisions": 0,
+     "episodes": [
+      {
+       "aggregate_req_s": 122.57991519429979,
+       "cycle": 0,
+       "gpu_return_ms": {
+        "from_s": 1.0,
+        "n": 468,
+        "p50": 4.2705205,
+        "p95": 4.5481773,
+        "p99": 5.47131178
+       },
+       "host_slow": {
+        "bins": 38,
+        "from_s": 1.0,
+        "longest": 0,
+        "slow_bins": 0
+       },
+       "index": 2,
+       "latency_source": "client",
+       "n_short": 1960,
+       "n_short_trace": 1960,
+       "preceded_by": "solo_long",
+       "req_s": {
+        "long": 24.580373954295034,
+        "short": 97.99954124000476
+       },
+       "short_ms": {
+        "median": 10.035166516900063,
+        "p95": 10.562860709615052,
+        "p99": 11.066379318945117,
+        "p999": 16.2781399358064
+       },
+       "slow_spans": {
+        "longest": 0,
+        "slow": 0,
+        "spans": 19
+       },
+       "structure": null,
+       "t_h_s": null
+      },
+      {
+       "aggregate_req_s": 122.53965583278331,
+       "cycle": 1,
+       "gpu_return_ms": {
+        "from_s": 1.0,
+        "n": 468,
+        "p50": 4.280104,
+        "p95": 4.7782626,
+        "p99": 5.54330386
+       },
+       "host_slow": {
+        "bins": 38,
+        "from_s": 1.0,
+        "longest": 0,
+        "slow_bins": 0
+       },
+       "index": 5,
+       "latency_source": "client",
+       "n_short": 1960,
+       "n_short_trace": 1960,
+       "preceded_by": "gpu_only",
+       "req_s": {
+        "long": 24.56263531915636,
+        "short": 97.97702051362695
+       },
+       "short_ms": {
+        "median": 10.037749889306724,
+        "p95": 10.595806501805782,
+        "p99": 11.38393280096354,
+        "p999": 15.27632439206377
+       },
+       "slow_spans": {
+        "longest": 0,
+        "slow": 0,
+        "spans": 19
+       },
+       "structure": null,
+       "t_h_s": null
+      }
+     ],
+     "expect_rejected": null,
+     "handoff_snapshot": null,
+     "info": {
+      "end": {
+       "ane_buckets": [
+        64,
+        96,
+        128
+       ],
+       "ane_load_errors": {},
+       "ane_placement": "thread",
+       "ane_probes": {
+        "128": {
+         "ane_ms": 9.477,
+         "cpu_ms": 26.808,
+         "ratio": 0.353
+        },
+        "64": {
+         "ane_ms": 7.922,
+         "cpu_ms": 16.203,
+         "ratio": 0.489
+        },
+        "96": {
+         "ane_ms": 8.664,
+         "cpu_ms": 24.807,
+         "ratio": 0.349
+        }
+       },
+       "ane_ready": true,
+       "auto_ane": {
+        "buckets": [
+         64,
+         96,
+         128
+        ],
+        "tie_buckets": [],
+        "unavailable": null
+       },
+       "device": "auto",
+       "dtype": "float16",
+       "execution": "workers",
+       "mlx": true,
+       "model": "laya",
+       "repo": "convaiinnovations/laya",
+       "revision": "c5d78730f3493e4fe16d61507ef4b78eef7318cf",
+       "routing_profile": "shipped"
+      },
+      "start": {
+       "ane_buckets": [
+        64,
+        96,
+        128
+       ],
+       "ane_load_errors": {},
+       "ane_placement": "thread",
+       "ane_probes": {
+        "128": {
+         "ane_ms": 9.477,
+         "cpu_ms": 26.808,
+         "ratio": 0.353
+        },
+        "64": {
+         "ane_ms": 7.922,
+         "cpu_ms": 16.203,
+         "ratio": 0.489
+        },
+        "96": {
+         "ane_ms": 8.664,
+         "cpu_ms": 24.807,
+         "ratio": 0.349
+        }
+       },
+       "ane_ready": true,
+       "auto_ane": {
+        "buckets": [
+         64,
+         96,
+         128
+        ],
+        "tie_buckets": [],
+        "unavailable": null
+       },
+       "device": "auto",
+       "dtype": "float16",
+       "execution": "workers",
+       "mlx": true,
+       "model": "laya",
+       "repo": "convaiinnovations/laya",
+       "revision": "c5d78730f3493e4fe16d61507ef4b78eef7318cf",
+       "routing_profile": "shipped"
+      }
+     },
+     "mismatches": 0,
+     "phase": "1",
+     "protocol": {
+      "a_default_path": true,
+      "cell": true,
+      "expect_rejected": true,
+      "lengths": true,
+      "model": true,
+      "schedule": true,
+      "seconds": true,
+      "window_lengths": true,
+      "windows": true
+     },
+     "protocol_ok": true,
+     "routing_failures": [],
+     "run": "mix-laya-A-r6",
+     "run_wall_s": 185.74084220803343,
+     "runtime": {
+      "dirty": false,
+      "head": "94980c09bb3396c45b7a6a2d5806f070ba3ea2ff",
+      "laya_apple_tree": "d541fdc820f59fcb7b27a5f20110f828892be16f",
+      "pyproject_blob": "2d2d3d684b086c0c651cd1ea96e09550ce2e5e85",
+      "uv_lock_blob": "10f6ba84dd28791684cc102d651c1d5c38cc0178"
+     },
+     "runtime_ok": true,
+     "workers_alive": true,
+     "workers_alive_at_end": {
+      "ane": true,
+      "gpu": true
+     }
+    },
+    "mix-laya-P-r1": {
+     "H1": [],
+     "H2": [],
+     "cell": "P",
+     "crash_logs": [],
+     "decisions": 7958,
+     "episodes": [
+      {
+       "aggregate_req_s": 128.40935971602278,
+       "cycle": 0,
+       "gpu_return_ms": {
+        "from_s": 1.766058084,
+        "n": 509,
+        "p50": 0.033666,
+        "p95": 0.07560819999999997,
+        "p99": 0.28607164000000074
+       },
+       "host_slow": {
+        "bins": 39,
+        "from_s": 0.766058084,
+        "longest": 0,
+        "slow_bins": 0
+       },
+       "index": 2,
+       "latency_source": "client",
+       "n_short": 2015,
+       "n_short_trace": 2015,
+       "preceded_by": "solo_long",
+       "req_s": {
+        "long": 27.708110243211188,
+        "short": 100.70124947281158
+       },
+       "short_ms": {
+        "median": 9.853207971900702,
+        "p95": 10.120766935870051,
+        "p99": 11.090182363986939,
+        "p999": 15.808907379396336
+       },
+       "slow_spans": {
+        "longest": 0,
+        "slow": 0,
+        "spans": 20
+       },
+       "structure": {
+        "checks": {
+         "guard_sequence_1_to_64": true,
+         "guard_starts_sync_guard_1": true,
+         "no_sync_after_t_h": true,
+         "t_h_exists": true,
+         "t_h_follows_the_64th": true
+        },
+        "decisions": 2015,
+        "failed": [],
+        "first_decision": {
+         "count": 1,
+         "path": 0,
+         "state": "sync_guard"
+        },
+        "leading_armed": 0,
+        "sync_after_t_h": 0,
+        "sync_before_t_h": 64,
+        "t_h_ns": 1057544083270500
+       },
+       "t_h_s": 0.766058084
+      },
+      {
+       "aggregate_req_s": 128.43228695201952,
+       "cycle": 1,
+       "gpu_return_ms": {
+        "from_s": 1.750664459,
+        "n": 509,
+        "p50": 0.033292,
+        "p95": 0.06971599999999994,
+        "p99": 0.14808672000000028
+       },
+       "host_slow": {
+        "bins": 39,
+        "from_s": 0.750664459,
+        "longest": 0,
+        "slow_bins": 0
+       },
+       "index": 5,
+       "latency_source": "client",
+       "n_short": 2015,
+       "n_short_trace": 2015,
+       "preceded_by": "gpu_only",
+       "req_s": {
+        "long": 27.692573948280636,
+        "short": 100.7397130037389
+       },
+       "short_ms": {
+        "median": 9.85866691917181,
+        "p95": 10.06114180199802,
+        "p99": 10.71813492570072,
+        "p999": 15.353015989531132
+       },
+       "slow_spans": {
+        "longest": 0,
+        "slow": 0,
+        "spans": 20
+       },
+       "structure": {
+        "checks": {
+         "guard_sequence_1_to_64": true,
+         "guard_starts_sync_guard_1": true,
+         "no_sync_after_t_h": true,
+         "t_h_exists": true,
+         "t_h_follows_the_64th": true
+        },
+        "decisions": 2015,
+        "failed": [],
+        "first_decision": {
+         "count": 1,
+         "path": 0,
+         "state": "sync_guard"
+        },
+        "leading_armed": 0,
+        "sync_after_t_h": 0,
+        "sync_before_t_h": 64,
+        "t_h_ns": 1057611684542166
+       },
+       "t_h_s": 0.750664459
+      }
+     ],
+     "expect_rejected": null,
+     "handoff_snapshot": {
+      "consistent": true,
+      "count": 0,
+      "disabled": false,
+      "disabled_reason": null,
+      "enabled": true,
+      "episodes": 2,
+      "forwards": {
+       "async": 3902,
+       "sync": 4061
+      },
+      "gap_s": 1.0,
+      "guard": 64,
+      "state": "armed"
+     },
+     "info": {
+      "end": {
+       "ane_buckets": [
+        64,
+        96,
+        128
+       ],
+       "ane_handoff": {
+        "consistent": true,
+        "count": 0,
+        "disabled": false,
+        "disabled_reason": null,
+        "enabled": true,
+        "episodes": 2,
+        "forwards": {
+         "async": 3902,
+         "sync": 4061
+        },
+        "gap_s": 1.0,
+        "guard": 64,
+        "state": "armed"
+       },
+       "ane_load_errors": {},
+       "ane_placement": "thread",
+       "ane_probes": {
+        "128": {
+         "ane_ms": 9.494,
+         "cpu_ms": 26.651,
+         "ratio": 0.356
+        },
+        "64": {
+         "ane_ms": 7.981,
+         "cpu_ms": 15.957,
+         "ratio": 0.5
+        },
+        "96": {
+         "ane_ms": 8.723,
+         "cpu_ms": 24.513,
+         "ratio": 0.356
+        }
+       },
+       "ane_ready": true,
+       "auto_ane": {
+        "buckets": [
+         64,
+         96,
+         128
+        ],
+        "tie_buckets": [],
+        "unavailable": null
+       },
+       "device": "auto",
+       "dtype": "float16",
+       "execution": "workers",
+       "mlx": true,
+       "model": "laya",
+       "repo": "convaiinnovations/laya",
+       "revision": "c5d78730f3493e4fe16d61507ef4b78eef7318cf",
+       "routing_profile": "shipped"
+      },
+      "start": {
+       "ane_buckets": [
+        64,
+        96,
+        128
+       ],
+       "ane_handoff": {
+        "consistent": true,
+        "count": 0,
+        "disabled": false,
+        "disabled_reason": null,
+        "enabled": true,
+        "episodes": 0,
+        "forwards": {
+         "async": 0,
+         "sync": 5
+        },
+        "gap_s": 1.0,
+        "guard": 64,
+        "state": "armed"
+       },
+       "ane_load_errors": {},
+       "ane_placement": "thread",
+       "ane_probes": {
+        "128": {
+         "ane_ms": 9.494,
+         "cpu_ms": 26.651,
+         "ratio": 0.356
+        },
+        "64": {
+         "ane_ms": 7.981,
+         "cpu_ms": 15.957,
+         "ratio": 0.5
+        },
+        "96": {
+         "ane_ms": 8.723,
+         "cpu_ms": 24.513,
+         "ratio": 0.356
+        }
+       },
+       "ane_ready": true,
+       "auto_ane": {
+        "buckets": [
+         64,
+         96,
+         128
+        ],
+        "tie_buckets": [],
+        "unavailable": null
+       },
+       "device": "auto",
+       "dtype": "float16",
+       "execution": "workers",
+       "mlx": true,
+       "model": "laya",
+       "repo": "convaiinnovations/laya",
+       "revision": "c5d78730f3493e4fe16d61507ef4b78eef7318cf",
+       "routing_profile": "shipped"
+      }
+     },
+     "mismatches": 0,
+     "phase": "1",
+     "protocol": {
+      "cell": true,
+      "expect_rejected": true,
+      "guard": true,
+      "lengths": true,
+      "model": true,
+      "schedule": true,
+      "seconds": true,
+      "window_lengths": true,
+      "windows": true
+     },
+     "protocol_ok": true,
+     "routing_failures": [],
+     "run": "mix-laya-P-r1",
+     "run_wall_s": 186.25279733282514,
+     "runtime": {
+      "dirty": false,
+      "head": "94980c09bb3396c45b7a6a2d5806f070ba3ea2ff",
+      "laya_apple_tree": "d541fdc820f59fcb7b27a5f20110f828892be16f",
+      "pyproject_blob": "2d2d3d684b086c0c651cd1ea96e09550ce2e5e85",
+      "uv_lock_blob": "10f6ba84dd28791684cc102d651c1d5c38cc0178"
+     },
+     "runtime_ok": true,
+     "workers_alive": true,
+     "workers_alive_at_end": {
+      "ane": true,
+      "gpu": true
+     }
+    },
+    "mix-laya-P-r2": {
+     "H1": [],
+     "H2": [],
+     "cell": "P",
+     "crash_logs": [],
+     "decisions": 7967,
+     "episodes": [
+      {
+       "aggregate_req_s": 128.46666927938352,
+       "cycle": 0,
+       "gpu_return_ms": {
+        "from_s": 1.745683083,
+        "n": 508,
+        "p50": 0.0355005,
+        "p95": 0.06770385,
+        "p99": 0.14032200000000006
+       },
+       "host_slow": {
+        "bins": 39,
+        "from_s": 0.745683083,
+        "longest": 0,
+        "slow_bins": 0
+       },
+       "index": 2,
+       "latency_source": "client",
+       "n_short": 2016,
+       "n_short_trace": 2016,
+       "preceded_by": "solo_long",
+       "req_s": {
+        "long": 27.687274467535556,
+        "short": 100.77939481184796
+       },
+       "short_ms": {
+        "median": 9.858667035587132,
+        "p95": 10.054114449303597,
+        "p99": 10.613789421040563,
+        "p999": 14.22519276267849
+       },
+       "slow_spans": {
+        "longest": 0,
+        "slow": 0,
+        "spans": 20
+       },
+       "structure": {
+        "checks": {
+         "guard_sequence_1_to_64": true,
+         "guard_starts_sync_guard_1": true,
+         "no_sync_after_t_h": true,
+         "t_h_exists": true,
+         "t_h_follows_the_64th": true
+        },
+        "decisions": 2016,
+        "failed": [],
+        "first_decision": {
+         "count": 1,
+         "path": 0,
+         "state": "sync_guard"
+        },
+        "leading_armed": 0,
+        "sync_after_t_h": 0,
+        "sync_before_t_h": 64,
+        "t_h_ns": 1058110925299541
+       },
+       "t_h_s": 0.745683083
+      },
+      {
+       "aggregate_req_s": 128.39066288108043,
+       "cycle": 1,
+       "gpu_return_ms": {
+        "from_s": 1.739015333,
+        "n": 508,
+        "p50": 0.035062499999999996,
+        "p95": 0.06424824999999999,
+        "p99": 0.18106844
+       },
+       "host_slow": {
+        "bins": 39,
+        "from_s": 0.739015333,
+        "longest": 0,
+        "slow_bins": 0
+       },
+       "index": 5,
+       "latency_source": "client",
+       "n_short": 2016,
+       "n_short_trace": 2016,
+       "preceded_by": "gpu_only",
+       "req_s": {
+        "long": 27.636154172001646,
+        "short": 100.75450870907879
+       },
+       "short_ms": {
+        "median": 9.865270927548409,
+        "p95": 10.061812994536012,
+        "p99": 10.63299379311502,
+        "p999": 14.478767958935482
+       },
+       "slow_spans": {
+        "longest": 0,
+        "slow": 0,
+        "spans": 20
+       },
+       "structure": {
+        "checks": {
+         "guard_sequence_1_to_64": true,
+         "guard_starts_sync_guard_1": true,
+         "no_sync_after_t_h": true,
+         "t_h_exists": true,
+         "t_h_follows_the_64th": true
+        },
+        "decisions": 2016,
+        "failed": [],
+        "first_decision": {
+         "count": 1,
+         "path": 0,
+         "state": "sync_guard"
+        },
+        "leading_armed": 0,
+        "sync_after_t_h": 0,
+        "sync_before_t_h": 64,
+        "t_h_ns": 1058178522893208
+       },
+       "t_h_s": 0.739015333
+      }
+     ],
+     "expect_rejected": null,
+     "handoff_snapshot": {
+      "consistent": true,
+      "count": 0,
+      "disabled": false,
+      "disabled_reason": null,
+      "enabled": true,
+      "episodes": 2,
+      "forwards": {
+       "async": 3904,
+       "sync": 4068
+      },
+      "gap_s": 1.0,
+      "guard": 64,
+      "state": "armed"
+     },
+     "info": {
+      "end": {
+       "ane_buckets": [
+        64,
+        96,
+        128
+       ],
+       "ane_handoff": {
+        "consistent": true,
+        "count": 0,
+        "disabled": false,
+        "disabled_reason": null,
+        "enabled": true,
+        "episodes": 2,
+        "forwards": {
+         "async": 3904,
+         "sync": 4068
+        },
+        "gap_s": 1.0,
+        "guard": 64,
+        "state": "armed"
+       },
+       "ane_load_errors": {},
+       "ane_placement": "thread",
+       "ane_probes": {
+        "128": {
+         "ane_ms": 9.458,
+         "cpu_ms": 26.888,
+         "ratio": 0.352
+        },
+        "64": {
+         "ane_ms": 7.909,
+         "cpu_ms": 16.283,
+         "ratio": 0.486
+        },
+        "96": {
+         "ane_ms": 8.543,
+         "cpu_ms": 24.814,
+         "ratio": 0.344
+        }
+       },
+       "ane_ready": true,
+       "auto_ane": {
+        "buckets": [
+         64,
+         96,
+         128
+        ],
+        "tie_buckets": [],
+        "unavailable": null
+       },
+       "device": "auto",
+       "dtype": "float16",
+       "execution": "workers",
+       "mlx": true,
+       "model": "laya",
+       "repo": "convaiinnovations/laya",
+       "revision": "c5d78730f3493e4fe16d61507ef4b78eef7318cf",
+       "routing_profile": "shipped"
+      },
+      "start": {
+       "ane_buckets": [
+        64,
+        96,
+        128
+       ],
+       "ane_handoff": {
+        "consistent": true,
+        "count": 0,
+        "disabled": false,
+        "disabled_reason": null,
+        "enabled": true,
+        "episodes": 0,
+        "forwards": {
+         "async": 0,
+         "sync": 5
+        },
+        "gap_s": 1.0,
+        "guard": 64,
+        "state": "armed"
+       },
+       "ane_load_errors": {},
+       "ane_placement": "thread",
+       "ane_probes": {
+        "128": {
+         "ane_ms": 9.458,
+         "cpu_ms": 26.888,
+         "ratio": 0.352
+        },
+        "64": {
+         "ane_ms": 7.909,
+         "cpu_ms": 16.283,
+         "ratio": 0.486
+        },
+        "96": {
+         "ane_ms": 8.543,
+         "cpu_ms": 24.814,
+         "ratio": 0.344
+        }
+       },
+       "ane_ready": true,
+       "auto_ane": {
+        "buckets": [
+         64,
+         96,
+         128
+        ],
+        "tie_buckets": [],
+        "unavailable": null
+       },
+       "device": "auto",
+       "dtype": "float16",
+       "execution": "workers",
+       "mlx": true,
+       "model": "laya",
+       "repo": "convaiinnovations/laya",
+       "revision": "c5d78730f3493e4fe16d61507ef4b78eef7318cf",
+       "routing_profile": "shipped"
+      }
+     },
+     "mismatches": 0,
+     "phase": "1",
+     "protocol": {
+      "cell": true,
+      "expect_rejected": true,
+      "guard": true,
+      "lengths": true,
+      "model": true,
+      "schedule": true,
+      "seconds": true,
+      "window_lengths": true,
+      "windows": true
+     },
+     "protocol_ok": true,
+     "routing_failures": [],
+     "run": "mix-laya-P-r2",
+     "run_wall_s": 186.59943004208617,
+     "runtime": {
+      "dirty": false,
+      "head": "94980c09bb3396c45b7a6a2d5806f070ba3ea2ff",
+      "laya_apple_tree": "d541fdc820f59fcb7b27a5f20110f828892be16f",
+      "pyproject_blob": "2d2d3d684b086c0c651cd1ea96e09550ce2e5e85",
+      "uv_lock_blob": "10f6ba84dd28791684cc102d651c1d5c38cc0178"
+     },
+     "runtime_ok": true,
+     "workers_alive": true,
+     "workers_alive_at_end": {
+      "ane": true,
+      "gpu": true
+     }
+    },
+    "mix-laya-P-r3": {
+     "H1": [],
+     "H2": [],
+     "cell": "P",
+     "crash_logs": [],
+     "decisions": 7962,
+     "episodes": [
+      {
+       "aggregate_req_s": 128.52274333105274,
+       "cycle": 0,
+       "gpu_return_ms": {
+        "from_s": 1.75050325,
+        "n": 509,
+        "p50": 0.034,
+        "p95": 0.08457479999999987,
+        "p99": 0.24503336000000028
+       },
+       "host_slow": {
+        "bins": 39,
+        "from_s": 0.75050325,
+        "longest": 0,
+        "slow_bins": 0
+       },
+       "index": 2,
+       "latency_source": "client",
+       "n_short": 2017,
+       "n_short_trace": 2017,
+       "preceded_by": "solo_long",
+       "req_s": {
+        "long": 27.701331241821965,
+        "short": 100.82141208923076
+       },
+       "short_ms": {
+        "median": 9.85233299434185,
+        "p95": 10.061767231673002,
+        "p99": 10.709673482924693,
+        "p999": 15.450415043160397
+       },
+       "slow_spans": {
+        "longest": 0,
+        "slow": 0,
+        "spans": 20
+       },
+       "structure": {
+        "checks": {
+         "guard_sequence_1_to_64": true,
+         "guard_starts_sync_guard_1": true,
+         "no_sync_after_t_h": true,
+         "t_h_exists": true,
+         "t_h_follows_the_64th": true
+        },
+        "decisions": 2017,
+        "failed": [],
+        "first_decision": {
+         "count": 1,
+         "path": 0,
+         "state": "sync_guard"
+        },
+        "leading_armed": 0,
+        "sync_after_t_h": 0,
+        "sync_before_t_h": 64,
+        "t_h_ns": 1058489197071166
+       },
+       "t_h_s": 0.75050325
+      },
+      {
+       "aggregate_req_s": 128.31386489891395,
+       "cycle": 1,
+       "gpu_return_ms": {
+        "from_s": 1.751873541,
+        "n": 509,
+        "p50": 0.033417,
+        "p95": 0.06185019999999995,
+        "p99": 0.14870608000000088
+       },
+       "host_slow": {
+        "bins": 39,
+        "from_s": 0.751873541,
+        "longest": 0,
+        "slow_bins": 0
+       },
+       "index": 5,
+       "latency_source": "client",
+       "n_short": 2013,
+       "n_short_trace": 2013,
+       "preceded_by": "gpu_only",
+       "req_s": {
+        "long": 27.705313523785886,
+        "short": 100.60855137512807
+       },
+       "short_ms": {
+        "median": 9.872457943856716,
+        "p95": 10.079449927434325,
+        "p99": 10.612384853884576,
+        "p999": 15.236570878885699
+       },
+       "slow_spans": {
+        "longest": 0,
+        "slow": 0,
+        "spans": 20
+       },
+       "structure": {
+        "checks": {
+         "guard_sequence_1_to_64": true,
+         "guard_starts_sync_guard_1": true,
+         "no_sync_after_t_h": true,
+         "t_h_exists": true,
+         "t_h_follows_the_64th": true
+        },
+        "decisions": 2013,
+        "failed": [],
+        "first_decision": {
+         "count": 1,
+         "path": 0,
+         "state": "sync_guard"
+        },
+        "leading_armed": 0,
+        "sync_after_t_h": 0,
+        "sync_before_t_h": 64,
+        "t_h_ns": 1058556844762041
+       },
+       "t_h_s": 0.751873541
+      }
+     ],
+     "expect_rejected": null,
+     "handoff_snapshot": {
+      "consistent": true,
+      "count": 0,
+      "disabled": false,
+      "disabled_reason": null,
+      "enabled": true,
+      "episodes": 2,
+      "forwards": {
+       "async": 3902,
+       "sync": 4065
+      },
+      "gap_s": 1.0,
+      "guard": 64,
+      "state": "armed"
+     },
+     "info": {
+      "end": {
+       "ane_buckets": [
+        64,
+        96,
+        128
+       ],
+       "ane_handoff": {
+        "consistent": true,
+        "count": 0,
+        "disabled": false,
+        "disabled_reason": null,
+        "enabled": true,
+        "episodes": 2,
+        "forwards": {
+         "async": 3902,
+         "sync": 4065
+        },
+        "gap_s": 1.0,
+        "guard": 64,
+        "state": "armed"
+       },
+       "ane_load_errors": {},
+       "ane_placement": "thread",
+       "ane_probes": {
+        "128": {
+         "ane_ms": 9.346,
+         "cpu_ms": 26.878,
+         "ratio": 0.348
+        },
+        "64": {
+         "ane_ms": 7.888,
+         "cpu_ms": 16.246,
+         "ratio": 0.486
+        },
+        "96": {
+         "ane_ms": 8.683,
+         "cpu_ms": 24.778,
+         "ratio": 0.35
+        }
+       },
+       "ane_ready": true,
+       "auto_ane": {
+        "buckets": [
+         64,
+         96,
+         128
+        ],
+        "tie_buckets": [],
+        "unavailable": null
+       },
+       "device": "auto",
+       "dtype": "float16",
+       "execution": "workers",
+       "mlx": true,
+       "model": "laya",
+       "repo": "convaiinnovations/laya",
+       "revision": "c5d78730f3493e4fe16d61507ef4b78eef7318cf",
+       "routing_profile": "shipped"
+      },
+      "start": {
+       "ane_buckets": [
+        64,
+        96,
+        128
+       ],
+       "ane_handoff": {
+        "consistent": true,
+        "count": 0,
+        "disabled": false,
+        "disabled_reason": null,
+        "enabled": true,
+        "episodes": 0,
+        "forwards": {
+         "async": 0,
+         "sync": 5
+        },
+        "gap_s": 1.0,
+        "guard": 64,
+        "state": "armed"
+       },
+       "ane_load_errors": {},
+       "ane_placement": "thread",
+       "ane_probes": {
+        "128": {
+         "ane_ms": 9.346,
+         "cpu_ms": 26.878,
+         "ratio": 0.348
+        },
+        "64": {
+         "ane_ms": 7.888,
+         "cpu_ms": 16.246,
+         "ratio": 0.486
+        },
+        "96": {
+         "ane_ms": 8.683,
+         "cpu_ms": 24.778,
+         "ratio": 0.35
+        }
+       },
+       "ane_ready": true,
+       "auto_ane": {
+        "buckets": [
+         64,
+         96,
+         128
+        ],
+        "tie_buckets": [],
+        "unavailable": null
+       },
+       "device": "auto",
+       "dtype": "float16",
+       "execution": "workers",
+       "mlx": true,
+       "model": "laya",
+       "repo": "convaiinnovations/laya",
+       "revision": "c5d78730f3493e4fe16d61507ef4b78eef7318cf",
+       "routing_profile": "shipped"
+      }
+     },
+     "mismatches": 0,
+     "phase": "1",
+     "protocol": {
+      "cell": true,
+      "expect_rejected": true,
+      "guard": true,
+      "lengths": true,
+      "model": true,
+      "schedule": true,
+      "seconds": true,
+      "window_lengths": true,
+      "windows": true
+     },
+     "protocol_ok": true,
+     "routing_failures": [],
+     "run": "mix-laya-P-r3",
+     "run_wall_s": 186.70108274999075,
+     "runtime": {
+      "dirty": false,
+      "head": "94980c09bb3396c45b7a6a2d5806f070ba3ea2ff",
+      "laya_apple_tree": "d541fdc820f59fcb7b27a5f20110f828892be16f",
+      "pyproject_blob": "2d2d3d684b086c0c651cd1ea96e09550ce2e5e85",
+      "uv_lock_blob": "10f6ba84dd28791684cc102d651c1d5c38cc0178"
+     },
+     "runtime_ok": true,
+     "workers_alive": true,
+     "workers_alive_at_end": {
+      "ane": true,
+      "gpu": true
+     }
+    },
+    "mix-laya-P-r4": {
+     "H1": [],
+     "H2": [],
+     "cell": "P",
+     "crash_logs": [],
+     "decisions": 7956,
+     "episodes": [
+      {
+       "aggregate_req_s": 128.4463178240434,
+       "cycle": 0,
+       "gpu_return_ms": {
+        "from_s": 1.761731166,
+        "n": 509,
+        "p50": 0.034875,
+        "p95": 0.0643328,
+        "p99": 0.2404956400000003
+       },
+       "host_slow": {
+        "bins": 39,
+        "from_s": 0.761731166,
+        "longest": 0,
+        "slow_bins": 0
+       },
+       "index": 2,
+       "latency_source": "client",
+       "n_short": 2015,
+       "n_short_trace": 2015,
+       "preceded_by": "solo_long",
+       "req_s": {
+        "long": 27.718179183773962,
+        "short": 100.72813864026944
+       },
+       "short_ms": {
+        "median": 9.854916948825121,
+        "p95": 10.063225007615983,
+        "p99": 10.751445544883609,
+        "p999": 16.758106872905344
+       },
+       "slow_spans": {
+        "longest": 0,
+        "slow": 0,
+        "spans": 20
+       },
+       "structure": {
+        "checks": {
+         "guard_sequence_1_to_64": true,
+         "guard_starts_sync_guard_1": true,
+         "no_sync_after_t_h": true,
+         "t_h_exists": true,
+         "t_h_follows_the_64th": true
+        },
+        "decisions": 2015,
+        "failed": [],
+        "first_decision": {
+         "count": 1,
+         "path": 0,
+         "state": "sync_guard"
+        },
+        "leading_armed": 0,
+        "sync_after_t_h": 0,
+        "sync_before_t_h": 64,
+        "t_h_ns": 1058678865332291
+       },
+       "t_h_s": 0.761731166
+      },
+      {
+       "aggregate_req_s": 128.13435287381338,
+       "cycle": 1,
+       "gpu_return_ms": {
+        "from_s": 1.771280959,
+        "n": 509,
+        "p50": 0.036625,
+        "p95": 0.07418319999999996,
+        "p99": 0.1703770000000004
+       },
+       "host_slow": {
+        "bins": 39,
+        "from_s": 0.771280959,
+        "longest": 0,
+        "slow_bins": 0
+       },
+       "index": 5,
+       "latency_source": "client",
+       "n_short": 2009,
+       "n_short_trace": 2009,
+       "preceded_by": "gpu_only",
+       "req_s": {
+        "long": 27.710696302690632,
+        "short": 100.42365657112275
+       },
+       "short_ms": {
+        "median": 9.876082884147763,
+        "p95": 10.121525404974818,
+        "p99": 11.82152307592335,
+        "p999": 15.83389126136914
+       },
+       "slow_spans": {
+        "longest": 0,
+        "slow": 0,
+        "spans": 20
+       },
+       "structure": {
+        "checks": {
+         "guard_sequence_1_to_64": true,
+         "guard_starts_sync_guard_1": true,
+         "no_sync_after_t_h": true,
+         "t_h_exists": true,
+         "t_h_follows_the_64th": true
+        },
+        "decisions": 2009,
+        "failed": [],
+        "first_decision": {
+         "count": 1,
+         "path": 0,
+         "state": "sync_guard"
+        },
+        "leading_armed": 0,
+        "sync_after_t_h": 0,
+        "sync_before_t_h": 64,
+        "t_h_ns": 1058746464802625
+       },
+       "t_h_s": 0.771280959
+      }
+     ],
+     "expect_rejected": null,
+     "handoff_snapshot": {
+      "consistent": true,
+      "count": 0,
+      "disabled": false,
+      "disabled_reason": null,
+      "enabled": true,
+      "episodes": 2,
+      "forwards": {
+       "async": 3896,
+       "sync": 4065
+      },
+      "gap_s": 1.0,
+      "guard": 64,
+      "state": "armed"
+     },
+     "info": {
+      "end": {
+       "ane_buckets": [
+        64,
+        96,
+        128
+       ],
+       "ane_handoff": {
+        "consistent": true,
+        "count": 0,
+        "disabled": false,
+        "disabled_reason": null,
+        "enabled": true,
+        "episodes": 2,
+        "forwards": {
+         "async": 3896,
+         "sync": 4065
+        },
+        "gap_s": 1.0,
+        "guard": 64,
+        "state": "armed"
+       },
+       "ane_load_errors": {},
+       "ane_placement": "thread",
+       "ane_probes": {
+        "128": {
+         "ane_ms": 9.435,
+         "cpu_ms": 26.842,
+         "ratio": 0.352
+        },
+        "64": {
+         "ane_ms": 7.894,
+         "cpu_ms": 16.251,
+         "ratio": 0.486
+        },
+        "96": {
+         "ane_ms": 8.665,
+         "cpu_ms": 24.82,
+         "ratio": 0.349
+        }
+       },
+       "ane_ready": true,
+       "auto_ane": {
+        "buckets": [
+         64,
+         96,
+         128
+        ],
+        "tie_buckets": [],
+        "unavailable": null
+       },
+       "device": "auto",
+       "dtype": "float16",
+       "execution": "workers",
+       "mlx": true,
+       "model": "laya",
+       "repo": "convaiinnovations/laya",
+       "revision": "c5d78730f3493e4fe16d61507ef4b78eef7318cf",
+       "routing_profile": "shipped"
+      },
+      "start": {
+       "ane_buckets": [
+        64,
+        96,
+        128
+       ],
+       "ane_handoff": {
+        "consistent": true,
+        "count": 0,
+        "disabled": false,
+        "disabled_reason": null,
+        "enabled": true,
+        "episodes": 0,
+        "forwards": {
+         "async": 0,
+         "sync": 5
+        },
+        "gap_s": 1.0,
+        "guard": 64,
+        "state": "armed"
+       },
+       "ane_load_errors": {},
+       "ane_placement": "thread",
+       "ane_probes": {
+        "128": {
+         "ane_ms": 9.435,
+         "cpu_ms": 26.842,
+         "ratio": 0.352
+        },
+        "64": {
+         "ane_ms": 7.894,
+         "cpu_ms": 16.251,
+         "ratio": 0.486
+        },
+        "96": {
+         "ane_ms": 8.665,
+         "cpu_ms": 24.82,
+         "ratio": 0.349
+        }
+       },
+       "ane_ready": true,
+       "auto_ane": {
+        "buckets": [
+         64,
+         96,
+         128
+        ],
+        "tie_buckets": [],
+        "unavailable": null
+       },
+       "device": "auto",
+       "dtype": "float16",
+       "execution": "workers",
+       "mlx": true,
+       "model": "laya",
+       "repo": "convaiinnovations/laya",
+       "revision": "c5d78730f3493e4fe16d61507ef4b78eef7318cf",
+       "routing_profile": "shipped"
+      }
+     },
+     "mismatches": 0,
+     "phase": "1",
+     "protocol": {
+      "cell": true,
+      "expect_rejected": true,
+      "guard": true,
+      "lengths": true,
+      "model": true,
+      "schedule": true,
+      "seconds": true,
+      "window_lengths": true,
+      "windows": true
+     },
+     "protocol_ok": true,
+     "routing_failures": [],
+     "run": "mix-laya-P-r4",
+     "run_wall_s": 186.59606345789507,
+     "runtime": {
+      "dirty": false,
+      "head": "94980c09bb3396c45b7a6a2d5806f070ba3ea2ff",
+      "laya_apple_tree": "d541fdc820f59fcb7b27a5f20110f828892be16f",
+      "pyproject_blob": "2d2d3d684b086c0c651cd1ea96e09550ce2e5e85",
+      "uv_lock_blob": "10f6ba84dd28791684cc102d651c1d5c38cc0178"
+     },
+     "runtime_ok": true,
+     "workers_alive": true,
+     "workers_alive_at_end": {
+      "ane": true,
+      "gpu": true
+     }
+    },
+    "mix-laya-P-r5": {
+     "H1": [],
+     "H2": [],
+     "cell": "P",
+     "crash_logs": [],
+     "decisions": 7611,
+     "episodes": [
+      {
+       "aggregate_req_s": 128.45961521405027,
+       "cycle": 0,
+       "gpu_return_ms": {
+        "from_s": 1.742201084,
+        "n": 510,
+        "p50": 0.040854,
+        "p95": 0.06990595,
+        "p99": 0.12939730999999932
+       },
+       "host_slow": {
+        "bins": 39,
+        "from_s": 0.742201084,
+        "longest": 0,
+        "slow_bins": 0
+       },
+       "index": 2,
+       "latency_source": "client",
+       "n_short": 2015,
+       "n_short_trace": 2015,
+       "preceded_by": "solo_long",
+       "req_s": {
+        "long": 27.72784787547508,
+        "short": 100.73176733857518
+       },
+       "short_ms": {
+        "median": 9.860999882221222,
+        "p95": 10.100791789591312,
+        "p99": 10.800488921813665,
+        "p999": 14.48932571057239
+       },
+       "slow_spans": {
+        "longest": 0,
+        "slow": 0,
+        "spans": 20
+       },
+       "structure": {
+        "checks": {
+         "guard_sequence_1_to_64": true,
+         "guard_starts_sync_guard_1": true,
+         "no_sync_after_t_h": true,
+         "t_h_exists": true,
+         "t_h_follows_the_64th": true
+        },
+        "decisions": 2015,
+        "failed": [],
+        "first_decision": {
+         "count": 1,
+         "path": 0,
+         "state": "sync_guard"
+        },
+        "leading_armed": 0,
+        "sync_after_t_h": 0,
+        "sync_before_t_h": 64,
+        "t_h_ns": 1059057007558041
+       },
+       "t_h_s": 0.742201084
+      },
+      {
+       "aggregate_req_s": 108.0043527756393,
+       "cycle": 1,
+       "gpu_return_ms": {
+        "from_s": 1.733756,
+        "n": 450,
+        "p50": 0.231458,
+        "p95": 1.4198480999999994,
+        "p99": 2.0008478299999997
+       },
+       "host_slow": {
+        "bins": 39,
+        "from_s": 0.733756,
+        "longest": 30,
+        "slow_bins": 30
+       },
+       "index": 5,
+       "latency_source": "client",
+       "n_short": 1667,
+       "n_short_trace": 1667,
+       "preceded_by": "gpu_only",
+       "req_s": {
+        "long": 24.702624739348305,
+        "short": 83.301728036291
+       },
+       "short_ms": {
+        "median": 12.093500001356006,
+        "p95": 16.523416643030938,
+        "p99": 17.027997262775894,
+        "p999": 18.054467789828852
+       },
+       "slow_spans": {
+        "longest": 15,
+        "slow": 15,
+        "spans": 20
+       },
+       "structure": {
+        "checks": {
+         "guard_sequence_1_to_64": true,
+         "guard_starts_sync_guard_1": true,
+         "no_sync_after_t_h": true,
+         "t_h_exists": true,
+         "t_h_follows_the_64th": true
+        },
+        "decisions": 1667,
+        "failed": [],
+        "first_decision": {
+         "count": 1,
+         "path": 0,
+         "state": "sync_guard"
+        },
+        "leading_armed": 0,
+        "sync_after_t_h": 0,
+        "sync_before_t_h": 64,
+        "t_h_ns": 1059124594654791
+       },
+       "t_h_s": 0.733756
+      }
+     ],
+     "expect_rejected": null,
+     "handoff_snapshot": {
+      "consistent": true,
+      "count": 0,
+      "disabled": false,
+      "disabled_reason": null,
+      "enabled": true,
+      "episodes": 2,
+      "forwards": {
+       "async": 3554,
+       "sync": 4062
+      },
+      "gap_s": 1.0,
+      "guard": 64,
+      "state": "armed"
+     },
+     "info": {
+      "end": {
+       "ane_buckets": [
+        64,
+        96,
+        128
+       ],
+       "ane_handoff": {
+        "consistent": true,
+        "count": 0,
+        "disabled": false,
+        "disabled_reason": null,
+        "enabled": true,
+        "episodes": 2,
+        "forwards": {
+         "async": 3554,
+         "sync": 4062
+        },
+        "gap_s": 1.0,
+        "guard": 64,
+        "state": "armed"
+       },
+       "ane_load_errors": {},
+       "ane_placement": "thread",
+       "ane_probes": {
+        "128": {
+         "ane_ms": 9.496,
+         "cpu_ms": 26.874,
+         "ratio": 0.353
+        },
+        "64": {
+         "ane_ms": 7.901,
+         "cpu_ms": 16.261,
+         "ratio": 0.486
+        },
+        "96": {
+         "ane_ms": 8.582,
+         "cpu_ms": 24.621,
+         "ratio": 0.349
+        }
+       },
+       "ane_ready": true,
+       "auto_ane": {
+        "buckets": [
+         64,
+         96,
+         128
+        ],
+        "tie_buckets": [],
+        "unavailable": null
+       },
+       "device": "auto",
+       "dtype": "float16",
+       "execution": "workers",
+       "mlx": true,
+       "model": "laya",
+       "repo": "convaiinnovations/laya",
+       "revision": "c5d78730f3493e4fe16d61507ef4b78eef7318cf",
+       "routing_profile": "shipped"
+      },
+      "start": {
+       "ane_buckets": [
+        64,
+        96,
+        128
+       ],
+       "ane_handoff": {
+        "consistent": true,
+        "count": 0,
+        "disabled": false,
+        "disabled_reason": null,
+        "enabled": true,
+        "episodes": 0,
+        "forwards": {
+         "async": 0,
+         "sync": 5
+        },
+        "gap_s": 1.0,
+        "guard": 64,
+        "state": "armed"
+       },
+       "ane_load_errors": {},
+       "ane_placement": "thread",
+       "ane_probes": {
+        "128": {
+         "ane_ms": 9.496,
+         "cpu_ms": 26.874,
+         "ratio": 0.353
+        },
+        "64": {
+         "ane_ms": 7.901,
+         "cpu_ms": 16.261,
+         "ratio": 0.486
+        },
+        "96": {
+         "ane_ms": 8.582,
+         "cpu_ms": 24.621,
+         "ratio": 0.349
+        }
+       },
+       "ane_ready": true,
+       "auto_ane": {
+        "buckets": [
+         64,
+         96,
+         128
+        ],
+        "tie_buckets": [],
+        "unavailable": null
+       },
+       "device": "auto",
+       "dtype": "float16",
+       "execution": "workers",
+       "mlx": true,
+       "model": "laya",
+       "repo": "convaiinnovations/laya",
+       "revision": "c5d78730f3493e4fe16d61507ef4b78eef7318cf",
+       "routing_profile": "shipped"
+      }
+     },
+     "mismatches": 0,
+     "phase": "1",
+     "protocol": {
+      "cell": true,
+      "expect_rejected": true,
+      "guard": true,
+      "lengths": true,
+      "model": true,
+      "schedule": true,
+      "seconds": true,
+      "window_lengths": true,
+      "windows": true
+     },
+     "protocol_ok": true,
+     "routing_failures": [],
+     "run": "mix-laya-P-r5",
+     "run_wall_s": 186.61982320901006,
+     "runtime": {
+      "dirty": false,
+      "head": "94980c09bb3396c45b7a6a2d5806f070ba3ea2ff",
+      "laya_apple_tree": "d541fdc820f59fcb7b27a5f20110f828892be16f",
+      "pyproject_blob": "2d2d3d684b086c0c651cd1ea96e09550ce2e5e85",
+      "uv_lock_blob": "10f6ba84dd28791684cc102d651c1d5c38cc0178"
+     },
+     "runtime_ok": true,
+     "workers_alive": true,
+     "workers_alive_at_end": {
+      "ane": true,
+      "gpu": true
+     }
+    },
+    "mix-laya-P-r5-b": {
+     "H1": [],
+     "H2": [],
+     "cell": "P",
+     "crash_logs": [],
+     "decisions": 7962,
+     "episodes": [
+      {
+       "aggregate_req_s": 128.45325058266124,
+       "cycle": 0,
+       "gpu_return_ms": {
+        "from_s": 1.758961583,
+        "n": 509,
+        "p50": 0.037458,
+        "p95": 0.07079979999999995,
+        "p99": 0.13988472000000002
+       },
+       "host_slow": {
+        "bins": 39,
+        "from_s": 0.758961583,
+        "longest": 0,
+        "slow_bins": 0
+       },
+       "index": 2,
+       "latency_source": "client",
+       "n_short": 2016,
+       "n_short_trace": 2016,
+       "preceded_by": "solo_long",
+       "req_s": {
+        "long": 27.702649650505926,
+        "short": 100.75060093215532
+       },
+       "short_ms": {
+        "median": 9.854770498350263,
+        "p95": 10.056197876110673,
+        "p99": 10.68594749085605,
+        "p999": 14.85432589077394
+       },
+       "slow_spans": {
+        "longest": 0,
+        "slow": 0,
+        "spans": 20
+       },
+       "structure": {
+        "checks": {
+         "guard_sequence_1_to_64": true,
+         "guard_starts_sync_guard_1": true,
+         "no_sync_after_t_h": true,
+         "t_h_exists": true,
+         "t_h_follows_the_64th": true
+        },
+        "decisions": 2016,
+        "failed": [],
+        "first_decision": {
+         "count": 1,
+         "path": 0,
+         "state": "sync_guard"
+        },
+        "leading_armed": 0,
+        "sync_after_t_h": 0,
+        "sync_before_t_h": 64,
+        "t_h_ns": 1059813508121666
+       },
+       "t_h_s": 0.758961583
+      },
+      {
+       "aggregate_req_s": 128.27377168360636,
+       "cycle": 1,
+       "gpu_return_ms": {
+        "from_s": 1.787343417,
+        "n": 507,
+        "p50": 0.037208,
+        "p95": 0.0657751,
+        "p99": 0.2213695
+       },
+       "host_slow": {
+        "bins": 39,
+        "from_s": 0.787343417,
+        "longest": 0,
+        "slow_bins": 0
+       },
+       "index": 5,
+       "latency_source": "client",
+       "n_short": 2012,
+       "n_short_trace": 2012,
+       "preceded_by": "gpu_only",
+       "req_s": {
+        "long": 27.681305430463603,
+        "short": 100.59246625314275
+       },
+       "short_ms": {
+        "median": 9.85554198268801,
+        "p95": 10.080593568272887,
+        "p99": 12.143101769033818,
+        "p999": 17.187309847679316
+       },
+       "slow_spans": {
+        "longest": 0,
+        "slow": 0,
+        "spans": 20
+       },
+       "structure": {
+        "checks": {
+         "guard_sequence_1_to_64": true,
+         "guard_starts_sync_guard_1": true,
+         "no_sync_after_t_h": true,
+         "t_h_exists": true,
+         "t_h_follows_the_64th": true
+        },
+        "decisions": 2012,
+        "failed": [],
+        "first_decision": {
+         "count": 1,
+         "path": 0,
+         "state": "sync_guard"
+        },
+        "leading_armed": 0,
+        "sync_after_t_h": 0,
+        "sync_before_t_h": 64,
+        "t_h_ns": 1059881152958250
+       },
+       "t_h_s": 0.787343417
+      }
+     ],
+     "expect_rejected": null,
+     "handoff_snapshot": {
+      "consistent": true,
+      "count": 0,
+      "disabled": false,
+      "disabled_reason": null,
+      "enabled": true,
+      "episodes": 2,
+      "forwards": {
+       "async": 3900,
+       "sync": 4067
+      },
+      "gap_s": 1.0,
+      "guard": 64,
+      "state": "armed"
+     },
+     "info": {
+      "end": {
+       "ane_buckets": [
+        64,
+        96,
+        128
+       ],
+       "ane_handoff": {
+        "consistent": true,
+        "count": 0,
+        "disabled": false,
+        "disabled_reason": null,
+        "enabled": true,
+        "episodes": 2,
+        "forwards": {
+         "async": 3900,
+         "sync": 4067
+        },
+        "gap_s": 1.0,
+        "guard": 64,
+        "state": "armed"
+       },
+       "ane_load_errors": {},
+       "ane_placement": "thread",
+       "ane_probes": {
+        "128": {
+         "ane_ms": 9.495,
+         "cpu_ms": 26.941,
+         "ratio": 0.352
+        },
+        "64": {
+         "ane_ms": 7.871,
+         "cpu_ms": 16.269,
+         "ratio": 0.484
+        },
+        "96": {
+         "ane_ms": 8.699,
+         "cpu_ms": 24.881,
+         "ratio": 0.35
+        }
+       },
+       "ane_ready": true,
+       "auto_ane": {
+        "buckets": [
+         64,
+         96,
+         128
+        ],
+        "tie_buckets": [],
+        "unavailable": null
+       },
+       "device": "auto",
+       "dtype": "float16",
+       "execution": "workers",
+       "mlx": true,
+       "model": "laya",
+       "repo": "convaiinnovations/laya",
+       "revision": "c5d78730f3493e4fe16d61507ef4b78eef7318cf",
+       "routing_profile": "shipped"
+      },
+      "start": {
+       "ane_buckets": [
+        64,
+        96,
+        128
+       ],
+       "ane_handoff": {
+        "consistent": true,
+        "count": 0,
+        "disabled": false,
+        "disabled_reason": null,
+        "enabled": true,
+        "episodes": 0,
+        "forwards": {
+         "async": 0,
+         "sync": 5
+        },
+        "gap_s": 1.0,
+        "guard": 64,
+        "state": "armed"
+       },
+       "ane_load_errors": {},
+       "ane_placement": "thread",
+       "ane_probes": {
+        "128": {
+         "ane_ms": 9.495,
+         "cpu_ms": 26.941,
+         "ratio": 0.352
+        },
+        "64": {
+         "ane_ms": 7.871,
+         "cpu_ms": 16.269,
+         "ratio": 0.484
+        },
+        "96": {
+         "ane_ms": 8.699,
+         "cpu_ms": 24.881,
+         "ratio": 0.35
+        }
+       },
+       "ane_ready": true,
+       "auto_ane": {
+        "buckets": [
+         64,
+         96,
+         128
+        ],
+        "tie_buckets": [],
+        "unavailable": null
+       },
+       "device": "auto",
+       "dtype": "float16",
+       "execution": "workers",
+       "mlx": true,
+       "model": "laya",
+       "repo": "convaiinnovations/laya",
+       "revision": "c5d78730f3493e4fe16d61507ef4b78eef7318cf",
+       "routing_profile": "shipped"
+      }
+     },
+     "mismatches": 0,
+     "phase": "1",
+     "protocol": {
+      "cell": true,
+      "expect_rejected": true,
+      "guard": true,
+      "lengths": true,
+      "model": true,
+      "schedule": true,
+      "seconds": true,
+      "window_lengths": true,
+      "windows": true
+     },
+     "protocol_ok": true,
+     "routing_failures": [],
+     "run": "mix-laya-P-r5-b",
+     "run_wall_s": 186.560015541967,
+     "runtime": {
+      "dirty": false,
+      "head": "94980c09bb3396c45b7a6a2d5806f070ba3ea2ff",
+      "laya_apple_tree": "d541fdc820f59fcb7b27a5f20110f828892be16f",
+      "pyproject_blob": "2d2d3d684b086c0c651cd1ea96e09550ce2e5e85",
+      "uv_lock_blob": "10f6ba84dd28791684cc102d651c1d5c38cc0178"
+     },
+     "runtime_ok": true,
+     "workers_alive": true,
+     "workers_alive_at_end": {
+      "ane": true,
+      "gpu": true
+     }
+    },
+    "mix-laya-P-r6": {
+     "H1": [],
+     "H2": [],
+     "cell": "P",
+     "crash_logs": [],
+     "decisions": 7970,
+     "episodes": [
+      {
+       "aggregate_req_s": 128.49154884026143,
+       "cycle": 0,
+       "gpu_return_ms": {
+        "from_s": 1.751867083,
+        "n": 509,
+        "p50": 0.033916,
+        "p95": 0.0644832,
+        "p99": 0.20268536000000026
+       },
+       "host_slow": {
+        "bins": 39,
+        "from_s": 0.751867083,
+        "longest": 0,
+        "slow_bins": 0
+       },
+       "index": 2,
+       "latency_source": "client",
+       "n_short": 2016,
+       "n_short_trace": 2016,
+       "preceded_by": "solo_long",
+       "req_s": {
+        "long": 27.71075429797044,
+        "short": 100.78079454229098
+       },
+       "short_ms": {
+        "median": 9.854104602709413,
+        "p95": 10.076083766762167,
+        "p99": 10.651065094862131,
+        "p999": 16.484481369843806
+       },
+       "slow_spans": {
+        "longest": 0,
+        "slow": 0,
+        "spans": 20
+       },
+       "structure": {
+        "checks": {
+         "guard_sequence_1_to_64": true,
+         "guard_starts_sync_guard_1": true,
+         "no_sync_after_t_h": true,
+         "t_h_exists": true,
+         "t_h_follows_the_64th": true
+        },
+        "decisions": 2016,
+        "failed": [],
+        "first_decision": {
+         "count": 1,
+         "path": 0,
+         "state": "sync_guard"
+        },
+        "leading_armed": 0,
+        "sync_after_t_h": 0,
+        "sync_before_t_h": 64,
+        "t_h_ns": 1059623874966041
+       },
+       "t_h_s": 0.751867083
+      },
+      {
+       "aggregate_req_s": 128.44788609888514,
+       "cycle": 1,
+       "gpu_return_ms": {
+        "from_s": 1.760249417,
+        "n": 509,
+        "p50": 0.033667,
+        "p95": 0.06389099999999996,
+        "p99": 0.18637300000000018
+       },
+       "host_slow": {
+        "bins": 39,
+        "from_s": 0.760249417,
+        "longest": 0,
+        "slow_bins": 0
+       },
+       "index": 5,
+       "latency_source": "client",
+       "n_short": 2015,
+       "n_short_trace": 2015,
+       "preceded_by": "gpu_only",
+       "req_s": {
+        "long": 27.70295000249169,
+        "short": 100.74493609639346
+       },
+       "short_ms": {
+        "median": 9.854624979197979,
+        "p95": 10.045258910395205,
+        "p99": 10.839204574003809,
+        "p999": 15.615088500082736
+       },
+       "slow_spans": {
+        "longest": 0,
+        "slow": 0,
+        "spans": 20
+       },
+       "structure": {
+        "checks": {
+         "guard_sequence_1_to_64": true,
+         "guard_starts_sync_guard_1": true,
+         "no_sync_after_t_h": true,
+         "t_h_exists": true,
+         "t_h_follows_the_64th": true
+        },
+        "decisions": 2015,
+        "failed": [],
+        "first_decision": {
+         "count": 1,
+         "path": 0,
+         "state": "sync_guard"
+        },
+        "leading_armed": 0,
+        "sync_after_t_h": 0,
+        "sync_before_t_h": 64,
+        "t_h_ns": 1059691516633375
+       },
+       "t_h_s": 0.760249417
+      }
+     ],
+     "expect_rejected": null,
+     "handoff_snapshot": {
+      "consistent": true,
+      "count": 0,
+      "disabled": false,
+      "disabled_reason": null,
+      "enabled": true,
+      "episodes": 2,
+      "forwards": {
+       "async": 3903,
+       "sync": 4072
+      },
+      "gap_s": 1.0,
+      "guard": 64,
+      "state": "armed"
+     },
+     "info": {
+      "end": {
+       "ane_buckets": [
+        64,
+        96,
+        128
+       ],
+       "ane_handoff": {
+        "consistent": true,
+        "count": 0,
+        "disabled": false,
+        "disabled_reason": null,
+        "enabled": true,
+        "episodes": 2,
+        "forwards": {
+         "async": 3903,
+         "sync": 4072
+        },
+        "gap_s": 1.0,
+        "guard": 64,
+        "state": "armed"
+       },
+       "ane_load_errors": {},
+       "ane_placement": "thread",
+       "ane_probes": {
+        "128": {
+         "ane_ms": 9.497,
+         "cpu_ms": 26.901,
+         "ratio": 0.353
+        },
+        "64": {
+         "ane_ms": 7.913,
+         "cpu_ms": 16.26,
+         "ratio": 0.487
+        },
+        "96": {
+         "ane_ms": 8.677,
+         "cpu_ms": 24.859,
+         "ratio": 0.349
+        }
+       },
+       "ane_ready": true,
+       "auto_ane": {
+        "buckets": [
+         64,
+         96,
+         128
+        ],
+        "tie_buckets": [],
+        "unavailable": null
+       },
+       "device": "auto",
+       "dtype": "float16",
+       "execution": "workers",
+       "mlx": true,
+       "model": "laya",
+       "repo": "convaiinnovations/laya",
+       "revision": "c5d78730f3493e4fe16d61507ef4b78eef7318cf",
+       "routing_profile": "shipped"
+      },
+      "start": {
+       "ane_buckets": [
+        64,
+        96,
+        128
+       ],
+       "ane_handoff": {
+        "consistent": true,
+        "count": 0,
+        "disabled": false,
+        "disabled_reason": null,
+        "enabled": true,
+        "episodes": 0,
+        "forwards": {
+         "async": 0,
+         "sync": 5
+        },
+        "gap_s": 1.0,
+        "guard": 64,
+        "state": "armed"
+       },
+       "ane_load_errors": {},
+       "ane_placement": "thread",
+       "ane_probes": {
+        "128": {
+         "ane_ms": 9.497,
+         "cpu_ms": 26.901,
+         "ratio": 0.353
+        },
+        "64": {
+         "ane_ms": 7.913,
+         "cpu_ms": 16.26,
+         "ratio": 0.487
+        },
+        "96": {
+         "ane_ms": 8.677,
+         "cpu_ms": 24.859,
+         "ratio": 0.349
+        }
+       },
+       "ane_ready": true,
+       "auto_ane": {
+        "buckets": [
+         64,
+         96,
+         128
+        ],
+        "tie_buckets": [],
+        "unavailable": null
+       },
+       "device": "auto",
+       "dtype": "float16",
+       "execution": "workers",
+       "mlx": true,
+       "model": "laya",
+       "repo": "convaiinnovations/laya",
+       "revision": "c5d78730f3493e4fe16d61507ef4b78eef7318cf",
+       "routing_profile": "shipped"
+      }
+     },
+     "mismatches": 0,
+     "phase": "1",
+     "protocol": {
+      "cell": true,
+      "expect_rejected": true,
+      "guard": true,
+      "lengths": true,
+      "model": true,
+      "schedule": true,
+      "seconds": true,
+      "window_lengths": true,
+      "windows": true
+     },
+     "protocol_ok": true,
+     "routing_failures": [],
+     "run": "mix-laya-P-r6",
+     "run_wall_s": 186.6206594160758,
+     "runtime": {
+      "dirty": false,
+      "head": "94980c09bb3396c45b7a6a2d5806f070ba3ea2ff",
+      "laya_apple_tree": "d541fdc820f59fcb7b27a5f20110f828892be16f",
+      "pyproject_blob": "2d2d3d684b086c0c651cd1ea96e09550ce2e5e85",
+      "uv_lock_blob": "10f6ba84dd28791684cc102d651c1d5c38cc0178"
+     },
+     "runtime_ok": true,
+     "workers_alive": true,
+     "workers_alive_at_end": {
+      "ane": true,
+      "gpu": true
+     }
+    }
+   },
+   "slots": [
+    {
+     "cell": "P",
+     "crashes": {
+      "mix-laya-P-r1": 0,
+      "mix-laya-P-r1-b": 0
+     },
+     "machine": {
+      "mix-laya-P-r1": []
+     },
+     "rep": 1,
+     "rerun": "mix-laya-P-r1-b",
+     "run": "mix-laya-P-r1",
+     "state": "ok",
+     "superseded": null,
+     "used": "mix-laya-P-r1"
+    },
+    {
+     "cell": "A",
+     "crashes": {
+      "mix-laya-A-r1": 0,
+      "mix-laya-A-r1-b": 0
+     },
+     "machine": {
+      "mix-laya-A-r1": []
+     },
+     "rep": 1,
+     "rerun": "mix-laya-A-r1-b",
+     "run": "mix-laya-A-r1",
+     "state": "ok",
+     "superseded": null,
+     "used": "mix-laya-A-r1"
+    },
+    {
+     "cell": "A",
+     "crashes": {
+      "mix-laya-A-r2": 0,
+      "mix-laya-A-r2-b": 0
+     },
+     "machine": {
+      "mix-laya-A-r2": []
+     },
+     "rep": 2,
+     "rerun": "mix-laya-A-r2-b",
+     "run": "mix-laya-A-r2",
+     "state": "ok",
+     "superseded": null,
+     "used": "mix-laya-A-r2"
+    },
+    {
+     "cell": "P",
+     "crashes": {
+      "mix-laya-P-r2": 0,
+      "mix-laya-P-r2-b": 0
+     },
+     "machine": {
+      "mix-laya-P-r2": []
+     },
+     "rep": 2,
+     "rerun": "mix-laya-P-r2-b",
+     "run": "mix-laya-P-r2",
+     "state": "ok",
+     "superseded": null,
+     "used": "mix-laya-P-r2"
+    },
+    {
+     "cell": "A",
+     "crashes": {
+      "mix-laya-A-r3": 0,
+      "mix-laya-A-r3-b": 0
+     },
+     "machine": {
+      "mix-laya-A-r3": []
+     },
+     "rep": 3,
+     "rerun": "mix-laya-A-r3-b",
+     "run": "mix-laya-A-r3",
+     "state": "ok",
+     "superseded": null,
+     "used": "mix-laya-A-r3"
+    },
+    {
+     "cell": "P",
+     "crashes": {
+      "mix-laya-P-r3": 0,
+      "mix-laya-P-r3-b": 0
+     },
+     "machine": {
+      "mix-laya-P-r3": []
+     },
+     "rep": 3,
+     "rerun": "mix-laya-P-r3-b",
+     "run": "mix-laya-P-r3",
+     "state": "ok",
+     "superseded": null,
+     "used": "mix-laya-P-r3"
+    },
+    {
+     "cell": "P",
+     "crashes": {
+      "mix-laya-P-r4": 0,
+      "mix-laya-P-r4-b": 0
+     },
+     "machine": {
+      "mix-laya-P-r4": []
+     },
+     "rep": 4,
+     "rerun": "mix-laya-P-r4-b",
+     "run": "mix-laya-P-r4",
+     "state": "ok",
+     "superseded": null,
+     "used": "mix-laya-P-r4"
+    },
+    {
+     "cell": "A",
+     "crashes": {
+      "mix-laya-A-r4": 0,
+      "mix-laya-A-r4-b": 0
+     },
+     "machine": {
+      "mix-laya-A-r4": []
+     },
+     "rep": 4,
+     "rerun": "mix-laya-A-r4-b",
+     "run": "mix-laya-A-r4",
+     "state": "ok",
+     "superseded": null,
+     "used": "mix-laya-A-r4"
+    },
+    {
+     "cell": "P",
+     "crashes": {
+      "mix-laya-P-r5": 0,
+      "mix-laya-P-r5-b": 0
+     },
+     "machine": {
+      "mix-laya-P-r5": [
+       "before: OrbStack Helper at 92% CPU"
+      ],
+      "mix-laya-P-r5-b": []
+     },
+     "rep": 5,
+     "rerun": "mix-laya-P-r5-b",
+     "run": "mix-laya-P-r5",
+     "state": "ok",
+     "superseded": "mix-laya-P-r5",
+     "used": "mix-laya-P-r5-b"
+    },
+    {
+     "cell": "A",
+     "crashes": {
+      "mix-laya-A-r5": 0,
+      "mix-laya-A-r5-b": 0
+     },
+     "machine": {
+      "mix-laya-A-r5": []
+     },
+     "rep": 5,
+     "rerun": "mix-laya-A-r5-b",
+     "run": "mix-laya-A-r5",
+     "state": "ok",
+     "superseded": null,
+     "used": "mix-laya-A-r5"
+    },
+    {
+     "cell": "A",
+     "crashes": {
+      "mix-laya-A-r6": 0,
+      "mix-laya-A-r6-b": 0
+     },
+     "machine": {
+      "mix-laya-A-r6": []
+     },
+     "rep": 6,
+     "rerun": "mix-laya-A-r6-b",
+     "run": "mix-laya-A-r6",
+     "state": "ok",
+     "superseded": null,
+     "used": "mix-laya-A-r6"
+    },
+    {
+     "cell": "P",
+     "crashes": {
+      "mix-laya-P-r6": 0,
+      "mix-laya-P-r6-b": 0
+     },
+     "machine": {
+      "mix-laya-P-r6": []
+     },
+     "rep": 6,
+     "rerun": "mix-laya-P-r6-b",
+     "run": "mix-laya-P-r6",
+     "state": "ok",
+     "superseded": null,
+     "used": "mix-laya-P-r6"
+    }
+   ],
+   "status": "FAIL",
+   "tails": {
+    "A": 0,
+    "A_median_episode_p99_ms": 11.043291554087777,
+    "P": 0,
+    "events": [],
+    "limit": 2,
+    "threshold_ms": 13.043291554087777
+   }
+  },
+  "2": {
+   "fail": [],
+   "invalid": [],
+   "judged_status": "pending",
+   "pending": [
+    "mix-laya-typed-decisions-P-r1",
+    "mix-laya-typed-decisions-A-r1",
+    "mix-laya-typed-decisions-A-r2",
+    "mix-laya-typed-decisions-P-r2",
+    "mix-laya-typed-decisions-A-r3",
+    "mix-laya-typed-decisions-P-r3",
+    "mix-laya-typed-decisions-P-r4",
+    "mix-laya-typed-decisions-A-r4"
+   ],
+   "reasons": [
+    "mix-laya-typed-decisions-P-r1",
+    "mix-laya-typed-decisions-A-r1",
+    "mix-laya-typed-decisions-A-r2",
+    "mix-laya-typed-decisions-P-r2",
+    "mix-laya-typed-decisions-A-r3",
+    "mix-laya-typed-decisions-P-r3",
+    "mix-laya-typed-decisions-P-r4",
+    "mix-laya-typed-decisions-A-r4"
+   ],
+   "runs": {},
+   "slots": [
+    {
+     "cell": "P",
+     "crashes": {
+      "mix-laya-typed-decisions-P-r1": 0,
+      "mix-laya-typed-decisions-P-r1-b": 0
+     },
+     "machine": {},
+     "rep": 1,
+     "rerun": "mix-laya-typed-decisions-P-r1-b",
+     "run": "mix-laya-typed-decisions-P-r1",
+     "state": "missing",
+     "superseded": null,
+     "used": null
+    },
+    {
+     "cell": "A",
+     "crashes": {
+      "mix-laya-typed-decisions-A-r1": 0,
+      "mix-laya-typed-decisions-A-r1-b": 0
+     },
+     "machine": {},
+     "rep": 1,
+     "rerun": "mix-laya-typed-decisions-A-r1-b",
+     "run": "mix-laya-typed-decisions-A-r1",
+     "state": "missing",
+     "superseded": null,
+     "used": null
+    },
+    {
+     "cell": "A",
+     "crashes": {
+      "mix-laya-typed-decisions-A-r2": 0,
+      "mix-laya-typed-decisions-A-r2-b": 0
+     },
+     "machine": {},
+     "rep": 2,
+     "rerun": "mix-laya-typed-decisions-A-r2-b",
+     "run": "mix-laya-typed-decisions-A-r2",
+     "state": "missing",
+     "superseded": null,
+     "used": null
+    },
+    {
+     "cell": "P",
+     "crashes": {
+      "mix-laya-typed-decisions-P-r2": 0,
+      "mix-laya-typed-decisions-P-r2-b": 0
+     },
+     "machine": {},
+     "rep": 2,
+     "rerun": "mix-laya-typed-decisions-P-r2-b",
+     "run": "mix-laya-typed-decisions-P-r2",
+     "state": "missing",
+     "superseded": null,
+     "used": null
+    },
+    {
+     "cell": "A",
+     "crashes": {
+      "mix-laya-typed-decisions-A-r3": 0,
+      "mix-laya-typed-decisions-A-r3-b": 0
+     },
+     "machine": {},
+     "rep": 3,
+     "rerun": "mix-laya-typed-decisions-A-r3-b",
+     "run": "mix-laya-typed-decisions-A-r3",
+     "state": "missing",
+     "superseded": null,
+     "used": null
+    },
+    {
+     "cell": "P",
+     "crashes": {
+      "mix-laya-typed-decisions-P-r3": 0,
+      "mix-laya-typed-decisions-P-r3-b": 0
+     },
+     "machine": {},
+     "rep": 3,
+     "rerun": "mix-laya-typed-decisions-P-r3-b",
+     "run": "mix-laya-typed-decisions-P-r3",
+     "state": "missing",
+     "superseded": null,
+     "used": null
+    },
+    {
+     "cell": "P",
+     "crashes": {
+      "mix-laya-typed-decisions-P-r4": 0,
+      "mix-laya-typed-decisions-P-r4-b": 0
+     },
+     "machine": {},
+     "rep": 4,
+     "rerun": "mix-laya-typed-decisions-P-r4-b",
+     "run": "mix-laya-typed-decisions-P-r4",
+     "state": "missing",
+     "superseded": null,
+     "used": null
+    },
+    {
+     "cell": "A",
+     "crashes": {
+      "mix-laya-typed-decisions-A-r4": 0,
+      "mix-laya-typed-decisions-A-r4-b": 0
+     },
+     "machine": {},
+     "rep": 4,
+     "rerun": "mix-laya-typed-decisions-A-r4-b",
+     "run": "mix-laya-typed-decisions-A-r4",
+     "state": "missing",
+     "superseded": null,
+     "used": null
+    }
+   ],
+   "status": "not reached"
+  },
+  "3": {
+   "fail": [],
+   "invalid": [],
+   "judged_status": "pending",
+   "pending": [
+    "mix-laya-multilingual-A-r1"
+   ],
+   "reasons": [
+    "mix-laya-multilingual-A-r1"
+   ],
+   "runs": {},
+   "slots": [
+    {
+     "cell": "A",
+     "crashes": {
+      "mix-laya-multilingual-A-r1": 0,
+      "mix-laya-multilingual-A-r1-b": 0
+     },
+     "machine": {},
+     "rep": 1,
+     "rerun": "mix-laya-multilingual-A-r1-b",
+     "run": "mix-laya-multilingual-A-r1",
+     "state": "missing",
+     "superseded": null,
+     "used": null
+    }
+   ],
+   "smoke": {
+    "checks": null,
+    "pass": null
+   },
+   "status": "not reached"
+  },
+  "4": {
+   "fail": [],
+   "invalid": [],
+   "judged_status": "pending",
+   "pending": [
+    "product-laya-P-r1",
+    "product-laya-A-r1",
+    "product-laya-A-r2",
+    "product-laya-P-r2",
+    "product-laya-A-r3",
+    "product-laya-P-r3",
+    "product-laya-P-r4",
+    "product-laya-A-r4"
+   ],
+   "reasons": [
+    "product-laya-P-r1",
+    "product-laya-A-r1",
+    "product-laya-A-r2",
+    "product-laya-P-r2",
+    "product-laya-A-r3",
+    "product-laya-P-r3",
+    "product-laya-P-r4",
+    "product-laya-A-r4"
+   ],
+   "runs": {},
+   "slots": [
+    {
+     "cell": "P",
+     "crashes": {
+      "product-laya-P-r1": 0,
+      "product-laya-P-r1-b": 0
+     },
+     "machine": {},
+     "rep": 1,
+     "rerun": "product-laya-P-r1-b",
+     "run": "product-laya-P-r1",
+     "state": "missing",
+     "superseded": null,
+     "used": null
+    },
+    {
+     "cell": "A",
+     "crashes": {
+      "product-laya-A-r1": 0,
+      "product-laya-A-r1-b": 0
+     },
+     "machine": {},
+     "rep": 1,
+     "rerun": "product-laya-A-r1-b",
+     "run": "product-laya-A-r1",
+     "state": "missing",
+     "superseded": null,
+     "used": null
+    },
+    {
+     "cell": "A",
+     "crashes": {
+      "product-laya-A-r2": 0,
+      "product-laya-A-r2-b": 0
+     },
+     "machine": {},
+     "rep": 2,
+     "rerun": "product-laya-A-r2-b",
+     "run": "product-laya-A-r2",
+     "state": "missing",
+     "superseded": null,
+     "used": null
+    },
+    {
+     "cell": "P",
+     "crashes": {
+      "product-laya-P-r2": 0,
+      "product-laya-P-r2-b": 0
+     },
+     "machine": {},
+     "rep": 2,
+     "rerun": "product-laya-P-r2-b",
+     "run": "product-laya-P-r2",
+     "state": "missing",
+     "superseded": null,
+     "used": null
+    },
+    {
+     "cell": "A",
+     "crashes": {
+      "product-laya-A-r3": 0,
+      "product-laya-A-r3-b": 0
+     },
+     "machine": {},
+     "rep": 3,
+     "rerun": "product-laya-A-r3-b",
+     "run": "product-laya-A-r3",
+     "state": "missing",
+     "superseded": null,
+     "used": null
+    },
+    {
+     "cell": "P",
+     "crashes": {
+      "product-laya-P-r3": 0,
+      "product-laya-P-r3-b": 0
+     },
+     "machine": {},
+     "rep": 3,
+     "rerun": "product-laya-P-r3-b",
+     "run": "product-laya-P-r3",
+     "state": "missing",
+     "superseded": null,
+     "used": null
+    },
+    {
+     "cell": "P",
+     "crashes": {
+      "product-laya-P-r4": 0,
+      "product-laya-P-r4-b": 0
+     },
+     "machine": {},
+     "rep": 4,
+     "rerun": "product-laya-P-r4-b",
+     "run": "product-laya-P-r4",
+     "state": "missing",
+     "superseded": null,
+     "used": null
+    },
+    {
+     "cell": "A",
+     "crashes": {
+      "product-laya-A-r4": 0,
+      "product-laya-A-r4-b": 0
+     },
+     "machine": {},
+     "rep": 4,
+     "rerun": "product-laya-A-r4-b",
+     "run": "product-laya-A-r4",
+     "state": "missing",
+     "superseded": null,
+     "used": null
+    }
+   ],
+   "status": "not reached"
+  },
+  "5": {
+   "fail": [],
+   "invalid": [],
+   "judged_status": "pending",
+   "pending": [
+    "soak55-laya-P-r1",
+    "soak55-laya-A-r1",
+    "soak55-laya-A-r2",
+    "soak55-laya-P-r2"
+   ],
+   "reasons": [
+    "soak55-laya-P-r1",
+    "soak55-laya-A-r1",
+    "soak55-laya-A-r2",
+    "soak55-laya-P-r2"
+   ],
+   "runs": {},
+   "slots": [
+    {
+     "cell": "P",
+     "crashes": {
+      "soak55-laya-P-r1": 0,
+      "soak55-laya-P-r1-b": 0
+     },
+     "machine": {},
+     "rep": 1,
+     "rerun": "soak55-laya-P-r1-b",
+     "run": "soak55-laya-P-r1",
+     "state": "missing",
+     "superseded": null,
+     "used": null
+    },
+    {
+     "cell": "A",
+     "crashes": {
+      "soak55-laya-A-r1": 0,
+      "soak55-laya-A-r1-b": 0
+     },
+     "machine": {},
+     "rep": 1,
+     "rerun": "soak55-laya-A-r1-b",
+     "run": "soak55-laya-A-r1",
+     "state": "missing",
+     "superseded": null,
+     "used": null
+    },
+    {
+     "cell": "A",
+     "crashes": {
+      "soak55-laya-A-r2": 0,
+      "soak55-laya-A-r2-b": 0
+     },
+     "machine": {},
+     "rep": 2,
+     "rerun": "soak55-laya-A-r2-b",
+     "run": "soak55-laya-A-r2",
+     "state": "missing",
+     "superseded": null,
+     "used": null
+    },
+    {
+     "cell": "P",
+     "crashes": {
+      "soak55-laya-P-r2": 0,
+      "soak55-laya-P-r2-b": 0
+     },
+     "machine": {},
+     "rep": 2,
+     "rerun": "soak55-laya-P-r2-b",
+     "run": "soak55-laya-P-r2",
+     "state": "missing",
+     "superseded": null,
+     "used": null
+    }
+   ],
+   "status": "not reached"
+  }
+ },
+ "unexpected_files": []
+}

@@ -1,0 +1,56 @@
+{
+ "time": "2026-09-26T14:13:14+0800",
+ "uptime": "14:13  up 13 days, 59 mins, 4 users, load averages: 2.39 1.65 1.57",
+ "cpu_user_sys_idle_pct": [
+  2.43,
+  1.1,
+  96.46
+ ],
+ "physmem": "29G used (3164M wired, 995M compressor), 34G unused.",
+ "memory_free_pct": 93,
+ "swapusage": "total = 2048.00M  used = 742.94M  free = 1305.06M  (encrypted)",
+ "vm_counters": {
+  "Pageouts": 9986771,
+  "Swapins": 25646300,
+  "Swapouts": 44844285
+ },
+ "thermal_warning": false,
+ "performance_warning": false,
+ "pmset_therm": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+ "power": "Now drawing from 'AC Power'",
+ "time_machine_running": false,
+ "top_cpu": [
+  [
+   37.7,
+   "OrbStack Helper"
+  ],
+  [
+   7.1,
+   "WallpaperAerialsExtension"
+  ],
+  [
+   6.6,
+   "claude"
+  ],
+  [
+   2.6,
+   "WindowServer"
+  ],
+  [
+   1.7,
+   "VTDecoderXPCService"
+  ],
+  [
+   1.7,
+   "iTerm2"
+  ],
+  [
+   0.7,
+   "mds_stores"
+  ],
+  [
+   0.6,
+   "mds"
+  ]
+ ]
+}
