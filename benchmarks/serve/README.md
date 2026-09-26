@@ -7,14 +7,16 @@ measures what that costs each side while the LLM generates at saturation:
   decision on the GPU (`--device gpu`)?
 - do decisions stay fast and correct while the LLM holds the GPU?
 
-**Status: run 2 valid; every result criterion passed.** The criteria in
+**Status: runs 2 and 3 valid; every result criterion passed in both.** The criteria in
 [`criteria.json`](criteria.json) and below were committed before any campaign data existed.
 Smoke runs of the harness are not results and are not committed. Run 1 ([`m4-max/`](m4-max/))
 was **invalid** under its own validity checks and draws no result. Run 2
 ([`m4-max-r2/`](m4-max-r2/)) ran under two revised validity definitions, preregistered before
 its data, and is valid. See [Run 1](#run-1-m4-max-invalid), [Run 2](#run-2-preregistered) and
-[Run 2 results](#run-2-m4-max-r2-results). Run 3 repeats run 2 with the 1.5 defaults (adaptive
-ANE execution) and is [preregistered](#run-3-preregistered-15-defaults); it has no data yet.
+[Run 2 results](#run-2-m4-max-r2-results). Run 3 ([`m4-max-r3/`](m4-max-r3/)) repeats run 2 with
+the 1.5 defaults (adaptive ANE execution), [preregistered](#run-3-preregistered-15-defaults)
+before its data, and is valid; the asynchronous path never engaged in it
+([Run 3 results](#run-3-m4-max-r3-results)).
 
 ## Question and criteria
 
@@ -324,3 +326,59 @@ measures the same question with that default.
 - The run directory is `m4-max-r3/`. The checkout must include the `/health` handoff field
   (`laya_apple/serve.py`); without it every `auto` window records `handoff.present: false`
   and A1 fails.
+
+## Run 3 (`m4-max-r3`): results
+
+[`m4-max-r3/`](m4-max-r3/): the same machine, LLM model and default parameters as run 2, on
+laya-apple 1.5.0 (commit `7cb5c87`, clean checkout) and oMLX 0.7.0rc1 (run 2: 0.7.0.dev4),
+analyzed with the run's copy of [`criteria-r3.json`](criteria-r3.json)
+([`m4-max-r3/tables.md`](m4-max-r3/tables.md), [`m4-max-r3/results.json`](m4-max-r3/results.json)).
+The campaign ran 2026-09-26 17:02–17:37 UTC (35 min). All five validity checks passed, so its
+results are valid. They are recorded as the analysis wrote them; nothing was re-analyzed.
+
+| Result | # | Value | Limit | Verdict |
+|---|---|---|---|---|
+| Leaves the GPU free | G1 | LLM tok/s drop beside serve `auto`: 2.2% | ≤ 5% | pass |
+| | G2 | drop with `gpu` (4.7%) − drop with `auto` (2.2%): 2.56 points | > 2.01 points (LLM-alone window spread) | pass |
+| Decision latency beside the LLM | L1 | short-decision P99 under LLM load, `auto`: 41.7 ms (`gpu`: 79.5 ms) | ≤ 50 ms | pass |
+| | L2 | loaded / unloaded, `auto`: 41.7 / 43.4 ms = 0.96× | ≤ 1.5× | pass |
+| Correctness | C1 | max probability error 0.0039, act 0.0, 0 hard mismatches, 0 near-tie flips | ≤ 0.02, ≤ 0.02, 0, listed | pass |
+| | E1 | 0 of 7,728 decisions without an HTTP 200 answer | 0 | pass |
+
+**Adaptive execution (recorded, not gated).** A1 passed: every `auto` serve process reported
+the handoff enabled and consistent before and after each of its windows. The asynchronous path
+never engaged:
+
+| cell | windows | episodes | breaker trips | ANE forwards, 1.4 path | async |
+|---|---|---|---|---|---|
+| `auto/decisions` | 4 | 64 | 0 | 1,604 | 0 |
+| `auto/decisions_llm` | 4 | 69 | 0 | 1,618 | 0 |
+
+- Every window started and ended in `safe_sync`. At about 24 forwards per episode, no episode
+  reached the 64-forward guard, as the preregistration expected: serve's own GPU jobs paused for
+  more than 1 s often enough to end every episode first.
+- Run 3 is therefore a measurement of laya-apple 1.5 serve as shipped on this workload, on the
+  1.4 Core ML path. It is not a measurement of the asynchronous path, whose effect in serve
+  remains unmeasured.
+- **Spill (reported, not gated):** 138 of 3,144 `auto` short decisions (3.1–5.1% per window)
+  ran on the GPU with `ane_backlog_shorter_on_gpu`. L1 and L2 include them.
+- **Not gated:** three-question P99 under LLM load was 104.9 ms with `auto` (86.6 ms unloaded)
+  and 97.0 ms with `gpu` (72.2 ms unloaded). The LLM server TTFT median was 5.84 s alone,
+  6.09 s beside `gpu` and 5.95 s beside `auto`.
+- **Against run 2 (descriptive, no verdict):** short-decision P99 under LLM load 41.7 ms
+  against 47.2 ms (`auto`) and 79.5 ms against 122.3 ms (`gpu`); LLM drop 2.2% against 4.0%
+  (`auto`) and 4.7% against 5.3% (`gpu`); LLM alone 43.3 against 42.2 tok/s. The two runs are
+  separate campaigns on different days, with different laya-apple and oMLX versions. Since the
+  asynchronous path never ran, these differences are not attributed to adaptive execution.
+
+**Validity note: foreign CPU load during window 19.** From 17:29:45 to 17:30:00 UTC another
+process on the machine ran about 5 s of single-core CPU (a unit-test run of 38 tests and an
+import; no model, GPU or Neural Engine work). The raw files carry monotonic times only. Window
+file modification times, taken 5 s after each decision window ends (the cool-down), place
+window 19 (`gpu/decisions`, LLM idle) at about 17:28:58–17:29:58 UTC. That is the only window
+that overlaps; window 20 started at about 17:30:19. Window 19 is a `gpu` comparison window that
+no latency or throughput criterion uses. Its decisions count toward C1 and E1, which are not
+timing results. Its short-decision P99 (52.6 ms) is slightly below the other three
+`gpu/decisions` windows (54.0–56.2 ms). No data was dropped and no verdict changed; the
+validity checks do not cover processes outside the LLM server, and V1 (client lag, 2.42 ms
+P99 in that window) passed.
