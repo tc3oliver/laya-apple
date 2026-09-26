@@ -58,9 +58,11 @@ flowchart TD
     M --> N["1.5 adaptive execution<br/>#105"]
 ```
 
-The dotted branch is outside this repository. #46 found that coremltools' synchronous `predict`
-holds the GIL for the whole native call. [apple/coremltools#2876] proposes releasing the GIL only
-around the native Core ML prediction in `MLModel.predict`.
+The dotted branch is outside this repository. #46 observed the GIL hold on the synchronous Core ML
+prediction path used by this research (`CompiledMLModel.predict`). The upstream fix proposed in
+[apple/coremltools#2876] targets `MLModel.predict()` / `Model::predict`, releasing the GIL only
+around the native `predictionFromFeatures:` call while keeping `predict()` synchronous for its
+caller.
 - **Status:** it is open and not merged.
 - **Dependency:** it depends on apple/coremltools#2827 or #2829, which fix a NumPy-backed input being
   released without the GIL.
