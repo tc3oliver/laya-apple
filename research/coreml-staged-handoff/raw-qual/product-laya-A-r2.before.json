@@ -1,0 +1,56 @@
+{
+ "time": "2026-09-26T13:15:59+0800",
+ "uptime": "13:15  up 13 days, 2 mins, 4 users, load averages: 2.34 3.17 2.29",
+ "cpu_user_sys_idle_pct": [
+  1.26,
+  1.2,
+  97.53
+ ],
+ "physmem": "29G used (3211M wired, 996M compressor), 35G unused.",
+ "memory_free_pct": 93,
+ "swapusage": "total = 2048.00M  used = 758.94M  free = 1289.06M  (encrypted)",
+ "vm_counters": {
+  "Pageouts": 9986771,
+  "Swapins": 25645408,
+  "Swapouts": 44844285
+ },
+ "thermal_warning": false,
+ "performance_warning": false,
+ "pmset_therm": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+ "power": "Now drawing from 'AC Power'",
+ "time_machine_running": false,
+ "top_cpu": [
+  [
+   5.5,
+   "WallpaperAerialsExtension"
+  ],
+  [
+   3.1,
+   "iTerm2"
+  ],
+  [
+   2.6,
+   "OrbStack Helper"
+  ],
+  [
+   2.2,
+   "WindowServer"
+  ],
+  [
+   1.6,
+   "VTDecoderXPCService"
+  ],
+  [
+   0.8,
+   "com.apple.DriverKit-AppleBCMWLAN"
+  ],
+  [
+   0.5,
+   "Google Chrome"
+  ],
+  [
+   0.4,
+   "Google Chrome Helper"
+  ]
+ ]
+}

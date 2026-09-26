@@ -1,0 +1,777 @@
+{
+ "outcome": "environment PASS",
+ "rule": {
+  "aggregate_req_s": [
+   109.9,
+   135.0
+  ],
+  "memory_free_pct": 50,
+  "cpu_idle_pct": 80.0,
+  "process_cpu_pct": 50.0,
+  "swap_pages": 10000
+ },
+ "runs": [
+  {
+   "run": "product-laya-A-r1",
+   "present": true,
+   "crashed": false,
+   "mismatches": 0,
+   "routing_failures": [],
+   "workers_alive_at_end": {
+    "ane": true,
+    "gpu": true
+   },
+   "pooled_short_ms": {
+    "median": 10.041875066235662,
+    "p95": 10.636258404701948,
+    "p99": 11.356183029711254,
+    "p999": 15.556008818559413
+   },
+   "pooled_gpu_return_ms": {
+    "p50": 4.320542,
+    "p95": 5.433217299999999,
+    "p99": 6.735720130000018
+   },
+   "windows": [
+    {
+     "index": 1,
+     "n_short": 1955,
+     "short_ms": {
+      "median": 10.036667110398412,
+      "p95": 10.691574704833329,
+      "p99": 11.40889579895884,
+      "p999": 15.185428846161864
+     },
+     "aggregate_req_s": 122.19436908176002,
+     "gpu_return_ms": {
+      "p50": 4.367833,
+      "p95": 6.305466599999999,
+      "p99": 7.37712004
+     },
+     "host_slow_longest_bins": 0,
+     "slow_state_longest_spans": 0,
+     "response_matches_trace": true
+    },
+    {
+     "index": 3,
+     "n_short": 1965,
+     "short_ms": {
+      "median": 10.02899999730289,
+      "p95": 10.561757953837514,
+      "p99": 11.690899999812238,
+      "p999": 15.93022848013817
+     },
+     "aggregate_req_s": 122.860049995078,
+     "gpu_return_ms": {
+      "p50": 4.2846875,
+      "p95": 4.59926685,
+      "p99": 5.34047324999999
+     },
+     "host_slow_longest_bins": 0,
+     "slow_state_longest_spans": 0,
+     "response_matches_trace": true
+    },
+    {
+     "index": 5,
+     "n_short": 1957,
+     "short_ms": {
+      "median": 10.044666938483715,
+      "p95": 10.62149154022336,
+      "p99": 11.212399937212469,
+      "p999": 15.268687505275071
+     },
+     "aggregate_req_s": 122.36106083162468,
+     "gpu_return_ms": {
+      "p50": 4.3162295,
+      "p95": 5.627406249999999,
+      "p99": 6.354729130000002
+     },
+     "host_slow_longest_bins": 0,
+     "slow_state_longest_spans": 0,
+     "response_matches_trace": true
+    },
+    {
+     "index": 7,
+     "n_short": 1962,
+     "short_ms": {
+      "median": 10.034625069238245,
+      "p95": 10.559318424202502,
+      "p99": 11.062208784278475,
+      "p999": 14.741252331063237
+     },
+     "aggregate_req_s": 122.60091697197342,
+     "gpu_return_ms": {
+      "p50": 4.285792000000001,
+      "p95": 4.732429499999999,
+      "p99": 5.961908110000001
+     },
+     "host_slow_longest_bins": 0,
+     "slow_state_longest_spans": 0,
+     "response_matches_trace": true
+    },
+    {
+     "index": 10,
+     "n_short": 1961,
+     "short_ms": {
+      "median": 10.045291157439351,
+      "p95": 10.605957824736834,
+      "p99": 11.25354189425707,
+      "p999": 15.75714541599195
+     },
+     "aggregate_req_s": 122.55542014366691,
+     "gpu_return_ms": {
+      "p50": 4.316625,
+      "p95": 4.869875,
+      "p99": 6.004371500000002
+     },
+     "host_slow_longest_bins": 0,
+     "slow_state_longest_spans": 0,
+     "response_matches_trace": true
+    },
+    {
+     "index": 11,
+     "n_short": 1949,
+     "short_ms": {
+      "median": 10.081999935209751,
+      "p95": 10.818407824262977,
+      "p99": 12.151881642639637,
+      "p999": 15.973489490337816
+     },
+     "aggregate_req_s": 121.87655683043069,
+     "gpu_return_ms": {
+      "p50": 4.3731665,
+      "p95": 5.5800933,
+      "p99": 6.39039733
+     },
+     "host_slow_longest_bins": 1,
+     "slow_state_longest_spans": 0,
+     "response_matches_trace": true
+    }
+   ],
+   "machine_findings": [],
+   "snapshots": {
+    "before": {
+     "time": "2026-09-26T13:12:21+0800",
+     "uptime": "13:12  up 12 days, 23:58, 4 users, load averages: 1.37 1.47 1.39",
+     "cpu_user_sys_idle_pct": [
+      2.36,
+      1.55,
+      96.7
+     ],
+     "physmem": "27G used (3204M wired, 1017M compressor), 37G unused.",
+     "memory_free_pct": 93,
+     "swapusage": "total = 2048.00M  used = 758.94M  free = 1289.06M  (encrypted)",
+     "vm_counters": {
+      "Pageouts": 9986771,
+      "Swapins": 25644951,
+      "Swapouts": 44844285
+     },
+     "thermal_warning": false,
+     "performance_warning": false,
+     "pmset_therm": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+     "power": "Now drawing from 'AC Power'",
+     "time_machine_running": false,
+     "top_cpu": [
+      [
+       15.4,
+       "OrbStack Helper"
+      ],
+      [
+       7.9,
+       "WallpaperAerialsExtension"
+      ],
+      [
+       3.7,
+       "claude"
+      ],
+      [
+       2.5,
+       "WindowServer"
+      ],
+      [
+       1.5,
+       "VTDecoderXPCService"
+      ],
+      [
+       0.4,
+       "com.apple.DriverKit-AppleBCMWLAN"
+      ],
+      [
+       0.4,
+       "Finder"
+      ],
+      [
+       0.4,
+       "claude"
+      ]
+     ]
+    },
+    "after": {
+     "time": "2026-09-26T13:15:58+0800",
+     "uptime": "13:15  up 13 days, 2 mins, 4 users, load averages: 2.34 3.17 2.29",
+     "cpu_user_sys_idle_pct": [
+      1.54,
+      1.19,
+      97.25
+     ],
+     "physmem": "29G used (3209M wired, 996M compressor), 35G unused.",
+     "memory_free_pct": 93,
+     "swapusage": "total = 2048.00M  used = 758.94M  free = 1289.06M  (encrypted)",
+     "vm_counters": {
+      "Pageouts": 9986771,
+      "Swapins": 25645408,
+      "Swapouts": 44844285
+     },
+     "thermal_warning": false,
+     "performance_warning": false,
+     "pmset_therm": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+     "power": "Now drawing from 'AC Power'",
+     "time_machine_running": false,
+     "top_cpu": [
+      [
+       8.3,
+       "WallpaperAerialsExtension"
+      ],
+      [
+       4.7,
+       "OrbStack Helper"
+      ],
+      [
+       2.5,
+       "WindowServer"
+      ],
+      [
+       2.0,
+       "VTDecoderXPCService"
+      ],
+      [
+       0.8,
+       "claude"
+      ],
+      [
+       0.4,
+       "com.apple.DriverKit-AppleBCMWLAN"
+      ],
+      [
+       0.2,
+       "wifip2pd"
+      ],
+      [
+       0.2,
+       "iTerm2"
+      ]
+     ]
+    }
+   },
+   "failed": []
+  },
+  {
+   "run": "product-laya-A-r2",
+   "present": true,
+   "crashed": false,
+   "mismatches": 0,
+   "routing_failures": [],
+   "workers_alive_at_end": {
+    "ane": true,
+    "gpu": true
+   },
+   "pooled_short_ms": {
+    "median": 10.04879199899733,
+    "p95": 10.655345767736435,
+    "p99": 11.262484975159166,
+    "p999": 15.691615661140712
+   },
+   "pooled_gpu_return_ms": {
+    "p50": 4.3431045,
+    "p95": 4.7704294,
+    "p99": 5.860825380000003
+   },
+   "windows": [
+    {
+     "index": 1,
+     "n_short": 1958,
+     "short_ms": {
+      "median": 10.04239555913955,
+      "p95": 10.617685492616147,
+      "p99": 11.130898797418922,
+      "p999": 15.709736579796429
+     },
+     "aggregate_req_s": 122.42102821979604,
+     "gpu_return_ms": {
+      "p50": 4.307917,
+      "p95": 4.6622295000000005,
+      "p99": 5.739783900000001
+     },
+     "host_slow_longest_bins": 0,
+     "slow_state_longest_spans": 0,
+     "response_matches_trace": true
+    },
+    {
+     "index": 3,
+     "n_short": 1960,
+     "short_ms": {
+      "median": 10.040750028565526,
+      "p95": 10.622887569479644,
+      "p99": 11.792926201596867,
+      "p999": 16.818264015717666
+     },
+     "aggregate_req_s": 122.52462889015038,
+     "gpu_return_ms": {
+      "p50": 4.3054165,
+      "p95": 4.729545649999999,
+      "p99": 5.649289130000001
+     },
+     "host_slow_longest_bins": 0,
+     "slow_state_longest_spans": 0,
+     "response_matches_trace": true
+    },
+    {
+     "index": 5,
+     "n_short": 1956,
+     "short_ms": {
+      "median": 10.04560454748571,
+      "p95": 10.663031309377402,
+      "p99": 11.128668917808689,
+      "p999": 14.80825192644281
+     },
+     "aggregate_req_s": 122.29475919578289,
+     "gpu_return_ms": {
+      "p50": 4.331479,
+      "p95": 4.73043575,
+      "p99": 6.092038380000001
+     },
+     "host_slow_longest_bins": 0,
+     "slow_state_longest_spans": 0,
+     "response_matches_trace": true
+    },
+    {
+     "index": 7,
+     "n_short": 1957,
+     "short_ms": {
+      "median": 10.053457925096154,
+      "p95": 10.669233417138457,
+      "p99": 10.847433526068928,
+      "p999": 14.237466185354002
+     },
+     "aggregate_req_s": 122.28270400028667,
+     "gpu_return_ms": {
+      "p50": 4.365125,
+      "p95": 4.768483,
+      "p99": 5.891611920000001
+     },
+     "host_slow_longest_bins": 0,
+     "slow_state_longest_spans": 0,
+     "response_matches_trace": true
+    },
+    {
+     "index": 10,
+     "n_short": 1958,
+     "short_ms": {
+      "median": 10.049707954749465,
+      "p95": 10.672756168060005,
+      "p99": 11.313028202857828,
+      "p999": 15.05990591994508
+     },
+     "aggregate_req_s": 122.34566045961608,
+     "gpu_return_ms": {
+      "p50": 4.354417,
+      "p95": 4.883292199999999,
+      "p99": 6.127225
+     },
+     "host_slow_longest_bins": 0,
+     "slow_state_longest_spans": 0,
+     "response_matches_trace": true
+    },
+    {
+     "index": 11,
+     "n_short": 1954,
+     "short_ms": {
+      "median": 10.06074994802475,
+      "p95": 10.697804146911949,
+      "p99": 11.492585088126361,
+      "p999": 15.178531771991661
+     },
+     "aggregate_req_s": 122.15717249959656,
+     "gpu_return_ms": {
+      "p50": 4.384417,
+      "p95": 4.8179168,
+      "p99": 5.75649004
+     },
+     "host_slow_longest_bins": 0,
+     "slow_state_longest_spans": 0,
+     "response_matches_trace": true
+    }
+   ],
+   "machine_findings": [],
+   "snapshots": {
+    "before": {
+     "time": "2026-09-26T13:15:59+0800",
+     "uptime": "13:15  up 13 days, 2 mins, 4 users, load averages: 2.34 3.17 2.29",
+     "cpu_user_sys_idle_pct": [
+      1.26,
+      1.2,
+      97.53
+     ],
+     "physmem": "29G used (3211M wired, 996M compressor), 35G unused.",
+     "memory_free_pct": 93,
+     "swapusage": "total = 2048.00M  used = 758.94M  free = 1289.06M  (encrypted)",
+     "vm_counters": {
+      "Pageouts": 9986771,
+      "Swapins": 25645408,
+      "Swapouts": 44844285
+     },
+     "thermal_warning": false,
+     "performance_warning": false,
+     "pmset_therm": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+     "power": "Now drawing from 'AC Power'",
+     "time_machine_running": false,
+     "top_cpu": [
+      [
+       5.5,
+       "WallpaperAerialsExtension"
+      ],
+      [
+       3.1,
+       "iTerm2"
+      ],
+      [
+       2.6,
+       "OrbStack Helper"
+      ],
+      [
+       2.2,
+       "WindowServer"
+      ],
+      [
+       1.6,
+       "VTDecoderXPCService"
+      ],
+      [
+       0.8,
+       "com.apple.DriverKit-AppleBCMWLAN"
+      ],
+      [
+       0.5,
+       "Google Chrome"
+      ],
+      [
+       0.4,
+       "Google Chrome Helper"
+      ]
+     ]
+    },
+    "after": {
+     "time": "2026-09-26T13:19:36+0800",
+     "uptime": "13:19  up 13 days, 5 mins, 4 users, load averages: 1.46 2.63 2.27",
+     "cpu_user_sys_idle_pct": [
+      1.84,
+      1.9,
+      97.5
+     ],
+     "physmem": "29G used (3211M wired, 996M compressor), 35G unused.",
+     "memory_free_pct": 93,
+     "swapusage": "total = 2048.00M  used = 758.94M  free = 1289.06M  (encrypted)",
+     "vm_counters": {
+      "Pageouts": 9986771,
+      "Swapins": 25645419,
+      "Swapouts": 44844285
+     },
+     "thermal_warning": false,
+     "performance_warning": false,
+     "pmset_therm": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+     "power": "Now drawing from 'AC Power'",
+     "time_machine_running": false,
+     "top_cpu": [
+      [
+       36.0,
+       "OrbStack Helper"
+      ],
+      [
+       4.3,
+       "WallpaperAerialsExtension"
+      ],
+      [
+       2.7,
+       "WindowServer"
+      ],
+      [
+       1.9,
+       "VTDecoderXPCService"
+      ],
+      [
+       1.3,
+       "iTerm2"
+      ],
+      [
+       0.8,
+       "symptomsd"
+      ],
+      [
+       0.5,
+       "adb"
+      ],
+      [
+       0.5,
+       "claude"
+      ]
+     ]
+    }
+   },
+   "failed": []
+  },
+  {
+   "run": "product-laya-A-r3",
+   "present": true,
+   "crashed": false,
+   "mismatches": 0,
+   "routing_failures": [],
+   "workers_alive_at_end": {
+    "ane": true,
+    "gpu": true
+   },
+   "pooled_short_ms": {
+    "median": 10.043707909062505,
+    "p95": 10.59575006365776,
+    "p99": 11.199205587618053,
+    "p999": 15.469766221940812
+   },
+   "pooled_gpu_return_ms": {
+    "p50": 4.315208,
+    "p95": 4.80782885,
+    "p99": 5.9209600600000005
+   },
+   "windows": [
+    {
+     "index": 1,
+     "n_short": 1960,
+     "short_ms": {
+      "median": 10.037563042715192,
+      "p95": 10.581939131952822,
+      "p99": 11.068523551803088,
+      "p999": 15.428021802567015
+     },
+     "aggregate_req_s": 122.54943530006682,
+     "gpu_return_ms": {
+      "p50": 4.2923335,
+      "p95": 4.802015099999999,
+      "p99": 5.892456130000002
+     },
+     "host_slow_longest_bins": 0,
+     "slow_state_longest_spans": 0,
+     "response_matches_trace": true
+    },
+    {
+     "index": 3,
+     "n_short": 1964,
+     "short_ms": {
+      "median": 10.038395994342864,
+      "p95": 10.575634147971869,
+      "p99": 11.222535660490385,
+      "p999": 14.511853630887357
+     },
+     "aggregate_req_s": 122.72327010054498,
+     "gpu_return_ms": {
+      "p50": 4.286292,
+      "p95": 4.8568125,
+      "p99": 6.091241700000028
+     },
+     "host_slow_longest_bins": 0,
+     "slow_state_longest_spans": 0,
+     "response_matches_trace": true
+    },
+    {
+     "index": 5,
+     "n_short": 1959,
+     "short_ms": {
+      "median": 10.03800006583333,
+      "p95": 10.604679770767689,
+      "p99": 11.340727349743254,
+      "p999": 15.696969890501483
+     },
+     "aggregate_req_s": 122.44273550788944,
+     "gpu_return_ms": {
+      "p50": 4.2823955,
+      "p95": 4.989154499999999,
+      "p99": 6.080831890000001
+     },
+     "host_slow_longest_bins": 0,
+     "slow_state_longest_spans": 0,
+     "response_matches_trace": true
+    },
+    {
+     "index": 7,
+     "n_short": 1960,
+     "short_ms": {
+      "median": 10.035645449534059,
+      "p95": 10.59677458833903,
+      "p99": 10.886623761616656,
+      "p999": 15.414645674405817
+     },
+     "aggregate_req_s": 122.54759118775745,
+     "gpu_return_ms": {
+      "p50": 4.284709,
+      "p95": 4.7219165,
+      "p99": 5.457278900000001
+     },
+     "host_slow_longest_bins": 0,
+     "slow_state_longest_spans": 0,
+     "response_matches_trace": true
+    },
+    {
+     "index": 10,
+     "n_short": 1960,
+     "short_ms": {
+      "median": 10.05535398144275,
+      "p95": 10.5938347755,
+      "p99": 11.253366183955226,
+      "p999": 15.137974257814044
+     },
+     "aggregate_req_s": 122.52030380317908,
+     "gpu_return_ms": {
+      "p50": 4.355771,
+      "p95": 4.769373399999998,
+      "p99": 5.847344860000001
+     },
+     "host_slow_longest_bins": 0,
+     "slow_state_longest_spans": 0,
+     "response_matches_trace": true
+    },
+    {
+     "index": 11,
+     "n_short": 1960,
+     "short_ms": {
+      "median": 10.05629193969071,
+      "p95": 10.611343407072127,
+      "p99": 11.029317462816834,
+      "p999": 15.302684679161953
+     },
+     "aggregate_req_s": 122.49298998112549,
+     "gpu_return_ms": {
+      "p50": 4.3688745,
+      "p95": 4.7979109,
+      "p99": 5.930066130000001
+     },
+     "host_slow_longest_bins": 0,
+     "slow_state_longest_spans": 0,
+     "response_matches_trace": true
+    }
+   ],
+   "machine_findings": [],
+   "snapshots": {
+    "before": {
+     "time": "2026-09-26T13:19:37+0800",
+     "uptime": "13:19  up 13 days, 5 mins, 4 users, load averages: 1.46 2.63 2.27",
+     "cpu_user_sys_idle_pct": [
+      0.8,
+      1.2,
+      97.99
+     ],
+     "physmem": "29G used (3211M wired, 996M compressor), 35G unused.",
+     "memory_free_pct": 93,
+     "swapusage": "total = 2048.00M  used = 758.94M  free = 1289.06M  (encrypted)",
+     "vm_counters": {
+      "Pageouts": 9986771,
+      "Swapins": 25645419,
+      "Swapouts": 44844285
+     },
+     "thermal_warning": false,
+     "performance_warning": false,
+     "pmset_therm": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+     "power": "Now drawing from 'AC Power'",
+     "time_machine_running": false,
+     "top_cpu": [
+      [
+       6.1,
+       "WallpaperAerialsExtension"
+      ],
+      [
+       2.3,
+       "WindowServer"
+      ],
+      [
+       1.9,
+       "VTDecoderXPCService"
+      ],
+      [
+       1.9,
+       "OrbStack Helper"
+      ],
+      [
+       0.8,
+       "Finder"
+      ],
+      [
+       0.7,
+       "claude"
+      ],
+      [
+       0.6,
+       "iTerm2"
+      ],
+      [
+       0.3,
+       "Google Chrome"
+      ]
+     ]
+    },
+    "after": {
+     "time": "2026-09-26T13:23:14+0800",
+     "uptime": "13:23  up 13 days, 9 mins, 4 users, load averages: 1.22 1.88 2.02",
+     "cpu_user_sys_idle_pct": [
+      1.26,
+      1.14,
+      97.58
+     ],
+     "physmem": "29G used (3209M wired, 995M compressor), 34G unused.",
+     "memory_free_pct": 93,
+     "swapusage": "total = 2048.00M  used = 758.94M  free = 1289.06M  (encrypted)",
+     "vm_counters": {
+      "Pageouts": 9986771,
+      "Swapins": 25645419,
+      "Swapouts": 44844285
+     },
+     "thermal_warning": false,
+     "performance_warning": false,
+     "pmset_therm": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+     "power": "Now drawing from 'AC Power'",
+     "time_machine_running": false,
+     "top_cpu": [
+      [
+       8.6,
+       "WallpaperAerialsExtension"
+      ],
+      [
+       2.7,
+       "claude"
+      ],
+      [
+       2.5,
+       "WindowServer"
+      ],
+      [
+       2.2,
+       "iTerm2"
+      ],
+      [
+       2.2,
+       "OrbStack Helper"
+      ],
+      [
+       1.8,
+       "VTDecoderXPCService"
+      ],
+      [
+       0.7,
+       "homed"
+      ],
+      [
+       0.5,
+       "com.apple.DriverKit-AppleBCMWLAN"
+      ]
+     ]
+    }
+   },
+   "failed": []
+  }
+ ]
+}
