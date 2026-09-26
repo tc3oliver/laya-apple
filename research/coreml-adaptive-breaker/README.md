@@ -69,3 +69,17 @@ The data does not separate C2 from C3 on false trips.
   threshold is unverified there. The typed validation checks false trips.
 - Phase 0 says nothing about whether falling back to A actually recovers. That is Phase 1's
   question.
+
+## Phase 1: recovery experiment (preregistered)
+
+[`phase1.md`](phase1.md) freezes the question, the breaker, the definitions, the run order and the
+stop rules before any Phase 1 run. The question: once PB-ASYNC is in a sustained slow state and C3
+trips, does routing every new ANE request to production A bring back A-like behaviour within 1 s?
+
+**Cells** (12 runs on #102's harness):
+- **A:** production sync;
+- **B:** PB-ASYNC;
+- **R:** PB-ASYNC with the frozen breaker of [`scripts/breaker.py`](scripts/breaker.py).
+
+**Analysis:** [`scripts/phase1_analyze.py`](scripts/phase1_analyze.py). The results will be in
+`phase1_tables.md`.
