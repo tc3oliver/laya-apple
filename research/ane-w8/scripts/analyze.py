@@ -145,7 +145,8 @@ def cell(model: str, length: int, config: str) -> dict | None:
         res["latency"] = latency_stats(lat)
         res["latency_verdict"] = res["latency"]["verdict"]
     else:
-        res["probe"] = res["latency_verdict"] = None
+        untimed = "not timed (parity FAIL; addendum 1)" if res["parity"] == FAIL else None
+        res["probe"] = res["latency_verdict"] = untimed
     dims = [res["placement"], res["parity"], res["probe"], res["latency_verdict"]]
     if all(x == PASS for x in dims):
         res["ship_candidate"] = "yes"
