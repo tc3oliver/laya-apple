@@ -7,6 +7,7 @@
 | `switchyard-launch.gif`, `switchyard-launch.mp4` | [`switchyard-launch.md`](switchyard-launch.md) |
 | `switchyard-gpu-only.png`, `switchyard-gpu-ane.png`, `switchyard-result.png` | [`switchyard.md`](switchyard.md) |
 | `heterogeneous-serving.{mp4,gif,png}` | this page, below |
+| `research/fig1-gil-stall.png` … `research/fig5-adaptive-execution.png` | [`research/README.md`](research/README.md) |
 
 ## Heterogeneous serving video
 
