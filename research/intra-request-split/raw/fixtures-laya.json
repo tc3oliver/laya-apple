@@ -1,0 +1,2218 @@
+{
+ "model": "laya",
+ "revision": "c5d78730f3493e4fe16d61507ef4b78eef7318cf",
+ "workloads": {
+  "8x128": {
+   "questions": 8,
+   "tokens": 128,
+   "requests": [
+    {
+     "seed": 0,
+     "state": "The renewal 7311 cannot log in twice this month. I would like an explanation. The payment 8961 cannot log in on the annual plan. Otherwise we will cancel the plan. The account 4578 was refused after the latest update. I would like an explanation. The subscription 2553 was refused on the annual plan. Please confirm once it is fixed. The license 3407 got an error twice this a",
+     "questions": {
+      "q0": {
+       "type": "choice",
+       "instructions": "Which team should handle this ticket?",
+       "criteria": {
+        "billing": "charges, invoices, refunds",
+        "technical": "errors, outages, broken features",
+        "account": "login, profile, permissions",
+        "other": "anything else"
+       }
+      },
+      "q1": {
+       "type": "score",
+       "instructions": "How urgent is this ticket?",
+       "criteria": [
+        "can wait",
+        "should be handled today",
+        "blocking, handle now"
+       ]
+      },
+      "q2": {
+       "type": "noul",
+       "instructions": "Is the customer threatening to cancel the service?"
+      },
+      "q3": {
+       "type": "choice",
+       "instructions": "What is the overall sentiment of the message?",
+       "criteria": [
+        "positive",
+        "neutral",
+        "negative"
+       ]
+      },
+      "q4": {
+       "type": "noul",
+       "instructions": "Does the message mention a specific invoice number?"
+      },
+      "q5": {
+       "type": "score",
+       "instructions": "How clearly does the customer describe the problem?",
+       "criteria": [
+        "unclear",
+        "partly clear",
+        "clear",
+        "very clear with evidence"
+       ]
+      },
+      "q6": {
+       "type": "noul",
+       "instructions": "Should this ticket be escalated to a human supervisor?"
+      },
+      "q7": {
+       "type": "choice",
+       "instructions": "Which team should handle this ticket?",
+       "criteria": {
+        "billing": "charges, invoices, refunds",
+        "technical": "errors, outages, broken features",
+        "account": "login, profile, permissions",
+        "other": "anything else"
+       }
+      }
+     },
+     "question_ids": [
+      "q0",
+      "q1",
+      "q2",
+      "q3",
+      "q4",
+      "q5",
+      "q6",
+      "q7"
+     ],
+     "lengths": [
+      128,
+      116,
+      116,
+      103,
+      116,
+      121,
+      118,
+      128
+     ],
+     "options": [
+      4,
+      3,
+      2,
+      3,
+      2,
+      4,
+      2,
+      4
+     ]
+    },
+    {
+     "seed": 1,
+     "state": "The subscription 2033 got an error twice this month. Otherwise we will cancel the plan. The renewal 8364 cannot log in without any notice. Otherwise we will cancel the plan. The renewal 4439 was charged for the second time. Please refund the duplicate amount. The renewal 7386 cannot log in despite the earlier ticket. Please refund the duplicate amount. The license 8297 got an error without any a",
+     "questions": {
+      "q0": {
+       "type": "score",
+       "instructions": "How urgent is this ticket?",
+       "criteria": [
+        "can wait",
+        "should be handled today",
+        "blocking, handle now"
+       ]
+      },
+      "q1": {
+       "type": "noul",
+       "instructions": "Is the customer threatening to cancel the service?"
+      },
+      "q2": {
+       "type": "choice",
+       "instructions": "What is the overall sentiment of the message?",
+       "criteria": [
+        "positive",
+        "neutral",
+        "negative"
+       ]
+      },
+      "q3": {
+       "type": "noul",
+       "instructions": "Does the message mention a specific invoice number?"
+      },
+      "q4": {
+       "type": "score",
+       "instructions": "How clearly does the customer describe the problem?",
+       "criteria": [
+        "unclear",
+        "partly clear",
+        "clear",
+        "very clear with evidence"
+       ]
+      },
+      "q5": {
+       "type": "noul",
+       "instructions": "Should this ticket be escalated to a human supervisor?"
+      },
+      "q6": {
+       "type": "choice",
+       "instructions": "Which team should handle this ticket?",
+       "criteria": {
+        "billing": "charges, invoices, refunds",
+        "technical": "errors, outages, broken features",
+        "account": "login, profile, permissions",
+        "other": "anything else"
+       }
+      },
+      "q7": {
+       "type": "score",
+       "instructions": "How urgent is this ticket?",
+       "criteria": [
+        "can wait",
+        "should be handled today",
+        "blocking, handle now"
+       ]
+      }
+     },
+     "question_ids": [
+      "q0",
+      "q1",
+      "q2",
+      "q3",
+      "q4",
+      "q5",
+      "q6",
+      "q7"
+     ],
+     "lengths": [
+      116,
+      116,
+      103,
+      116,
+      121,
+      118,
+      128,
+      116
+     ],
+     "options": [
+      3,
+      2,
+      3,
+      2,
+      4,
+      2,
+      4,
+      3
+     ]
+    },
+    {
+     "seed": 2,
+     "state": "The renewal 1926 was charged twice this month. I would like an explanation. The renewal 3770 saw a delay without any notice. I would like an explanation. The account 4476 was refused twice this month. Please confirm once it is fixed. The license 3594 cannot log in without any notice. Otherwise we will cancel the plan. The renewal 9340 got an error despite the earlier ticket. Otherwise we",
+     "questions": {
+      "q0": {
+       "type": "noul",
+       "instructions": "Is the customer threatening to cancel the service?"
+      },
+      "q1": {
+       "type": "choice",
+       "instructions": "What is the overall sentiment of the message?",
+       "criteria": [
+        "positive",
+        "neutral",
+        "negative"
+       ]
+      },
+      "q2": {
+       "type": "noul",
+       "instructions": "Does the message mention a specific invoice number?"
+      },
+      "q3": {
+       "type": "score",
+       "instructions": "How clearly does the customer describe the problem?",
+       "criteria": [
+        "unclear",
+        "partly clear",
+        "clear",
+        "very clear with evidence"
+       ]
+      },
+      "q4": {
+       "type": "noul",
+       "instructions": "Should this ticket be escalated to a human supervisor?"
+      },
+      "q5": {
+       "type": "choice",
+       "instructions": "Which team should handle this ticket?",
+       "criteria": {
+        "billing": "charges, invoices, refunds",
+        "technical": "errors, outages, broken features",
+        "account": "login, profile, permissions",
+        "other": "anything else"
+       }
+      },
+      "q6": {
+       "type": "score",
+       "instructions": "How urgent is this ticket?",
+       "criteria": [
+        "can wait",
+        "should be handled today",
+        "blocking, handle now"
+       ]
+      },
+      "q7": {
+       "type": "noul",
+       "instructions": "Is the customer threatening to cancel the service?"
+      }
+     },
+     "question_ids": [
+      "q0",
+      "q1",
+      "q2",
+      "q3",
+      "q4",
+      "q5",
+      "q6",
+      "q7"
+     ],
+     "lengths": [
+      116,
+      103,
+      116,
+      121,
+      118,
+      128,
+      116,
+      116
+     ],
+     "options": [
+      2,
+      3,
+      2,
+      4,
+      2,
+      4,
+      3,
+      2
+     ]
+    },
+    {
+     "seed": 3,
+     "state": "The subscription 9916 was billed on the annual plan. Please confirm once it is fixed. The order 2073 was refused twice this month. Otherwise we will cancel the plan. The account 4839 was billed without any notice. Otherwise we will cancel the plan. The payment 8804 cannot log in without any notice. Can someone look into this today? The subscription 3484 was refused for the second time.",
+     "questions": {
+      "q0": {
+       "type": "choice",
+       "instructions": "What is the overall sentiment of the message?",
+       "criteria": [
+        "positive",
+        "neutral",
+        "negative"
+       ]
+      },
+      "q1": {
+       "type": "noul",
+       "instructions": "Does the message mention a specific invoice number?"
+      },
+      "q2": {
+       "type": "score",
+       "instructions": "How clearly does the customer describe the problem?",
+       "criteria": [
+        "unclear",
+        "partly clear",
+        "clear",
+        "very clear with evidence"
+       ]
+      },
+      "q3": {
+       "type": "noul",
+       "instructions": "Should this ticket be escalated to a human supervisor?"
+      },
+      "q4": {
+       "type": "choice",
+       "instructions": "Which team should handle this ticket?",
+       "criteria": {
+        "billing": "charges, invoices, refunds",
+        "technical": "errors, outages, broken features",
+        "account": "login, profile, permissions",
+        "other": "anything else"
+       }
+      },
+      "q5": {
+       "type": "score",
+       "instructions": "How urgent is this ticket?",
+       "criteria": [
+        "can wait",
+        "should be handled today",
+        "blocking, handle now"
+       ]
+      },
+      "q6": {
+       "type": "noul",
+       "instructions": "Is the customer threatening to cancel the service?"
+      },
+      "q7": {
+       "type": "choice",
+       "instructions": "What is the overall sentiment of the message?",
+       "criteria": [
+        "positive",
+        "neutral",
+        "negative"
+       ]
+      }
+     },
+     "question_ids": [
+      "q0",
+      "q1",
+      "q2",
+      "q3",
+      "q4",
+      "q5",
+      "q6",
+      "q7"
+     ],
+     "lengths": [
+      103,
+      116,
+      121,
+      118,
+      128,
+      116,
+      116,
+      103
+     ],
+     "options": [
+      3,
+      2,
+      4,
+      2,
+      4,
+      3,
+      2,
+      3
+     ]
+    }
+   ]
+  },
+  "8x512": {
+   "questions": 8,
+   "tokens": 512,
+   "requests": [
+    {
+     "seed": 0,
+     "state": "The renewal 7311 cannot log in twice this month. I would like an explanation. The payment 8961 cannot log in on the annual plan. Otherwise we will cancel the plan. The account 4578 was refused after the latest update. I would like an explanation. The subscription 2553 was refused on the annual plan. Please confirm once it is fixed. The license 3407 got an error twice this month. Please refund the duplicate amount. The renewal 6409 cannot log in despite the earlier ticket. Please refund the duplicate amount. The account 8113 got an error despite the earlier ticket. Can someone look into this today? The payment 8815 cannot log in despite the earlier ticket. I would like an explanation. The invoice 9989 was charged twice this month. Otherwise we will cancel the plan. The license 1018 was refused for the second time. I would like an explanation. The subscription 6328 saw a delay twice this month. Can someone look into this today? The payment 4632 was billed after the latest update. Please confirm once it is fixed. The order 2494 was charged on the annual plan. Please confirm once it is fixed. The order 2786 got an error despite the earlier ticket. I would like an explanation. The license 3044 was refused on the annual plan. Please confirm once it is fixed. The subscription 9965 was refused on the annual plan. Otherwise we will cancel the plan. The invoice 7306 got an error despite the earlier ticket. Can someone look into this today? The account 4012 was billed after the latest update. Please refund the duplicate amount. The payment 5260 cannot log in twice this month. Please refund the duplicate amount. The license 3133 was billed twice this month. Please refund the duplicate amount. The license 9857 saw a delay for the second time. Please confirm once it is fixed. The account 9549 was billed after the latest update. Please confirm once it is fixed. The renewal 7871 was refused on the annual plan. Otherwise we will cancel the plan. The order 6855 was charged on the annual plan. Please confirm once it is fixed. The invoice 8969 was refused without any notice. I would like an explanation. The renewal 4119 was billed twice this month. I would like an explanation. The invoice 4612 got an",
+     "questions": {
+      "q0": {
+       "type": "choice",
+       "instructions": "Which team should handle this ticket?",
+       "criteria": {
+        "billing": "charges, invoices, refunds",
+        "technical": "errors, outages, broken features",
+        "account": "login, profile, permissions",
+        "other": "anything else"
+       }
+      },
+      "q1": {
+       "type": "score",
+       "instructions": "How urgent is this ticket?",
+       "criteria": [
+        "can wait",
+        "should be handled today",
+        "blocking, handle now"
+       ]
+      },
+      "q2": {
+       "type": "noul",
+       "instructions": "Is the customer threatening to cancel the service?"
+      },
+      "q3": {
+       "type": "choice",
+       "instructions": "What is the overall sentiment of the message?",
+       "criteria": [
+        "positive",
+        "neutral",
+        "negative"
+       ]
+      },
+      "q4": {
+       "type": "noul",
+       "instructions": "Does the message mention a specific invoice number?"
+      },
+      "q5": {
+       "type": "score",
+       "instructions": "How clearly does the customer describe the problem?",
+       "criteria": [
+        "unclear",
+        "partly clear",
+        "clear",
+        "very clear with evidence"
+       ]
+      },
+      "q6": {
+       "type": "noul",
+       "instructions": "Should this ticket be escalated to a human supervisor?"
+      },
+      "q7": {
+       "type": "choice",
+       "instructions": "Which team should handle this ticket?",
+       "criteria": {
+        "billing": "charges, invoices, refunds",
+        "technical": "errors, outages, broken features",
+        "account": "login, profile, permissions",
+        "other": "anything else"
+       }
+      }
+     },
+     "question_ids": [
+      "q0",
+      "q1",
+      "q2",
+      "q3",
+      "q4",
+      "q5",
+      "q6",
+      "q7"
+     ],
+     "lengths": [
+      512,
+      500,
+      500,
+      487,
+      500,
+      505,
+      502,
+      512
+     ],
+     "options": [
+      4,
+      3,
+      2,
+      3,
+      2,
+      4,
+      2,
+      4
+     ]
+    },
+    {
+     "seed": 1,
+     "state": "The subscription 2033 got an error twice this month. Otherwise we will cancel the plan. The renewal 8364 cannot log in without any notice. Otherwise we will cancel the plan. The renewal 4439 was charged for the second time. Please refund the duplicate amount. The renewal 7386 cannot log in despite the earlier ticket. Please refund the duplicate amount. The license 8297 got an error without any notice. Can someone look into this today? The payment 2674 got an error twice this month. Please refund the duplicate amount. The invoice 9870 was charged for the second time. Can someone look into this today? The order 1475 was refused after the latest update. Otherwise we will cancel the plan. The order 4818 got an error after the latest update. Can someone look into this today? The renewal 8530 got an error twice this month. Otherwise we will cancel the plan. The renewal 2638 was billed without any notice. I would like an explanation. The invoice 6450 saw a delay without any notice. Please confirm once it is fixed. The order 9318 saw a delay after the latest update. I would like an explanation. The account 9181 was refused for the second time. Please confirm once it is fixed. The renewal 1565 cannot log in after the latest update. Otherwise we will cancel the plan. The order 3834 got an error despite the earlier ticket. I would like an explanation. The invoice 8191 saw a delay despite the earlier ticket. Please refund the duplicate amount. The renewal 3682 was refused for the second time. I would like an explanation. The order 1484 cannot log in twice this month. I would like an explanation. The license 7448 saw a delay after the latest update. Can someone look into this today? The payment 4718 was charged after the latest update. Please confirm once it is fixed. The renewal 9983 was billed for the second time. Please confirm once it is fixed. The account 6788 cannot log in on the annual plan. Please confirm once it is fixed. The payment 1093 cannot log in without any notice. Please confirm once it is fixed. The renewal 3117 was refused despite the earlier ticket. Can someone look into this today? The order 1919 cannot log in on the annual plan. Please confirm once it is fixed.",
+     "questions": {
+      "q0": {
+       "type": "score",
+       "instructions": "How urgent is this ticket?",
+       "criteria": [
+        "can wait",
+        "should be handled today",
+        "blocking, handle now"
+       ]
+      },
+      "q1": {
+       "type": "noul",
+       "instructions": "Is the customer threatening to cancel the service?"
+      },
+      "q2": {
+       "type": "choice",
+       "instructions": "What is the overall sentiment of the message?",
+       "criteria": [
+        "positive",
+        "neutral",
+        "negative"
+       ]
+      },
+      "q3": {
+       "type": "noul",
+       "instructions": "Does the message mention a specific invoice number?"
+      },
+      "q4": {
+       "type": "score",
+       "instructions": "How clearly does the customer describe the problem?",
+       "criteria": [
+        "unclear",
+        "partly clear",
+        "clear",
+        "very clear with evidence"
+       ]
+      },
+      "q5": {
+       "type": "noul",
+       "instructions": "Should this ticket be escalated to a human supervisor?"
+      },
+      "q6": {
+       "type": "choice",
+       "instructions": "Which team should handle this ticket?",
+       "criteria": {
+        "billing": "charges, invoices, refunds",
+        "technical": "errors, outages, broken features",
+        "account": "login, profile, permissions",
+        "other": "anything else"
+       }
+      },
+      "q7": {
+       "type": "score",
+       "instructions": "How urgent is this ticket?",
+       "criteria": [
+        "can wait",
+        "should be handled today",
+        "blocking, handle now"
+       ]
+      }
+     },
+     "question_ids": [
+      "q0",
+      "q1",
+      "q2",
+      "q3",
+      "q4",
+      "q5",
+      "q6",
+      "q7"
+     ],
+     "lengths": [
+      501,
+      501,
+      488,
+      501,
+      506,
+      503,
+      512,
+      501
+     ],
+     "options": [
+      3,
+      2,
+      3,
+      2,
+      4,
+      2,
+      4,
+      3
+     ]
+    },
+    {
+     "seed": 2,
+     "state": "The renewal 1926 was charged twice this month. I would like an explanation. The renewal 3770 saw a delay without any notice. I would like an explanation. The account 4476 was refused twice this month. Please confirm once it is fixed. The license 3594 cannot log in without any notice. Otherwise we will cancel the plan. The renewal 9340 got an error despite the earlier ticket. Otherwise we will cancel the plan. The payment 5394 was charged twice this month. I would like an explanation. The order 6217 cannot log in for the second time. Please confirm once it is fixed. The subscription 3907 was billed after the latest update. Please refund the duplicate amount. The subscription 6327 was billed after the latest update. Please confirm once it is fixed. The payment 6893 was refused without any notice. Please confirm once it is fixed. The subscription 8301 cannot log in without any notice. Please confirm once it is fixed. The renewal 6967 was refused on the annual plan. I would like an explanation. The renewal 8303 was billed for the second time. Otherwise we will cancel the plan. The license 9689 was billed for the second time. I would like an explanation. The order 9205 was refused on the annual plan. Otherwise we will cancel the plan. The order 6747 was refused without any notice. Please confirm once it is fixed. The license 8480 cannot log in without any notice. Can someone look into this today? The account 3720 was refused on the annual plan. Otherwise we will cancel the plan. The account 5969 saw a delay despite the earlier ticket. Please confirm once it is fixed. The payment 9312 saw a delay despite the earlier ticket. Please confirm once it is fixed. The order 6109 saw a delay after the latest update. Otherwise we will cancel the plan. The payment 7006 saw a delay despite the earlier ticket. Please refund the duplicate amount. The renewal 6594 saw a delay twice this month. Can someone look into this today? The license 2739 was charged despite the earlier ticket. Please refund the duplicate amount. The account 4712 saw a delay twice this month. Please confirm once it is fixed. The subscription 5355 was billed after the latest update. Please refund the duplicate amount. The order 1522 was charged",
+     "questions": {
+      "q0": {
+       "type": "noul",
+       "instructions": "Is the customer threatening to cancel the service?"
+      },
+      "q1": {
+       "type": "choice",
+       "instructions": "What is the overall sentiment of the message?",
+       "criteria": [
+        "positive",
+        "neutral",
+        "negative"
+       ]
+      },
+      "q2": {
+       "type": "noul",
+       "instructions": "Does the message mention a specific invoice number?"
+      },
+      "q3": {
+       "type": "score",
+       "instructions": "How clearly does the customer describe the problem?",
+       "criteria": [
+        "unclear",
+        "partly clear",
+        "clear",
+        "very clear with evidence"
+       ]
+      },
+      "q4": {
+       "type": "noul",
+       "instructions": "Should this ticket be escalated to a human supervisor?"
+      },
+      "q5": {
+       "type": "choice",
+       "instructions": "Which team should handle this ticket?",
+       "criteria": {
+        "billing": "charges, invoices, refunds",
+        "technical": "errors, outages, broken features",
+        "account": "login, profile, permissions",
+        "other": "anything else"
+       }
+      },
+      "q6": {
+       "type": "score",
+       "instructions": "How urgent is this ticket?",
+       "criteria": [
+        "can wait",
+        "should be handled today",
+        "blocking, handle now"
+       ]
+      },
+      "q7": {
+       "type": "noul",
+       "instructions": "Is the customer threatening to cancel the service?"
+      }
+     },
+     "question_ids": [
+      "q0",
+      "q1",
+      "q2",
+      "q3",
+      "q4",
+      "q5",
+      "q6",
+      "q7"
+     ],
+     "lengths": [
+      500,
+      487,
+      500,
+      505,
+      502,
+      512,
+      500,
+      500
+     ],
+     "options": [
+      2,
+      3,
+      2,
+      4,
+      2,
+      4,
+      3,
+      2
+     ]
+    },
+    {
+     "seed": 3,
+     "state": "The subscription 9916 was billed on the annual plan. Please confirm once it is fixed. The order 2073 was refused twice this month. Otherwise we will cancel the plan. The account 4839 was billed without any notice. Otherwise we will cancel the plan. The payment 8804 cannot log in without any notice. Can someone look into this today? The subscription 3484 was refused for the second time. Please refund the duplicate amount. The license 2049 was billed despite the earlier ticket. Please refund the duplicate amount. The account 1508 got an error for the second time. Please confirm once it is fixed. The license 7350 saw a delay for the second time. Otherwise we will cancel the plan. The license 8284 was billed on the annual plan. Please refund the duplicate amount. The invoice 3227 cannot log in after the latest update. I would like an explanation. The license 8146 saw a delay on the annual plan. Otherwise we will cancel the plan. The payment 7322 was refused on the annual plan. Please confirm once it is fixed. The payment 7677 was refused after the latest update. I would like an explanation. The license 1469 got an error despite the earlier ticket. Can someone look into this today? The license 6347 was refused despite the earlier ticket. Please confirm once it is fixed. The invoice 4459 saw a delay despite the earlier ticket. I would like an explanation. The account 3038 was charged for the second time. Otherwise we will cancel the plan. The invoice 6637 was charged for the second time. Can someone look into this today? The invoice 5815 cannot log in for the second time. Please refund the duplicate amount. The invoice 1736 cannot log in without any notice. Please confirm once it is fixed. The account 5572 was refused after the latest update. Please refund the duplicate amount. The account 1118 was charged twice this month. Please confirm once it is fixed. The payment 1514 was billed for the second time. I would like an explanation. The payment 5315 was billed without any notice. Please refund the duplicate amount. The renewal 6567 got an error on the annual plan. Can someone look into this today? The renewal 7189 cannot log in for the second time. Please confirm once it is fixed. The order",
+     "questions": {
+      "q0": {
+       "type": "choice",
+       "instructions": "What is the overall sentiment of the message?",
+       "criteria": [
+        "positive",
+        "neutral",
+        "negative"
+       ]
+      },
+      "q1": {
+       "type": "noul",
+       "instructions": "Does the message mention a specific invoice number?"
+      },
+      "q2": {
+       "type": "score",
+       "instructions": "How clearly does the customer describe the problem?",
+       "criteria": [
+        "unclear",
+        "partly clear",
+        "clear",
+        "very clear with evidence"
+       ]
+      },
+      "q3": {
+       "type": "noul",
+       "instructions": "Should this ticket be escalated to a human supervisor?"
+      },
+      "q4": {
+       "type": "choice",
+       "instructions": "Which team should handle this ticket?",
+       "criteria": {
+        "billing": "charges, invoices, refunds",
+        "technical": "errors, outages, broken features",
+        "account": "login, profile, permissions",
+        "other": "anything else"
+       }
+      },
+      "q5": {
+       "type": "score",
+       "instructions": "How urgent is this ticket?",
+       "criteria": [
+        "can wait",
+        "should be handled today",
+        "blocking, handle now"
+       ]
+      },
+      "q6": {
+       "type": "noul",
+       "instructions": "Is the customer threatening to cancel the service?"
+      },
+      "q7": {
+       "type": "choice",
+       "instructions": "What is the overall sentiment of the message?",
+       "criteria": [
+        "positive",
+        "neutral",
+        "negative"
+       ]
+      }
+     },
+     "question_ids": [
+      "q0",
+      "q1",
+      "q2",
+      "q3",
+      "q4",
+      "q5",
+      "q6",
+      "q7"
+     ],
+     "lengths": [
+      487,
+      500,
+      505,
+      502,
+      512,
+      500,
+      500,
+      487
+     ],
+     "options": [
+      3,
+      2,
+      4,
+      2,
+      4,
+      3,
+      2,
+      3
+     ]
+    }
+   ]
+  },
+  "1x512": {
+   "questions": 1,
+   "tokens": 512,
+   "requests": [
+    {
+     "seed": 0,
+     "state": "The renewal 7311 cannot log in twice this month. I would like an explanation. The payment 8961 cannot log in on the annual plan. Otherwise we will cancel the plan. The account 4578 was refused after the latest update. I would like an explanation. The subscription 2553 was refused on the annual plan. Please confirm once it is fixed. The license 3407 got an error twice this month. Please refund the duplicate amount. The renewal 6409 cannot log in despite the earlier ticket. Please refund the duplicate amount. The account 8113 got an error despite the earlier ticket. Can someone look into this today? The payment 8815 cannot log in despite the earlier ticket. I would like an explanation. The invoice 9989 was charged twice this month. Otherwise we will cancel the plan. The license 1018 was refused for the second time. I would like an explanation. The subscription 6328 saw a delay twice this month. Can someone look into this today? The payment 4632 was billed after the latest update. Please confirm once it is fixed. The order 2494 was charged on the annual plan. Please confirm once it is fixed. The order 2786 got an error despite the earlier ticket. I would like an explanation. The license 3044 was refused on the annual plan. Please confirm once it is fixed. The subscription 9965 was refused on the annual plan. Otherwise we will cancel the plan. The invoice 7306 got an error despite the earlier ticket. Can someone look into this today? The account 4012 was billed after the latest update. Please refund the duplicate amount. The payment 5260 cannot log in twice this month. Please refund the duplicate amount. The license 3133 was billed twice this month. Please refund the duplicate amount. The license 9857 saw a delay for the second time. Please confirm once it is fixed. The account 9549 was billed after the latest update. Please confirm once it is fixed. The renewal 7871 was refused on the annual plan. Otherwise we will cancel the plan. The order 6855 was charged on the annual plan. Please confirm once it is fixed. The invoice 8969 was refused without any notice. I would like an explanation. The renewal 4119 was billed twice this month. I would like an explanation. The invoice 4612 got an",
+     "questions": {
+      "q0": {
+       "type": "choice",
+       "instructions": "Which team should handle this ticket?",
+       "criteria": {
+        "billing": "charges, invoices, refunds",
+        "technical": "errors, outages, broken features",
+        "account": "login, profile, permissions",
+        "other": "anything else"
+       }
+      }
+     },
+     "question_ids": [
+      "q0"
+     ],
+     "lengths": [
+      512
+     ],
+     "options": [
+      4
+     ]
+    },
+    {
+     "seed": 1,
+     "state": "The subscription 2033 got an error twice this month. Otherwise we will cancel the plan. The renewal 8364 cannot log in without any notice. Otherwise we will cancel the plan. The renewal 4439 was charged for the second time. Please refund the duplicate amount. The renewal 7386 cannot log in despite the earlier ticket. Please refund the duplicate amount. The license 8297 got an error without any notice. Can someone look into this today? The payment 2674 got an error twice this month. Please refund the duplicate amount. The invoice 9870 was charged for the second time. Can someone look into this today? The order 1475 was refused after the latest update. Otherwise we will cancel the plan. The order 4818 got an error after the latest update. Can someone look into this today? The renewal 8530 got an error twice this month. Otherwise we will cancel the plan. The renewal 2638 was billed without any notice. I would like an explanation. The invoice 6450 saw a delay without any notice. Please confirm once it is fixed. The order 9318 saw a delay after the latest update. I would like an explanation. The account 9181 was refused for the second time. Please confirm once it is fixed. The renewal 1565 cannot log in after the latest update. Otherwise we will cancel the plan. The order 3834 got an error despite the earlier ticket. I would like an explanation. The invoice 8191 saw a delay despite the earlier ticket. Please refund the duplicate amount. The renewal 3682 was refused for the second time. I would like an explanation. The order 1484 cannot log in twice this month. I would like an explanation. The license 7448 saw a delay after the latest update. Can someone look into this today? The payment 4718 was charged after the latest update. Please confirm once it is fixed. The renewal 9983 was billed for the second time. Please confirm once it is fixed. The account 6788 cannot log in on the annual plan. Please confirm once it is fixed. The payment 1093 cannot log in without any notice. Please confirm once it is fixed. The renewal 3117 was refused despite the earlier ticket. Can someone look into this today? The order 1919 cannot log in on the annual plan. Please confirm once it is fixed. The payment 4274 was refused for the second time.",
+     "questions": {
+      "q0": {
+       "type": "score",
+       "instructions": "How urgent is this ticket?",
+       "criteria": [
+        "can wait",
+        "should be handled today",
+        "blocking, handle now"
+       ]
+      }
+     },
+     "question_ids": [
+      "q0"
+     ],
+     "lengths": [
+      512
+     ],
+     "options": [
+      3
+     ]
+    },
+    {
+     "seed": 2,
+     "state": "The renewal 1926 was charged twice this month. I would like an explanation. The renewal 3770 saw a delay without any notice. I would like an explanation. The account 4476 was refused twice this month. Please confirm once it is fixed. The license 3594 cannot log in without any notice. Otherwise we will cancel the plan. The renewal 9340 got an error despite the earlier ticket. Otherwise we will cancel the plan. The payment 5394 was charged twice this month. I would like an explanation. The order 6217 cannot log in for the second time. Please confirm once it is fixed. The subscription 3907 was billed after the latest update. Please refund the duplicate amount. The subscription 6327 was billed after the latest update. Please confirm once it is fixed. The payment 6893 was refused without any notice. Please confirm once it is fixed. The subscription 8301 cannot log in without any notice. Please confirm once it is fixed. The renewal 6967 was refused on the annual plan. I would like an explanation. The renewal 8303 was billed for the second time. Otherwise we will cancel the plan. The license 9689 was billed for the second time. I would like an explanation. The order 9205 was refused on the annual plan. Otherwise we will cancel the plan. The order 6747 was refused without any notice. Please confirm once it is fixed. The license 8480 cannot log in without any notice. Can someone look into this today? The account 3720 was refused on the annual plan. Otherwise we will cancel the plan. The account 5969 saw a delay despite the earlier ticket. Please confirm once it is fixed. The payment 9312 saw a delay despite the earlier ticket. Please confirm once it is fixed. The order 6109 saw a delay after the latest update. Otherwise we will cancel the plan. The payment 7006 saw a delay despite the earlier ticket. Please refund the duplicate amount. The renewal 6594 saw a delay twice this month. Can someone look into this today? The license 2739 was charged despite the earlier ticket. Please refund the duplicate amount. The account 4712 saw a delay twice this month. Please confirm once it is fixed. The subscription 5355 was billed after the latest update. Please refund the duplicate amount. The order 1522 was charged on the annual plan. I would like an explanation. The",
+     "questions": {
+      "q0": {
+       "type": "noul",
+       "instructions": "Is the customer threatening to cancel the service?"
+      }
+     },
+     "question_ids": [
+      "q0"
+     ],
+     "lengths": [
+      512
+     ],
+     "options": [
+      2
+     ]
+    },
+    {
+     "seed": 3,
+     "state": "The subscription 9916 was billed on the annual plan. Please confirm once it is fixed. The order 2073 was refused twice this month. Otherwise we will cancel the plan. The account 4839 was billed without any notice. Otherwise we will cancel the plan. The payment 8804 cannot log in without any notice. Can someone look into this today? The subscription 3484 was refused for the second time. Please refund the duplicate amount. The license 2049 was billed despite the earlier ticket. Please refund the duplicate amount. The account 1508 got an error for the second time. Please confirm once it is fixed. The license 7350 saw a delay for the second time. Otherwise we will cancel the plan. The license 8284 was billed on the annual plan. Please refund the duplicate amount. The invoice 3227 cannot log in after the latest update. I would like an explanation. The license 8146 saw a delay on the annual plan. Otherwise we will cancel the plan. The payment 7322 was refused on the annual plan. Please confirm once it is fixed. The payment 7677 was refused after the latest update. I would like an explanation. The license 1469 got an error despite the earlier ticket. Can someone look into this today? The license 6347 was refused despite the earlier ticket. Please confirm once it is fixed. The invoice 4459 saw a delay despite the earlier ticket. I would like an explanation. The account 3038 was charged for the second time. Otherwise we will cancel the plan. The invoice 6637 was charged for the second time. Can someone look into this today? The invoice 5815 cannot log in for the second time. Please refund the duplicate amount. The invoice 1736 cannot log in without any notice. Please confirm once it is fixed. The account 5572 was refused after the latest update. Please refund the duplicate amount. The account 1118 was charged twice this month. Please confirm once it is fixed. The payment 1514 was billed for the second time. I would like an explanation. The payment 5315 was billed without any notice. Please refund the duplicate amount. The renewal 6567 got an error on the annual plan. Can someone look into this today? The renewal 7189 cannot log in for the second time. Please confirm once it is fixed. The order 2680 was refused despite the earlier ticket. I would like an explanation. The order 4893 got an error for the second",
+     "questions": {
+      "q0": {
+       "type": "choice",
+       "instructions": "What is the overall sentiment of the message?",
+       "criteria": [
+        "positive",
+        "neutral",
+        "negative"
+       ]
+      }
+     },
+     "question_ids": [
+      "q0"
+     ],
+     "lengths": [
+      512
+     ],
+     "options": [
+      3
+     ]
+    }
+   ]
+  },
+  "32x64": {
+   "questions": 32,
+   "tokens": 64,
+   "requests": [
+    {
+     "seed": 0,
+     "state": "The renewal 7311 cannot log in twice this month. I would like an explanation.",
+     "questions": {
+      "q0": {
+       "type": "choice",
+       "instructions": "Which team should handle this ticket?",
+       "criteria": {
+        "billing": "charges, invoices, refunds",
+        "technical": "errors, outages, broken features",
+        "account": "login, profile, permissions",
+        "other": "anything else"
+       }
+      },
+      "q1": {
+       "type": "score",
+       "instructions": "How urgent is this ticket?",
+       "criteria": [
+        "can wait",
+        "should be handled today",
+        "blocking, handle now"
+       ]
+      },
+      "q2": {
+       "type": "noul",
+       "instructions": "Is the customer threatening to cancel the service?"
+      },
+      "q3": {
+       "type": "choice",
+       "instructions": "What is the overall sentiment of the message?",
+       "criteria": [
+        "positive",
+        "neutral",
+        "negative"
+       ]
+      },
+      "q4": {
+       "type": "noul",
+       "instructions": "Does the message mention a specific invoice number?"
+      },
+      "q5": {
+       "type": "score",
+       "instructions": "How clearly does the customer describe the problem?",
+       "criteria": [
+        "unclear",
+        "partly clear",
+        "clear",
+        "very clear with evidence"
+       ]
+      },
+      "q6": {
+       "type": "noul",
+       "instructions": "Should this ticket be escalated to a human supervisor?"
+      },
+      "q7": {
+       "type": "choice",
+       "instructions": "Which team should handle this ticket?",
+       "criteria": {
+        "billing": "charges, invoices, refunds",
+        "technical": "errors, outages, broken features",
+        "account": "login, profile, permissions",
+        "other": "anything else"
+       }
+      },
+      "q8": {
+       "type": "score",
+       "instructions": "How urgent is this ticket?",
+       "criteria": [
+        "can wait",
+        "should be handled today",
+        "blocking, handle now"
+       ]
+      },
+      "q9": {
+       "type": "noul",
+       "instructions": "Is the customer threatening to cancel the service?"
+      },
+      "q10": {
+       "type": "choice",
+       "instructions": "What is the overall sentiment of the message?",
+       "criteria": [
+        "positive",
+        "neutral",
+        "negative"
+       ]
+      },
+      "q11": {
+       "type": "noul",
+       "instructions": "Does the message mention a specific invoice number?"
+      },
+      "q12": {
+       "type": "score",
+       "instructions": "How clearly does the customer describe the problem?",
+       "criteria": [
+        "unclear",
+        "partly clear",
+        "clear",
+        "very clear with evidence"
+       ]
+      },
+      "q13": {
+       "type": "noul",
+       "instructions": "Should this ticket be escalated to a human supervisor?"
+      },
+      "q14": {
+       "type": "choice",
+       "instructions": "Which team should handle this ticket?",
+       "criteria": {
+        "billing": "charges, invoices, refunds",
+        "technical": "errors, outages, broken features",
+        "account": "login, profile, permissions",
+        "other": "anything else"
+       }
+      },
+      "q15": {
+       "type": "score",
+       "instructions": "How urgent is this ticket?",
+       "criteria": [
+        "can wait",
+        "should be handled today",
+        "blocking, handle now"
+       ]
+      },
+      "q16": {
+       "type": "noul",
+       "instructions": "Is the customer threatening to cancel the service?"
+      },
+      "q17": {
+       "type": "choice",
+       "instructions": "What is the overall sentiment of the message?",
+       "criteria": [
+        "positive",
+        "neutral",
+        "negative"
+       ]
+      },
+      "q18": {
+       "type": "noul",
+       "instructions": "Does the message mention a specific invoice number?"
+      },
+      "q19": {
+       "type": "score",
+       "instructions": "How clearly does the customer describe the problem?",
+       "criteria": [
+        "unclear",
+        "partly clear",
+        "clear",
+        "very clear with evidence"
+       ]
+      },
+      "q20": {
+       "type": "noul",
+       "instructions": "Should this ticket be escalated to a human supervisor?"
+      },
+      "q21": {
+       "type": "choice",
+       "instructions": "Which team should handle this ticket?",
+       "criteria": {
+        "billing": "charges, invoices, refunds",
+        "technical": "errors, outages, broken features",
+        "account": "login, profile, permissions",
+        "other": "anything else"
+       }
+      },
+      "q22": {
+       "type": "score",
+       "instructions": "How urgent is this ticket?",
+       "criteria": [
+        "can wait",
+        "should be handled today",
+        "blocking, handle now"
+       ]
+      },
+      "q23": {
+       "type": "noul",
+       "instructions": "Is the customer threatening to cancel the service?"
+      },
+      "q24": {
+       "type": "choice",
+       "instructions": "What is the overall sentiment of the message?",
+       "criteria": [
+        "positive",
+        "neutral",
+        "negative"
+       ]
+      },
+      "q25": {
+       "type": "noul",
+       "instructions": "Does the message mention a specific invoice number?"
+      },
+      "q26": {
+       "type": "score",
+       "instructions": "How clearly does the customer describe the problem?",
+       "criteria": [
+        "unclear",
+        "partly clear",
+        "clear",
+        "very clear with evidence"
+       ]
+      },
+      "q27": {
+       "type": "noul",
+       "instructions": "Should this ticket be escalated to a human supervisor?"
+      },
+      "q28": {
+       "type": "choice",
+       "instructions": "Which team should handle this ticket?",
+       "criteria": {
+        "billing": "charges, invoices, refunds",
+        "technical": "errors, outages, broken features",
+        "account": "login, profile, permissions",
+        "other": "anything else"
+       }
+      },
+      "q29": {
+       "type": "score",
+       "instructions": "How urgent is this ticket?",
+       "criteria": [
+        "can wait",
+        "should be handled today",
+        "blocking, handle now"
+       ]
+      },
+      "q30": {
+       "type": "noul",
+       "instructions": "Is the customer threatening to cancel the service?"
+      },
+      "q31": {
+       "type": "choice",
+       "instructions": "What is the overall sentiment of the message?",
+       "criteria": [
+        "positive",
+        "neutral",
+        "negative"
+       ]
+      }
+     },
+     "question_ids": [
+      "q0",
+      "q1",
+      "q2",
+      "q3",
+      "q4",
+      "q5",
+      "q6",
+      "q7",
+      "q8",
+      "q9",
+      "q10",
+      "q11",
+      "q12",
+      "q13",
+      "q14",
+      "q15",
+      "q16",
+      "q17",
+      "q18",
+      "q19",
+      "q20",
+      "q21",
+      "q22",
+      "q23",
+      "q24",
+      "q25",
+      "q26",
+      "q27",
+      "q28",
+      "q29",
+      "q30",
+      "q31"
+     ],
+     "lengths": [
+      64,
+      52,
+      52,
+      39,
+      52,
+      57,
+      54,
+      64,
+      52,
+      52,
+      39,
+      52,
+      57,
+      54,
+      64,
+      52,
+      52,
+      39,
+      52,
+      57,
+      54,
+      64,
+      52,
+      52,
+      39,
+      52,
+      57,
+      54,
+      64,
+      52,
+      52,
+      39
+     ],
+     "options": [
+      4,
+      3,
+      2,
+      3,
+      2,
+      4,
+      2,
+      4,
+      3,
+      2,
+      3,
+      2,
+      4,
+      2,
+      4,
+      3,
+      2,
+      3,
+      2,
+      4,
+      2,
+      4,
+      3,
+      2,
+      3,
+      2,
+      4,
+      2,
+      4,
+      3,
+      2,
+      3
+     ]
+    },
+    {
+     "seed": 1,
+     "state": "The subscription 2033 got an error twice this month. Otherwise we will cancel the a",
+     "questions": {
+      "q0": {
+       "type": "score",
+       "instructions": "How urgent is this ticket?",
+       "criteria": [
+        "can wait",
+        "should be handled today",
+        "blocking, handle now"
+       ]
+      },
+      "q1": {
+       "type": "noul",
+       "instructions": "Is the customer threatening to cancel the service?"
+      },
+      "q2": {
+       "type": "choice",
+       "instructions": "What is the overall sentiment of the message?",
+       "criteria": [
+        "positive",
+        "neutral",
+        "negative"
+       ]
+      },
+      "q3": {
+       "type": "noul",
+       "instructions": "Does the message mention a specific invoice number?"
+      },
+      "q4": {
+       "type": "score",
+       "instructions": "How clearly does the customer describe the problem?",
+       "criteria": [
+        "unclear",
+        "partly clear",
+        "clear",
+        "very clear with evidence"
+       ]
+      },
+      "q5": {
+       "type": "noul",
+       "instructions": "Should this ticket be escalated to a human supervisor?"
+      },
+      "q6": {
+       "type": "choice",
+       "instructions": "Which team should handle this ticket?",
+       "criteria": {
+        "billing": "charges, invoices, refunds",
+        "technical": "errors, outages, broken features",
+        "account": "login, profile, permissions",
+        "other": "anything else"
+       }
+      },
+      "q7": {
+       "type": "score",
+       "instructions": "How urgent is this ticket?",
+       "criteria": [
+        "can wait",
+        "should be handled today",
+        "blocking, handle now"
+       ]
+      },
+      "q8": {
+       "type": "noul",
+       "instructions": "Is the customer threatening to cancel the service?"
+      },
+      "q9": {
+       "type": "choice",
+       "instructions": "What is the overall sentiment of the message?",
+       "criteria": [
+        "positive",
+        "neutral",
+        "negative"
+       ]
+      },
+      "q10": {
+       "type": "noul",
+       "instructions": "Does the message mention a specific invoice number?"
+      },
+      "q11": {
+       "type": "score",
+       "instructions": "How clearly does the customer describe the problem?",
+       "criteria": [
+        "unclear",
+        "partly clear",
+        "clear",
+        "very clear with evidence"
+       ]
+      },
+      "q12": {
+       "type": "noul",
+       "instructions": "Should this ticket be escalated to a human supervisor?"
+      },
+      "q13": {
+       "type": "choice",
+       "instructions": "Which team should handle this ticket?",
+       "criteria": {
+        "billing": "charges, invoices, refunds",
+        "technical": "errors, outages, broken features",
+        "account": "login, profile, permissions",
+        "other": "anything else"
+       }
+      },
+      "q14": {
+       "type": "score",
+       "instructions": "How urgent is this ticket?",
+       "criteria": [
+        "can wait",
+        "should be handled today",
+        "blocking, handle now"
+       ]
+      },
+      "q15": {
+       "type": "noul",
+       "instructions": "Is the customer threatening to cancel the service?"
+      },
+      "q16": {
+       "type": "choice",
+       "instructions": "What is the overall sentiment of the message?",
+       "criteria": [
+        "positive",
+        "neutral",
+        "negative"
+       ]
+      },
+      "q17": {
+       "type": "noul",
+       "instructions": "Does the message mention a specific invoice number?"
+      },
+      "q18": {
+       "type": "score",
+       "instructions": "How clearly does the customer describe the problem?",
+       "criteria": [
+        "unclear",
+        "partly clear",
+        "clear",
+        "very clear with evidence"
+       ]
+      },
+      "q19": {
+       "type": "noul",
+       "instructions": "Should this ticket be escalated to a human supervisor?"
+      },
+      "q20": {
+       "type": "choice",
+       "instructions": "Which team should handle this ticket?",
+       "criteria": {
+        "billing": "charges, invoices, refunds",
+        "technical": "errors, outages, broken features",
+        "account": "login, profile, permissions",
+        "other": "anything else"
+       }
+      },
+      "q21": {
+       "type": "score",
+       "instructions": "How urgent is this ticket?",
+       "criteria": [
+        "can wait",
+        "should be handled today",
+        "blocking, handle now"
+       ]
+      },
+      "q22": {
+       "type": "noul",
+       "instructions": "Is the customer threatening to cancel the service?"
+      },
+      "q23": {
+       "type": "choice",
+       "instructions": "What is the overall sentiment of the message?",
+       "criteria": [
+        "positive",
+        "neutral",
+        "negative"
+       ]
+      },
+      "q24": {
+       "type": "noul",
+       "instructions": "Does the message mention a specific invoice number?"
+      },
+      "q25": {
+       "type": "score",
+       "instructions": "How clearly does the customer describe the problem?",
+       "criteria": [
+        "unclear",
+        "partly clear",
+        "clear",
+        "very clear with evidence"
+       ]
+      },
+      "q26": {
+       "type": "noul",
+       "instructions": "Should this ticket be escalated to a human supervisor?"
+      },
+      "q27": {
+       "type": "choice",
+       "instructions": "Which team should handle this ticket?",
+       "criteria": {
+        "billing": "charges, invoices, refunds",
+        "technical": "errors, outages, broken features",
+        "account": "login, profile, permissions",
+        "other": "anything else"
+       }
+      },
+      "q28": {
+       "type": "score",
+       "instructions": "How urgent is this ticket?",
+       "criteria": [
+        "can wait",
+        "should be handled today",
+        "blocking, handle now"
+       ]
+      },
+      "q29": {
+       "type": "noul",
+       "instructions": "Is the customer threatening to cancel the service?"
+      },
+      "q30": {
+       "type": "choice",
+       "instructions": "What is the overall sentiment of the message?",
+       "criteria": [
+        "positive",
+        "neutral",
+        "negative"
+       ]
+      },
+      "q31": {
+       "type": "noul",
+       "instructions": "Does the message mention a specific invoice number?"
+      }
+     },
+     "question_ids": [
+      "q0",
+      "q1",
+      "q2",
+      "q3",
+      "q4",
+      "q5",
+      "q6",
+      "q7",
+      "q8",
+      "q9",
+      "q10",
+      "q11",
+      "q12",
+      "q13",
+      "q14",
+      "q15",
+      "q16",
+      "q17",
+      "q18",
+      "q19",
+      "q20",
+      "q21",
+      "q22",
+      "q23",
+      "q24",
+      "q25",
+      "q26",
+      "q27",
+      "q28",
+      "q29",
+      "q30",
+      "q31"
+     ],
+     "lengths": [
+      52,
+      52,
+      39,
+      52,
+      57,
+      54,
+      64,
+      52,
+      52,
+      39,
+      52,
+      57,
+      54,
+      64,
+      52,
+      52,
+      39,
+      52,
+      57,
+      54,
+      64,
+      52,
+      52,
+      39,
+      52,
+      57,
+      54,
+      64,
+      52,
+      52,
+      39,
+      52
+     ],
+     "options": [
+      3,
+      2,
+      3,
+      2,
+      4,
+      2,
+      4,
+      3,
+      2,
+      3,
+      2,
+      4,
+      2,
+      4,
+      3,
+      2,
+      3,
+      2,
+      4,
+      2,
+      4,
+      3,
+      2,
+      3,
+      2,
+      4,
+      2,
+      4,
+      3,
+      2,
+      3,
+      2
+     ]
+    },
+    {
+     "seed": 2,
+     "state": "The renewal 1926 was charged twice this month. I would like an explanation. The renewal",
+     "questions": {
+      "q0": {
+       "type": "noul",
+       "instructions": "Is the customer threatening to cancel the service?"
+      },
+      "q1": {
+       "type": "choice",
+       "instructions": "What is the overall sentiment of the message?",
+       "criteria": [
+        "positive",
+        "neutral",
+        "negative"
+       ]
+      },
+      "q2": {
+       "type": "noul",
+       "instructions": "Does the message mention a specific invoice number?"
+      },
+      "q3": {
+       "type": "score",
+       "instructions": "How clearly does the customer describe the problem?",
+       "criteria": [
+        "unclear",
+        "partly clear",
+        "clear",
+        "very clear with evidence"
+       ]
+      },
+      "q4": {
+       "type": "noul",
+       "instructions": "Should this ticket be escalated to a human supervisor?"
+      },
+      "q5": {
+       "type": "choice",
+       "instructions": "Which team should handle this ticket?",
+       "criteria": {
+        "billing": "charges, invoices, refunds",
+        "technical": "errors, outages, broken features",
+        "account": "login, profile, permissions",
+        "other": "anything else"
+       }
+      },
+      "q6": {
+       "type": "score",
+       "instructions": "How urgent is this ticket?",
+       "criteria": [
+        "can wait",
+        "should be handled today",
+        "blocking, handle now"
+       ]
+      },
+      "q7": {
+       "type": "noul",
+       "instructions": "Is the customer threatening to cancel the service?"
+      },
+      "q8": {
+       "type": "choice",
+       "instructions": "What is the overall sentiment of the message?",
+       "criteria": [
+        "positive",
+        "neutral",
+        "negative"
+       ]
+      },
+      "q9": {
+       "type": "noul",
+       "instructions": "Does the message mention a specific invoice number?"
+      },
+      "q10": {
+       "type": "score",
+       "instructions": "How clearly does the customer describe the problem?",
+       "criteria": [
+        "unclear",
+        "partly clear",
+        "clear",
+        "very clear with evidence"
+       ]
+      },
+      "q11": {
+       "type": "noul",
+       "instructions": "Should this ticket be escalated to a human supervisor?"
+      },
+      "q12": {
+       "type": "choice",
+       "instructions": "Which team should handle this ticket?",
+       "criteria": {
+        "billing": "charges, invoices, refunds",
+        "technical": "errors, outages, broken features",
+        "account": "login, profile, permissions",
+        "other": "anything else"
+       }
+      },
+      "q13": {
+       "type": "score",
+       "instructions": "How urgent is this ticket?",
+       "criteria": [
+        "can wait",
+        "should be handled today",
+        "blocking, handle now"
+       ]
+      },
+      "q14": {
+       "type": "noul",
+       "instructions": "Is the customer threatening to cancel the service?"
+      },
+      "q15": {
+       "type": "choice",
+       "instructions": "What is the overall sentiment of the message?",
+       "criteria": [
+        "positive",
+        "neutral",
+        "negative"
+       ]
+      },
+      "q16": {
+       "type": "noul",
+       "instructions": "Does the message mention a specific invoice number?"
+      },
+      "q17": {
+       "type": "score",
+       "instructions": "How clearly does the customer describe the problem?",
+       "criteria": [
+        "unclear",
+        "partly clear",
+        "clear",
+        "very clear with evidence"
+       ]
+      },
+      "q18": {
+       "type": "noul",
+       "instructions": "Should this ticket be escalated to a human supervisor?"
+      },
+      "q19": {
+       "type": "choice",
+       "instructions": "Which team should handle this ticket?",
+       "criteria": {
+        "billing": "charges, invoices, refunds",
+        "technical": "errors, outages, broken features",
+        "account": "login, profile, permissions",
+        "other": "anything else"
+       }
+      },
+      "q20": {
+       "type": "score",
+       "instructions": "How urgent is this ticket?",
+       "criteria": [
+        "can wait",
+        "should be handled today",
+        "blocking, handle now"
+       ]
+      },
+      "q21": {
+       "type": "noul",
+       "instructions": "Is the customer threatening to cancel the service?"
+      },
+      "q22": {
+       "type": "choice",
+       "instructions": "What is the overall sentiment of the message?",
+       "criteria": [
+        "positive",
+        "neutral",
+        "negative"
+       ]
+      },
+      "q23": {
+       "type": "noul",
+       "instructions": "Does the message mention a specific invoice number?"
+      },
+      "q24": {
+       "type": "score",
+       "instructions": "How clearly does the customer describe the problem?",
+       "criteria": [
+        "unclear",
+        "partly clear",
+        "clear",
+        "very clear with evidence"
+       ]
+      },
+      "q25": {
+       "type": "noul",
+       "instructions": "Should this ticket be escalated to a human supervisor?"
+      },
+      "q26": {
+       "type": "choice",
+       "instructions": "Which team should handle this ticket?",
+       "criteria": {
+        "billing": "charges, invoices, refunds",
+        "technical": "errors, outages, broken features",
+        "account": "login, profile, permissions",
+        "other": "anything else"
+       }
+      },
+      "q27": {
+       "type": "score",
+       "instructions": "How urgent is this ticket?",
+       "criteria": [
+        "can wait",
+        "should be handled today",
+        "blocking, handle now"
+       ]
+      },
+      "q28": {
+       "type": "noul",
+       "instructions": "Is the customer threatening to cancel the service?"
+      },
+      "q29": {
+       "type": "choice",
+       "instructions": "What is the overall sentiment of the message?",
+       "criteria": [
+        "positive",
+        "neutral",
+        "negative"
+       ]
+      },
+      "q30": {
+       "type": "noul",
+       "instructions": "Does the message mention a specific invoice number?"
+      },
+      "q31": {
+       "type": "score",
+       "instructions": "How clearly does the customer describe the problem?",
+       "criteria": [
+        "unclear",
+        "partly clear",
+        "clear",
+        "very clear with evidence"
+       ]
+      }
+     },
+     "question_ids": [
+      "q0",
+      "q1",
+      "q2",
+      "q3",
+      "q4",
+      "q5",
+      "q6",
+      "q7",
+      "q8",
+      "q9",
+      "q10",
+      "q11",
+      "q12",
+      "q13",
+      "q14",
+      "q15",
+      "q16",
+      "q17",
+      "q18",
+      "q19",
+      "q20",
+      "q21",
+      "q22",
+      "q23",
+      "q24",
+      "q25",
+      "q26",
+      "q27",
+      "q28",
+      "q29",
+      "q30",
+      "q31"
+     ],
+     "lengths": [
+      52,
+      39,
+      52,
+      57,
+      54,
+      64,
+      52,
+      52,
+      39,
+      52,
+      57,
+      54,
+      64,
+      52,
+      52,
+      39,
+      52,
+      57,
+      54,
+      64,
+      52,
+      52,
+      39,
+      52,
+      57,
+      54,
+      64,
+      52,
+      52,
+      39,
+      52,
+      57
+     ],
+     "options": [
+      2,
+      3,
+      2,
+      4,
+      2,
+      4,
+      3,
+      2,
+      3,
+      2,
+      4,
+      2,
+      4,
+      3,
+      2,
+      3,
+      2,
+      4,
+      2,
+      4,
+      3,
+      2,
+      3,
+      2,
+      4,
+      2,
+      4,
+      3,
+      2,
+      3,
+      2,
+      4
+     ]
+    },
+    {
+     "seed": 3,
+     "state": "The subscription 9916 was billed on the annual plan. Please confirm once it is a",
+     "questions": {
+      "q0": {
+       "type": "choice",
+       "instructions": "What is the overall sentiment of the message?",
+       "criteria": [
+        "positive",
+        "neutral",
+        "negative"
+       ]
+      },
+      "q1": {
+       "type": "noul",
+       "instructions": "Does the message mention a specific invoice number?"
+      },
+      "q2": {
+       "type": "score",
+       "instructions": "How clearly does the customer describe the problem?",
+       "criteria": [
+        "unclear",
+        "partly clear",
+        "clear",
+        "very clear with evidence"
+       ]
+      },
+      "q3": {
+       "type": "noul",
+       "instructions": "Should this ticket be escalated to a human supervisor?"
+      },
+      "q4": {
+       "type": "choice",
+       "instructions": "Which team should handle this ticket?",
+       "criteria": {
+        "billing": "charges, invoices, refunds",
+        "technical": "errors, outages, broken features",
+        "account": "login, profile, permissions",
+        "other": "anything else"
+       }
+      },
+      "q5": {
+       "type": "score",
+       "instructions": "How urgent is this ticket?",
+       "criteria": [
+        "can wait",
+        "should be handled today",
+        "blocking, handle now"
+       ]
+      },
+      "q6": {
+       "type": "noul",
+       "instructions": "Is the customer threatening to cancel the service?"
+      },
+      "q7": {
+       "type": "choice",
+       "instructions": "What is the overall sentiment of the message?",
+       "criteria": [
+        "positive",
+        "neutral",
+        "negative"
+       ]
+      },
+      "q8": {
+       "type": "noul",
+       "instructions": "Does the message mention a specific invoice number?"
+      },
+      "q9": {
+       "type": "score",
+       "instructions": "How clearly does the customer describe the problem?",
+       "criteria": [
+        "unclear",
+        "partly clear",
+        "clear",
+        "very clear with evidence"
+       ]
+      },
+      "q10": {
+       "type": "noul",
+       "instructions": "Should this ticket be escalated to a human supervisor?"
+      },
+      "q11": {
+       "type": "choice",
+       "instructions": "Which team should handle this ticket?",
+       "criteria": {
+        "billing": "charges, invoices, refunds",
+        "technical": "errors, outages, broken features",
+        "account": "login, profile, permissions",
+        "other": "anything else"
+       }
+      },
+      "q12": {
+       "type": "score",
+       "instructions": "How urgent is this ticket?",
+       "criteria": [
+        "can wait",
+        "should be handled today",
+        "blocking, handle now"
+       ]
+      },
+      "q13": {
+       "type": "noul",
+       "instructions": "Is the customer threatening to cancel the service?"
+      },
+      "q14": {
+       "type": "choice",
+       "instructions": "What is the overall sentiment of the message?",
+       "criteria": [
+        "positive",
+        "neutral",
+        "negative"
+       ]
+      },
+      "q15": {
+       "type": "noul",
+       "instructions": "Does the message mention a specific invoice number?"
+      },
+      "q16": {
+       "type": "score",
+       "instructions": "How clearly does the customer describe the problem?",
+       "criteria": [
+        "unclear",
+        "partly clear",
+        "clear",
+        "very clear with evidence"
+       ]
+      },
+      "q17": {
+       "type": "noul",
+       "instructions": "Should this ticket be escalated to a human supervisor?"
+      },
+      "q18": {
+       "type": "choice",
+       "instructions": "Which team should handle this ticket?",
+       "criteria": {
+        "billing": "charges, invoices, refunds",
+        "technical": "errors, outages, broken features",
+        "account": "login, profile, permissions",
+        "other": "anything else"
+       }
+      },
+      "q19": {
+       "type": "score",
+       "instructions": "How urgent is this ticket?",
+       "criteria": [
+        "can wait",
+        "should be handled today",
+        "blocking, handle now"
+       ]
+      },
+      "q20": {
+       "type": "noul",
+       "instructions": "Is the customer threatening to cancel the service?"
+      },
+      "q21": {
+       "type": "choice",
+       "instructions": "What is the overall sentiment of the message?",
+       "criteria": [
+        "positive",
+        "neutral",
+        "negative"
+       ]
+      },
+      "q22": {
+       "type": "noul",
+       "instructions": "Does the message mention a specific invoice number?"
+      },
+      "q23": {
+       "type": "score",
+       "instructions": "How clearly does the customer describe the problem?",
+       "criteria": [
+        "unclear",
+        "partly clear",
+        "clear",
+        "very clear with evidence"
+       ]
+      },
+      "q24": {
+       "type": "noul",
+       "instructions": "Should this ticket be escalated to a human supervisor?"
+      },
+      "q25": {
+       "type": "choice",
+       "instructions": "Which team should handle this ticket?",
+       "criteria": {
+        "billing": "charges, invoices, refunds",
+        "technical": "errors, outages, broken features",
+        "account": "login, profile, permissions",
+        "other": "anything else"
+       }
+      },
+      "q26": {
+       "type": "score",
+       "instructions": "How urgent is this ticket?",
+       "criteria": [
+        "can wait",
+        "should be handled today",
+        "blocking, handle now"
+       ]
+      },
+      "q27": {
+       "type": "noul",
+       "instructions": "Is the customer threatening to cancel the service?"
+      },
+      "q28": {
+       "type": "choice",
+       "instructions": "What is the overall sentiment of the message?",
+       "criteria": [
+        "positive",
+        "neutral",
+        "negative"
+       ]
+      },
+      "q29": {
+       "type": "noul",
+       "instructions": "Does the message mention a specific invoice number?"
+      },
+      "q30": {
+       "type": "score",
+       "instructions": "How clearly does the customer describe the problem?",
+       "criteria": [
+        "unclear",
+        "partly clear",
+        "clear",
+        "very clear with evidence"
+       ]
+      },
+      "q31": {
+       "type": "noul",
+       "instructions": "Should this ticket be escalated to a human supervisor?"
+      }
+     },
+     "question_ids": [
+      "q0",
+      "q1",
+      "q2",
+      "q3",
+      "q4",
+      "q5",
+      "q6",
+      "q7",
+      "q8",
+      "q9",
+      "q10",
+      "q11",
+      "q12",
+      "q13",
+      "q14",
+      "q15",
+      "q16",
+      "q17",
+      "q18",
+      "q19",
+      "q20",
+      "q21",
+      "q22",
+      "q23",
+      "q24",
+      "q25",
+      "q26",
+      "q27",
+      "q28",
+      "q29",
+      "q30",
+      "q31"
+     ],
+     "lengths": [
+      39,
+      52,
+      57,
+      54,
+      64,
+      52,
+      52,
+      39,
+      52,
+      57,
+      54,
+      64,
+      52,
+      52,
+      39,
+      52,
+      57,
+      54,
+      64,
+      52,
+      52,
+      39,
+      52,
+      57,
+      54,
+      64,
+      52,
+      52,
+      39,
+      52,
+      57,
+      54
+     ],
+     "options": [
+      3,
+      2,
+      4,
+      2,
+      4,
+      3,
+      2,
+      3,
+      2,
+      4,
+      2,
+      4,
+      3,
+      2,
+      3,
+      2,
+      4,
+      2,
+      4,
+      3,
+      2,
+      3,
+      2,
+      4,
+      2,
+      4,
+      3,
+      2,
+      3,
+      2,
+      4,
+      2
+     ]
+    }
+   ]
+  }
+ }
+}
