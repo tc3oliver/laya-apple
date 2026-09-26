@@ -141,7 +141,9 @@ def main():
         with tlock:
             trace_rows.append(row)
 
-    kw = {"ane_handoff": a.cell == "P"}  # addendum 3: the prototype's handoff is opt-in
+    # addendum 3: the handoff is opt-in. Cell A passes nothing, so it runs the default production path
+    # on any laya-apple version (with the handoff code, the default is ane_handoff=False).
+    kw = {"ane_handoff": True} if a.cell == "P" else {}
     laya_auto = Laya.from_pretrained(
         a.model, device="auto", execution="workers", local_files_only=True, trace=record, **kw
     )
