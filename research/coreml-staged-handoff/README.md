@@ -1,6 +1,8 @@
 # Staged handoff: PB-ASYNC behind a request-count guard (1.5 execution closure)
 
-**Status: run. Outcome: RESEARCH-CLOSED / NO PRODUCT CHANGE.** Neither candidate replicated.
+**Status: run. Outcome: RESEARCH-CLOSED / NO PRODUCT CHANGE.** Neither candidate replicated in the
+screen, and the separate H64 confirmation ([`confirmation.md`](confirmation.md)) FAILED on its
+latency outlier guard. The staged-handoff route is closed and production stays A.
 - **Records.** The criteria, gates and outcome rules are in [`criteria.md`](criteria.md), committed
   before any formal run (2978d1a), with addenda 1–4 each committed before the runs it concerns.
   Issue #101.
@@ -59,6 +61,38 @@ Can PB-ASYNC become a production-safe GPU+ANE path that is never worse than toda
 | transitions failing any gate | 3 of 10 | 1 of 10 (by 0.27 µs, P99 only) |
 | handoff time after t0 | 0.43–0.44 s | 0.76–0.77 s |
 
+## H64 confirmation (separate study)
+
+- **Records.** Preregistered in [`confirmation.md`](confirmation.md) (a83ddd3), before any of its
+  runs. Numbers: [`confirm_tables.md`](confirm_tables.md), [`confirm_results.json`](confirm_results.json);
+  raw data: [`raw-conf/`](raw-conf/).
+- **Design.** 16 fresh-process runs, 8 of A and 8 of H64, in a fixed interleaved order, paired
+  within blocks. That gives 16 transition pairs.
+- **It changes nothing in the screen's outcome.**
+
+**Outcome: FAILED on the latency outlier guard.** H64 r8 cycle 1 (after gpu_only) had a window
+P99 of 13.78 ms against its paired A's 11.35 ms: delta +2.43 ms, over the +2.0 ms guard. Its onset
+P99 delta was +3.24 ms. The rule closes the H64 route.
+
+**Everything else passed:**
+- **Hard safety gates:** 16 of 16 H64 transitions passed every one:
+  - correctness: 0 mismatches, 0 routing failures, 0 crashes, 64 sync forwards before t_h in every
+    transition;
+  - host slow: transient from t_h 0.0 s, steady host-slow ≤ 0.001;
+  - GPU return from t_h + 1 s: P50 0.034–0.042 ms, P95 0.058–0.097 ms, P99 0.103–0.282 ms. A's
+    was P50 4.31–4.48 ms and P99 5.41–6.29 ms;
+  - throughput: 127.3–128.6 req/s, against A's 121.9–122.5;
+  - Core ML: native mean 9.37–9.41 ms.
+- **Post-handoff E residency:** no E-resident 0.5 s bin in any of the 16 transitions. The #96 / #99
+  state did not recur.
+- **Population latency gate:**
+  - median delta P99 −0.27 ms;
+  - run-pair bootstrap one-sided 95% upper bound +0.30 ms.
+- **The failure is a tail event, not the post-handoff slow state.** Four of the 16 pairs had H64's
+  P99 above A's (+0.94 to +2.43 ms), each in a single window, with no E-core residency and with
+  normal throughput. What causes those tails is not identified here. Under the preregistered rule,
+  they make H64 not non-inferior in every transition.
+
 ## What this does and does not show
 
 - **PB-ASYNC's steady-state benefits are real.** When its threads run on P cores:
@@ -71,8 +105,8 @@ Can PB-ASYNC become a production-safe GPU+ANE path that is never worse than toda
   mechanism table).
   - A guard that ends at a fixed count can hand over before the promotion. H32's r3 cycle-1 failure
     started exactly at the handoff.
-  - H64 hands over later and had no residency in 10 transitions. That does not show it cannot
-    happen.
+  - H64 hands over later. It had no residency in the screen's 10 transitions and in the
+    confirmation's 16, but the confirmation found a user-visible P99 tail over its outlier guard.
 - **No scheduler root cause is claimed.** The P/E counters are research-only.
 - **Routes already ruled out:**
   - moving the ANE into a worker process: it isolates GPU completion but costs ANE latency and throughput;
@@ -104,6 +138,8 @@ LAYA_APPLE_CACHE=... HF_HUB_OFFLINE=1 sh research/coreml-staged-handoff/scripts/
 LAYA_APPLE_CACHE=... HF_HUB_OFFLINE=1 sh research/coreml-staged-handoff/scripts/run_all.sh 2 H32
 LAYA_APPLE_CACHE=... HF_HUB_OFFLINE=1 sh research/coreml-staged-handoff/scripts/run_all.sh 2 H64 fallback
 uv run python research/coreml-staged-handoff/scripts/analyze.py      # --check to verify
+LAYA_APPLE_CACHE=... HF_HUB_OFFLINE=1 sh research/coreml-staged-handoff/scripts/run_conf.sh   # the confirmation
+uv run python research/coreml-staged-handoff/scripts/confirm_analyze.py   # --check to verify
 ```
 
 Unit tests: `tests/unit/test_staged_handoff.py`.
