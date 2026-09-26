@@ -170,6 +170,95 @@ If the ANE worker process dies:
   issued once;
 - explicit `device="ane"` requests keep raising.
 
+### Adaptive ANE execution (in-process ANE, the default since 1.5)
+
+With the ANE on a thread in your process (`laya`, `laya-typed-decisions`), coremltools'
+`predict` holds the GIL for much of each ANE call, which delays the GPU worker's completions
+in your process. Core ML's asynchronous prediction API with prebound buffers
+(`backends/coreml_async.py`) releases it. On a contended Mac, though, that path can fall into
+a slow state: its threads sit on the efficiency cores
+([`research/coreml-async-transient/`](../research/coreml-async-transient/README.md)) and the
+median short latency rises from about 10.0 to 12.3 ms. Adaptive execution (`laya_apple/handoff.py`) uses the fast path while it is healthy and
+falls back to the 1.4 path when it is not.
+
+**How it works:**
+- Outside a GPU+ANE overlap, every ANE forward runs coremltools' `predict`, as in 1.4.
+- **An episode starts** when an ANE forward arrives while the GPU worker has work queued or
+  running, or finished it at most 1.0 s earlier.
+  - Its first 64 ANE forwards run coremltools' `predict`, which steps over the transient at
+    the start of an overlap.
+  - Later forwards run the asynchronous path.
+- **The breaker:** every completed asynchronous request's prepare time (tokenising and
+  layout, `RequestTrace.prepare_ms`) is observed.
+  - Three consecutive requests above 0.3 ms open the breaker.
+  - From then on, every ANE forward of the episode runs coremltools' `predict`: no retry
+    within the episode.
+  - A request already running is never cancelled or re-sent.
+- **The episode ends,** and the next overlap starts again with 64 synchronous forwards, when
+  the GPU has been idle for more than 1.0 s or no ANE forward came for more than 1.0 s.
+- **Only real requests move the state:** no background thread, no timer, no sleep, no CPU
+  counters, no QoS call and no private API. The breaker needs no `trace=` callback.
+- **"GPU active" means this instance's own GPU worker.** GPU work from another process, such
+  as a local LLM, does not start an episode. Without laya-apple's own GPU work, the ANE runs
+  the 1.4 path anyway.
+- **Start-up cost:** it loads a second Core ML model per ANE bucket, plus its load checks.
+  That adds to start-up time and memory; neither was measured.
+
+**Measured** on one Apple M4 Max
+([`research/coreml-adaptive-breaker/`](../research/coreml-adaptive-breaker/README.md)):
+- **Healthy async:** in 154 production episodes of laya and laya-typed-decisions (product
+  mix, bursts, repeated transitions and a 66-episode typed soak), every episode stayed on the
+  fast path.
+  - GPU return was 0.035–0.043 ms, against 4.3 ms (laya) and 8.6 ms (typed-decisions) on the
+    1.4 path.
+  - Throughput was 1.038–1.042 × the 1.4 path, and the median episode P99 was 0.18–0.53 ms
+    lower.
+- **The slow state:** none occurred naturally in those runs. The recovery experiment
+  covered 12 episodes where the asynchronous path was already slow. In all 12 the breaker
+  tripped within 40 ms of watching it, and latency was back to 1.4's within 164–414 ms.
+
+**Control.** `ane_handoff=None` (the default) uses adaptive execution wherever it is eligible
+and available:
+- It is eligible with `execution="workers"`, `device="auto"` and a model whose measured ANE
+  placement is `thread`, not overridden to `process`.
+  - `laya-multilingual`, whose ANE runs in a worker process, never uses it, even with
+    `ane_placement="thread"`.
+- It is available when:
+  - the ANE path starts;
+  - `pyobjc-framework-CoreML` is importable (it is part of the `ane` extra);
+  - Core ML has the asynchronous prediction API;
+  - the asynchronous models load and pass their load checks.
+- When an eligible instance cannot use it, the instance runs the 1.4 path. The reason is
+  warned once per process and recorded in `info()["ane_handoff"]["disabled_reason"]`.
+
+The other values:
+- `ane_handoff=False` always runs the 1.4 path.
+- `ane_handoff=True` requires adaptive execution:
+  - an ineligible configuration raises `ValueError` before anything is downloaded;
+  - `ane_startup="background"` raises `ValueError`, because a background start-up cannot
+    raise to the caller;
+  - an unavailable path raises `BackendUnavailableError` at start-up.
+
+**Correctness.** Both paths run the same verified artifact on `CPU_AND_NE` in FP16; only the
+Python call into Core ML differs.
+- At load, each asynchronous bucket's outputs must be identical to coremltools' (names,
+  shapes, dtypes and values), and it must pass the placement probe's ratio.
+- The parity suite runs the asynchronous path against the goldens and requires every output
+  to equal coremltools' exactly.
+- Every asynchronous predict reads its outputs from the array Core ML returned for that
+  predict.
+
+**Failures.** The coremltools path is the production path, not a fallback device: a request
+never changes device, compute units, artifact or precision because of adaptive execution.
+- If an asynchronous predict fails, or does not complete within 5 s, that forward runs again
+  on coremltools' `predict`, still on the Neural Engine. Adaptive execution is then disabled
+  with one warning, and every later ANE forward runs the 1.4 path.
+- If its own state is ever found inconsistent, it disables itself the same way.
+- `info()["ane_handoff"]` reports:
+  - the state, the guard, the episode count and the forwards per path;
+  - the breaker's count, whether it is open and its trips;
+  - whether it is disabled and why, and whether its state is consistent.
+
 ## The ANE path: building artifacts
 
 `device="ane"` and the auto-ANE path need a Core ML artifact for the exact

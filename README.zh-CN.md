@@ -253,6 +253,20 @@ with Laya.from_pretrained("convaiinnovations/laya-typed-decisions", execution="w
 - 每个请求只在一个设备上运行，由路由器选择。
 - 有负载时，路由器还会比较各队列的积压情况。
 
+**GPU + Neural Engine 服务会随系统负载自动调整（1.5）。**
+- **Mac 空闲时：** laya 和 laya-typed-decisions 会让 Neural Engine 走更快的异步路径，不再拖慢
+  GPU 返回结果。
+- **Mac 变得繁忙时：** 自动退回 1.4 的执行路径。
+- **在一台 M4 Max 上、与 1.4 路径相比：** 154 个 production episode 全程停留在快速路径：
+  - GPU 结果返回从 4.3 ms（laya）和 8.6 ms（typed-decisions）降到 0.04 ms；
+  - 吞吐量为 1.4 路径的 1.04 倍；
+  - P99 低 0.2–0.5 ms。
+- **恢复：** 快速路径确实变慢的情况下（记录到的 12 个 episode），延迟在 0.42 s 内回到 1.4 的水平。
+
+默认开启，无需修改代码。来源：
+[`research/coreml-adaptive-breaker/`](research/coreml-adaptive-breaker/README.md)；工作原理：
+[`docs/guide.md`](docs/guide.md#adaptive-ane-execution-in-process-ane-the-default-since-15)。
+
 想知道某个请求为什么慢，可以传入一个回调函数。每完成一个请求，它都会收到一个 `RequestTrace`：
 路由器做决定时看到的队列快照、它选择的设备和原因，以及从提交、排队、执行到响应的 monotonic 时间戳。
 
@@ -361,6 +375,13 @@ uv run python scripts/hardware_report.py --quick
   我们不假定路由阈值在其他 Apple SoC 上同样成立。
 - **长 context 留在 MLX 上运行，** 因为 MLX 在这种情况下更快。ANE 路径仅支持 batch 1。
 - **并发的请求流之间无法完全隔离。** 并发运行时，每条请求流的 P99 都高于单独运行时。
+- **自适应 ANE 执行只在一台 M4 Max 上测量过。**
+  - 154 个验证 episode 都没有出现变慢状态，所以退回后的恢复数据来自同一台机器上另外 12 个
+    episode 的实验。
+  - 每段 GPU + ANE 重叠的前 64 个 Neural Engine 请求走 1.4 路径。
+  - laya-multilingual 的 Neural Engine 在 worker process 中运行，不使用此功能。
+  - `laya-apple serve` 默认也会使用，但没有在 serve 中或本地 LLM 旁测量过。上方的 serve 数据是在
+    1.3 路径上测量的。
 - **Cold start 需要编译：** 如果 artifact 目录是全新的，cold start 时每个模型需要 3–5 分钟编译 Core ML。
   设置 `ane_startup="background"` 时，这段时间会先用 MLX 提供服务。
 - **`choice` 决策可能受选项顺序影响。** 这是上游 Laya 本身的行为，laya-apple 完全复现了这一点

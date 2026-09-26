@@ -269,6 +269,22 @@ with Laya.from_pretrained("convaiinnovations/laya-typed-decisions", execution="w
 - Each request runs on one device, chosen by the router.
 - Under load, the router also compares queue backlogs.
 
+**GPU + Neural Engine serving adapts to system load (1.5).**
+- **When the Mac is quiet,** laya and laya-typed-decisions run the Neural Engine on a faster
+  asynchronous path. It keeps it from delaying the GPU's results.
+- **When the Mac becomes contended,** they fall back automatically to the 1.4 execution path.
+- **Measured on one M4 Max, against the 1.4 path,** over 154 production episodes, every one of
+  which stayed on the fast path:
+  - GPU results came back in 0.04 ms instead of 4.3 ms (laya) and 8.6 ms (typed-decisions);
+  - throughput was 1.04× the 1.4 path's;
+  - P99 was 0.2–0.5 ms lower.
+- **Recovery:** where the fast path did slow down (12 recorded episodes), latency was back to
+  1.4's within 0.42 s.
+
+It is on by default and needs no code change. Sources:
+[`research/coreml-adaptive-breaker/`](research/coreml-adaptive-breaker/README.md); how it
+works: [`docs/guide.md`](docs/guide.md#adaptive-ane-execution-in-process-ane-the-default-since-15).
+
 To see why a request was slow, pass a callback. It receives one `RequestTrace` per
 completed request: the queue snapshot the router decided on, the device and reason it chose,
 and monotonic timestamps from submit through queue, service and response.
@@ -380,6 +396,13 @@ the command above and open a PR with `hardware-results/`
   thresholds are not assumed to hold on other Apple SoCs.
 - **Long contexts stay on MLX,** which is faster there. The ANE path is batch 1 only.
 - **Isolation is partial.** Under concurrency, each stream's P99 is above its solo value.
+- **Adaptive ANE execution is measured on one M4 Max only.**
+  - No slow state occurred in its 154 validation episodes, so its fallback's recovery comes
+    from a separate 12-episode experiment on the same machine.
+  - The first 64 Neural Engine requests of every GPU + ANE overlap run the 1.4 path.
+  - laya-multilingual, whose Neural Engine runs in a worker process, does not use it.
+  - `laya-apple serve` uses it by default, but it was not measured in serve or beside a local
+    LLM. The serve numbers above were measured on the 1.3 path.
 - **Cold start** on a fresh artifact location costs 3–5 minutes of Core ML compile per
   model. `ane_startup="background"` serves on MLX in the meantime.
 - **`choice` decisions can depend on option order.** This comes from upstream Laya, and

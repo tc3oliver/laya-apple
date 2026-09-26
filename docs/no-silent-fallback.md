@@ -62,13 +62,14 @@ decision in `laya_apple/`, as of the 1.0.0 release.
 | 19 | An unreadable or unknown-format local profile | Ignored with a `RuntimeWarning` | `test_no_silent_fallback.py::test_unreadable_local_profile_is_warned` |
 | 20 | Offline requested and the checkpoint is not cached | `BackendUnavailableError` with download instructions; never goes online | `test_no_silent_fallback.py::test_offline_with_an_uncached_checkpoint_raises_and_never_downloads` |
 | 21 | Worker processes' warnings | Only laya-apple's own load warnings, which the parent re-issues, are filtered; Core ML, coremltools and NumPy warnings stay visible | — |
+| 22 | Adaptive ANE execution (in-process ANE, the default since 1.5): a forward runs coremltools' `predict` or the asynchronous prebound predict of the same verified artifact on `CPU_AND_NE` in FP16 | Not a device, compute-unit, artifact or precision change. The async outputs must be identical to coremltools' at load, and the parity suite checks them against the goldens. The default: when unavailable (no `pyobjc-framework-CoreML`, or the async models fail to load) the instance runs the 1.4 path, with one `RuntimeWarning` per process and the reason in `info()["ane_handoff"]`. With `ane_handoff=True` it raises `BackendUnavailableError` instead, and `ane_startup="background"` is rejected. An async predict failure or timeout re-runs that forward on coremltools' `predict` (still the ANE), disables the path and warns once, as does a state found inconsistent. The slow-state breaker only switches the Core ML path. An ineligible `ane_handoff=True` raises `ValueError` | `tests/unit/test_handoff.py`, `tests/parity/test_ane_async_parity.py` |
 
 **Paths that catch an exception and carry on.** Every `except` clause in the package
 falls into one of these kinds:
 - **re-raises** a specific error;
 - **fails closed**: an unreadable stamp means full verification, and an unknown platform
   field means a profile mismatch;
-- **records and warns**: rows 6, 14, 16, 18 and 19;
+- **records and warns**: rows 6, 14, 16, 18, 19 and 22;
 - **resource clean-up**: `close()` and `__del__`, which cannot change the device of any
   request.
 
