@@ -1,0 +1,50 @@
+{
+ "experiment": "ane-w8/build",
+ "model": "laya",
+ "revision": "c5d78730f3493e4fe16d61507ef4b78eef7318cf",
+ "length": 96,
+ "config": "w8-gc32",
+ "palettizer": {
+  "mode": "kmeans",
+  "nbits": 8,
+  "granularity": "per_grouped_channel",
+  "group_size": 32,
+  "weight_threshold": 65536,
+  "op_type": "conv",
+  "num_kmeans_workers": 8
+ },
+ "started_at": "2026-09-26T16:00:55.042844+00:00",
+ "environment": {
+  "laya_apple": "1.5.0",
+  "git_revision": "06391223cc0bbad3964ec427f62121c41f890c78-dirty",
+  "python": "3.12.14",
+  "packages": {
+   "coremltools": "9.0",
+   "torch": "2.7.0",
+   "numpy": "2.1.3",
+   "mlx": "0.32.2",
+   "tokenizers": "0.23.2",
+   "safetensors": "0.8.0"
+  },
+  "platform": {
+   "soc": "Apple M4 Max",
+   "macos": "26.6.2",
+   "macos_build": "25G83",
+   "coremltools": "9.0"
+  },
+  "loadavg": [
+   2.798828125,
+   5.46240234375,
+   9.54541015625
+  ]
+ },
+ "artifact_dir": "<research-root>/laya/c5d78730f349/bc1s-masked-w8-gc32-L96-B1",
+ "timings": {
+  "convert_s": 27.351019292138517
+ },
+ "step": "palettize",
+ "layout_check_max_abs_logit_fp32": 1.430511474609375e-06,
+ "error": "ValueError: Pool not running",
+ "traceback": "Traceback (most recent call last):\n  File \"<repo>/research/ane-w8/scripts/build_w8.py\", line 172, in build_cell\n    mlmodel = palettize(mlmodel, config)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo>/research/ane-w8/scripts/build_w8.py\", line 75, in palettize\n    return palettize_weights(mlmodel, OptimizationConfig(op_type_configs={\"conv\": op}))\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<venv>/lib/python3.12/site-packages/coremltools/optimize/coreml/_post_training_quantization.py\", line 49, in decorator\n    return func(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^\n  File \"<venv>/lib/python3.12/site-packages/coremltools/optimize/coreml/_post_training_quantization.py\", line 267, in palettize_weights\n    return _model_utils._apply_graph_pass(mlmodel, weight_palettizer)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<venv>/lib/python3.12/site-packages/coremltools/models/utils.py\", line 1369, in _apply_graph_pass\n    cur_graph_pass.apply(prog)\n  File \"<venv>/lib/python3.12/site-packages/coremltools/optimize/coreml/_quantization_passes.py\", line 127, in apply\n    apply_block(f)\n  File \"<venv>/lib/python3.12/site-packages/coremltools/converters/mil/mil/passes/helper.py\", line 64, in wrapper\n    return _func(*args)\n           ^^^^^^^^^^^^\n  File \"<venv>/lib/python3.12/site-packages/coremltools/optimize/coreml/_quantization_passes.py\", line 124, in apply_block\n    self.transform_op(op)\n  File \"<venv>/lib/python3.12/site-packages/coremltools/optimize/coreml/_quantization_passes.py\", line 1073, in transform_op\n    lut_params = self.blockwise_compress(\n                 ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<venv>/lib/python3.12/site-packages/coremltools/optimize/coreml/_quantization_passes.py\", line 865, in blockwise_compress\n    return palettize_weights.grouped_channelwise_compress(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<venv>/lib/python3.12/site-packages/coremltools/optimize/coreml/_quantization_passes.py\", line 962, in grouped_channelwise_compress\n    *palettize_weights._compress_pool.starmap(\n     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<python>/lib/python3.12/multiprocessing/pool.py\", line 375, in starmap\n    return self._map_async(func, iterable, starmapstar, chunksize).get()\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<python>/lib/python3.12/multiprocessing/pool.py\", line 476, in _map_async\n    self._check_running()\n  File \"<python>/lib/python3.12/multiprocessing/pool.py\", line 353, in _check_running\n    raise ValueError(\"Pool not running\")\nValueError: Pool not running\n",
+ "finished_at": "2026-09-26T16:01:25.149406+00:00"
+}

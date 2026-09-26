@@ -133,7 +133,11 @@ Where they differ from upstream:
   "release_date", "loaded", "default"}]}`.
 - **`GET /health`** and **`GET /healthz`** need no auth. They return the version, the default,
   the loaded checkpoints and each one's Neural Engine state: `warming`, `ready` or
-  `unavailable` (with the reason).
+  `unavailable` (with the reason). For a checkpoint that uses adaptive ANE execution
+  (laya and laya-typed-decisions under `--device auto`, since 1.5), that entry also has
+  `handoff`: the same snapshot as `Laya.info()["ane_handoff"]` ([`api.md`](api.md)), with the
+  current state, the episode count, the breaker's trips and the forwards run on each Core ML
+  path.
 
 ## Running it
 
@@ -234,17 +238,43 @@ questions at 128 tokens. `serve --model laya` ran once with `--device gpu` and o
 - **Run 1** of the same benchmark ([`m4-max/`](../benchmarks/serve/m4-max/)) was invalid
   under its own validity checks, and no result is drawn from it.
 
+**Run 3, with the 1.5 defaults** ([`m4-max-r3/tables.md`](../benchmarks/serve/m4-max-r3/tables.md)):
+the same protocol and criteria as run 2, on laya-apple 1.5.0 beside the same model on oMLX
+0.7.0rc1. It was valid, and every preregistered criterion passed.
+
+| | `--device gpu` | `--device auto` |
+|---|---:|---:|
+| Short-decision P99, LLM idle | 54.6 ms | 43.4 ms |
+| Short-decision P99, LLM busy | 79.5 ms | 41.7 ms |
+| Three-question P99, LLM idle | 72.2 ms | 86.6 ms |
+| Three-question P99, LLM busy | 97.0 ms | 104.9 ms |
+| LLM tok/s beside serve (LLM alone: 43.3) | 41.2 (−4.7%) | 42.3 (−2.2%) |
+
+- **Adaptive execution was enabled in every `auto` window, and its asynchronous path never
+  engaged.** All 3,222 Neural Engine forwards ran on the 1.4 Core ML path, over 133 episodes,
+  with 0 breaker trips. About 24 forwards per episode is below the 64-forward guard: serve's
+  own GPU work (the three-question calls) often paused for more than 1 s, which ends an
+  episode. Run 3 therefore measures 1.5 serve as shipped on this workload, not the
+  asynchronous path.
+- **Correctness:** 0 hard mismatches and 0 errors over 7,728 decisions; max probability error
+  0.0039.
+- The two configurations' cost to the LLM differ by 2.6 points, against a 2.0-point spread
+  of the LLM-alone windows.
+- **Run 2 against run 3 is descriptive only.** They are separate campaigns on different
+  days, with different laya-apple (1.3.0 / 1.5.0) and oMLX (0.7.0.dev4 / 0.7.0rc1) versions,
+  and no verdict is drawn from the differences.
+
 ## Limits
 
-- **Adaptive ANE execution (1.5) is on in serve by default and not measured in serve.**
+- **Adaptive ANE execution (1.5) is on in serve by default; its asynchronous path is not
+  measured in serve.**
   - `serve` loads laya and laya-typed-decisions with `execution="workers"` and
     `device="auto"`, so it uses adaptive execution ([`guide.md`](guide.md#adaptive-ane-execution-in-process-ane-the-default-since-15)).
-  - Its validation ran the library's closed-loop harness, not serve, and never beside a local
-    LLM.
-  - The "Beside a local LLM" numbers were measured on the 1.3 code path, which is the path
-    adaptive execution falls back to.
-  - Its breaker only sees GPU work from laya-apple's own worker, not from another process
-    such as the LLM.
+  - Run 3 of "Beside a local LLM" measured serve with it enabled, but the asynchronous path
+    never engaged: every Neural Engine forward ran on the 1.4 Core ML path. Its validation
+    ran the library's closed-loop harness, not serve, and never beside a local LLM.
+  - Its episodes and breaker only see GPU work from laya-apple's own worker, not from another
+    process such as the LLM.
 - **No Jev accuracy claim.** Only runtime fidelity to upstream Laya is guaranteed and tested.
 - **Client thresholds tuned on Jev** may rarely trigger on Laya's confidences (see
   "Client compatibility").
@@ -253,17 +283,19 @@ questions at 128 tokens. `serve --model laya` ran once with `--device gpu` and o
 - **`auto` routes between English and multilingual only.** Upstream's opt-in typed-decisions
   workflow detection (`LAYA_AUTO_TASK`) and caller language hints are not implemented. Name
   the checkpoint or use `--model` instead.
-- **Performance is one run in one setting** (see "Beside a local LLM"): one M4 Max, one LLM
-  server and model, a decode-heavy LLM load with short prompts, `--model laya`, 8 decision
-  requests per second offered. Not measured: other LLM servers and models, prefill-heavy
-  LLM loads, other request rates, serve's maximum decision throughput (run 2 used a fixed
-  8 req/s offered load), and the other checkpoints (`laya-typed-decisions`,
-  `--model laya-multilingual`) and `--model auto` (language routing).
-- **`auto` still costs the LLM throughput:** 4.0% in that run, 1.31 points less than
-  `--device gpu`, against a 1.28-point window-to-window spread of the LLM alone. It is not
-  shown to leave the GPU to the LLM by more than that.
+- **Performance is two valid runs in one setting** (runs 2 and 3, see "Beside a local LLM"):
+  one M4 Max, one LLM server and model, a decode-heavy LLM load with short prompts,
+  `--model laya`, 8 decision requests per second offered. Not measured: other LLM servers and
+  models, prefill-heavy LLM loads, other request rates, serve's maximum decision throughput
+  (both runs used a fixed 8 req/s offered load), and the other checkpoints
+  (`laya-typed-decisions`, `--model laya-multilingual`) and `--model auto` (language routing).
+- **`auto` still costs the LLM throughput:** 4.0% in run 2, 1.31 points less than
+  `--device gpu`, against a 1.28-point window-to-window spread of the LLM alone; 2.2% in run
+  3, 2.6 points less, against a 2.0-point spread. It is not shown to leave the GPU to the LLM
+  by more than those margins.
 - **Multi-question decisions always run on the GPU,** so they do share it with the LLM: their
   P99 grew from 84.1 ms to 117.1 ms with `auto`, and from 79.4 ms to 153.1 ms with
-  `--device gpu`, when the LLM was busy.
+  `--device gpu`, when the LLM was busy (run 2); from 86.6 to 104.9 ms and from 72.2 to
+  97.0 ms in run 3.
 - **Truncation.** Long states are cut to the checkpoint's maximum length: 512 tokens for
   `laya`, 1,024 for the others. `laya_apple.truncated` reports it.
