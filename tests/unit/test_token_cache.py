@@ -1,7 +1,7 @@
 """The token-id cache of prompt.Tokenizer: exact (same ids as tokenizing), bounded, thread-safe.
 
 A small word-level tokenizer is built with the `tokenizers` library in a temporary directory,
-so no checkpoint is needed. tests/integration/test_token_cache.py checks the real tokenizers
+so no checkpoint is needed. tests/integration/test_token_cache_goldens.py checks the real tokenizers
 against the goldens.
 """
 
