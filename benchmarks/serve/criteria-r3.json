@@ -1,0 +1,93 @@
+{
+ "about": "Preregistered criteria for run 3 of benchmarks/serve (serve decisions beside a local LLM), with the laya-apple 1.5 defaults: serve --device auto runs laya with adaptive ANE execution (laya_apple/handoff.py). Written after run 2 (m4-max-r2) and before any run-3 data; not changed after run-3 data is seen. Every result criterion (G1, G2, L1, L2, C1, E1) and every validity check (V1-V5) is copied unchanged from criteria-r2.json. Added, and not gated: the adaptive-execution state recorded per window (recorded_not_gated) and one applicability check (A1) that decides only how the run may be described. Definitions in README.md (Run 3); analyze.py implements them.",
+ "revision": "r3",
+ "results": {
+  "gpu_free": {
+   "G1_llm_cost_auto": {
+    "metric": "1 - median(tok/s, auto decisions_llm windows) / median(tok/s, llm_alone windows)",
+    "max": 0.05
+   },
+   "G2_auto_below_gpu_only": {
+    "metric": "drop(gpu) - drop(auto), where drop(c) = 1 - median(tok/s, c decisions_llm) / median(tok/s, llm_alone)",
+    "must_exceed": "llm_alone_noise = (max - min) / median of tok/s over llm_alone windows"
+   }
+  },
+  "decision_latency": {
+   "L1_short_p99_loaded_abs_ms": {
+    "metric": "median over auto decisions_llm windows of the per-window short_1q P99, from scheduled arrival to response",
+    "max": 50.0
+   },
+   "L2_short_p99_loaded_vs_unloaded": {
+    "metric": "L1's value / the same statistic over auto decisions windows",
+    "max": 1.5
+   }
+  },
+  "correctness": {
+   "C1_fp16_gate": {
+    "metric": "every decision in every decisions / decisions_llm window of both configs, against the same serve process's unloaded reference",
+    "prob_err_max": 0.02,
+    "act_err_max": 0.02,
+    "hard_mismatches": 0,
+    "near_tie_flips": "listed, not failed"
+   },
+   "E1_errors": {
+    "metric": "requests without an HTTP 200 answer (status, timeout or connection error), every decision window of both configs",
+    "max": 0
+   }
+  }
+ },
+ "validity": {
+  "V1_open_loop_client_lag_p99_ms": {
+   "max": 5.0,
+   "metric": "P99 of sent - scheduled, per decision window"
+  },
+  "V2_llm_saturated": {
+   "busy_coverage_min": 0.9,
+   "llm_errors_max": 0,
+   "metric": "per LLM window: fraction of the window during which at least one of this harness's LLM requests was in flight at the server, each request from its start_ns to its last chunk (prefill included)",
+   "reported_not_gated": "generating_coverage: fraction of the window during which tokens were streaming (run 1's V2 metric)"
+  },
+  "V3_llm_exclusive": {
+   "metric": "the LLM server was idle at window start, and its total_requests grew by exactly this harness's own request count across the window"
+  },
+  "V4_auto_short_policy_path": {
+   "min_share": 0.99,
+   "spill_reason": "ane_backlog_shorter_on_gpu",
+   "metric": "short_1q answers routed by the product policy's short path, per auto window: device ane, or device gpu with reason ane_backlog_shorter_on_gpu; any other reason on the gpu counts against it",
+   "reported_not_gated": "spill share: short_1q answers on the gpu with reason ane_backlog_shorter_on_gpu, per auto window",
+   "note": "L1 and L2 include the spilled requests"
+  },
+  "V5_references_on_expected_devices": {
+   "metric": "auto: short_1q references on ane, mixed_3q on gpu; gpu: all on gpu"
+  }
+ },
+ "recorded_not_gated": {
+  "adaptive_execution": {
+   "source": "serve GET /health, ane.<model>.handoff (Laya.info()['ane_handoff']), read before and after every decision window; a window's values span its 3 s decision warm-up and its measured window",
+   "per_window": [
+    "state before and after",
+    "enabled, disabled_reason",
+    "episodes started",
+    "breaker trips",
+    "ANE forwards on the sync (1.4) path and on the async path",
+    "async share = async / (sync + async)",
+    "consistent"
+   ],
+   "per_cell": "totals over the auto/decisions and auto/decisions_llm windows",
+   "gpu_config": "serve --device gpu is not eligible for adaptive execution; its /health has no handoff entry, which is recorded"
+  },
+  "A1_adaptive_execution_in_use": {
+   "metric": "every serve --device auto process reports ane.<model>.handoff with enabled true and consistent true before and after every one of its decision windows",
+   "effect": "not a validity check and not a result: if A1 fails, G/L/C/E keep their verdicts, but run 3 is reported as a measurement of laya-apple 1.5 installed, not of adaptive execution, and the failing windows and disabled_reason are listed"
+  },
+  "run2_comparison": "descriptive only: run 3 values beside run 2's (m4-max-r2, laya-apple 1.3.0, 1.4 Core ML path) are reported with the LLM server version and model of each run; no verdict is drawn from the difference"
+ },
+ "notes": [
+  "Throughput, latency and correctness are separate results; there is no overall PASS/FAIL.",
+  "A validity failure makes the affected result invalid (neither pass nor fail); rerun as a new campaign directory.",
+  "GPU-only (serve --device gpu) is measured with the same metrics and has no threshold: it is the comparison.",
+  "Run 1 (m4-max) is analyzed with criteria.json only; it was invalid on V2 and V4 and is not re-analyzed under these criteria.",
+  "Run 3 (m4-max-r3) uses these criteria. Runs 1 and 2 keep their own criteria and are not re-analyzed.",
+  "The decisions cells (serve running, the LLM server up but idle, no LLM requests) are the serve-only baseline; there is no separate serve-only block."
+ ]
+}

@@ -211,16 +211,36 @@ async def read_body_capped(request: Any) -> bytes:
 
 
 def ane_status(laya: Any) -> dict:
-    """The ANE path's state for /health: warming, ready or unavailable (with the reason)."""
+    """The ANE path's state for /health: warming, ready or unavailable (with the reason), plus
+    `handoff`, the adaptive-execution state of an eligible instance (Laya.info()["ane_handoff"])."""
     from . import routing
 
     state = getattr(laya, "ane_state", None)
     reason = getattr(state, "unavailable", None)
     if reason == routing.ANE_STARTING:
-        return {"status": "warming"}
-    if reason is None and getattr(laya, "ane", None) is not None and state is not None and state.buckets:
-        return {"status": "ready", "buckets": list(state.buckets)}
-    return {"status": "unavailable", "reason": reason or "no_ane_path"}
+        out = {"status": "warming"}
+    elif reason is None and getattr(laya, "ane", None) is not None and state is not None and state.buckets:
+        out = {"status": "ready", "buckets": list(state.buckets)}
+    else:
+        out = {"status": "unavailable", "reason": reason or "no_ane_path"}
+    handoff = handoff_status(laya)
+    if handoff is not None:
+        out["handoff"] = handoff
+    return out
+
+
+def handoff_status(laya: Any) -> dict | None:
+    """Laya.info()["ane_handoff"]: present only on instances eligible for adaptive execution
+    (laya and laya-typed-decisions under --device auto). None otherwise, or if info() fails:
+    /health must answer whatever state the model is in."""
+    info = getattr(laya, "info", None)
+    if not callable(info):
+        return None
+    try:
+        return info().get("ane_handoff")
+    except Exception:
+        _log.debug("info() failed while building /health", exc_info=True)
+        return None
 
 
 def default_loader(*, device: str = "auto", offline: bool = False) -> Loader:

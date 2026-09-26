@@ -277,7 +277,8 @@ The full steps, from `git clone` to the pull request, are in the
 
 Each headline number above traces to a report, raw data, a command and an environment in
 [`docs/reproducibility.md`](docs/reproducibility.md). The 1.5 evidence is in
-[`research/coreml-adaptive-breaker/`](research/coreml-adaptive-breaker/README.md).
+[`research/coreml-adaptive-breaker/`](research/coreml-adaptive-breaker/README.md). The research
+line that led to it, failed routes included, is mapped in [`research/README.md`](research/README.md).
 
 ## Limitations
 

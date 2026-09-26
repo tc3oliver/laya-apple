@@ -180,3 +180,41 @@ def test_serve_log_has_no_machine_paths():
     text = f"{ROOT}/laya_apple/model.py:191: RuntimeWarning: x\n{Path.home()}/.cache/y\n"
     out = bs.scrub_paths(text)
     assert out == "<repo>/laya_apple/model.py:191: RuntimeWarning: x\n~/.cache/y\n"
+
+
+def snap(state="async_healthy", episodes=3, trips=0, sync=192, asyn=500, enabled=True):
+    return {
+        "enabled": enabled,
+        "consistent": True,
+        "state": state,
+        "episodes": episodes,
+        "breaker": {"trips": trips},
+        "forwards": {"sync": sync, "async": asyn},
+    }
+
+
+def test_handoff_snapshot_reads_the_models_health_entry():
+    health = {"ane": {"laya": {"status": "ready", "handoff": snap()}}}
+    assert bs.handoff_snapshot(health, "laya") == snap()
+    assert bs.handoff_snapshot(health, "laya-typed-decisions") is None
+    assert bs.handoff_snapshot({"ane": {"laya": {"status": "ready"}}}, "laya") is None  # gpu / older serve
+    assert bs.handoff_snapshot({"error": "ConnectError"}, "laya") is None
+    assert bs.handoff_snapshot(None, "laya") is None
+
+
+def test_handoff_delta_is_the_windows_share_of_cumulative_counters():
+    d = bs.handoff_delta(snap("armed", 3, 0, 192, 500), snap("breaker_open", 5, 1, 400, 900))
+    assert d["present"] and d["enabled_before"] and d["enabled_after"]
+    assert (d["state_before"], d["state_after"]) == ("armed", "breaker_open")
+    assert (d["episodes"], d["trips"], d["forwards_sync"], d["forwards_async"]) == (2, 1, 208, 400)
+    assert d["async_share"] == pytest.approx(400 / 608)
+
+
+def test_handoff_delta_missing_or_disabled_snapshots():
+    assert bs.handoff_delta(None, snap()) == {"present": False}
+    disabled = {"enabled": False, "disabled": True, "disabled_reason": "no pyobjc"}
+    d = bs.handoff_delta(disabled, disabled)
+    assert d["present"] and d["enabled_after"] is False and d["disabled_reason"] == "no pyobjc"
+    assert d["episodes"] is None and d["forwards_async"] is None and d["async_share"] is None
+    idle = bs.handoff_delta(snap(), snap())  # no ANE forward in the window
+    assert idle["forwards_sync"] == 0 and idle["async_share"] is None
