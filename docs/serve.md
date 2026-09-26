@@ -133,7 +133,11 @@ Where they differ from upstream:
   "release_date", "loaded", "default"}]}`.
 - **`GET /health`** and **`GET /healthz`** need no auth. They return the version, the default,
   the loaded checkpoints and each one's Neural Engine state: `warming`, `ready` or
-  `unavailable` (with the reason).
+  `unavailable` (with the reason). For a checkpoint that uses adaptive ANE execution
+  (laya and laya-typed-decisions under `--device auto`, since 1.5), that entry also has
+  `handoff`: the same snapshot as `Laya.info()["ane_handoff"]` ([`api.md`](api.md)), with the
+  current state, the episode count, the breaker's trips and the forwards run on each Core ML
+  path.
 
 ## Running it
 
