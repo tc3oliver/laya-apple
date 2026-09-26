@@ -13,7 +13,8 @@ Smoke runs of the harness are not results and are not committed. Run 1 ([`m4-max
 was **invalid** under its own validity checks and draws no result. Run 2
 ([`m4-max-r2/`](m4-max-r2/)) ran under two revised validity definitions, preregistered before
 its data, and is valid. See [Run 1](#run-1-m4-max-invalid), [Run 2](#run-2-preregistered) and
-[Run 2 results](#run-2-m4-max-r2-results).
+[Run 2 results](#run-2-m4-max-r2-results). Run 3 repeats run 2 with the 1.5 defaults (adaptive
+ANE execution) and is [preregistered](#run-3-preregistered-15-defaults); it has no data yet.
 
 ## Question and criteria
 
@@ -160,7 +161,7 @@ uv run python benchmarks/serve/analyze.py benchmarks/serve/<machine> --check
   directory already has data. It runs `scripts/bench_serve.py campaign` and then
   `analyze.py`, which writes `results.json` and `tables.md` next to `raw/`.
 - Before the campaign starts, `run.sh` copies the criteria file it runs under (`$CRITERIA`,
-  default [`criteria-r2.json`](criteria-r2.json)) into the campaign directory as
+  default [`criteria-r3.json`](criteria-r3.json)) into the campaign directory as
   `criteria.json`. `analyze.py` reads that copy; a campaign without one (run 1) is analyzed
   with [`criteria.json`](criteria.json). `--criteria FILE` overrides both.
 - The harness never starts, stops or reconfigures the LLM server. Before each window it waits
@@ -191,6 +192,11 @@ with the reference), every LLM request (chunk times and sizes, usage), the LLM s
 and machine state before and after. `raw/refs-stepNN-<config>.json`: each serve process's
 health at start-up and its reference answers. `raw/serve-stepNN-<config>.log`: the serve
 process's log (warnings and errors only).
+
+From run 3, `campaign.json` also records the checkout's commit (`git`), and each decision
+window records serve's `/health` before its warm-up and after its measured window
+(`serve_health_before`, `serve_health_after`) and the adaptive-execution difference between
+them (`handoff`, see [Run 3](#run-3-preregistered-15-defaults)).
 
 ## Run 1 (`m4-max`): invalid
 
@@ -274,3 +280,47 @@ analysis wrote them; nothing was re-analyzed.
   unloaded) and 153.1 ms with `gpu` (79.4 ms unloaded). The LLM server TTFT median was 6.48 s
   alone, 6.73 s beside `gpu` and 6.70 s beside `auto`.
 - The run used laya-apple 1.3.0; no runtime change followed it in 1.4.0.
+
+## Run 3: preregistered (1.5 defaults)
+
+Criteria: [`criteria-r3.json`](criteria-r3.json). **Written after run 2's data was seen**, and
+before any run-3 data. Runs 1 and 2 predate 1.5.0, which made adaptive ANE execution
+([`laya_apple/handoff.py`](../../laya_apple/handoff.py)) the default for laya under
+`execution="workers"` and `device="auto"`, and so for `laya-apple serve --device auto`. Run 3
+measures the same question with that default.
+
+- **Unchanged from run 2:** every result criterion and limit (G1, G2, L1, L2, C1, E1), every
+  validity check (V1–V5, with run 2's V2 and V4 definitions), the workload, the cells, the ABBA
+  order, the windows, the warm-up and the default parameters. The `results` and `validity`
+  blocks of `criteria-r3.json` are copies of `criteria-r2.json`'s.
+- **Serve-only baseline.** The `decisions` cells already run serve with the LLM server up but
+  idle (no LLM request), so there is no separate serve-only block. L2 compares against them.
+- **Recorded, not gated: adaptive execution per window.** serve's `/health` reports
+  `ane.laya.handoff`, the `Laya.info()["ane_handoff"]` snapshot. The harness reads it before
+  every decision window's warm-up and after the window ends, never inside it, and records the
+  difference: state at each end, episodes started, breaker trips, ANE forwards on the 1.4
+  (sync) path and on the asynchronous path, and the async share. The counts span the 3 s
+  decision warm-up and the 60 s window. `analyze.py` totals them per `auto` cell. serve `gpu`
+  is not eligible and has no `handoff` entry.
+- **A1, adaptive execution in use.** Every `auto` serve process reports the handoff enabled and
+  consistent before and after each of its decision windows. A1 is neither a validity check nor
+  a result: if it fails, G/L/C/E keep their verdicts, but run 3 is described as a measurement of
+  laya-apple 1.5 installed, not of adaptive execution, and the failing windows and the
+  `disabled_reason` are listed.
+- **Against run 2: descriptive only.** Run 3's values are shown beside run 2's with each run's
+  laya-apple version, commit, LLM server version and model. No verdict is drawn from the
+  difference; the two runs are separate campaigns on different days.
+- **Expectation, recorded before data (not a criterion).** Adaptive execution counts an
+  episode only while serve's own GPU worker is active: a GPU job queued or running, or one that
+  ended at most 1 s ago. The LLM's GPU use does not count. The asynchronous path starts after
+  64 ANE forwards of an episode, and a gap of more than 1 s between serve's GPU jobs re-arms it.
+  In this workload the GPU gets the `mixed_3q` class at about 1.6 req/s, plus the short
+  decisions the scheduler spills. With Poisson arrivals, about e^−1.6 ≈ 20% of the gaps between
+  GPU jobs exceed 1 s, while 64 ANE forwards at about 6.4 req/s take about 10 s, or about 16
+  GPU gaps. So an episode is expected to reach the asynchronous path rarely, and most ANE
+  forwards to run on the 1.4 path. If that holds, run 3 measures 1.5 serve as shipped, and it
+  does not show the asynchronous path's effect on this workload. A low async share does not
+  fail A1.
+- The run directory is `m4-max-r3/`. The checkout must include the `/health` handoff field
+  (`laya_apple/serve.py`); without it every `auto` window records `handoff.present: false`
+  and A1 fails.

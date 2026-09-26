@@ -5,6 +5,12 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- **`laya-apple serve` reports adaptive ANE execution in `/health`.** For a checkpoint that
+  uses it, `ane.<model>.handoff` is the `Laya.info()["ane_handoff"]` snapshot: state, episodes,
+  breaker trips and forwards per Core ML path. Other checkpoints' entries are unchanged.
+
 ## [1.5.0] - 2026-09-26
 
 GPU + Neural Engine serving now adapts to system load. With `execution="workers"` and
