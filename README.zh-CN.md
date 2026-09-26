@@ -16,7 +16,7 @@
 
 laya-apple 把简短的单问题决策发往 Apple Neural Engine，较长或包含多个问题的决策则留在 MLX GPU
 上，两个引擎同时提供服务。从 1.5 开始，laya 和 laya-typed-decisions 改用 Core ML 的异步 API
-运行 Neural Engine 请求。这个 API 会释放 GIL，因此不再拖慢 GPU 返回结果。如果这条路径变慢，
+运行 Neural Engine 请求，避开同步路径长时间持有 GIL 的问题，因此不再拖慢 GPU 返回结果。如果这条路径变慢，
 breaker 会把这段 GPU + ANE 同时运行期间剩余的请求送回 1.4 路径。此功能默认开启，无需修改代码。
 
 | 与 1.4 路径相比，一台 Apple M4 Max | laya | laya-typed-decisions |
@@ -26,7 +26,7 @@ breaker 会把这段 GPU + ANE 同时运行期间剩余的请求送回 1.4 路�
 | 各 episode P99 的中位数 | **低 0.18–0.19 ms** | **低 0.53 ms** |
 
 - **154 个生产环境验证 episode**（76 个 laya、78 个 typed-decisions，包括突发和长时间 soak）：
-  全部停留在快速路径，0 个 mismatch、0 个路由失败、0 个丢失请求、0 次崩溃
+  handoff 之后全部停留在异步路径，0 个 mismatch、0 个路由失败、0 个丢失请求、0 次崩溃
   （[`val_tables.md`](research/coreml-adaptive-breaker/val_tables.md)）。
 - **恢复是单独测量的，** 因为验证中没有出现变慢状态。在异步路径已经变慢的 12 个 episode 中，
   breaker 在 12 个 episode 中都于 40 ms 内触发，延迟在 164–414 ms 内回到 1.4 路径的水平

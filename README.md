@@ -14,8 +14,8 @@ for Apple silicon:** the MLX GPU and the Apple Neural Engine, at the same time.
 
 laya-apple sends short, single-question decisions to the Apple Neural Engine and keeps long
 or multi-question ones on the MLX GPU, both engines serving at once. Since 1.5, laya and
-laya-typed-decisions send Neural Engine requests through Core ML's asynchronous API, which
-releases the GIL, so they no longer hold up the GPU's results. If that path slows down, a
+laya-typed-decisions send Neural Engine requests through Core ML's asynchronous API, avoiding
+the synchronous path's long GIL hold, so they no longer hold up the GPU's results. If that path slows down, a
 breaker sends the rest of that GPU + ANE overlap back to the 1.4 path. It is on by default and
 needs no code change.
 
@@ -26,8 +26,8 @@ needs no code change.
 | Median episode P99 | **0.18–0.19 ms lower** | **0.53 ms lower** |
 
 - **154 production validation episodes** (76 laya, 78 typed-decisions, including bursts and
-  soaks): all stayed on the fast path, with 0 mismatches, routing failures, lost requests or
-  crashes ([`val_tables.md`](research/coreml-adaptive-breaker/val_tables.md)).
+  soaks): all remained on the asynchronous path after handoff, with 0 mismatches, routing
+  failures, lost requests or crashes ([`val_tables.md`](research/coreml-adaptive-breaker/val_tables.md)).
 - **Recovery was measured separately,** because no slow state occurred in validation. In 12 of
   12 episodes where the asynchronous path was already slow, the breaker tripped within 40 ms
   and latency was back to the 1.4 path's within 164–414 ms
