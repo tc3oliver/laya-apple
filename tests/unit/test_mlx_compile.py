@@ -2,7 +2,7 @@
 
 No checkpoint: a 3-layer ModernBERT with the real DecisionModel code is written to a
 temporary directory and loaded through MLXBackend. The real checkpoints are covered by
-tests/integration/test_mlx_compile.py (parity gate + decisions identical to eager).
+tests/integration/test_mlx_compile_checkpoints.py (parity gate + decisions identical to eager).
 """
 
 from __future__ import annotations
