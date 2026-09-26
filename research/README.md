@@ -40,7 +40,7 @@ PyObjC versions are recorded per study. The configuration names are used through
 flowchart TD
     A["GPU tail latency rises under GPU + ANE<br/>#16, #39"] --> B["RequestTrace: the delay is in the<br/>GPU reply leg, not compute<br/>#43, #44"]
     B --> C["GIL blocking: sync Core ML predict holds the GIL<br/>#45, #46"]
-    C -.-> U["coremltools: upstream opportunity"]
+    C -.-> U["Upstream PR apple/coremltools#2876<br/>open, not merged"]
     C --> D["No-GIL predict: no intrinsic ANE cost<br/>at a fixed GPU load (#51)"]
     D --> E1["Process isolation<br/>#57 FAIL"]
     D --> E2["Direct thread, GIL released<br/>#77 FAIL"]
@@ -58,9 +58,14 @@ flowchart TD
     M --> N["1.5 adaptive execution<br/>#105"]
 ```
 
-The dotted branch is not work in this repository. #46's finding is that coremltools'
-`CompiledMLModel.predict` holds the GIL for the whole native call. That could become an upstream
-coremltools contribution. This repository does not record an upstream issue or pull request.
+The dotted branch is outside this repository. #46 found that coremltools' synchronous `predict`
+holds the GIL for the whole native call. [apple/coremltools#2876] proposes releasing the GIL only
+around the native Core ML prediction in `MLModel.predict`.
+- **Status:** it is open and not merged.
+- **Dependency:** it depends on apple/coremltools#2827 or #2829, which fix a NumPy-backed input being
+  released without the GIL.
+- **Until then:** until it merges and ships in a release, coremltools' `predict` still holds the
+  GIL.
 
 ## Research map
 
@@ -108,8 +113,9 @@ The rise in GPU tail latency beside a thread-placed ANE is the GIL, not the devi
   - running Core ML without the GIL removes it;
   - GPU return P50 falls from 7.67 to 0.14 ms.
 
-This is also the finding that could go upstream: coremltools' synchronous `predict` does not release
-the GIL during the native call.
+This finding is the basis of the upstream pull request [apple/coremltools#2876], which releases the
+GIL during the native prediction. That pull request is open and not merged, so released coremltools
+still holds the GIL during the native call.
 
 ### Experimental deconfounding
 
@@ -284,3 +290,4 @@ Other tracks in this directory, outside this line of research:
 [#103]: https://github.com/tc3oliver/laya-apple/pull/103
 [#104]: https://github.com/tc3oliver/laya-apple/issues/104
 [#105]: https://github.com/tc3oliver/laya-apple/pull/105
+[apple/coremltools#2876]: https://github.com/apple/coremltools/pull/2876
