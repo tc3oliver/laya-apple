@@ -54,6 +54,7 @@ from common import (  # noqa: E402
 # WEIGHT_THRESHOLD elements are palettized: every projection/MLP matrix (>= 768 x 768) and no
 # bias, norm, RoPE table or scorer output vector (all <= 4,096 elements).
 WEIGHT_THRESHOLD = 65_536
+KMEANS_WORKERS = int(os.environ.get("W8_KMEANS_WORKERS", "1"))
 CONFIGS = {
     "w8-pt": dict(mode="kmeans", nbits=8, granularity="per_tensor"),
     "w8-gc32": dict(mode="kmeans", nbits=8, granularity="per_grouped_channel", group_size=32),
@@ -68,7 +69,14 @@ def palettize(mlmodel, config: str):
     # is deterministic. Without it coremltools silently falls back to scikit-learn's KMeans.
     if not _HAS_KMEANS1D:
         raise RuntimeError("coremltools' bundled kmeans1d is not importable; refusing the sklearn fallback")
-    op = OpPalettizerConfig(weight_threshold=WEIGHT_THRESHOLD, **CONFIGS[config])
+    # Worker processes only parallelise the per-group k-means; each group's exact 1-D k-means is
+    # deterministic, so the result does not depend on this (execution detail, not a config change).
+    # coremltools 9.0 keeps one module-level k-means Pool and it is closed after a model's pass, so
+    # a second model in the same process fails with "Pool not running". Start each cell fresh.
+    from coremltools.optimize.coreml import _quantization_passes
+
+    _quantization_passes.palettize_weights._compress_pool = None
+    op = OpPalettizerConfig(weight_threshold=WEIGHT_THRESHOLD, num_kmeans_workers=KMEANS_WORKERS, **CONFIGS[config])
     return palettize_weights(mlmodel, OptimizationConfig(op_type_configs={"conv": op}))
 
 
@@ -114,7 +122,8 @@ def build_cell(spec, length: int, config: str, root: Path) -> dict:
         "revision": spec.revision,
         "length": length,
         "config": config,
-        "palettizer": CONFIGS[config] | {"weight_threshold": WEIGHT_THRESHOLD, "op_type": "conv"},
+        "palettizer": CONFIGS[config]
+        | {"weight_threshold": WEIGHT_THRESHOLD, "op_type": "conv", "num_kmeans_workers": KMEANS_WORKERS},
         "started_at": now(),
         "environment": environment(),
         "artifact_dir": "<research-root>/" + str(out.relative_to(root)),
@@ -259,6 +268,10 @@ def main() -> None:
                 if p.get("parity_gate") != "FAIL":
                     log(f"{model} L{length}: w8-pt parity {p.get('parity_gate')}; secondary not run")
                     continue
+            done = RAW / model / cell_name(length, args.config) / "build.json"
+            if done.exists() and json.loads(done.read_text()).get("step") == "done":
+                log(f"{model} L{length} {args.config}: already built; not rebuilt")
+                continue
             log(f"{model} L{length} {args.config}: building")
             rec = build_cell(spec, length, args.config, root)
             log(

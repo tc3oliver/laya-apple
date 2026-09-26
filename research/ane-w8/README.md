@@ -44,6 +44,31 @@ export HF_HOME=/Volumes/Data/cache/huggingface HF_HUB_OFFLINE=1
 
 `--model` and `--length` restrict any step to a subset of cells.
 
+## Methods notes (execution changes made during the run, none to the preregistered recipe)
+
+1. **k-means worker processes.** `w8-gc32` runs one exact 1-D k-means per group of 32 output
+   channels. Serially that took about 45 min per ModernBERT-large cell. The secondary build was
+   stopped at its first cell and restarted with `W8_KMEANS_WORKERS=8`, which is passed as
+   `OpPalettizerConfig(num_kmeans_workers=8)` and recorded in each `build.json`
+   (`palettizer.num_kmeans_workers`). This only spreads the per-group k-means over processes.
+   Each group's k-means is the same deterministic `kmeans1d` call, and the mode, bit width,
+   granularity, group size, weight threshold and op selection are unchanged. `w8-pt` ran with
+   1 worker, as it was built before this change.
+2. **The coremltools Pool reset.** In coremltools 9.0, `palettize_weights` keeps one
+   module-level worker Pool, and the Pool is closed after a model's pass. The second cell in the
+   same process then failed at the palettize step with `ValueError: Pool not running`. That was
+   laya L96 `w8-gc32`; its record is kept in `raw/aborted/laya/`. The only edit to it replaces the machine-specific
+   paths in its traceback with `<repo>`, `<venv>` and `<python>`. `palettize()` now sets
+   `palettize_weights._compress_pool = None` before each cell, so each cell starts a fresh Pool,
+   exactly as the first cell did. Cells already built are skipped, not rebuilt.
+3. **Evidence that 1 and 2 do not change the result.** `scripts/check_pool_neutrality.py`
+   converts laya L64 again and palettizes it with `w8-gc32` twice in one process: once on a fresh
+   Pool, and once through the reset. It compares the compiled `weight.bin` SHA-256 of both with the
+   laya L64 `w8-gc32` artifact from the build run. Result, in `raw/pool_neutrality.json`: both
+   calls are byte-identical to the build's artifact, weight.bin SHA-256 `ae150b6c…dfe58d`.
+   This does not directly compare 8 workers with 1 worker. That equality rests on the per-group
+   k-means being the same deterministic function whichever process runs it.
+
 ## Files
 
 - `criteria.md`: the preregistration.
