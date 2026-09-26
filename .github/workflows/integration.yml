@@ -1,0 +1,85 @@
+name: Integration (MLX)
+
+# The `integration` tests that need only MLX, on a GitHub-hosted Apple silicon runner with
+# pinned checkpoints restored from the Actions cache. It never runs an ANE tier: the [ane]
+# extra (coremltools) is not installed, `-m` excludes `ane`, `parity` and `stress`, and only
+# the files listed below run. Timings on a hosted runner are not measurements; this job
+# checks correctness only.
+#
+# It is a separate workflow, not a step of CI's `test` job, so it is not part of the
+# required `test` check: a cold cache downloads ~3 GB, and the runner's paravirtual Metal
+# device is a dependency the fast suite does not have.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: integration-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  integration-mlx:
+    runs-on: macos-14
+    timeout-minutes: 45
+    env:
+      # Two checkpoints cover both encoder families: ModernBERT-large (laya-typed-decisions,
+      # which laya shares) and mmBERT-base (laya-multilingual). The serve, Switchyard and
+      # option-order tests use laya-typed-decisions.
+      LAYA_APPLE_TEST_MODELS: laya-typed-decisions,laya-multilingual
+      HF_HOME: ${{ github.workspace }}/../hf-home
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          python-version: "3.12"
+
+      - name: Sync dependencies (no [ane] extra)
+        run: uv sync --extra dev --extra serve
+
+      - name: Metal device is usable
+        run: |
+          uv run python - <<'EOF'
+          import mlx.core as mx
+
+          assert mx.metal.is_available(), "no Metal device on this runner"
+          x = mx.ones((64, 64), dtype=mx.float16)
+          mx.eval(x @ x)
+          print("Metal OK:", mx.metal.device_info() if hasattr(mx.metal, "device_info") else "available")
+          EOF
+
+      # The key follows laya_apple/registry.py, which pins every checkpoint's revision and
+      # weight hash: a revision change downloads fresh weights instead of reusing old ones.
+      - name: Restore pinned checkpoints
+        id: hf-cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ github.workspace }}/../hf-home/hub
+          key: hf-${{ runner.os }}-${{ runner.arch }}-${{ env.LAYA_APPLE_TEST_MODELS }}-${{ hashFiles('laya_apple/registry.py') }}
+
+      - name: Download and verify checkpoints
+        if: steps.hf-cache.outputs.cache-hit != 'true'
+        run: uv run laya-apple download ${LAYA_APPLE_TEST_MODELS//,/ }
+
+      - name: Integration tests (MLX only)
+        env:
+          HF_HUB_OFFLINE: "1"
+        run: |
+          export LAYA_APPLE_CACHE="$RUNNER_TEMP/laya-apple-cache"
+          uv run pytest -q -m "integration and not ane and not parity and not stress" \
+            tests/integration/test_predict.py \
+            tests/integration/test_benchmark.py \
+            tests/integration/test_cli.py \
+            tests/integration/test_option_order.py \
+            tests/integration/test_serve_http.py \
+            tests/integration/test_switchyard.py
