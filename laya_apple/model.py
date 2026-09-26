@@ -27,6 +27,7 @@ import time
 import warnings
 from concurrent.futures import Future
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from . import routing, scheduling
 from .artifacts import platform_profile, profile_matches
@@ -41,6 +42,9 @@ from .prompt import Calibration, Tokenizer, format_answers, prepare
 from .registry import ANE_COMPUTE_UNITS, ANE_PRECISION, DTYPES, ModelSpec, resolve, routing_table
 from .result import Result, RuntimeInfo
 from .trace import QueueSnapshot, RequestTrace, TraceCallback
+
+if TYPE_CHECKING:
+    from .router import LayaRouter
 
 EXECUTIONS = ("inline", "workers")
 ANE_PLACEMENTS = ("auto", "thread", "process")
@@ -213,8 +217,13 @@ class Laya:
         ane_startup: str = "wait",
         trace: TraceCallback | None = None,
         ane_handoff: bool | None = None,
-    ) -> "Laya":
+    ) -> "Laya | LayaRouter":
         """Load a pinned checkpoint.
+
+        model_id="auto": language routing, as `laya-apple serve --model auto` and upstream's
+        Router: returns a laya_apple.router.LayaRouter holding `laya` and `laya-multilingual`
+        (both loaded with these arguments) that picks one per request by the state's language
+        and records the choice in `RuntimeInfo.model_routing` and `Result.extra["routing"]`.
 
         device="gpu": MLX only. device="ane": validated Core ML artifacts only; requests
         they cannot serve raise. device="auto": MLX, plus the ANE for the validated short
@@ -240,6 +249,20 @@ class Laya:
             raise ValueError(f"device must be one of {routing.DEVICES}, got {device!r}")
         if execution not in EXECUTIONS:
             raise ValueError(f"execution must be one of {EXECUTIONS}, got {execution!r}")
+        if isinstance(model_id, str) and model_id.strip().lower() == "auto":
+            from .router import LayaRouter
+
+            return LayaRouter.from_pretrained(
+                device,
+                dtype=dtype,
+                local_files_only=local_files_only,
+                batch_size=batch_size,
+                execution=execution,
+                ane_placement=ane_placement,
+                ane_startup=ane_startup,
+                trace=trace,
+                ane_handoff=ane_handoff,
+            )
         spec = resolve(model_id)
         if ane_handoff is not None and ane_handoff is not False:  # checked before any download
             if ane_placement not in ANE_PLACEMENTS:

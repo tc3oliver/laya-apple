@@ -10,6 +10,13 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **`laya-apple serve` reports adaptive ANE execution in `/health`.** For a checkpoint that
   uses it, `ane.<model>.handoff` is the `Laya.info()["ane_handoff"]` snapshot: state, episodes,
   breaker trips and forwards per Core ML path. Other checkpoints' entries are unchanged.
+- **Language routing in the Python API.** `Laya.from_pretrained("auto", ...)` returns a
+  `LayaRouter` that loads `laya` and `laya-multilingual` and picks one per request by the
+  state's language, with the same function `laya-apple serve --model auto` uses (moved from
+  `laya_apple/serve.py` to `laya_apple/router.py`; the server's behaviour is unchanged). The
+  choice is recorded in the new `RuntimeInfo.model_routing` field (stable codes, see
+  `docs/api.md`) and in `Result.extra["routing"]`, upstream's routing block, which
+  `Result.to_dict()` now returns as a top-level `routing` key, as upstream's Router does.
 
 ## [1.5.0] - 2026-09-26
 

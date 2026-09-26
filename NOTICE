@@ -13,7 +13,8 @@ Laya — https://github.com/NandhaKishorM/laya
   temperatures and clamping, result schema (laya_apple/prompt.py, laya_apple/result.py).
   Vendored from v0.3.20: language/script detection (laya_apple/lang.py, from
   laya/lang.py). Adapted from v0.3.20: the /v1/systemone wire format, limits and
-  language routing of laya/serve.py and laya/router.py (laya_apple/serve.py).
+  language routing of laya/serve.py and laya/router.py (laya_apple/serve.py,
+  laya_apple/router.py).
 
 laya-mlx — https://github.com/mizorewww/laya-mlx
   Copyright 2026 laya-mlx contributors.

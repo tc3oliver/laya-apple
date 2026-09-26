@@ -52,6 +52,17 @@ from typing import Any, Callable
 from .errors import InvalidRequestError, LayaAppleError, UnsupportedModelError, UnsupportedShapeError
 from .registry import models, resolve
 
+# Language routing lives in router.py so the Python API (`Laya.from_pretrained("auto")`) and
+# `--model auto` make the same decision; re-exported here for the server and its tests.
+from .router import (  # noqa: F401
+    AUTO_FALLBACK,
+    TYPED_DECISION_WORKFLOWS,
+    UPSTREAM_KEY,
+    match_workflow,
+    route_by_language,
+    routing_block,
+)
+
 _log = logging.getLogger("laya_apple.serve")
 
 DEFAULT_HOST = "127.0.0.1"
@@ -59,8 +70,6 @@ DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8642
 AUTO = "auto"
 DEFAULT_MODEL = AUTO
-# What upstream's Router falls back to when the language is undecided or there is no text.
-AUTO_FALLBACK = "laya"
 
 # Upstream's guardrails (laya/serve.py), so a client sees the same limits and status codes.
 MAX_QUESTIONS = 64
@@ -82,18 +91,8 @@ _ALIASES = {
     "laya-typed-decisions": "typed-decisions",
     "decisions": "typed-decisions",
 }
-_UPSTREAM_KEY = {v: k for k, v in UPSTREAM_NAMES.items()}
 # Upstream reads the root repo id as "let the router choose", not "pin English".
 _ROUTER_CHOICE = {"convaiinnovations/laya"}
-# Upstream's typed-decisions workflows (laya/router.py v0.3.20), matched on the exact set of
-# question ids. Reported in `routing.workflow`; like upstream with LAYA_AUTO_TASK off, a
-# match does not change the checkpoint.
-TYPED_DECISION_WORKFLOWS = {
-    "agent_trace_observability": {"action", "needs_review", "outcome", "risk", "urgency"},
-    "customer_service": {"action", "category", "churn_risk", "needs_human", "urgency"},
-    "invoice_processing": {"discrepancy_severity", "disposition", "duplicate", "matches_order", "urgency"},
-    "security_incidents": {"credential_compromise", "disposition", "severity", "true_positive", "urgency"},
-}
 LOOPBACK_HOSTS = {"127.0.0.1", "localhost", "::1"}
 
 Loader = Callable[[str], Any]
@@ -108,11 +107,6 @@ def _upstream_name(name: str) -> str | None:
 def checkpoint(name: str) -> str:
     """A laya-apple checkpoint name from ours, an HF id or an upstream name; else raise."""
     return resolve(_upstream_name(name) or name.strip()).name
-
-
-def match_workflow(questions: Any) -> str | None:
-    ids = set(questions or {})
-    return next((wf for wf, sig in TYPED_DECISION_WORKFLOWS.items() if ids == sig), None)
 
 
 def resolve_model(requested: Any, default: str) -> str:
@@ -131,37 +125,6 @@ def resolve_model(requested: Any, default: str) -> str:
         return resolve(name).name
     except UnsupportedModelError:
         return default
-
-
-def route_by_language(state: Any) -> tuple[str, str, dict]:
-    """(checkpoint, reason, detection): upstream Router's language branch, verbatim in effect
-    (laya/router.py v0.3.20, `default="english"`, no lang hints)."""
-    from .lang import analyse
-
-    det = analyse(state)
-    if det["script"] == "unknown":
-        name, reason = AUTO_FALLBACK, "no letters detected in state; using default (english)"
-    elif det["script"] != "latin":
-        name = "laya-multilingual"
-        reason = "non-Latin script (%s, %.0f%% of letters); the English checkpoint cannot read it" % (
-            det["script"],
-            100 * float(det["non_latin_fraction"]),
-        )
-    elif not det["is_english"]:
-        name = "laya-multilingual"
-        if det["language"]:
-            reason = "Latin script but language looks like %r, not English" % det["language"]
-        else:
-            reason = (
-                "Latin script, language not identified but %.0f%% non-English letters; "
-                "not safe for the English checkpoint" % (100 * float(det["diacritic_rate"]))
-            )
-    elif det["language_undecided"]:
-        name = AUTO_FALLBACK
-        reason = "Latin script, language not identified and no non-English letters; using default (english)"
-    else:
-        name, reason = "laya", "English Latin text"
-    return name, reason, det
 
 
 def host_name(header: str) -> str:
@@ -412,7 +375,7 @@ def create_app(
         name = resolve_model(requested, default_model)
         workflow = match_workflow(questions)
         if checkpoint_named(requested):  # upstream names the normalised checkpoint key
-            routing = routing_block(name, reason="explicit model=%r" % _UPSTREAM_KEY[name])
+            routing = routing_block(name, reason="explicit model=%r" % UPSTREAM_KEY[name])
         elif name == AUTO:
             name, reason, detection = route_by_language(state)
             routing = routing_block(name, reason=reason, detection=detection, workflow=workflow)
@@ -464,20 +427,6 @@ def checkpoint_named(requested: Any) -> bool:
     except UnsupportedModelError:
         return False
     return True
-
-
-def routing_block(name: str, *, reason: str, detection: dict | None = None, workflow: str | None = None) -> dict:
-    """Upstream's `routing` keys: {model, repo, reason, detection, workflow}. `repo` names the
-    standalone repository the pinned weights come from; stock upstream names its bundle
-    repository (convaiinnovations/laya/<subfolder>) instead."""
-    spec = resolve(name)
-    return {
-        "model": _UPSTREAM_KEY[spec.name],
-        "repo": spec.repo,
-        "reason": reason,
-        "detection": detection,
-        "workflow": workflow,
-    }
 
 
 def response_body(result: Any, routing: dict) -> dict:
