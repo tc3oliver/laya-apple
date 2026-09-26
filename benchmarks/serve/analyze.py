@@ -123,6 +123,54 @@ def short_routing(w: dict, spill_reason: str) -> dict:
     }
 
 
+def adaptive_execution(windows: list[dict], refs: list[dict], model: str) -> dict:
+    """Run 3, recorded and not gated: the adaptive-execution state per auto decision window
+    (bench_serve.handoff_delta, from serve /health before and after it), totals per auto cell,
+    and A1: every auto serve process had it enabled and consistent at both ends of every window.
+    A1 decides only how the run is described; no result or validity depends on it."""
+    per_window, failing = [], []
+    for w in windows:
+        if w.get("config") != "auto" or "decisions" not in w:
+            continue
+        h = w.get("handoff") or {"present": False}
+        per_window.append({"index": w["index"], "kind": w["kind"], **h})
+        in_use = h.get("present") and all(
+            h.get(k) is True for k in ("enabled_before", "enabled_after", "consistent_before", "consistent_after")
+        )
+        if not in_use:
+            failing.append({"index": w["index"], "disabled_reason": h.get("disabled_reason")})
+
+    def total(rows, key):
+        vals = [r.get(key) for r in rows]
+        return None if not vals or None in vals else sum(vals)
+
+    cells = {}
+    for kind in ("decisions", "decisions_llm"):
+        rows = [r for r in per_window if r["kind"] == kind]
+        c = {k: total(rows, k) for k in ("episodes", "trips", "forwards_sync", "forwards_async")}
+        n = None if None in (c["forwards_sync"], c["forwards_async"]) else c["forwards_sync"] + c["forwards_async"]
+        c["async_share"] = c["forwards_async"] / n if n else None
+        c["windows"] = len(rows)
+        cells[f"auto/{kind}"] = c
+    startup = [
+        {"step": b.get("step"), "handoff": bench.handoff_snapshot(b.get("health"), model)}
+        for b in refs
+        if b.get("config") == "auto"
+    ]
+    gpu_with_handoff = [
+        w["index"]
+        for w in windows
+        if w.get("config") == "gpu" and bench.handoff_snapshot(w.get("serve_health_after"), model) is not None
+    ]
+    return {
+        "windows": per_window,
+        "cells": cells,
+        "startup": startup,
+        "gpu_windows_with_handoff": gpu_with_handoff,
+        "A1_adaptive_execution_in_use": {"ok": bool(per_window) and not failing, "windows_failed": failing},
+    }
+
+
 def load_criteria(campaign: Path, override: Path | None = None) -> dict:
     """The campaign's own criteria copy if it has one, else the run-1 criteria.json."""
     for p in (override, campaign / "criteria.json", HERE / "criteria.json"):
@@ -352,6 +400,9 @@ def summarise(campaign: Path, criteria: Path | None = None) -> dict:
     }
     if crit.get("revision"):  # absent in run 1's criteria, whose outputs stay as committed
         out["criteria_revision"] = crit["revision"]
+    if "adaptive_execution" in crit.get("recorded_not_gated", {}):  # run 3; runs 1-2 stay as committed
+        out["adaptive_execution"] = adaptive_execution(windows, load_refs(raw), meta["args"].get("model", "laya"))
+        out["git"] = meta.get("git")
     return out
 
 
@@ -427,6 +478,32 @@ def tables(res: dict) -> str:
                 val, lim = f(r["value"], 2), f"≤ {r['limit']:g}"
             v = r["verdict"]
             L.append(f"| {group} | {k} | {val} | {lim} | {v if v == 'pass' else '**' + v + '**'} |")
+    if "adaptive_execution" in res:
+        ae = res["adaptive_execution"]
+        a1 = ae["A1_adaptive_execution_in_use"]
+        L += [
+            "\n## Adaptive ANE execution (recorded, not gated)\n",
+            f"A1, adaptive execution in use in every `auto` window: {'yes' if a1['ok'] else '**no**'}"
+            + (f" (failed: {a1['windows_failed']})" if a1["windows_failed"] else "")
+            + ". It decides only how the run is described.\n",
+            "| cell | windows | episodes | breaker trips | ANE forwards sync | async | async share |",
+            "|---|---|---|---|---|---|---|",
+        ]
+        for name, c in ae["cells"].items():
+            share = "–" if c["async_share"] is None else f"{c['async_share'] * 100:.1f}%"
+            L.append(
+                f"| {name} | {c['windows']} | {c['episodes']} | {c['trips']} | {c['forwards_sync']} "
+                f"| {c['forwards_async']} | {share} |"
+            )
+        L += [
+            "\n| window | cell | state before → after | episodes | trips | sync | async |",
+            "|---|---|---|---|---|---|---|",
+        ]
+        for w in ae["windows"]:
+            L.append(
+                f"| {w['index']} | auto/{w['kind']} | {w.get('state_before')} → {w.get('state_after')} "
+                f"| {w.get('episodes')} | {w.get('trips')} | {w.get('forwards_sync')} | {w.get('forwards_async')} |"
+            )
     return "\n".join(L) + "\n"
 
 
