@@ -4,6 +4,7 @@ laya-apple predict MODEL --context TEXT --questions JSON [--device auto|gpu|ane]
 laya-apple info [MODEL]
 laya-apple download MODEL...
 laya-apple artifacts build MODEL [--length L ...] | list | verify [MODEL]
+laya-apple artifacts fetch MODEL [--length L ...] [--repo OWNER/NAME] [--revision REV]
 laya-apple parity MODEL [--device gpu|ane] [--dtype float16|float32]
 laya-apple benchmark MODEL [--device ...] [--lengths ...] [--questions N]
 laya-apple switchyard [--seed N] [--duration S] [--out DIR] [--no-open] [--setup-ane] [--replay DIR]
@@ -154,6 +155,14 @@ def cmd_artifacts(a):
             print(f"{len(plan)} entries, {total / 1e9:.2f} GB; rerun with --yes to delete")
         return 0
     specs = [resolve(a.model)] if a.model else list(models().values())
+    if a.action == "fetch":
+        from .prebuilt import fetch
+
+        if not a.model:
+            raise SystemExit("artifacts fetch needs MODEL [--length L ...] [--repo OWNER/NAME] [--revision REV]")
+        fetched = fetch(specs[0], a.length, repo=a.repo, revision=a.revision, local_files_only=a.offline, force=a.force)
+        _json({str(b): v for b, v in fetched.items()})
+        return 0
     if a.action == "export":
         from .lifecycle import export_artifact
 
@@ -306,14 +315,16 @@ def build_parser():
     s.add_argument("models", nargs="*")
     s.set_defaults(fn=cmd_download)
 
-    s = sub.add_parser("artifacts", help="build, list, verify, warm or prune ANE artifacts")
-    s.add_argument("action", choices=["build", "list", "verify", "warm", "prune", "export", "import"])
+    s = sub.add_parser("artifacts", help="build, fetch, list, verify, warm, prune, export or import ANE artifacts")
+    s.add_argument("action", choices=["build", "list", "verify", "warm", "prune", "export", "import", "fetch"])
     s.add_argument("model", nargs="?", help="model id (import: the .tar.gz archive)")
     s.add_argument("--length", type=int, action="append")
     s.add_argument("--force", action="store_true")
     s.add_argument("--skip-existing", action="store_true")
     s.add_argument("--yes", action="store_true", help="prune: actually delete (default is a dry run)")
     s.add_argument("--out", help="export: output directory")
+    s.add_argument("--repo", help="fetch: Hugging Face repository of prebuilt artifacts (or $LAYA_APPLE_PREBUILT_REPO)")
+    s.add_argument("--revision", default="main", help="fetch: repository revision (branch, tag or commit)")
     s.add_argument(
         "--capabilities", action="store_true", help="list: print full provenance records instead of the summary"
     )

@@ -235,7 +235,9 @@ def export_artifact(spec: ModelSpec, bucket: int, dest: Path) -> Path:
     return dest
 
 
-def import_artifact(archive: Path, *, local_files_only: bool = False, force: bool = False, log=print) -> Path:
+def import_artifact(
+    archive: Path, *, local_files_only: bool = False, force: bool = False, log=print, source: str | None = None
+) -> Path:
     """Register an artifact built elsewhere, only after validating it here.
 
     Checked on this machine before registration:
@@ -245,7 +247,8 @@ def import_artifact(archive: Path, *, local_files_only: bool = False, force: boo
     - the compute plan (100% ANE, no transitions);
     - the full parity gate against the shipped goldens.
     The original build provenance is kept, and the local results are recorded under
-    `imported`.
+    `imported` (`from` is `source` when given, such as the repository an archive was fetched
+    from, else the archive's path).
     """
     import tarfile
     import tempfile
@@ -308,12 +311,14 @@ def import_artifact(archive: Path, *, local_files_only: bool = False, force: boo
             ckpt = checkpoint_path(spec, local_files_only=local_files_only)
             verify_weights(spec, ckpt)
             log(f"parity gate for imported {spec.name} L{bucket} on this machine")
+            t = time.perf_counter()
             parity = ane_parity(spec, stage / COMPILED, bucket, ckpt)
+            log(f"{spec.name} L{bucket}: parity gate ran in {time.perf_counter() - t:.1f} s (includes the staged load)")
             if not parity["passed"]:
                 raise ArtifactParityError(f"imported {spec.name} L{bucket} failed the parity gate here: {parity}")
             data["imported"] = {
                 "at": datetime.now(timezone.utc).isoformat(),
-                "from": str(archive),
+                "from": source or str(archive),
                 "platform": platform_profile(),
                 "placement": placement,
                 "parity": parity,
@@ -328,7 +333,9 @@ def import_artifact(archive: Path, *, local_files_only: bool = False, force: boo
                 shutil.rmtree(old)
             else:
                 os.rename(stage, final)
+        t = time.perf_counter()
         load_verified(spec, bucket, full=True)  # pre-warm the ANE compile at the registered path
+        log(f"{spec.name} L{bucket}: registered and loaded in {time.perf_counter() - t:.1f} s")
         return final
     finally:
         if stage.exists():

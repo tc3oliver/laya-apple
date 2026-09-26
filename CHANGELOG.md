@@ -10,6 +10,29 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **`laya-apple serve` reports adaptive ANE execution in `/health`.** For a checkpoint that
   uses it, `ane.<model>.handoff` is the `Laya.info()["ane_handoff"]` snapshot: state, episodes,
   breaker trips and forwards per Core ML path. Other checkpoints' entries are unchanged.
+- **`laya-apple artifacts fetch`: prebuilt ANE artifacts from a Hugging Face repository**
+  (`laya_apple/prebuilt.py`, #8). Archives go through the existing `artifacts import`, so
+  manifest, platform profile, file hash, compute plan and the full parity gate run on the
+  receiving machine. The archive's SHA-256 must match the repository index, and each
+  fetched bucket must pass the runtime placement probe. Only archives built on the same
+  platform profile are selected. No default repository is published yet: `--repo` or
+  `LAYA_APPLE_PREBUILT_REPO` is required. `scripts/publish_prebuilt.py` stages a repository
+  (archives + `index.json`) from a machine's validated artifacts and uploads nothing.
+- `artifacts import` records an optional provenance `source` under `imported.from` and logs
+  how long its parity gate and first registered load take.
+- `scripts/bench_coldstart.py` gains `--location` (`move`, `same-path-recopy`, `touch`),
+  `--modes` and `--repeats` for `research/coreml-compile-cache/`. The default run is the
+  v0.3 method.
+
+### Known limitations
+
+- **Prebuilt artifacts do not make a cold start fast.** One screen measured a cold start of
+  273.5 s for laya-typed-decisions against 2.7 s warm
+  (`research/coreml-compile-cache/screen.md`), which is Core ML's on-device compile. That
+  compile runs whether the artifact was built or fetched, so the < 30 s target is not met.
+- **Core ML's compile cache grows without eviction.** It lives under
+  `~/Library/Caches/<process name>/com.apple.e5rt.e5bundlecache/` and gains 0.7–1.4 GB per
+  bucket for every new artifact location. laya-apple never evicts it.
 
 ## [1.5.0] - 2026-09-26
 
