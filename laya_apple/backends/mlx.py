@@ -15,7 +15,7 @@ from ..registry import DTYPES, ModelSpec
 # batches, each padded to its longest row; sorting the rows by length first puts rows of
 # similar length together, so batches pad less. Off by default: a row padded to a different
 # length is expected to give the same decision but is not shown to be bitwise identical
-# (tests/integration/test_mlx_length_buckets.py). Requests of at most batch_size rows run
+# (tests/integration/test_mlx_length_buckets_checkpoints.py). Requests of at most batch_size rows run
 # exactly as before either way.
 LENGTH_BUCKETS_ENV = "LAYA_APPLE_MLX_LENGTH_BUCKETS"
 

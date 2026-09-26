@@ -2,7 +2,7 @@
 
 The ordering and padding arithmetic is pure Python. The forward tests load a tiny
 random-weight model (the real DecisionModel code, 3 layers) through MLXBackend from a
-temporary directory; tests/integration/test_mlx_length_buckets.py covers the checkpoints.
+temporary directory; tests/integration/test_mlx_length_buckets_checkpoints.py covers the checkpoints.
 """
 
 from __future__ import annotations
