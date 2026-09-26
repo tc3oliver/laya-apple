@@ -336,3 +336,12 @@ def test_run3_windows_without_a_handoff_record_fail_a1(tmp_path):
     campaign = make_campaign(tmp_path)  # a serve without the /health field: nothing recorded
     a1 = analyze.summarise(campaign, R3)["adaptive_execution"]["A1_adaptive_execution_in_use"]
     assert not a1["ok"] and len(a1["windows_failed"]) == 2
+
+
+def test_run3_record_reproduces_with_its_own_criteria():
+    campaign = PATH.parent / "m4-max-r3"
+    res = analyze.summarise(campaign)
+    assert json.dumps(res, indent=1, sort_keys=True) + "\n" == (campaign / "results.json").read_text()
+    assert analyze.tables(res) == (campaign / "tables.md").read_text()
+    assert res["valid"] and res["criteria_revision"] == "r3"
+    assert res["adaptive_execution"]["A1_adaptive_execution_in_use"]["ok"]
