@@ -25,6 +25,32 @@ COMPILE_LENGTH_STEP = 32
 COMPILE_CACHE_SIZE = 32
 
 
+# Opt-in length-bucketed batching. A request with more rows than batch_size runs as several
+# batches, each padded to its longest row; sorting the rows by length first puts rows of
+# similar length together, so batches pad less. Off by default: a row padded to a different
+# length is expected to give the same decision but is not shown to be bitwise identical
+# (tests/integration/test_mlx_length_buckets_checkpoints.py). Requests of at most batch_size rows run
+# exactly as before either way.
+LENGTH_BUCKETS_ENV = "LAYA_APPLE_MLX_LENGTH_BUCKETS"
+
+
+def length_buckets_enabled() -> bool:
+    return os.environ.get(LENGTH_BUCKETS_ENV, "") == "1"
+
+
+def length_order(items: list[dict], batch_size: int) -> list[int] | None:
+    """The row order to batch in: by length (stable) when the rows span several batches."""
+    if len(items) <= batch_size:
+        return None
+    return sorted(range(len(items)), key=lambda i: len(items[i]["ids"]))
+
+
+def padded_tokens(items: list[dict], batch_size: int, order: list[int] | None = None) -> int:
+    """Tokens the batches hold, padding included, when `items` run in `order`."""
+    rows = [len(items[i]["ids"]) for i in (order if order is not None else range(len(items)))]
+    return sum(len(c) * max(c) for c in (rows[s : s + batch_size] for s in range(0, len(rows), batch_size)))
+
+
 def compile_enabled() -> bool:
     return os.environ.get(COMPILE_ENV, "") == "1"
 
@@ -73,6 +99,7 @@ class MLXBackend:
         dtype: str = "float16",
         batch_size: int = 16,
         compile_forward: bool | None = None,
+        length_buckets: bool | None = None,
     ):
         if dtype not in DTYPES:
             raise ValueError(f"dtype must be one of {DTYPES}")
@@ -89,6 +116,8 @@ class MLXBackend:
         # None: the LAYA_APPLE_MLX_COMPILE environment variable decides (it also reaches workers).
         self.compile_forward = compile_enabled() if compile_forward is None else bool(compile_forward)
         self._compiled: OrderedDict = OrderedDict()
+        # None: the LAYA_APPLE_MLX_LENGTH_BUCKETS environment variable decides (it also reaches workers).
+        self.length_buckets = length_buckets_enabled() if length_buckets is None else bool(length_buckets)
         agent_cfg = json.loads((checkpoint / "rl_agent_config.json").read_text())
         enc_cfg = EncoderConfig.from_dict(json.loads((checkpoint / "encoder/config.json").read_text()))
         mdtype = {"float16": mx.float16, "float32": mx.float32}[dtype]
@@ -122,9 +151,11 @@ class MLXBackend:
 
     def forward(self, items: list[dict]):
         mx = self.mx
+        order = length_order(items, self.batch_size) if self.length_buckets else None
+        rows = items if order is None else [items[i] for i in order]
         logits, acts = [], []
-        for start in range(0, len(items), self.batch_size):
-            chunk = items[start : start + self.batch_size]
+        for start in range(0, len(rows), self.batch_size):
+            chunk = rows[start : start + self.batch_size]
             if self.compile_forward:
                 width = max(2, max(len(it["markers"]) for it in chunk))  # the eager output width
                 shape = compiled_shape(len(chunk), max(len(it["ids"]) for it in chunk), width)
@@ -142,4 +173,8 @@ class MLXBackend:
         # chunks can have different option counts; pad with the same -1e4 the model uses
         width = max(x.shape[1] for x in logits)
         logits = [np.pad(x, ((0, 0), (0, width - x.shape[1])), constant_values=-1e4) for x in logits]
-        return np.concatenate(logits), np.concatenate(acts)
+        logits, acts = np.concatenate(logits), np.concatenate(acts)
+        if order is None:
+            return logits, acts
+        back = np.argsort(order)  # row i of the request is row back[i] of the batches
+        return logits[back], acts[back]
