@@ -3,8 +3,9 @@
 This is research only. The `laya_apple` package never imports it, and nothing here changes the
 product.
 
-**Status: preregistered, no data.** The criteria are in [`criteria.json`](criteria.json) and are
-copied into the preregistration issue before any run. They do not change after data is seen.
+**Status: preregistered, no data.** The criteria are in [`criteria.json`](criteria.json), copied
+verbatim into the preregistration issue
+[#123](https://github.com/tc3oliver/laya-apple/issues/123) before any run. They do not change after data is seen.
 Harness smoke checks made while the scripts were written are not data and are not committed.
 
 ## Question
