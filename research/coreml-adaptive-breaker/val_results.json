@@ -1,5 +1,5 @@
 {
- "outcome": "phase 4 PENDING",
+ "outcome": "RELEASE",
  "pins": {
   "tree": "5dca50e0ce5f53712f659902bb3b05b9f62baf5b",
   "pyproject": "b19061939d1618484b4f089b4ad24bbc6cbe104b",
@@ -3314,9 +3314,7 @@
   "4": {
    "phase": "4",
    "name": "multilingual smoke",
-   "pending": [
-    "mix-laya-multilingual-P-r1"
-   ],
+   "pending": [],
    "slots": [
     {
      "schedule": "mix",
@@ -3331,24 +3329,2284 @@
       "mix-laya-multilingual-P-r1-b": 0
      },
      "present": {
-      "mix-laya-multilingual-P-r1": false,
+      "mix-laya-multilingual-P-r1": true,
       "mix-laya-multilingual-P-r1-b": false
      },
-     "machine": {},
+     "machine": {
+      "mix-laya-multilingual-P-r1": []
+     },
      "machine_invalid": false,
-     "used": null,
+     "used": "mix-laya-multilingual-P-r1",
      "stops": false
     }
    ],
    "extended": false,
-   "status": "PENDING",
+   "status": "PASS",
    "fail": [],
-   "invalid": []
+   "invalid": [],
+   "correctness": {
+    "mismatches": 0,
+    "routing_failures": [],
+    "request_loss": [],
+    "dead_workers": []
+   }
   },
   "5": {
    "phase": "5",
    "name": "product-mix soak",
-   "status": "NOT RUN"
+   "pending": [],
+   "slots": [
+    {
+     "schedule": "productsoak",
+     "model": "laya",
+     "cell": "P",
+     "rep": 1,
+     "run": "productsoak-laya-P-r1",
+     "rerun": "productsoak-laya-P-r1-b",
+     "line": "productsoak laya P 1 128 512 20.0",
+     "crashes": {
+      "productsoak-laya-P-r1": 0,
+      "productsoak-laya-P-r1-b": 0
+     },
+     "present": {
+      "productsoak-laya-P-r1": true,
+      "productsoak-laya-P-r1-b": false
+     },
+     "machine": {
+      "productsoak-laya-P-r1": []
+     },
+     "machine_invalid": false,
+     "used": "productsoak-laya-P-r1",
+     "stops": false
+    },
+    {
+     "schedule": "bursty",
+     "model": "laya",
+     "cell": "A",
+     "rep": 1,
+     "run": "bursty-laya-A-r1",
+     "rerun": "bursty-laya-A-r1-b",
+     "line": "bursty laya A 1 128 512 20.0",
+     "crashes": {
+      "bursty-laya-A-r1": 0,
+      "bursty-laya-A-r1-b": 0
+     },
+     "present": {
+      "bursty-laya-A-r1": true,
+      "bursty-laya-A-r1-b": false
+     },
+     "machine": {
+      "bursty-laya-A-r1": []
+     },
+     "machine_invalid": false,
+     "used": "bursty-laya-A-r1",
+     "stops": false
+    }
+   ],
+   "extended": false,
+   "reference": {
+    "m_a_ms": 10.022541,
+    "envelope": {
+     "hetero": {
+      "med": 10.228583,
+      "p95": 11.026867,
+      "span": 249.99441522500015
+     },
+     "hetero_bursty": {
+      "med": 10.53775,
+      "p95": 11.133442200000001,
+      "span": 447.01810424999996
+     }
+    },
+    "a_runs": [
+     "bursty-laya-A-r1",
+     "product-laya-A-r1"
+    ]
+   },
+   "stats": {
+    "p_episodes": 64,
+    "a_episodes": 14,
+    "untripped": 64,
+    "untripped_share": 1.0,
+    "async_residency": 0.9154978674540682,
+    "trips": 0,
+    "confirmed_slow_trips": 0,
+    "suspected_false_trips": 0,
+    "trip_rate": 0.0,
+    "false_trip_rate": 0.0,
+    "onset_to_trip_ms": {
+     "n": 0,
+     "median": null,
+     "p95": null,
+     "worst": null
+    },
+    "trip_to_first_a_ms": {
+     "n": 0,
+     "median": null,
+     "p95": null,
+     "worst": null
+    },
+    "trip_to_recovery_ms": {
+     "n": 0,
+     "median": null,
+     "p95": null,
+     "worst": null
+    },
+    "a_sustained": 0,
+    "gpu_return_p50_ms": {
+     "P_healthy_median": 0.035208249999999996,
+     "P_healthy_worst": 0.037375,
+     "A_median": 4.280521
+    },
+    "throughput_ratio": 1.0418050151758977,
+    "episode_p99_delta_ms": -0.18329940499999964,
+    "by_condition": {
+     "hetero": {
+      "throughput_ratio": 1.0418050151758977,
+      "episode_p99_delta_ms": -0.18329940499999964,
+      "p": 56,
+      "a": 6
+     },
+     "hetero_bursty": {
+      "throughput_ratio": 1.0423260621613915,
+      "episode_p99_delta_ms": -0.23067453500000035,
+      "p": 8,
+      "a": 8
+     }
+    },
+    "latency_ms": {
+     "P": {
+      "median": 9.927,
+      "p95": 10.138463149999998,
+      "p99": 10.49037936,
+      "p999": 10.599892136000005
+     },
+     "A": {
+      "median": 10.022541,
+      "p95": 10.58092725,
+      "p99": 10.69760375,
+      "p999": 10.988484700000011
+     }
+    }
+   },
+   "episodes": [
+    {
+     "index": 1,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.947834070771933,
+      "p95": 10.469583002850413,
+      "p99": 12.448395388200886,
+      "p999": 21.254917778076916
+     },
+     "aggregate_req_s": 126.46520320177834,
+     "steady": {
+      "completions": 898,
+      "seconds": 7.0,
+      "short_p99_ms": 10.45324102
+     },
+     "structure": [],
+     "forwards": 793,
+     "async_forwards": 729,
+     "t_h_s": 0.741357625,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 175,
+      "p50_ms": 0.035833,
+      "p99_ms": 0.2627165799999995
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 3,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.94960404932499,
+      "p95": 10.495933413039891,
+      "p99": 12.440254257526227,
+      "p999": 17.997365468182313
+     },
+     "aggregate_req_s": 126.74680414819828,
+     "steady": {
+      "completions": 898,
+      "seconds": 7.0,
+      "short_p99_ms": 10.488355
+     },
+     "structure": [],
+     "forwards": 794,
+     "async_forwards": 730,
+     "t_h_s": 0.722791166,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 176,
+      "p50_ms": 0.035958,
+      "p99_ms": 0.277396
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 5,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.950646082870662,
+      "p95": 10.496551624964923,
+      "p99": 12.911751919891689,
+      "p999": 22.29701602691943
+     },
+     "aggregate_req_s": 126.36509051357906,
+     "steady": {
+      "completions": 897,
+      "seconds": 7.0,
+      "short_p99_ms": 10.48926366
+     },
+     "structure": [],
+     "forwards": 792,
+     "async_forwards": 727,
+     "t_h_s": 0.75866746,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 174,
+      "p50_ms": 0.035291,
+      "p99_ms": 0.36805443000000065
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 7,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.951541549526155,
+      "p95": 10.454389336518942,
+      "p99": 12.294685195665794,
+      "p999": 20.555909860649322
+     },
+     "aggregate_req_s": 126.65772704536329,
+     "steady": {
+      "completions": 898,
+      "seconds": 7.0,
+      "short_p99_ms": 10.47369334
+     },
+     "structure": [],
+     "forwards": 794,
+     "async_forwards": 730,
+     "t_h_s": 0.730506,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 175,
+      "p50_ms": 0.035417,
+      "p99_ms": 0.3007031599999999
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 8,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.949291124939919,
+      "p95": 10.565500590018928,
+      "p99": 14.698549197055407,
+      "p999": 19.155113829765643
+     },
+     "aggregate_req_s": 126.22945209506017,
+     "steady": {
+      "completions": 898,
+      "seconds": 7.0,
+      "short_p99_ms": 10.461651340000001
+     },
+     "structure": [],
+     "forwards": 791,
+     "async_forwards": 727,
+     "t_h_s": 0.76712175,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 174,
+      "p50_ms": 0.034646,
+      "p99_ms": 0.3194174300000013
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 9,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.949312545359135,
+      "p95": 10.530704411212355,
+      "p99": 13.191561186686203,
+      "p999": 18.820189033635604
+     },
+     "aggregate_req_s": 126.38411678500404,
+     "steady": {
+      "completions": 897,
+      "seconds": 7.0,
+      "short_p99_ms": 10.47883092
+     },
+     "structure": [],
+     "forwards": 792,
+     "async_forwards": 727,
+     "t_h_s": 0.757285542,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 174,
+      "p50_ms": 0.03625,
+      "p99_ms": 0.21554475000000037
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 10,
+     "condition": "hetero_bursty",
+     "cell": "P",
+     "client": {
+      "median": 9.901459095999599,
+      "p95": 11.792832985520363,
+      "p99": 15.52094193175436,
+      "p999": 22.48488348443098
+     },
+     "aggregate_req_s": 94.9441313452201,
+     "steady": {
+      "completions": 667,
+      "seconds": 7.0,
+      "short_p99_ms": 10.41407125
+     },
+     "structure": [],
+     "forwards": 541,
+     "async_forwards": 476,
+     "t_h_s": 0.968481375,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 168,
+      "p50_ms": 0.0338335,
+      "p99_ms": 0.1508891400000024
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 11,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.948771097697318,
+      "p95": 10.405478766188025,
+      "p99": 12.206641735974685,
+      "p999": 16.33375450037453
+     },
+     "aggregate_req_s": 126.9651644263574,
+     "steady": {
+      "completions": 898,
+      "seconds": 7.0,
+      "short_p99_ms": 10.39385334
+     },
+     "structure": [],
+     "forwards": 796,
+     "async_forwards": 732,
+     "t_h_s": 0.711172917,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 175,
+      "p50_ms": 0.035041,
+      "p99_ms": 0.1928465799999992
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 13,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.952042018994689,
+      "p95": 10.481908405199647,
+      "p99": 12.598338099196555,
+      "p999": 23.040732996540108
+     },
+     "aggregate_req_s": 126.53213357097044,
+     "steady": {
+      "completions": 897,
+      "seconds": 7.0,
+      "short_p99_ms": 10.46731384
+     },
+     "structure": [],
+     "forwards": 793,
+     "async_forwards": 729,
+     "t_h_s": 0.7358155,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 175,
+      "p50_ms": 0.035042,
+      "p99_ms": 0.24673265999999883
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 15,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.953020955435932,
+      "p95": 10.52182714920491,
+      "p99": 12.818736149929446,
+      "p999": 16.860020999797534
+     },
+     "aggregate_req_s": 126.67422983778161,
+     "steady": {
+      "completions": 897,
+      "seconds": 7.0,
+      "short_p99_ms": 10.47622583
+     },
+     "structure": [],
+     "forwards": 794,
+     "async_forwards": 730,
+     "t_h_s": 0.725361958,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 175,
+      "p50_ms": 0.035625,
+      "p99_ms": 0.27396673999999976
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 17,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.956312598660588,
+      "p95": 10.532253992278129,
+      "p99": 13.53107223985717,
+      "p999": 23.67801790335467
+     },
+     "aggregate_req_s": 126.04145020392104,
+     "steady": {
+      "completions": 899,
+      "seconds": 7.0,
+      "short_p99_ms": 10.41865866
+     },
+     "structure": [],
+     "forwards": 790,
+     "async_forwards": 726,
+     "t_h_s": 0.772278125,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 174,
+      "p50_ms": 0.0349165,
+      "p99_ms": 0.13061868000000035
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 19,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.949625004082918,
+      "p95": 10.430199862457812,
+      "p99": 11.865040631964789,
+      "p999": 20.269923062998465
+     },
+     "aggregate_req_s": 126.77189340411562,
+     "steady": {
+      "completions": 898,
+      "seconds": 7.0,
+      "short_p99_ms": 10.45162168
+     },
+     "structure": [],
+     "forwards": 795,
+     "async_forwards": 731,
+     "t_h_s": 0.72053625,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 175,
+      "p50_ms": 0.035125,
+      "p99_ms": 0.2511104999999994
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 20,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.954083012416959,
+      "p95": 10.506716649979353,
+      "p99": 13.312024902552373,
+      "p999": 18.02510767802649
+     },
+     "aggregate_req_s": 126.53328589534635,
+     "steady": {
+      "completions": 897,
+      "seconds": 7.0,
+      "short_p99_ms": 10.49284083
+     },
+     "structure": [],
+     "forwards": 793,
+     "async_forwards": 729,
+     "t_h_s": 0.730546333,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 175,
+      "p50_ms": 0.034917,
+      "p99_ms": 0.30231058
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 21,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.943020530045033,
+      "p95": 10.535181139130144,
+      "p99": 14.086086978204564,
+      "p999": 20.13845443166848
+     },
+     "aggregate_req_s": 126.35496168456113,
+     "steady": {
+      "completions": 898,
+      "seconds": 7.0,
+      "short_p99_ms": 10.468682320000001
+     },
+     "structure": [],
+     "forwards": 792,
+     "async_forwards": 727,
+     "t_h_s": 0.76496775,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 174,
+      "p50_ms": 0.03525,
+      "p99_ms": 0.29800509000000036
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 22,
+     "condition": "hetero_bursty",
+     "cell": "P",
+     "client": {
+      "median": 9.96720907278359,
+      "p95": 10.585499927401543,
+      "p99": 13.885408127680426,
+      "p999": 18.117353301495534
+     },
+     "aggregate_req_s": 95.05732094452634,
+     "steady": {
+      "completions": 664,
+      "seconds": 7.0,
+      "short_p99_ms": 10.42817542
+     },
+     "structure": [],
+     "forwards": 541,
+     "async_forwards": 477,
+     "t_h_s": 0.916816542,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 170,
+      "p50_ms": 0.0335835,
+      "p99_ms": 0.07208823000000002
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 23,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.950604406185448,
+      "p95": 10.499002237338573,
+      "p99": 12.890541043598192,
+      "p999": 18.13937137858077
+     },
+     "aggregate_req_s": 126.636251248143,
+     "steady": {
+      "completions": 897,
+      "seconds": 7.0,
+      "short_p99_ms": 10.49116608
+     },
+     "structure": [],
+     "forwards": 794,
+     "async_forwards": 730,
+     "t_h_s": 0.729054417,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 175,
+      "p50_ms": 0.03525,
+      "p99_ms": 0.2545081599999996
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 25,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.948458056896925,
+      "p95": 10.506149986758828,
+      "p99": 12.554404987022306,
+      "p999": 22.207609511914356
+     },
+     "aggregate_req_s": 126.47135889678091,
+     "steady": {
+      "completions": 898,
+      "seconds": 7.0,
+      "short_p99_ms": 10.48293518
+     },
+     "structure": [],
+     "forwards": 793,
+     "async_forwards": 728,
+     "t_h_s": 0.751803792,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 174,
+      "p50_ms": 0.035,
+      "p99_ms": 0.33477007000000003
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 27,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.949520928785205,
+      "p95": 10.498041962273419,
+      "p99": 13.297048625536261,
+      "p999": 18.56266242335678
+     },
+     "aggregate_req_s": 126.6314470950681,
+     "steady": {
+      "completions": 898,
+      "seconds": 7.0,
+      "short_p99_ms": 10.467071480000001
+     },
+     "structure": [],
+     "forwards": 794,
+     "async_forwards": 729,
+     "t_h_s": 0.743474418,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 174,
+      "p50_ms": 0.035375,
+      "p99_ms": 0.3533726600000008
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 29,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.954520501196384,
+      "p95": 10.461518447846172,
+      "p99": 13.32284054951743,
+      "p999": 22.625981770690434
+     },
+     "aggregate_req_s": 126.39697317567905,
+     "steady": {
+      "completions": 897,
+      "seconds": 7.0,
+      "short_p99_ms": 10.432027499999998
+     },
+     "structure": [],
+     "forwards": 792,
+     "async_forwards": 728,
+     "t_h_s": 0.749035001,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 174,
+      "p50_ms": 0.0348335,
+      "p99_ms": 0.31297932000000034
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 31,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.947999846190214,
+      "p95": 10.44639169704169,
+      "p99": 12.47920705471187,
+      "p999": 20.648029056381585
+     },
+     "aggregate_req_s": 126.76142386215983,
+     "steady": {
+      "completions": 898,
+      "seconds": 7.0,
+      "short_p99_ms": 10.480746680000001
+     },
+     "structure": [],
+     "forwards": 795,
+     "async_forwards": 730,
+     "t_h_s": 0.733012458,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 175,
+      "p50_ms": 0.035417,
+      "p99_ms": 0.22767307999999858
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 32,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.950207895599306,
+      "p95": 10.515964310616255,
+      "p99": 12.754437706898887,
+      "p999": 18.592491773656008
+     },
+     "aggregate_req_s": 126.67919989359093,
+     "steady": {
+      "completions": 897,
+      "seconds": 7.0,
+      "short_p99_ms": 10.492740419999999
+     },
+     "structure": [],
+     "forwards": 794,
+     "async_forwards": 730,
+     "t_h_s": 0.727693417,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 174,
+      "p50_ms": 0.034709,
+      "p99_ms": 0.2919895200000001
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 33,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.94733301922679,
+      "p95": 10.500387591309845,
+      "p99": 12.382868565618988,
+      "p999": 18.788347675932155
+     },
+     "aggregate_req_s": 126.7798423301436,
+     "steady": {
+      "completions": 897,
+      "seconds": 7.0,
+      "short_p99_ms": 10.50650959
+     },
+     "structure": [],
+     "forwards": 795,
+     "async_forwards": 730,
+     "t_h_s": 0.729315834,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 175,
+      "p50_ms": 0.033625,
+      "p99_ms": 0.33953483999999856
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 34,
+     "condition": "hetero_bursty",
+     "cell": "P",
+     "client": {
+      "median": 9.965667151845992,
+      "p95": 10.557816247455776,
+      "p99": 14.506714246235832,
+      "p999": 21.740483415546414
+     },
+     "aggregate_req_s": 95.11882735508622,
+     "steady": {
+      "completions": 665,
+      "seconds": 7.0,
+      "short_p99_ms": 10.48203354
+     },
+     "structure": [],
+     "forwards": 542,
+     "async_forwards": 477,
+     "t_h_s": 0.936730334,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 169,
+      "p50_ms": 0.033333,
+      "p99_ms": 0.43133667999999986
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 35,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.960124967619777,
+      "p95": 10.535925161093473,
+      "p99": 12.643243549391626,
+      "p999": 16.260637262836983
+     },
+     "aggregate_req_s": 126.6987765112725,
+     "steady": {
+      "completions": 897,
+      "seconds": 7.0,
+      "short_p99_ms": 10.52507917
+     },
+     "structure": [],
+     "forwards": 795,
+     "async_forwards": 731,
+     "t_h_s": 0.712296292,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 175,
+      "p50_ms": 0.036459,
+      "p99_ms": 0.2838901599999998
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 37,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.953979053534567,
+      "p95": 10.517985629849136,
+      "p99": 13.328411444090312,
+      "p999": 24.41801490774534
+     },
+     "aggregate_req_s": 126.2978778271559,
+     "steady": {
+      "completions": 898,
+      "seconds": 7.0,
+      "short_p99_ms": 10.47107034
+     },
+     "structure": [],
+     "forwards": 792,
+     "async_forwards": 727,
+     "t_h_s": 0.763879625,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 174,
+      "p50_ms": 0.035187,
+      "p99_ms": 0.351455500000001
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 39,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.957582922652364,
+      "p95": 10.52275002002716,
+      "p99": 12.615438159555207,
+      "p999": 19.011062106118505
+     },
+     "aggregate_req_s": 126.46094132520932,
+     "steady": {
+      "completions": 897,
+      "seconds": 7.0,
+      "short_p99_ms": 10.51369643
+     },
+     "structure": [],
+     "forwards": 793,
+     "async_forwards": 728,
+     "t_h_s": 0.740775167,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 175,
+      "p50_ms": 0.036625,
+      "p99_ms": 0.31128607999999963
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 41,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.963062591850758,
+      "p95": 10.615089302882552,
+      "p99": 12.635740586556494,
+      "p999": 22.539632664064353
+     },
+     "aggregate_req_s": 125.77647141261872,
+     "steady": {
+      "completions": 895,
+      "seconds": 7.0,
+      "short_p99_ms": 10.5472135
+     },
+     "structure": [],
+     "forwards": 788,
+     "async_forwards": 723,
+     "t_h_s": 0.75963625,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 174,
+      "p50_ms": 0.037208,
+      "p99_ms": 0.34291548000000094
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 43,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.9545419216156,
+      "p95": 10.467000072821975,
+      "p99": 12.0443310495466,
+      "p999": 20.378623882778122
+     },
+     "aggregate_req_s": 126.74770572375508,
+     "steady": {
+      "completions": 897,
+      "seconds": 7.0,
+      "short_p99_ms": 10.48664983
+     },
+     "structure": [],
+     "forwards": 795,
+     "async_forwards": 730,
+     "t_h_s": 0.7286965,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 175,
+      "p50_ms": 0.036041,
+      "p99_ms": 0.2882585799999998
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 44,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.951458545401692,
+      "p95": 10.490926972124726,
+      "p99": 12.34647844685241,
+      "p999": 15.994306490756813
+     },
+     "aggregate_req_s": 126.83039270972125,
+     "steady": {
+      "completions": 898,
+      "seconds": 7.0,
+      "short_p99_ms": 10.49005198
+     },
+     "structure": [],
+     "forwards": 796,
+     "async_forwards": 732,
+     "t_h_s": 0.712450541,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 175,
+      "p50_ms": 0.03575,
+      "p99_ms": 0.3599689199999996
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 45,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.951082989573479,
+      "p95": 10.520425392314792,
+      "p99": 13.293115226551892,
+      "p999": 19.390137990937497
+     },
+     "aggregate_req_s": 126.54973757085017,
+     "steady": {
+      "completions": 897,
+      "seconds": 7.0,
+      "short_p99_ms": 10.49089658
+     },
+     "structure": [],
+     "forwards": 793,
+     "async_forwards": 728,
+     "t_h_s": 0.746659,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 174,
+      "p50_ms": 0.03525,
+      "p99_ms": 0.3610298200000002
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 46,
+     "condition": "hetero_bursty",
+     "cell": "P",
+     "client": {
+      "median": 9.969833539798856,
+      "p95": 10.62484550056979,
+      "p99": 14.224226356018333,
+      "p999": 19.071822812315478
+     },
+     "aggregate_req_s": 94.6366530823654,
+     "steady": {
+      "completions": 661,
+      "seconds": 7.0,
+      "short_p99_ms": 10.5370898
+     },
+     "structure": [],
+     "forwards": 538,
+     "async_forwards": 474,
+     "t_h_s": 0.927400208,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 169,
+      "p50_ms": 0.03625,
+      "p99_ms": 0.15295055999999996
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 47,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.956979076378047,
+      "p95": 10.563157906290144,
+      "p99": 13.00884571624921,
+      "p999": 19.883860972943296
+     },
+     "aggregate_req_s": 126.34852960279065,
+     "steady": {
+      "completions": 897,
+      "seconds": 7.0,
+      "short_p99_ms": 10.50632051
+     },
+     "structure": [],
+     "forwards": 792,
+     "async_forwards": 727,
+     "t_h_s": 0.755884084,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 174,
+      "p50_ms": 0.0352295,
+      "p99_ms": 0.30892568000000015
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 49,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.957041125744581,
+      "p95": 10.463745659217237,
+      "p99": 11.868327357806256,
+      "p999": 21.48832837166697
+     },
+     "aggregate_req_s": 126.71126106390373,
+     "steady": {
+      "completions": 897,
+      "seconds": 7.0,
+      "short_p99_ms": 10.47106316
+     },
+     "structure": [],
+     "forwards": 795,
+     "async_forwards": 731,
+     "t_h_s": 0.719902042,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 175,
+      "p50_ms": 0.036,
+      "p99_ms": 0.18684092
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 51,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.953042026609182,
+      "p95": 10.471391980536282,
+      "p99": 12.32555896043776,
+      "p999": 17.84451695764588
+     },
+     "aggregate_req_s": 126.7539800887668,
+     "steady": {
+      "completions": 897,
+      "seconds": 7.0,
+      "short_p99_ms": 10.462476169999999
+     },
+     "structure": [],
+     "forwards": 795,
+     "async_forwards": 731,
+     "t_h_s": 0.717420458,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 175,
+      "p50_ms": 0.035042,
+      "p99_ms": 0.31131407999999994
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 53,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.950375417247415,
+      "p95": 10.493574955035001,
+      "p99": 12.505632555112241,
+      "p999": 22.292695425686844
+     },
+     "aggregate_req_s": 126.5510944381212,
+     "steady": {
+      "completions": 898,
+      "seconds": 7.0,
+      "short_p99_ms": 10.48124436
+     },
+     "structure": [],
+     "forwards": 794,
+     "async_forwards": 729,
+     "t_h_s": 0.743669209,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 175,
+      "p50_ms": 0.034542,
+      "p99_ms": 0.23891891999999937
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 55,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.956667199730873,
+      "p95": 10.495491279289126,
+      "p99": 12.233588220551612,
+      "p999": 20.506761688741232
+     },
+     "aggregate_req_s": 126.54515350585947,
+     "steady": {
+      "completions": 896,
+      "seconds": 7.0,
+      "short_p99_ms": 10.505667
+     },
+     "structure": [],
+     "forwards": 793,
+     "async_forwards": 729,
+     "t_h_s": 0.727817708,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 175,
+      "p50_ms": 0.036208,
+      "p99_ms": 0.28381015999999987
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 56,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.951750049367547,
+      "p95": 10.515649919398129,
+      "p99": 12.833062461577354,
+      "p999": 17.876354059671502
+     },
+     "aggregate_req_s": 126.72571964905946,
+     "steady": {
+      "completions": 897,
+      "seconds": 7.0,
+      "short_p99_ms": 10.49765241
+     },
+     "structure": [],
+     "forwards": 795,
+     "async_forwards": 730,
+     "t_h_s": 0.730502959,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 175,
+      "p50_ms": 0.035458,
+      "p99_ms": 0.26208107999999986
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 57,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.954041102901101,
+      "p95": 10.474066995084286,
+      "p99": 12.5222119502723,
+      "p999": 17.17003322113389
+     },
+     "aggregate_req_s": 126.71262951902554,
+     "steady": {
+      "completions": 897,
+      "seconds": 7.0,
+      "short_p99_ms": 10.465100920000001
+     },
+     "structure": [],
+     "forwards": 795,
+     "async_forwards": 731,
+     "t_h_s": 0.718374916,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 175,
+      "p50_ms": 0.035667,
+      "p99_ms": 0.21293591999999886
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 58,
+     "condition": "hetero_bursty",
+     "cell": "P",
+     "client": {
+      "median": 9.957832982763648,
+      "p95": 10.565793863497674,
+      "p99": 14.18091655243189,
+      "p999": 21.89117231941857
+     },
+     "aggregate_req_s": 95.3845677691192,
+     "steady": {
+      "completions": 667,
+      "seconds": 7.0,
+      "short_p99_ms": 10.47998496
+     },
+     "structure": [],
+     "forwards": 544,
+     "async_forwards": 480,
+     "t_h_s": 0.927346792,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 169,
+      "p50_ms": 0.033958,
+      "p99_ms": 0.16467899999999971
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 59,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.951833519153297,
+      "p95": 10.46656664693728,
+      "p99": 12.892873748205584,
+      "p999": 19.171397947008952
+     },
+     "aggregate_req_s": 126.61339687260346,
+     "steady": {
+      "completions": 898,
+      "seconds": 7.0,
+      "short_p99_ms": 10.43915232
+     },
+     "structure": [],
+     "forwards": 794,
+     "async_forwards": 729,
+     "t_h_s": 0.744637584,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 174,
+      "p50_ms": 0.0349995,
+      "p99_ms": 0.18921050000000092
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 61,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.959041490219533,
+      "p95": 10.488971113227308,
+      "p99": 12.13024576194583,
+      "p999": 19.72151155211314
+     },
+     "aggregate_req_s": 126.57119816530395,
+     "steady": {
+      "completions": 897,
+      "seconds": 7.0,
+      "short_p99_ms": 10.48902941
+     },
+     "structure": [],
+     "forwards": 794,
+     "async_forwards": 730,
+     "t_h_s": 0.721315334,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 175,
+      "p50_ms": 0.037084,
+      "p99_ms": 0.2093107599999989
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 63,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.957750095054507,
+      "p95": 10.46018754132092,
+      "p99": 12.606790405698112,
+      "p999": 19.064760716167804
+     },
+     "aggregate_req_s": 126.70015783501448,
+     "steady": {
+      "completions": 897,
+      "seconds": 7.0,
+      "short_p99_ms": 10.43650783
+     },
+     "structure": [],
+     "forwards": 795,
+     "async_forwards": 730,
+     "t_h_s": 0.730206043,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 175,
+      "p50_ms": 0.035416,
+      "p99_ms": 0.30536441999999997
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 65,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.959792019799352,
+      "p95": 10.50279987975955,
+      "p99": 12.375745484605437,
+      "p999": 20.269352192061127
+     },
+     "aggregate_req_s": 126.41872381508674,
+     "steady": {
+      "completions": 897,
+      "seconds": 7.0,
+      "short_p99_ms": 10.51159616
+     },
+     "structure": [],
+     "forwards": 793,
+     "async_forwards": 729,
+     "t_h_s": 0.732501292,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 175,
+      "p50_ms": 0.037,
+      "p99_ms": 0.3296901599999999
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 67,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.952979511581361,
+      "p95": 10.515884729102254,
+      "p99": 12.023332663811736,
+      "p999": 20.75080056768214
+     },
+     "aggregate_req_s": 126.70479451619158,
+     "steady": {
+      "completions": 896,
+      "seconds": 7.0,
+      "short_p99_ms": 10.520875
+     },
+     "structure": [],
+     "forwards": 794,
+     "async_forwards": 729,
+     "t_h_s": 0.729834,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 175,
+      "p50_ms": 0.035083,
+      "p99_ms": 0.35771483999999915
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 68,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.947624988853931,
+      "p95": 10.517741274088621,
+      "p99": 12.273476454429318,
+      "p999": 17.83246798208142
+     },
+     "aggregate_req_s": 126.73838360481966,
+     "steady": {
+      "completions": 897,
+      "seconds": 7.0,
+      "short_p99_ms": 10.518725
+     },
+     "structure": [],
+     "forwards": 795,
+     "async_forwards": 731,
+     "t_h_s": 0.716920542,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 175,
+      "p50_ms": 0.034542,
+      "p99_ms": 0.3097414199999998
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 69,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.953916654922068,
+      "p95": 10.519826936069876,
+      "p99": 12.524828126188353,
+      "p999": 17.254024991533594
+     },
+     "aggregate_req_s": 126.65097641092154,
+     "steady": {
+      "completions": 897,
+      "seconds": 7.0,
+      "short_p99_ms": 10.54030542
+     },
+     "structure": [],
+     "forwards": 794,
+     "async_forwards": 730,
+     "t_h_s": 0.720875708,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 175,
+      "p50_ms": 0.03575,
+      "p99_ms": 0.31061465999999965
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 70,
+     "condition": "hetero_bursty",
+     "cell": "P",
+     "client": {
+      "median": 9.962291573174298,
+      "p95": 10.57103124912828,
+      "p99": 14.149176198989167,
+      "p999": 18.880077973939546
+     },
+     "aggregate_req_s": 94.9681418237305,
+     "steady": {
+      "completions": 663,
+      "seconds": 7.0,
+      "short_p99_ms": 10.412493
+     },
+     "structure": [],
+     "forwards": 540,
+     "async_forwards": 476,
+     "t_h_s": 0.927211708,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 169,
+      "p50_ms": 0.032333,
+      "p99_ms": 0.27633499999999994
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 71,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.949208004400134,
+      "p95": 10.505562415346503,
+      "p99": 12.595224403776227,
+      "p999": 16.77459055208633
+     },
+     "aggregate_req_s": 126.83993188702257,
+     "steady": {
+      "completions": 898,
+      "seconds": 7.0,
+      "short_p99_ms": 10.49982982
+     },
+     "structure": [],
+     "forwards": 796,
+     "async_forwards": 732,
+     "t_h_s": 0.712073166,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 175,
+      "p50_ms": 0.034,
+      "p99_ms": 0.31795591999999995
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 73,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.95368801523,
+      "p95": 10.494321025907993,
+      "p99": 12.502307568211101,
+      "p999": 21.333935755308456
+     },
+     "aggregate_req_s": 126.64261068099007,
+     "steady": {
+      "completions": 897,
+      "seconds": 7.0,
+      "short_p99_ms": 10.4906355
+     },
+     "structure": [],
+     "forwards": 794,
+     "async_forwards": 729,
+     "t_h_s": 0.733538375,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 175,
+      "p50_ms": 0.034875,
+      "p99_ms": 0.2688620799999998
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 75,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.951041778549552,
+      "p95": 10.479875095188618,
+      "p99": 12.737253094092003,
+      "p999": 18.254524471704805
+     },
+     "aggregate_req_s": 126.75793642705062,
+     "steady": {
+      "completions": 898,
+      "seconds": 7.0,
+      "short_p99_ms": 10.4796295
+     },
+     "structure": [],
+     "forwards": 795,
+     "async_forwards": 731,
+     "t_h_s": 0.723148584,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 175,
+      "p50_ms": 0.0335,
+      "p99_ms": 0.2648414199999996
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 77,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.950999985449016,
+      "p95": 10.49717040732503,
+      "p99": 12.434201496653253,
+      "p999": 20.776515347653415
+     },
+     "aggregate_req_s": 126.68832641231688,
+     "steady": {
+      "completions": 897,
+      "seconds": 7.0,
+      "short_p99_ms": 10.48791267
+     },
+     "structure": [],
+     "forwards": 794,
+     "async_forwards": 729,
+     "t_h_s": 0.73122475,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 175,
+      "p50_ms": 0.034959,
+      "p99_ms": 0.2839604199999999
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 79,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.953291970305145,
+      "p95": 10.491212410852313,
+      "p99": 12.191849339287725,
+      "p999": 20.994844382865033
+     },
+     "aggregate_req_s": 126.63874878683737,
+     "steady": {
+      "completions": 897,
+      "seconds": 7.0,
+      "short_p99_ms": 10.49618392
+     },
+     "structure": [],
+     "forwards": 794,
+     "async_forwards": 729,
+     "t_h_s": 0.733186833,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 175,
+      "p50_ms": 0.034208,
+      "p99_ms": 0.2803134199999995
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 80,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.955625049769878,
+      "p95": 10.501441243104637,
+      "p99": 12.61274552438408,
+      "p999": 17.961378886831692
+     },
+     "aggregate_req_s": 126.7548221301975,
+     "steady": {
+      "completions": 897,
+      "seconds": 7.0,
+      "short_p99_ms": 10.49762709
+     },
+     "structure": [],
+     "forwards": 795,
+     "async_forwards": 731,
+     "t_h_s": 0.713774417,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 175,
+      "p50_ms": 0.034917,
+      "p99_ms": 0.32539423999999983
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 81,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.954666486009955,
+      "p95": 10.497343738097697,
+      "p99": 12.832252001389826,
+      "p999": 18.19058433338128
+     },
+     "aggregate_req_s": 126.68020480876096,
+     "steady": {
+      "completions": 897,
+      "seconds": 7.0,
+      "short_p99_ms": 10.48433533
+     },
+     "structure": [],
+     "forwards": 794,
+     "async_forwards": 730,
+     "t_h_s": 0.723752875,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 175,
+      "p50_ms": 0.035791,
+      "p99_ms": 0.32125307999999997
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 82,
+     "condition": "hetero_bursty",
+     "cell": "P",
+     "client": {
+      "median": 9.962459094822407,
+      "p95": 10.65095909871161,
+      "p99": 14.312883047387011,
+      "p999": 19.65701872017254
+     },
+     "aggregate_req_s": 95.0013789886735,
+     "steady": {
+      "completions": 665,
+      "seconds": 7.0,
+      "short_p99_ms": 10.44859692
+     },
+     "structure": [],
+     "forwards": 541,
+     "async_forwards": 477,
+     "t_h_s": 0.938731708,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 169,
+      "p50_ms": 0.033125,
+      "p99_ms": 0.2794984399999996
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 83,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.961124858818948,
+      "p95": 10.534245707094668,
+      "p99": 13.081064030993744,
+      "p999": 19.494484156370785
+     },
+     "aggregate_req_s": 126.30776481020357,
+     "steady": {
+      "completions": 896,
+      "seconds": 7.0,
+      "short_p99_ms": 10.509083
+     },
+     "structure": [],
+     "forwards": 792,
+     "async_forwards": 727,
+     "t_h_s": 0.749103291,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 174,
+      "p50_ms": 0.0365415,
+      "p99_ms": 0.2625824300000003
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 85,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.94529202580452,
+      "p95": 10.499396012164652,
+      "p99": 13.598554627969868,
+      "p999": 22.648094964680162
+     },
+     "aggregate_req_s": 126.26696331924182,
+     "steady": {
+      "completions": 898,
+      "seconds": 7.0,
+      "short_p99_ms": 10.48519482
+     },
+     "structure": [],
+     "forwards": 791,
+     "async_forwards": 727,
+     "t_h_s": 0.761077667,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 174,
+      "p50_ms": 0.0344165,
+      "p99_ms": 0.30277182000000014
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 87,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.962729411199689,
+      "p95": 10.4871291317977,
+      "p99": 12.929113556165232,
+      "p999": 19.837609862909744
+     },
+     "aggregate_req_s": 126.57900938767517,
+     "steady": {
+      "completions": 897,
+      "seconds": 7.0,
+      "short_p99_ms": 10.47307491
+     },
+     "structure": [],
+     "forwards": 794,
+     "async_forwards": 729,
+     "t_h_s": 0.737930459,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 175,
+      "p50_ms": 0.036708,
+      "p99_ms": 0.366027999999998
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 89,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.950707899406552,
+      "p95": 10.492533491924405,
+      "p99": 12.699774811044337,
+      "p999": 21.251679122449694
+     },
+     "aggregate_req_s": 126.53041998567906,
+     "steady": {
+      "completions": 897,
+      "seconds": 7.0,
+      "short_p99_ms": 10.4891295
+     },
+     "structure": [],
+     "forwards": 793,
+     "async_forwards": 729,
+     "t_h_s": 0.736664416,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 175,
+      "p50_ms": 0.0355,
+      "p99_ms": 0.31648141999999974
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 91,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.959354414604604,
+      "p95": 10.478143161162734,
+      "p99": 11.681909682229156,
+      "p999": 20.057964797367248
+     },
+     "aggregate_req_s": 126.63866814358659,
+     "steady": {
+      "completions": 896,
+      "seconds": 7.0,
+      "short_p99_ms": 10.471791
+     },
+     "structure": [],
+     "forwards": 794,
+     "async_forwards": 730,
+     "t_h_s": 0.715294376,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 175,
+      "p50_ms": 0.037375,
+      "p99_ms": 0.22836607999999997
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 92,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.947874816134572,
+      "p95": 10.52200854755938,
+      "p99": 13.212959729135061,
+      "p999": 18.796248307452057
+     },
+     "aggregate_req_s": 126.54760170433666,
+     "steady": {
+      "completions": 897,
+      "seconds": 7.0,
+      "short_p99_ms": 10.509524410000001
+     },
+     "structure": [],
+     "forwards": 793,
+     "async_forwards": 729,
+     "t_h_s": 0.737462709,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 174,
+      "p50_ms": 0.034917000000000004,
+      "p99_ms": 0.2912688200000002
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 93,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.95345797855407,
+      "p95": 10.514477244578302,
+      "p99": 13.523445697501316,
+      "p999": 18.995542007964424
+     },
+     "aggregate_req_s": 126.40255987932801,
+     "steady": {
+      "completions": 897,
+      "seconds": 7.0,
+      "short_p99_ms": 10.50464592
+     },
+     "structure": [],
+     "forwards": 792,
+     "async_forwards": 728,
+     "t_h_s": 0.742975042,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 175,
+      "p50_ms": 0.036167,
+      "p99_ms": 0.36319141999999977
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 94,
+     "condition": "hetero_bursty",
+     "cell": "P",
+     "client": {
+      "median": 9.961459087207913,
+      "p95": 10.75545814819634,
+      "p99": 14.86364156007767,
+      "p999": 20.257750782184498
+     },
+     "aggregate_req_s": 95.01413717909,
+     "steady": {
+      "completions": 665,
+      "seconds": 7.0,
+      "short_p99_ms": 10.48506802
+     },
+     "structure": [],
+     "forwards": 541,
+     "async_forwards": 477,
+     "t_h_s": 0.937404125,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 169,
+      "p50_ms": 0.033417,
+      "p99_ms": 0.14044211999999984
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    },
+    {
+     "index": 95,
+     "condition": "hetero",
+     "cell": "P",
+     "client": {
+      "median": 9.94983408600092,
+      "p95": 10.509074991568923,
+      "p99": 13.366313148289937,
+      "p999": 18.29716581665021
+     },
+     "aggregate_req_s": 126.56363421407444,
+     "steady": {
+      "completions": 898,
+      "seconds": 7.0,
+      "short_p99_ms": 10.48798
+     },
+     "structure": [],
+     "forwards": 793,
+     "async_forwards": 729,
+     "t_h_s": 0.741252375,
+     "tripped": false,
+     "gpu_return_async": {
+      "n": 174,
+      "p50_ms": 0.0344995,
+      "p99_ms": 0.257122
+     },
+     "truth": {
+      "slow_spans": 0,
+      "longest": 0,
+      "sustained": false
+     },
+     "run": "productsoak-laya-P-r1"
+    }
+   ],
+   "triggers": [],
+   "status": "PASS",
+   "fail": [],
+   "invalid": []
   }
  }
 }
