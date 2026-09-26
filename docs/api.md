@@ -12,7 +12,7 @@ Import these from the top-level `laya_apple` package:
 
 | Name | Contract |
 |---|---|
-| `Laya.from_pretrained(model_id, device="auto", *, dtype="float16", local_files_only=False, batch_size=16, execution="inline", ane_placement="auto", ane_startup="wait", trace=None)` | Loads a pinned checkpoint. Invalid arguments raise `ValueError`. Every other failure raises a `LayaAppleError` subclass |
+| `Laya.from_pretrained(model_id, device="auto", *, dtype="float16", local_files_only=False, batch_size=16, execution="inline", ane_placement="auto", ane_startup="wait", trace=None, ane_handoff=None)` | Loads a pinned checkpoint. Invalid arguments raise `ValueError`. Every other failure raises a `LayaAppleError` subclass |
 | `Laya.predict(context=None, questions=None, *, state=None) -> Result` | Blocking and thread-safe |
 | `Laya.submit(...) -> concurrent.futures.Future[Result]` | Same arguments as `predict` |
 | `await Laya.apredict(...) -> Result` | Same arguments as `predict` |
@@ -29,7 +29,8 @@ Import these from the top-level `laya_apple` package:
 - `model`, `repo`, `revision`;
 - `device`, `execution`, `ane_placement`, `dtype`;
 - `mlx`, `ane_buckets`, `ane_load_errors`;
-- `routing_profile`, `ane_ready`, `auto_ane`.
+- `routing_profile`, `ane_ready`, `auto_ane`;
+- `ane_handoff` (since 1.5), present only on instances eligible for adaptive execution: its state, and whether it is enabled and why not.
 
 **Argument values:**
 
@@ -40,6 +41,7 @@ Import these from the top-level `laya_apple` package:
 | `execution` | `inline`, `workers` |
 | `ane_placement` | `auto`, `thread`, `process` |
 | `ane_startup` | `wait`, `background` |
+| `ane_handoff` | `None` (default: adaptive ANE execution where eligible and available), `False` (always the 1.4 path), `True` (required; [`guide.md`](guide.md#adaptive-ane-execution-in-process-ane-the-default-since-15)) |
 
 ### Routing reasons
 

@@ -70,16 +70,45 @@ The data does not separate C2 from C3 on false trips.
 - Phase 0 says nothing about whether falling back to A actually recovers. That is Phase 1's
   question.
 
-## Phase 1: recovery experiment (preregistered)
+## Phase 1: recovery experiment: PASS
 
-[`phase1.md`](phase1.md) freezes the question, the breaker, the definitions, the run order and the
-stop rules before any Phase 1 run. The question: once PB-ASYNC is in a sustained slow state and C3
-trips, does routing every new ANE request to production A bring back A-like behaviour within 1 s?
+The preregistration is [`phase1.md`](phase1.md), frozen at ad82202; the results are in
+[`phase1_tables.md`](phase1_tables.md). The runs used #102's harness, 12 of them:
+- **A** (production sync): 0 of 6 episodes slow.
+- **B** (PB-ASYNC with no breaker): 6 of 6 slow. The phenotype still reproduces: median
+  12.3 ms, P95 16.7 ms, about 100 req/s.
+- **R** (PB-ASYNC plus the frozen C3 breaker, armed 1 s into the episode past the hetero-start
+  transient):
+  - 12 of 12 episodes tripped, all confirmed slow at the trip;
+  - onset → trip 26 / 35 / 40 ms (median / P95 / worst);
+  - trip → first A 0.78 / 1.19 / 1.30 ms;
+  - trip → sustained A-like 215 / 364 / 414 ms;
+  - after the fallback: 0.999 × A throughput, and a median episode P99 of 10.73 ms against A's
+    10.71 ms;
+  - 0 correctness, routing, request-loss or breaker failures.
 
-**Cells** (12 runs on #102's harness):
-- **A:** production sync;
-- **B:** PB-ASYNC;
-- **R:** PB-ASYNC with the frozen breaker of [`scripts/breaker.py`](scripts/breaker.py).
+## Production runtime and release validation: PASS
 
-**Analysis:** [`scripts/phase1_analyze.py`](scripts/phase1_analyze.py). The results will be in
-`phase1_tables.md`.
+**Production:** the runtime is `laya_apple/handoff.py`. It runs 64 synchronous forwards per
+hetero episode, then PB-ASYNC under C3, which is armed right at the handoff: the 64-forward
+guard steps over the start transient. When C3 trips, the rest of the episode runs production
+A; the breaker re-arms when the episode ends. It is the default for laya and
+laya-typed-decisions.
+
+**Validation** ([`validation.md`](validation.md), frozen at 5ea03ad, addendum 1;
+[`val_tables.md`](val_tables.md)) reused the evidence above and ran targeted production runs
+only.
+
+| phase | P episodes | stayed async | trips | async residency | GPU return P50, P / A | throughput P / A | median episode P99, P − A |
+|---|---|---|---|---|---|---|---|
+| 2 laya product mix | 12 | 12 | 0 | 96.8% | 0.037 / 4.29 ms | 1.042 | −0.19 ms |
+| 3 typed-decisions (product + soak) | 78 | 78 | 0 | 93.4% | 0.043 / 8.60 ms | 1.038 | −0.53 ms |
+| 4 multilingual smoke | – | – | – | – | – | – | – |
+| 5 product-mix soak (incl. bursts) | 64 | 64 | 0 | 91.5% | 0.035 / 4.28 ms | 1.042 | −0.18 ms |
+
+**All phases passed**, with 0 mismatches, routing failures, request loss or crashes.
+- **Phase 4:** laya-multilingual kept process placement, did not use adaptive execution, and
+  `ane_handoff=True` was rejected.
+- **Not exercised naturally:** no slow state occurred in any validation run, so the breaker's
+  production trip path was not triggered there. Its recovery evidence is Phase 1, and its logic
+  is covered by the unit tests, which match it against the research breaker.

@@ -5,6 +5,64 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-09-26
+
+GPU + Neural Engine serving now adapts to system load. With `execution="workers"` and
+`device="auto"`, laya and laya-typed-decisions use a faster asynchronous Neural Engine path
+while it is healthy, and fall back automatically to the 1.4 path when the Mac is contended.
+The change is on by default and needs no code change. Routing thresholds, parity tolerances
+and the published v1.0 measurements are unchanged.
+
+### Added
+
+- **Adaptive ANE execution** (`laya_apple/handoff.py`, `laya_apple/backends/coreml_async.py`):
+  - **The fast path:** in every GPU + ANE overlap, after 64 Neural Engine forwards on the 1.4
+    path, the in-process ANE runs Core ML's asynchronous predict with prebound buffers. This
+    keeps the GPU worker's completions from waiting on the GIL.
+  - **The fallback:** a breaker watches each completed asynchronous request's prepare time.
+    Three consecutive above 0.3 ms send the rest of the overlap to the 1.4 path.
+  - **Measured on one Apple M4 Max**
+    ([`research/coreml-adaptive-breaker/val_tables.md`](research/coreml-adaptive-breaker/val_tables.md)).
+    Across 154 production episodes (laya and laya-typed-decisions: product mix, bursts,
+    repeated transitions, a 66-episode typed soak), all 154 stayed on the fast path:
+    - GPU return 0.035–0.043 ms, against 4.28–4.29 ms (laya) and 8.60 ms (typed-decisions);
+    - throughput 1.038–1.042 × the 1.4 path;
+    - median episode P99 0.18–0.53 ms lower;
+    - 0 mismatches, routing failures, lost requests or crashes.
+  - **Recovery** ([`phase1_tables.md`](research/coreml-adaptive-breaker/phase1_tables.md)):
+    in 12 of 12 episodes where the asynchronous path was already slow, the breaker tripped
+    within 40 ms and latency was back to the 1.4 path's within 164–414 ms.
+- **`ane_handoff`** on `Laya` and `Laya.from_pretrained`:
+  - `None` (the default) uses adaptive execution where it is eligible and available;
+  - `False` always runs the 1.4 path;
+  - `True` requires it.
+  - `info()["ane_handoff"]` (eligible instances only) reports its state, the breaker's trips,
+    and why it is disabled if it is.
+- **`pyobjc-framework-CoreML==12.2.2`** in the `ane` extra, for the asynchronous path.
+- **A parity test of the asynchronous path against the goldens**
+  (`tests/parity/test_ane_async_parity.py`). Every output must equal coremltools' exactly.
+- **Research:**
+  - [`research/coreml-adaptive-breaker/`](research/coreml-adaptive-breaker/README.md): the
+    detector replay on recorded data, the recovery experiment and the release validation;
+  - [`research/coreml-staged-handoff/`](research/coreml-staged-handoff/README.md): the static
+    staged-handoff route, closed by its production evaluation (#102, #103).
+
+### Changed
+
+- **`DeviceWorker.submit` takes an optional `callback`,** attached before the job is queued,
+  so it runs on the dispatcher thread before the next job. `Laya.submit` uses it, so a
+  request's completion is always handled before the next forward on that device.
+- **`Laya.submit` measures prepare time** whenever adaptive execution is in use, not only
+  with `trace=`.
+
+### Unchanged
+
+- **laya-multilingual** keeps its worker-process ANE placement and never uses adaptive
+  execution. `ane_handoff=True` on it raises `ValueError`.
+- **When adaptive execution is unavailable** (no `pyobjc-framework-CoreML`, or the
+  asynchronous models fail their load checks), an eligible instance runs the 1.4 path. It
+  warns once per process and records why in `info()`.
+
 ## [1.4.0] - 2026-09-25
 
 No runtime change. This release publishes the measurements and research recorded since
