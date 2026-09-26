@@ -1,8 +1,10 @@
 # Staged handoff: PB-ASYNC behind a request-count guard (1.5 execution closure)
 
-**Status: run. Outcome: RESEARCH-CLOSED / NO PRODUCT CHANGE.** Neither candidate replicated in the
-screen, and the separate H64 confirmation ([`confirmation.md`](confirmation.md)) FAILED on its
-latency outlier guard. The staged-handoff route is closed and production stays A.
+**Status: closed. Production stays A (1.4).**
+- **Screen:** neither candidate replicated.
+- **H64 confirmation** ([`confirmation.md`](confirmation.md)): FAILED on its latency outlier guard.
+- **H64 production evaluation** in the real runtime ([`evaluation.md`](evaluation.md)): CLOSE. A
+  PB-ASYNC episode fell into the #96 / #99 slow state mid-window.
 - **Records.** The criteria, gates and outcome rules are in [`criteria.md`](criteria.md), committed
   before any formal run (2978d1a), with addenda 1–4 each committed before the runs it concerns.
   Issue #101.
@@ -92,6 +94,45 @@ P99 delta was +3.24 ms. The rule closes the H64 route.
   P99 above A's (+0.94 to +2.43 ms), each in a single window, with no E-core residency and with
   normal throughput. What causes those tails is not identified here. Under the preregistered rule,
   they make H64 not non-inferior in every transition.
+
+## H64 production evaluation (the real runtime)
+
+**Records.**
+- **Qualification: PASS.** [`qualification.md`](qualification.md) was committed before its runs.
+  Results are in [`qual_tables.md`](qual_tables.md) and [`raw-qual/`](raw-qual/).
+- **Evaluation.** [`evaluation.md`](evaluation.md) was committed before its runs (94980c0). Results
+  are in [`eval_tables.md`](eval_tables.md), [`eval_results.json`](eval_results.json) and
+  [`raw-eval/`](raw-eval/).
+- **Runtime under test:** 8d9e798, an opt-in `ane_handoff` with guard 64. It was withdrawn after the
+  outcome, so `laya_apple/` matches main.
+
+**Outcome: CLOSE at phase 1 (laya).** H64 is closed and 1.4 stays. Phases 2–5 were not reached.
+
+**The failure.**
+- **What happened.** In P r5's second hetero episode (after gpu_only), the handoff happened
+  normally at 0.73 s. The first 5 s were normal: median 9.8 ms, no host-slow.
+- **From 5 s on**, the episode was in the #96 / #99 slow state until the window ended 15 s later:
+  - host-slow share 1.00;
+  - median 12.3 ms, P95 16.5 ms;
+  - GPU-return P99 2.0 ms;
+  - 108.0 req/s, against about 128 for P and about 122 for A.
+
+  That fails hard gates H5 (30 consecutive host-slow bins) and H6 (15 consecutive slow spans).
+- **The machine snapshot before that run** showed OrbStack Helper at 92% CPU, and 22% after it.
+  So the run was re-run as P r5-b, which was clean. As preregistered, the re-run does not excuse a
+  P hard failure.
+- **A has never shown this state.** It had 0 of 12 A episodes in this phase, and none in any A run
+  of this directory. A background CPU burst is also part of real use.
+- **So the state is not only an onset effect.** A PB-ASYNC episode that was already running
+  normally on P can still drop into it. The count guard addresses only the onset.
+
+**Everything else in phase 1 passed** (6 run pairs, 12 P and 12 A episodes):
+- 0 mismatches, 0 routing failures, 0 crashes, and the handoff state intact;
+- GPU return: P pooled P50 0.035 ms and P99 0.21 ms, against A's 4.33 ms and 5.73 ms;
+- throughput: 1.047–1.051 × A in every run pair;
+- latency: median ΔP99 −0.37 ms, cluster-bootstrap upper bound −0.26 ms. Pooled P against A:
+  median 9.86 / 10.05 ms, P99 10.80 / 11.14 ms, P99.9 15.86 / 16.13 ms;
+- no tail events.
 
 ## What this does and does not show
 
