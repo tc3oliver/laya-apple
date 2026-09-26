@@ -24,6 +24,16 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   `--modes` and `--repeats` for `research/coreml-compile-cache/`. The default run is the
   v0.3 method.
 
+### Known limitations
+
+- **Prebuilt artifacts do not make a cold start fast.** One screen measured a cold start of
+  273.5 s for laya-typed-decisions against 2.7 s warm
+  (`research/coreml-compile-cache/screen.md`), which is Core ML's on-device compile. That
+  compile runs whether the artifact was built or fetched, so the < 30 s target is not met.
+- **Core ML's compile cache grows without eviction.** It lives under
+  `~/Library/Caches/<process name>/com.apple.e5rt.e5bundlecache/` and gains 0.7–1.4 GB per
+  bucket for every new artifact location. laya-apple never evicts it.
+
 ## [1.5.0] - 2026-09-26
 
 GPU + Neural Engine serving now adapts to system load. With `execution="workers"` and

@@ -372,8 +372,20 @@ A download is trusted no more than a local build. The repository is `--repo`, or
 `LAYA_APPLE_PREBUILT_REPO`. A default repository is not published yet, so without either
 the command raises and names the alternatives. Fetching removes the build and its PyTorch
 dependency. It does not remove Core ML's on-device ANE compile, which still runs once when
-the artifact is first loaded at its registered location. `research/coreml-compile-cache/`
-is the measurement plan for that cost.
+the artifact is first loaded at its registered location.
+
+**Fetching does not give a fast cold start.** On one M4 Max (macOS 26.6.2), the first start of
+laya-typed-decisions (buckets 64, 96, 128) at a new location took 273.5 s with
+`ane_startup="wait"`, against 2.7 s warm
+([`research/coreml-compile-cache/screen.md`](../research/coreml-compile-cache/screen.md),
+one run). That time is Core ML's on-device compile, so prebuilt artifacts do not bring a
+cold start under 30 s. Use `ane_startup="background"` to serve on MLX while it runs.
+
+**Limitation: Core ML's compile cache is never evicted.** Core ML stores the on-device
+compile under `~/Library/Caches/<process name>/com.apple.e5rt.e5bundlecache/<macOS build>/`.
+The cache grows with every new artifact location (a fetch, an import, a moved or copied
+cache), by 0.7–1.4 GB per bucket in that screen. laya-apple never evicts it, and
+`artifacts prune` does not touch it.
 
 ### Artifact provenance
 

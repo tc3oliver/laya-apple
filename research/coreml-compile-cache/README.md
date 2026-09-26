@@ -3,7 +3,7 @@
 Issue: [#8](https://github.com/tc3oliver/laya-apple/issues/8) (cold start). Preregistration:
 [#121](https://github.com/tc3oliver/laya-apple/issues/121), which holds the "Preregistered
 criteria" below verbatim, opened before any data. They are not edited after a run. Status:
-**planned, no data; the ~17 min screen in the scope addendum runs first**.
+**screen done ([`screen.md`](screen.md): screen-INCONCLUSIVE; the full Phase A/B did not run)**.
 
 ## Question
 
