@@ -90,11 +90,23 @@ def main(argv=None):
     p.add_argument("--model", required=True)
     p.add_argument("--run-id", required=True, help="e.g. laya-b1-p1 (block 1, position 1)")
     p.add_argument("--workloads", nargs="*", help="default: every workload that fits the model")
+    p.add_argument(
+        "--screen",
+        action="store_true",
+        help="addendum 1's stop-only screen: its workloads, arms and cycles; written to raw/screen/",
+    )
     a = p.parse_args(argv)
 
     crit = common.criteria()
-    proto = crit["protocol"]["latency"]
+    proto = dict(crit["protocol"]["latency"])
+    arms = common.ARMS
     out_path = common.RAW / "latency" / f"{a.run_id}.json"
+    if a.screen:
+        scr = common.screen_criteria()
+        proto["cycles"] = scr["cycles"]
+        arms = tuple(scr["arms"])
+        a.workloads = scr["workloads"]
+        out_path = common.RAW / "screen" / f"{a.run_id}.json"
     if out_path.exists():
         raise SystemExit(f"{out_path} exists; raw data is never overwritten")
     fx = common.load_fixtures(a.model)
@@ -124,7 +136,7 @@ def main(argv=None):
         correctness = []
         for name, w in workloads.items():
             for req in w["requests"]:
-                for arm in common.ARMS:
+                for arm in arms:
                     _, answers, rec = call(laya, sub, arm, req)
                     correctness.append(
                         {
@@ -137,7 +149,7 @@ def main(argv=None):
                     )
         # 3. run warm-up
         for name, w in workloads.items():
-            for arm in common.ARMS:
+            for arm in arms:
                 for i in range(proto["run_warmup_requests"]):
                     call(laya, sub, arm, w["requests"][i % len(w["requests"])])
 
@@ -145,8 +157,8 @@ def main(argv=None):
         windows = []
         for cycle in range(proto["cycles"]):
             for wi, (name, w) in enumerate(workloads.items()):
-                shift = (cycle + wi) % len(common.ARMS)
-                order = common.ARMS[shift:] + common.ARMS[:shift]
+                shift = (cycle + wi) % len(arms)
+                order = arms[shift:] + arms[:shift]
                 for pos, arm in enumerate(order):
                     time.sleep(proto["idle_before_window_s"])
                     reqs = w["requests"]
@@ -190,6 +202,8 @@ def main(argv=None):
             "started": started,
             "finished": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
             "protocol": proto,
+            "arms": list(arms),
+            "screen": a.screen,
             "policy": crit["policy"],
             "buckets_loaded_for_split": needed,
             "load_s": round(load_s, 2),

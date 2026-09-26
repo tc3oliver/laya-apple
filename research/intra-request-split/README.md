@@ -159,6 +159,15 @@ ratios (df = n − 1), back-transformed. A seeded bootstrap is reported as sensi
 - **F3, the mixes.** Switchyard first, then serve. Each stops itself after its first block if both
   pairs' ratios exceed 1.20 (a FAIL). A Switchyard FAIL skips serve.
 
+**Addendum 1: a stop-only screen before block 1**
+([`criteria-addendum-1.json`](criteria-addendum-1.json), posted on #123 before any data). About
+5 minutes: one laya-apple run on 8×512 with only the split and GPU arms, 6 cycles in ABBA order,
+then one 3-cycle laya-fast run. The campaign stops, reported as a screen stop and not as a
+verdict, if any of the 6 split / GPU window ratios is ≥ 1.00 or their geometric mean is ≥ 0.95
+(S1), on any split hard mismatch (S2), or if the split's median window P50 is ≥ 1.10 × laya-fast's
+(S3). Otherwise block 1 starts as above. The screen can never pass anything, and no screen data
+enters a gate. The placement-probe step also waits for the screen to survive.
+
 **Phase B** runs only after a PASS: `laya-typed-decisions` and `laya-multilingual`, 4 laya-apple
 runs each (no laya-fast), G2 and G3 per model. A model without a Phase B PASS keeps today's
 GPU-only path for multi-question requests in any production change.
@@ -197,6 +206,7 @@ Every step runs from the repository root with `LAYA_APPLE_CACHE` set to the arti
 | 0 | the 512 ANE artifact for `laya` (V16-2) | built with laya-apple's own build and parity gate; see V16-2 | ~4 | no (heavy) |
 | 1 | fixtures and FP32 references | `sh research/intra-request-split/scripts/run.sh prep` | ~3 | no (CPU) |
 | 2 | laya-fast checkout, venv, checkpoint, conversion, 512 body | README commands above, in `~/Developer/scratch/v16/laya-fast` | ~20 | no (network, heavy) |
+| 2a | addendum 1 screen, then its look (stop-only) | `LAYA_FAST_DIR=... sh .../run.sh screen` | ~5 | **yes** |
 | 3 | block 1: 2 laya-apple runs (~7 min each), 2 laya-fast runs (~2 min each) | `LAYA_FAST_DIR=... sh .../run.sh block1` | ~18 | **yes** |
 | 4 | F1 look | `sh .../run.sh look1` | <1 | no |
 | 5 | block 2 | `sh .../run.sh block2` | ~18 | **yes** |

@@ -266,6 +266,46 @@ def phase_a(look: str, crit: dict) -> dict:
     return res
 
 
+def screen(runs: dict, add: dict) -> dict:
+    """criteria-addendum-1.json's stop rule. Stop-only: CONTINUE or SCREEN STOP, never a verdict."""
+    ours, lf = runs.get("screen-laya"), runs.get("screen-laya-fast")
+    if ours is None or lf is None:
+        raise SystemExit("raw/screen/ needs screen-laya.json and screen-laya-fast.json")
+    w = windows_by(ours)
+    cycles = sorted({c for c, wl, _ in w if wl == "8x512"})
+    ratios = [
+        w[(c, "8x512", "split")]["summary"]["p50_ms"] / w[(c, "8x512", "gpu")]["summary"]["p50_ms"] for c in cycles
+    ]
+    geo = math.exp(sum(math.log(r) for r in ratios) / len(ratios))
+    split_p50 = _median([w[(c, "8x512", "split")]["summary"]["p50_ms"] for c in cycles])
+    gpu_p50 = _median([w[(c, "8x512", "gpu")]["summary"]["p50_ms"] for c in cycles])
+    lf_p50 = _median([x["summary"]["p50_ms"] for x in lf["windows"] if x["workload"] == "8x512"])
+    hard = [
+        (c.get("workload"), c.get("seed"), q) for c in ours["correctness"] if c["arm"] == "split" for q in c["hard"]
+    ] + [
+        (x["workload"], r["seed"], q)
+        for x in ours["windows"]
+        if x["arm"] == "split"
+        for r in x["requests"]
+        for q in r["hard"]
+    ]
+    s1 = len(ratios) == add["screen"]["cycles"] and all(r < 1.0 for r in ratios) and geo < 0.95
+    s2 = not hard
+    s3 = split_p50 < 1.10 * lf_p50
+    stops = [n for n, ok in (("S1", s1), ("S2", s2), ("S3", s3)) if not ok]
+    return {
+        "look": "screen",
+        "ratios_split_over_gpu": ratios,
+        "geomean_split_over_gpu": geo,
+        "median_window_p50_ms": {"split": split_p50, "gpu": gpu_p50, "laya_fast": lf_p50},
+        "split_over_laya_fast_medians": split_p50 / lf_p50,
+        "split_hard_mismatches": hard,
+        "k": _k_counts([ours]),
+        "stopped_by": stops,
+        "decision": f"SCREEN STOP ({', '.join(stops)})" if stops else "SCREEN CONTINUE",
+    }
+
+
 def phase_b(model: str, look: str, crit: dict) -> dict:
     runs = [v for k, v in sorted(load_dir("latency").items()) if v["model"] == model]
     conf = 0.99 if len(runs) <= 2 else 0.95
@@ -340,10 +380,17 @@ def tables(res: dict) -> str:
 
 def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--look", required=True, choices=["f1", "f2", "final", "b"])
+    p.add_argument("--look", required=True, choices=["screen", "f1", "f2", "final", "b"])
     p.add_argument("--model", help="phase B model")
     a = p.parse_args(argv)
     crit = common.criteria()
+    if a.look == "screen":
+        add = json.loads((common.TRACK / "criteria-addendum-1.json").read_text())
+        res = screen(load_dir("screen"), add)
+        common.write_json(common.TRACK / "results" / "screen.json", res)
+        print(json.dumps({k: v for k, v in res.items() if k != "k"}, indent=1))
+        print(res["decision"])
+        return
     if a.look == "b":
         if not a.model:
             raise SystemExit("--look b needs --model")

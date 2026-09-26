@@ -236,3 +236,29 @@ def test_g4_pairs_rounds_and_counts_late_trains():
     assert res["stats"]["n"] == 6 and res["verdict"] == "PASS"
     rounds[1]["summary"]["late"] = 3
     assert analyze.g4(mix, gate, 0.95)["verdict"] == "FAIL"
+
+
+def _screen_runs(split_p50s, gpu_p50=240.0, lf_p50=220.0, hard=()):
+    windows = []
+    for c, s in enumerate(split_p50s, 1):
+        windows += [
+            {**_window(c, "8x512", "split", s), "requests": [{"seed": 0, "k": 3, "hard": list(hard)}]},
+            _window(c, "8x512", "gpu", gpu_p50),
+        ]
+    ours = {"run_id": "screen-laya", "model": "laya", "windows": windows, "correctness": []}
+    lf = {"run_id": "screen-laya-fast", "windows": [_window(c, "8x512", "laya_fast", lf_p50) for c in (1, 2, 3)]}
+    return {"screen-laya": ours, "screen-laya-fast": lf}
+
+
+def test_screen_is_stop_only():
+    add = json.loads((SCRIPTS.parent / "criteria-addendum-1.json").read_text())
+    assert add["screen"]["cycles"] == 6 and add["screen"]["arms"] == ["split", "gpu"]
+    ok = analyze.screen(_screen_runs([170.0] * 6), add)
+    assert ok["decision"] == "SCREEN CONTINUE"
+    # one pair not faster, or a geometric mean not below 0.95: S1
+    assert "S1" in analyze.screen(_screen_runs([170.0] * 5 + [241.0]), add)["stopped_by"]
+    assert "S1" in analyze.screen(_screen_runs([230.0] * 6), add)["stopped_by"]
+    # a split hard mismatch: S2
+    assert "S2" in analyze.screen(_screen_runs([170.0] * 6, hard=["q1"]), add)["stopped_by"]
+    # split median >= 1.10 x laya-fast median: S3
+    assert analyze.screen(_screen_runs([170.0] * 6, lf_p50=150.0), add)["stopped_by"] == ["S3"]

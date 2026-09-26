@@ -64,6 +64,7 @@ def main(argv=None):
     p.add_argument("--out", required=True)
     p.add_argument("--run-id", required=True)
     p.add_argument("--model-dir", default="converted-fp16", help="laya-fast's converted checkpoint (its README)")
+    p.add_argument("--screen", action="store_true", help="addendum 1's stop-only screen (3 cycles)")
     a = p.parse_args(argv)
 
     out = Path(a.out)
@@ -71,7 +72,12 @@ def main(argv=None):
         raise SystemExit(f"{out} exists; raw data is never overwritten")
     crit = json.loads(Path(a.criteria).read_text())
     lf = crit["protocol"]["laya_fast"]
-    proto = crit["protocol"]["latency"]
+    proto = dict(crit["protocol"]["latency"])
+    if a.screen:  # criteria-addendum-1.json, beside criteria.json: the stop-only screen's laya-fast run
+        add = json.loads((Path(a.criteria).parent / "criteria-addendum-1.json").read_text())
+        proto["cycles"] = 3
+        if "3 cycles" not in add["screen"]["laya_fast"]:
+            raise SystemExit("criteria-addendum-1.json no longer says 3 cycles for laya-fast")
     root = Path(a.laya_fast_dir).resolve()
     commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
     if commit != lf["commit"]:

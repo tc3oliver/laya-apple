@@ -37,6 +37,11 @@ def criteria() -> dict:
     return json.loads(CRITERIA.read_text())
 
 
+def screen_criteria() -> dict:
+    """criteria-addendum-1.json's stop-only screen."""
+    return json.loads((TRACK / "criteria-addendum-1.json").read_text())["screen"]
+
+
 def sha256_file(path: Path) -> str:
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
