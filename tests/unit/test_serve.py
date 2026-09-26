@@ -232,6 +232,40 @@ def test_ane_status(state, status):
     assert serve.ane_status(fake)["status"] == status
 
 
+HANDOFF = {"enabled": True, "state": "armed", "episodes": 2, "breaker": {"trips": 0}, "forwards": {"sync": 70}}
+
+
+class HandoffLaya(FakeLaya):
+    """An eligible instance: info() carries the adaptive-execution snapshot."""
+
+    def __init__(self, name, handoff=HANDOFF, fail=False, **kwargs):
+        super().__init__(name, **kwargs)
+        self.handoff, self.fail = handoff, fail
+
+    def info(self):
+        if self.fail:
+            raise RuntimeError("closing")
+        info = {"model": self.name}
+        if self.handoff is not None:
+            info["ane_handoff"] = self.handoff
+        return info
+
+
+def test_health_reports_the_adaptive_execution_state():
+    loader = lambda name: HandoffLaya(name, ane=object())  # noqa: E731
+    with TestClient(serve.create_app(loader=loader, default_model="laya"), base_url=BASE) as c:
+        ane = c.get("/health").json()["ane"]["laya"]
+    assert ane == {"status": "ready", "buckets": [128], "handoff": HANDOFF}
+
+
+@pytest.mark.parametrize("kwargs", [{"handoff": None}, {"fail": True}])
+def test_health_omits_handoff_when_not_eligible_or_info_fails(kwargs):
+    fake = HandoffLaya("laya", ane=object(), **kwargs)
+    assert serve.ane_status(fake) == {"status": "ready", "buckets": [128]}
+    fake.ane_state = routing.AneState(routing.ANE_STARTING)
+    assert serve.ane_status(fake) == {"status": "warming"}
+
+
 def test_models_endpoint_lists_supported_checkpoints():
     c, _ = client()
     with c:
