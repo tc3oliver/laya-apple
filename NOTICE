@@ -13,13 +13,17 @@ Laya — https://github.com/NandhaKishorM/laya
   temperatures and clamping, result schema (laya_apple/prompt.py, laya_apple/result.py).
   Vendored from v0.3.20: language/script detection (laya_apple/lang.py, from
   laya/lang.py). Adapted from v0.3.20: the /v1/systemone wire format, limits and
-  language routing of laya/serve.py and laya/router.py (laya_apple/serve.py).
+  language routing of laya/serve.py and laya/router.py (laya_apple/serve.py,
+  laya_apple/router.py).
+  Adapted from v0.3.20: the opt-in embedding shortlist of laya/shortlist.py
+  (laya_apple/shortlist.py).
 
 laya-mlx — https://github.com/mizorewww/laya-mlx
   Copyright 2026 laya-mlx contributors.
   Revision: 0a859518634112655cb97c745dbf04f5191aaf13
   Adapted: native MLX ModernBERT and Laya decision heads, weight-name mapping
-  (laya_apple/models/modernbert_mlx.py); Rust-tokenizer wrapper.
+  (laya_apple/models/modernbert_mlx.py); Rust-tokenizer wrapper; MLX encoder mean-pooling
+  for the shortlist embedding helper (laya_apple/shortlist.py, from laya_mlx/shortlist.py).
   Modifications: packaging only; module docstring and imports.
 
 laya-coreml — https://github.com/mizorewww/laya-coreml

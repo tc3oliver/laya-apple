@@ -28,6 +28,9 @@ class RuntimeInfo:
     ane_backlog_ms: float | None = None
     request_id: int | None = None  # this instance's id for the request; RequestTrace.request_id
     truncated: bool = False  # the state was cut to fit the model's max_len (as upstream does)
+    # Language routing (Laya.from_pretrained("auto"), laya_apple/router.py): why this checkpoint
+    # was chosen, e.g. "language_english"; None when the caller named the checkpoint.
+    model_routing: str | None = None
 
     def __str__(self) -> str:
         return (
@@ -46,8 +49,12 @@ class Result:
     extra: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict:
-        """Upstream-compatible dict (model/answers/usage) plus a `runtime` block."""
+        """Upstream-compatible dict (model/answers/usage) plus a `runtime` block. Entries of
+        `extra` (such as the language router's `routing`) are added at the top level, as
+        upstream adds them to its result dict; they never replace a key above."""
         out = {"model": self.model, "answers": self.answers, "usage": self.usage}
+        for key, value in self.extra.items():
+            out.setdefault(key, value)
         out["runtime"] = asdict(self.runtime)
         out["runtime"]["buckets"] = list(self.runtime.buckets)
         return out
