@@ -1,0 +1,16 @@
+Phase C follow-up (read-only; names and sizes only, no file contents read, nothing moved or deleted).
+
+The per-user cache directory (getconf DARWIN_USER_CACHE_DIR) received no large file during the
+screen; see c-new-paths.txt and c-sizes.txt (Metal shader caches only). A read-only search of
+~/Library/Caches for files over 1 MB modified during the screen found Core ML's E5 runtime bundle
+cache:
+
+  ~/Library/Caches/<process name>/com.apple.e5rt.e5bundlecache/<macOS build>/<64-hex entry>/
+
+- process names seen: "python" and "python3" (one cache per executable name)
+- macOS build directory: 25G83 (the build this screen ran on)
+- entries written during the screen (both process names): 27; 14 of them large, 13 of about 1 MB
+- large entry sizes (MB, du -sm): 711 x3, 1069, 1074 x2, 1421 x7, 1438
+- data written during the screen: 15645 MB
+- total cache size after the screen: python 15 GB (824 entries), python3 24 GB, both including
+  entries from earlier runs on this machine
