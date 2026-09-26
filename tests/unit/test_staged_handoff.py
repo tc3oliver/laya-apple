@@ -14,6 +14,7 @@ import sys
 import threading
 from pathlib import Path
 
+import numpy as np
 import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -766,7 +767,7 @@ def _low_throughput(run):
         w["streams"]["long"]["req_s"] = 5.0
 
 
-def _mismatch(run):
+def _prod_mismatch(run):
     run["windows"][0]["streams"]["short"]["mismatches"] = 1
 
 
@@ -783,7 +784,7 @@ def _disabled(run):
     run["handoff_snapshot"] = {"guard": prod.GUARD, "disabled": True, "disabled_reason": "worker error"}
 
 
-def _drop_guard_decision(run):
+def _prod_drop_guard_decision(run):
     w = _hetero(run)[0]
     k = next(i for i, d in enumerate(run["decisions"]) if d[0] >= w["start_ns"] and d[3] == 5)
     del run["decisions"][k]
@@ -798,11 +799,11 @@ PROD_GATE_FAILS = [
     (_slow_prepare(10.0, 20.0, every=5), "steady_host_slow"),
     (_slow_gpu_return, "gpu_return_p50"),
     (_low_throughput, "throughput"),
-    (_mismatch, "mismatches"),
+    (_prod_mismatch, "mismatches"),
     (_misroute, "routing"),
     (_dead_worker, "workers_alive"),
     (_disabled, "handoff_enabled"),
-    (_drop_guard_decision, "structure"),
+    (_prod_drop_guard_decision, "structure"),
 ]
 
 
@@ -968,3 +969,224 @@ def test_prod_check_mode(raw_prod, tmp_path):
     (out / "prod_tables.md").write_text("x\n")
     stale = subprocess.run([sys.executable, script, "--raw", raw_prod, "--out", out, "--check"], capture_output=True)
     assert stale.returncode != 0 and b"stale" in stale.stderr
+
+
+# ------------------------------------------------------------------ confirm_analyze.py on synthetic campaigns
+
+conf = _load("staged_handoff_confirm_for_tests", SCRIPTS / "confirm_analyze.py")
+_CONF: dict = {}
+
+
+def _conf_run(cell, **kw):
+    """_fake_run with the confirmation's full protocol (model laya, gap 1.0 s), cached as JSON."""
+    key = (cell, tuple(sorted(kw.items())))
+    if key not in _CONF:
+        run = _fake_run(cell, **kw)
+        run["args"]["model"] = "laya"
+        run["research"]["handoff"]["gap_s"] = 1.0
+        _CONF[key] = json.dumps(run)
+    return json.loads(_CONF[key])
+
+
+def _write_conf(raw, cell, rep, mod=None, suffix="", **kw):
+    run = _conf_run(cell, **kw)
+    if mod:
+        mod(run)
+    with gzip.open(raw / f"laya-{cell}-r{rep}{suffix}.json.gz", "wt") as fh:
+        json.dump(run, fh)
+
+
+def _campaign(raw, mods=None, skip=()):
+    mods = mods or {}
+    for cell, rep in conf.ORDER:
+        if (cell, rep) not in skip:
+            mod, kw = mods.get((cell, rep), (None, {}))
+            _write_conf(raw, cell, rep, mod, **kw)
+
+
+def _p99(ms, cycles=(0, 1)):
+    def mod(run):
+        for c in cycles:
+            _het(run)[c]["streams"]["short"]["p99_ms"] = ms
+
+    return mod
+
+
+def _gpu_tail(run):
+    ret = run["gpu_return"]["return_us"]
+    run["gpu_return"]["return_us"] = [2000 if i % 10 == 0 else r for i, r in enumerate(ret)]
+
+
+def _conf_mismatch(run):
+    run["part_a"]["windows"][0]["streams"]["short"]["mismatches"] = 1
+
+
+def _conf_drop_guard(run):
+    del run["research"]["handoff"]["decisions"][5]  # cycle 0: 63 sync forwards before t_h
+
+
+def _e_burst(lo_s, hi_s, cycle=0):
+    """Moves the GPU worker's CPU to E cores for the counter intervals in [t_h + lo_s, t_h + hi_s)."""
+
+    def mod(run):
+        res = run["research"]
+        rc = res["recount"]
+        t = rc["t_ns"]
+        w = sorted(res["windows"], key=lambda w: w["start_ns"])[cycle]
+        th = next(d[0] for d in res["handoff"]["decisions"] if d[1] == 1 and w["start_ns"] <= d[0] < w["end_ns"])
+        for s in rc["series"].values():
+            if s["name"] != "gpu-worker":
+                continue
+            rows = s["rows"]
+            new = [list(rows[0])]
+            for a, b in zip(rows, rows[1:]):
+                d = [y - x for x, y in zip(a[1:], b[1:])]
+                if th + int(lo_s * S) <= (t[a[0]] + t[b[0]]) // 2 < th + int(hi_s * S):
+                    d = [0, 0, 0, d[3], d[0], d[1], d[2], d[7]]
+                new.append([b[0], *(p + x for p, x in zip(new[-1][1:], d))])
+            s["rows"] = new
+
+    return mod
+
+
+def test_confirm_confirmed(raw, tmp_path):
+    _campaign(raw)
+    res = conf.summarise(raw)
+    assert res["outcome"] == conf.CONFIRMED
+    assert conf.CONFIRMED.endswith("H64 confirmed as the leading production candidate.")
+    trs = [x for p in res["pairs"] for x in p["transitions"]]
+    assert len(trs) == 16 and all(x["pass"] and set(x["gates"]) == set(conf.HARD) for x in trs)
+    lat = res["latency"]
+    assert lat["median_ms"] == 0.0 and lat["cluster_upper_ms"] == 0.0 and lat["pass"]
+    t = res["runs"]["laya-H64-r1"]["transitions"][0]
+    assert t["structure"]["sync_before_t_h"] == 64 and t["e_residency"]["longest_consecutive"] == 0
+    assert len(t["e_residency"]["bins"]) == 34  # (20 - 3.2003) s in 0.5 s bins, the last one short
+    assert t["e_residency"]["active_threads"]["worker"] == ["gpu-worker:40"]
+    assert conf.reruns(raw) == []
+    out = tmp_path / "out"
+    out.mkdir()
+    script = SCRIPTS / "confirm_analyze.py"
+    subprocess.run([sys.executable, script, "--raw", raw, "--out", out], check=True, capture_output=True)
+    assert (out / "confirm_tables.md").read_text().splitlines()[2] == "Outcome: " + conf.CONFIRMED
+    ok = subprocess.run([sys.executable, script, "--raw", raw, "--out", out, "--check"], capture_output=True)
+    assert ok.returncode == 0
+
+
+@pytest.mark.parametrize(
+    "mod, kw, failed",
+    [
+        (_native(1.0), {}, {"native_ratio", "native_plus"}),
+        (_native(0.41), {}, {"native_plus"}),
+        (None, {"slow_s": 6.0}, {"transient_from_th"}),
+        (_steady, {}, {"transient_from_th", "steady_host_slow"}),
+        (_gpu, {}, {"gpu_return_p50", "gpu_return_p99"}),
+        (_gpu_tail, {}, {"gpu_return_p99"}),
+        (_throughput, {}, {"throughput"}),
+        (_conf_mismatch, {}, {"mismatches"}),
+        (_routing, {}, {"routing"}),
+        (_conf_drop_guard, {}, {"structure", "sync_before_t_h"}),
+        (_e_burst(1.0, 2.0), {}, {"e_residency"}),
+    ],
+)
+def test_confirm_each_hard_gate_fails(raw, mod, kw, failed):
+    _campaign(raw, {("H64", 2): (mod, kw)})
+    res = conf.summarise(raw)
+    assert res["outcome"].startswith("FAILED: ") and conf.CLOSES in res["outcome"]
+    got = {g for p in res["pairs"] if p["rep"] == 2 for x in p["transitions"] for g in x["failed"]}
+    assert got == failed
+    assert all(x["pass"] for p in res["pairs"] if p["rep"] != 2 for x in p["transitions"])
+    assert all(conf.CATEGORY[g] in res["outcome"] for g in failed)
+
+
+def test_confirm_single_e_bin_passes_two_fail(raw):
+    _campaign(raw, {("H64", 3): (_e_burst(1.0, 1.5, cycle=1), {})})
+    res = conf.summarise(raw)
+    e = res["runs"]["laya-H64-r3"]["transitions"][1]["e_residency"]
+    assert e["resident_bins_s"] == [1.0] and e["longest_consecutive"] == 1 and not e["long"]
+    assert e["bins"][2]["resident"] == ["worker"] and e["bins"][2]["worker"]["e_share"] == pytest.approx(1.0)
+    assert res["outcome"] == conf.CONFIRMED
+    _write_conf(raw, "H64", 3, _e_burst(1.0, 2.0, cycle=1))
+    res = conf.summarise(raw)
+    e = res["runs"]["laya-H64-r3"]["transitions"][1]["e_residency"]
+    assert e["resident_bins_s"] == [1.0, 1.5] and e["long"]
+    assert res["outcome"].startswith("FAILED: #96 / #99-type E residency (laya-H64-r3 c1: e_residency)")
+
+
+def test_confirm_population_median_fails(raw):
+    _campaign(raw, {("H64", r): (_p99(12.6), {}) for r in conf.REPS})
+    res = conf.summarise(raw)
+    lat = res["latency"]
+    assert lat["median_ms"] == pytest.approx(0.6) and lat["cluster_upper_ms"] == pytest.approx(0.6)
+    assert not lat["gates"]["median"]["pass"] and lat["gates"]["cluster_upper"]["pass"] and lat["outlier_pass"]
+    assert res["outcome"].startswith("FAILED: latency confirmation (population gate: median +0.600 ms")
+    assert all(x["pass"] for p in res["pairs"] for x in p["transitions"])  # the hard gates hold
+
+
+def test_confirm_bootstrap_upper_bound_fails(raw):
+    _campaign(raw, {("H64", r): (_p99(13.9), {}) for r in (1, 2, 3)})
+    lat = conf.summarise(raw)["latency"]
+    assert lat["median_ms"] == 0.0 and lat["gates"]["median"]["pass"]
+    assert lat["cluster_upper_ms"] == pytest.approx(1.9) and not lat["gates"]["cluster_upper"]["pass"]
+    assert lat["outlier_pass"] and not lat["population_pass"]
+
+
+def test_confirm_outlier_fails(raw):
+    _campaign(raw, {("H64", 4): (_p99(14.5, cycles=(1,)), {})})
+    res = conf.summarise(raw)
+    lat = res["latency"]
+    assert lat["population_pass"] and not lat["outlier_pass"] and lat["worst_ms"] == pytest.approx(2.5)
+    assert lat["outliers"] == ["laya-H64-r4 c1"]
+    assert res["outcome"].startswith("FAILED: latency confirmation (outlier guard: laya-H64-r4 c1)")
+
+
+def test_confirm_a_rerun_listed_then_replaces(raw):
+    _campaign(raw, {("A", 3): (_window, {})}, skip={("H64", 8)})
+    assert conf.reruns(raw) == []  # the 16 main runs are incomplete
+    _write_conf(raw, "H64", 8)
+    assert conf.reruns(raw) == ["3-b"]
+    script = SCRIPTS / "confirm_analyze.py"
+    out = subprocess.run([sys.executable, script, "reruns", "--raw", raw], check=True, capture_output=True, text=True)
+    assert out.stdout == "3-b\n"
+    assert conf.summarise(raw)["outcome"] == "pending: A r3-b (A r3 failed the A validity guard)"
+    _write_conf(raw, "A", 3, suffix="-b")
+    assert conf.reruns(raw) == []
+    res = conf.summarise(raw)
+    assert res["outcome"] == conf.CONFIRMED and res["pairs"][2]["a"] == "laya-A-r3-b"
+
+
+def test_confirm_a_rerun_invalid_is_invalid(raw):
+    _campaign(raw, {("A", 5): (_window, {})})
+    _write_conf(raw, "A", 5, _window, suffix="-b")
+    assert conf.reruns(raw) == []
+    res = conf.summarise(raw)
+    assert res["outcome"] == "INVALID: laya-A-r5-b (the re-run of laya-A-r5) failed the A validity guard"
+
+
+def test_confirm_h64_crash_fails(raw):
+    _campaign(raw)
+    (raw / "failed").mkdir()
+    (raw / "failed" / "laya-H64-r5.1.log").write_text("x\n")
+    (raw / "failed" / "laya-A-r5.1.log").write_text("x\n")  # one A crash, re-run in place: fine
+    res = conf.summarise(raw)
+    assert res["runs"]["laya-H64-r5"]["crashed"] and not res["runs"]["laya-A-r5"]["crashed"]
+    assert res["outcome"].startswith("FAILED: correctness (laya-H64-r5 crashed (laya-H64-r5.1.log))")
+    (raw / "failed" / "laya-A-r5.2.log").write_text("x\n")
+    out = conf.summarise(raw)["outcome"]  # the H64 crash is never excused: FAILED, INVALID alongside
+    assert out.startswith("FAILED: correctness") and "also: laya-A-r5 failed twice" in out
+
+
+def test_confirm_protocol_deviation_is_invalid(raw):
+    def guard32(run):
+        run["research"]["handoff"]["guard"] = 32
+
+    _campaign(raw, {("H64", 6): (guard32, {})})
+    assert conf.summarise(raw)["outcome"] == "INVALID: laya-H64-r6 protocol deviation (guard)"
+
+
+def test_confirm_bootstrap_is_deterministic():
+    d = np.array([[0.1 * i, 0.3 - 0.05 * i] for i in range(8)])
+    a, b = conf.bootstrap(d), conf.bootstrap(d)
+    assert a == b
+    idx = np.random.default_rng(20260926).integers(0, 8, size=(20_000, 8))
+    ref = np.percentile(np.median(d[idx].reshape(20_000, 16), axis=1), 95)
+    assert a["cluster_upper_ms"] == float(ref) and a["median_ms"] == float(np.median(d))
