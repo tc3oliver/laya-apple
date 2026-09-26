@@ -58,6 +58,7 @@ jobs:
           print("Metal OK:", mx.metal.device_info() if hasattr(mx.metal, "device_info") else "available")
           EOF
 
+      # Cache keys cannot contain commas, so the key names the two models in LAYA_APPLE_TEST_MODELS.
       # The key follows laya_apple/registry.py, which pins every checkpoint's revision and
       # weight hash: a revision change downloads fresh weights instead of reusing old ones.
       - name: Restore pinned checkpoints
@@ -65,7 +66,7 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ github.workspace }}/../hf-home/hub
-          key: hf-${{ runner.os }}-${{ runner.arch }}-${{ env.LAYA_APPLE_TEST_MODELS }}-${{ hashFiles('laya_apple/registry.py') }}
+          key: hf-${{ runner.os }}-${{ runner.arch }}-typed-decisions-multilingual-${{ hashFiles('laya_apple/registry.py') }}
 
       - name: Download and verify checkpoints
         if: steps.hf-cache.outputs.cache-hit != 'true'
