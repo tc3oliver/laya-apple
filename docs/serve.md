@@ -209,6 +209,8 @@ questions at 128 tokens. `serve --model laya` ran once with `--device gpu` and o
 [`benchmarks/serve/README.md`](../benchmarks/serve/README.md), run 2
 ([`m4-max-r2/tables.md`](../benchmarks/serve/m4-max-r2/tables.md)).
 
+![laya-apple serve beside a busy local LLM, one run on an Apple M4 Max with Qwen3.8-27B-oQ4e-mtp: short-decision P99 47.2 ms with serve auto against 122.3 ms with --device gpu while the LLM generates (43.2 and 55.9 ms with the LLM idle); LLM throughput 42.2 tok/s alone, 40.0 beside serve --device gpu and 40.5 beside serve auto](readme/serve-llm-load.svg)
+
 | | `--device gpu` | `--device auto` |
 |---|---:|---:|
 | Short-decision P99, LLM idle | 55.9 ms | 43.2 ms |
@@ -246,6 +248,8 @@ questions at 128 tokens. `serve --model laya` ran once with `--device gpu` and o
 - **No Jev accuracy claim.** Only runtime fidelity to upstream Laya is guaranteed and tested.
 - **Client thresholds tuned on Jev** may rarely trigger on Laya's confidences (see
   "Client compatibility").
+- **Client compatibility was tested once,** on 2026-09-25, at the client versions listed
+  and on the tested M4 Max. A later client release may change what it sends or accepts.
 - **`auto` routes between English and multilingual only.** Upstream's opt-in typed-decisions
   workflow detection (`LAYA_AUTO_TASK`) and caller language hints are not implemented. Name
   the checkpoint or use `--model` instead.

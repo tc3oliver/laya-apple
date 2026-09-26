@@ -173,12 +173,16 @@ If the ANE worker process dies:
 ### Adaptive ANE execution (in-process ANE, the default since 1.5)
 
 With the ANE on a thread in your process (`laya`, `laya-typed-decisions`), coremltools'
-`predict` holds the GIL for much of each ANE call, which delays the GPU worker's completions
-in your process. Core ML's asynchronous prediction API with prebound buffers
-(`backends/coreml_async.py`) releases it. On a contended Mac, though, that path can fall into
-a slow state: its threads sit on the efficiency cores
-([`research/coreml-async-transient/`](../research/coreml-async-transient/README.md)) and the
-median short latency rises from about 10.0 to 12.3 ms. Adaptive execution (`laya_apple/handoff.py`) uses the fast path while it is healthy and
+`predict` holds the GIL for much of each ANE call. A GPU request whose work has already
+finished then waits for that hold to end before its result reaches your code
+([`research/coreml-gil-completion-path/`](../research/coreml-gil-completion-path/README.md)).
+Asynchronous Core ML execution with prebound buffers (`backends/coreml_async.py`) avoids
+the synchronous path's long GIL hold. On a contended Mac, though, that path can fall into
+a slow state, where the median short latency rises from about 10.0 to 12.3 ms. In earlier
+research, the slow transient was strongly correlated with E-core residency of its threads
+([`research/coreml-async-transient/`](../research/coreml-async-transient/README.md)); that
+research did not establish why the macOS scheduler made that placement.
+Adaptive execution (`laya_apple/handoff.py`) uses the fast path while it is healthy and
 falls back to the 1.4 path when it is not.
 
 **How it works:**

@@ -7,30 +7,41 @@
 ![Python 3.11–3.13](https://img.shields.io/badge/python-3.11%E2%80%933.13-blue)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
 
-**Correctness-validated heterogeneous [Laya](https://github.com/NandhaKishorM/laya) runtime
-for Apple silicon:** the MLX GPU and the Apple Neural Engine, at the same time.
+**Correctness-validated, adaptive [Laya](https://github.com/NandhaKishorM/laya) inference on
+Apple silicon:** the MLX GPU and the Apple Neural Engine, serving at the same time.
 
 ## Adaptive GPU + Neural Engine serving (1.5)
 
-laya-apple sends short, single-question decisions to the Apple Neural Engine and keeps long
-or multi-question ones on the MLX GPU, both engines serving at once. Since 1.5, laya and
-laya-typed-decisions send Neural Engine requests through Core ML's asynchronous API, avoiding
-the synchronous path's long GIL hold, so they no longer hold up the GPU's results. If that path slows down, a
-breaker sends the rest of that GPU + ANE overlap back to the 1.4 path. It is on by default and
-needs no code change.
+laya-apple sends short, single-question decisions to the Apple Neural Engine (ANE) and keeps
+long or multi-question work on the MLX GPU, with both engines serving at once. Since v1.0,
+this split has kept short requests from queueing behind long GPU work.
 
-| Against the 1.4 path, one Apple M4 Max | laya | laya-typed-decisions |
+**The GPU was done. Python was still waiting.** With the ANE on a thread in the same process,
+the synchronous Core ML call holds the GIL for much of each prediction. A GPU request that had
+already finished could not hand its result back until that call returned
+([`research/coreml-gil-completion-path/`](research/coreml-gil-completion-path/README.md)).
+In 1.5, laya and laya-typed-decisions run eligible ANE requests through asynchronous Core ML
+execution, which avoids the synchronous path's long GIL hold. The runtime watches that faster
+path, and on a sustained slowdown falls back to the known-safe 1.4 synchronous path. With
+`execution="workers"` and `device="auto"` it is on by default and needs no other code change.
+
+| vs the 1.4 path (one Apple M4 Max) | laya | laya-typed-decisions |
 |---|---:|---:|
 | GPU return (P50) | 4.28–4.29 → **0.035–0.037 ms** | 8.60 → **0.043 ms** |
 | Throughput | **1.042×** | **1.038×** |
-| Median episode P99 | **0.18–0.19 ms lower** | **0.53 ms lower** |
 
-- **154 production validation episodes** (76 laya, 78 typed-decisions, including bursts and
-  soaks): all remained on the asynchronous path after handoff, with 0 mismatches, routing
-  failures, lost requests or crashes ([`val_tables.md`](research/coreml-adaptive-breaker/val_tables.md)).
-- **Recovery was measured separately,** because no slow state occurred in validation. In 12 of
-  12 episodes where the asynchronous path was already slow, the breaker tripped within 40 ms
-  and latency was back to the 1.4 path's within 164–414 ms
+*GPU return* is the time from the GPU worker finishing a request to its result reaching the
+caller, not GPU compute time. On the 1.4 path, finished work waited 4.3–8.6 ms, almost all
+of it for the GIL.
+
+- **Validation.** 154 production validation episodes (76 laya, 78 typed-decisions, including
+  bursts and soaks). Every episode stayed on the asynchronous path after the handoff, with no
+  mismatches, routing failures, lost requests or crashes. No slow state occurred in these
+  runs, so the fallback never triggered in them
+  ([`val_tables.md`](research/coreml-adaptive-breaker/val_tables.md)).
+- **Recovery, a separate controlled experiment.** In 12 of 12 episodes where the asynchronous
+  path was already slow, the runtime detected it within 40 ms and was back to the 1.4 path's
+  latency within 164–414 ms
   ([`phase1_tables.md`](research/coreml-adaptive-breaker/phase1_tables.md)).
 
 [Try Switchyard](#see-it-yourself-switchyard) ·
@@ -42,7 +53,6 @@ Apple silicon, Python 3.11–3.13:
 
 ```bash
 pip install 'laya-apple[ane]'   # MLX GPU + the Neural Engine runtime
-laya-apple artifacts build laya-typed-decisions   # optional: build + parity-validate ANE artifacts here (~5 min)
 ```
 
 | Extra | Adds |
@@ -52,18 +62,15 @@ laya-apple artifacts build laya-typed-decisions   # optional: build + parity-val
 | `convert` | Building ANE artifacts on this Mac (torch 2.7.0) |
 | `serve` | `laya-apple serve`, the local Jev-compatible server |
 
-Without the `ane` extra, or without a built artifact, everything runs on the MLX GPU. To run from
-source or develop laya-apple, see [`CONTRIBUTING.md`](CONTRIBUTING.md).
+Without the `ane` extra, or without a built ANE artifact, everything runs on the MLX GPU. To
+run from source or develop laya-apple, see [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## Quickstart (30 seconds)
 
 ```python
 from laya_apple import Laya
 
-model = Laya.from_pretrained(
-    "convaiinnovations/laya-typed-decisions",
-    device="auto",
-)
+model = Laya.from_pretrained("convaiinnovations/laya-typed-decisions", device="auto")
 
 result = model.predict(
     context="The customer was charged twice for the same invoice and is frustrated.",
@@ -75,24 +82,25 @@ result = model.predict(
         }
     },
 )
-print(result.answers["urgency"]["choice"], result.answers["urgency"]["probabilities"])
-
 rt = result.runtime
-print(rt.backend, rt.device, rt.routing_reason, f"{rt.latency_ms:.1f} ms")
+print(result.answers["urgency"]["choice"])
+print(rt.device, rt.routing_reason, f"{rt.latency_ms:.1f} ms")
 ```
 
 On the tested machine:
 
 ```text
-high {'low': 0.1713, 'medium': 0.3358, 'high': 0.4929}
-coreml ane validated_short_single_question_path 11.2 ms
+high
+ane validated_short_single_question_path 11.2 ms
 ```
 
 - The first call downloads the pinned checkpoint. After that it works offline
   (`local_files_only=True`).
-- Without ANE artifacts, the same request runs on MLX and `routing_reason` says why.
-- More: [`examples/`](examples/) (`basic.py`, `auto_routing.py`,
-  `heterogeneous_serving.py`) and the [user guide](docs/guide.md).
+- Without an ANE artifact the same request runs on MLX, and `routing_reason` says why. To
+  build and parity-validate one on this Mac (with the `convert` extra):
+  `laya-apple artifacts build laya-typed-decisions`.
+- Probabilities, other question types and the full API: [`examples/`](examples/), the
+  [user guide](docs/guide.md) and [`docs/api.md`](docs/api.md).
 
 For concurrent GPU + ANE serving, use `execution="workers"` and submit requests from any thread:
 
@@ -104,23 +112,24 @@ with Laya.from_pretrained("convaiinnovations/laya-typed-decisions", execution="w
 ## How it works
 
 Laya answers typed questions about a context (`choice`, `score`, `noul`) in one forward pass.
-A Mac has two engines that can run it, with different strengths.
+A Mac has two engines that can run it, and each is faster for different requests.
 
 ![Requests of at most 128 tokens with one question and a validated artifact go to the Apple Neural Engine; longer, multi-question or unvalidated requests go to the MLX GPU; with execution="workers" both engines serve independent requests concurrently](https://raw.githubusercontent.com/tc3oliver/laya-apple/main/docs/readme/architecture.svg)
 
-1. **Correct ANE execution.** A fast Core ML export is not necessarily correct. On the tested
-   Mac, the ordinary Core ML export ran on the Neural Engine without any error and disagreed
-   with upstream PyTorch on up to 85 decisions. laya-apple ships an ANE artifact only after it
-   passes a parity gate on the machine that uses it ([Correctness](#correctness)).
-2. **Automatic routing.** The router decides before a request runs and records why in
+1. **Correct ANE execution.** A fast Core ML export is not necessarily a correct one. On the
+   tested Mac, the ordinary export ran on the Neural Engine without any error and disagreed
+   with upstream on up to 85 decisions. laya-apple uses an ANE artifact only after it passes
+   a parity gate on the machine that uses it ([Correctness](#correctness)).
+2. **Automatic routing.** The router picks a device before a request runs and records why in
    `routing_reason`. Under load it also compares the two queues' backlogs.
 3. **Concurrent GPU + ANE serving.** With `execution="workers"`, the GPU runs in a worker
-   process and the ANE on its own dispatcher. Short requests stop queueing behind long ones.
-4. **Adaptive ANE execution (1.5).** In every GPU + ANE overlap, the first 64 Neural Engine
-   requests run the 1.4 path; later ones use Core ML's asynchronous API. Three consecutive requests
-   with prepare time above 0.3 ms send the rest of the overlap back to the 1.4 path
+   process and the ANE on its own dispatcher, so short requests stop queueing behind long ones.
+4. **Adaptive ANE execution (1.5).** After a conservative handoff at the start of each GPU + ANE
+   overlap, eligible ANE requests use asynchronous Core ML, so finished GPU work is not held
+   back by the synchronous path's long GIL hold. Per-request timing tells the runtime when
+   that path slows down; a sustained slowdown sends the rest of the overlap back to the
+   known-safe synchronous path. `ane_handoff=False` turns it off
    ([guide](docs/guide.md#adaptive-ane-execution-in-process-ane-the-default-since-15)).
-   `ane_handoff=False` turns it off.
 
 | Request | Goes to | Why (measured on the tested Mac) |
 |---|---|---|
@@ -129,81 +138,12 @@ A Mac has two engines that can run it, with different strengths.
 | Several questions | **MLX GPU** | MLX batches the questions; the ANE runs them one at a time |
 | Unvalidated Mac, missing artifact, or no Core ML | **MLX GPU** | Recorded as `platform_not_validated`, `ane_artifact_unavailable` or `ane_runtime_unavailable` |
 
-**The production threshold is more conservative than the measured crossover.**
-laya-multilingual is slightly faster on the ANE at exactly 256 tokens (8.3 ms against
-8.6 ms), but that bucket stays explicit-only, because it does not beat MLX at the previous
-bucket, 128 tokens.
+Full routing thresholds and calibration evidence: [`docs/support-matrix.md`](docs/support-matrix.md).
 
-To see why a request was slow, pass a callback (workers only). It receives one
-`RequestTrace` per completed request: the queue snapshot the router decided on, the device
-and reason it chose, and monotonic timestamps from submit through queue, service and
-response ([`docs/api.md`](docs/api.md)). With the default `trace=None` nothing is recorded.
-
-```python
-def on_trace(trace):   # runs on the device's dispatcher thread: keep it cheap
-    print(trace.request_id, trace.target, trace.routing_reason, trace.queue_ms, trace.e2e_ms)
-
-model = Laya.from_pretrained("convaiinnovations/laya-typed-decisions", execution="workers", trace=on_trace)
-```
-
-Thresholds: [`docs/support-matrix.md`](docs/support-matrix.md). Architecture:
+Completed requests can emit a `RequestTrace` (routing decision, queue, service and response
+timing) through `trace=` ([`docs/api.md`](docs/api.md)). Adaptive execution watches the same
+per-request timing; you do not need to pass `trace=` for it. Architecture:
 [`docs/architecture.md`](docs/architecture.md).
-
-## Local Jev-compatible server
-
-`laya-apple serve` is a local alternative to the Jev API. It serves a Jev-compatible API
-(`POST /v1/systemone`) on loopback and answers with upstream Laya, running on your Mac.
-Point an existing Jev client at it through its base-URL setting; its code does not change.
-
-```bash
-pip install 'laya-apple[serve,ane]'
-laya-apple serve                                   # http://127.0.0.1:8642
-export TYPESAFE_BASE_URL=http://127.0.0.1:8642     # then run your Jev client as usual
-```
-
-A Jev client needs some API key to start. Any placeholder works, such as
-`TYPESAFE_API_KEY=local-placeholder`, unless you set `LAYA_API_KEY` on the server.
-
-![A terminal: laya-apple serve starts locally; the released typesafe-sdk 0.7.1 for Python, unmodified, is pointed at it with TYPESAFE_BASE_URL and gets the answer fix_code; the same request with curl shows that laya-apple answered it with the laya checkpoint on the Apple Neural Engine](https://raw.githubusercontent.com/tc3oliver/laya-apple/main/docs/readme/serve-demo.svg)
-
-- **Tested with 7 unmodified Jev clients** at their released versions, including the Python
-  and JS SDKs and two Claude Code plugins. Each was pointed here only through its base-URL
-  setting and completed its requests ([`integrations/jev-plugins/README.md`](integrations/jev-plugins/README.md)).
-- **The answers are Laya's, not Jev's.** What is measured is fidelity to upstream Laya:
-  792 of 792 requests matched unmodified upstream `laya.serve` 0.3.20 within the FP16
-  parity gate, 365 of them answered on the Neural Engine
-  ([`benchmarks/serve-compat/`](benchmarks/serve-compat/README.md)). Laya is a different,
-  smaller model, so there is no Jev-level accuracy claim, and a client whose thresholds
-  were tuned on Jev may take its fallback path more often.
-- laya-apple is not affiliated with TypeSafe or Jev. The figure above is a recorded run
-  ([`scripts/capture_serve_demo.py`](scripts/capture_serve_demo.py)).
-
-Models, API, security and limits: [`docs/serve.md`](docs/serve.md).
-
-### Beside a busy local LLM
-
-**This benchmark predates 1.5:** it was measured on the 1.3 execution path. Serve now uses
-adaptive ANE execution by default, which has not been measured in serve.
-
-![laya-apple serve beside a busy local LLM, one run on an Apple M4 Max with Qwen3.8-27B-oQ4e-mtp: short-decision P99 47.2 ms with serve auto against 122.3 ms with --device gpu while the LLM generates (43.2 and 55.9 ms with the LLM idle); LLM throughput 42.2 tok/s alone, 40.0 beside serve --device gpu and 40.5 beside serve auto](https://raw.githubusercontent.com/tc3oliver/laya-apple/main/docs/readme/serve-llm-load.svg)
-
-One run of `laya-apple serve --model laya` on one Apple M4 Max, with a 27B local LLM
-(`Qwen3.8-27B-oQ4e-mtp` on oMLX) generating at saturation and 8 decision requests per second
-offered beside it, 80% of them short single-question decisions
-([`benchmarks/serve/`](benchmarks/serve/README.md), run 2). The default `--model auto` was not
-measured.
-
-- **Short-decision P99 with the LLM busy: 47.2 ms with `auto`, against 122.3 ms with
-  `--device gpu`.** With the LLM idle it is 43.2 ms with `auto` and 55.9 ms with
-  `--device gpu`.
-- **The LLM's throughput drops 4.0% beside serve `auto` and 5.3% beside `--device gpu`,**
-  from 42.2 tok/s alone. The gap between the two, 1.31 points, is just above the LLM's own
-  window-to-window spread in the same run, 1.28 points.
-- **Correct under load:** 0 hard mismatches and 0 errors over 7,728 decisions, each checked
-  against the same server's answer with the LLM idle.
-- About 4% of `auto`'s short decisions went to the GPU by design, when the Neural Engine's
-  backlog was the longer wait; the P99 above includes them.
-- Run 1 of this benchmark failed its own validity checks, so no result is drawn from it.
 
 ## See it yourself: Switchyard
 
@@ -215,7 +155,7 @@ uvx laya-apple switchyard
 
 **Every train is a real Laya decision** ("which platform is clear?"). A red signal means the
 train is waiting for the model's answer; a train is late when it has no answer within 100 ms.
-Rush hour adds bursty load, with long background requests on the GPU.
+Rush hour adds bursts of load, with long background requests on the GPU.
 
 | Same timetable, same model | MLX GPU only | MLX GPU + Neural Engine |
 |---|---:|---:|
@@ -223,20 +163,48 @@ Rush hour adds bursty load, with long background requests on the GPU.
 | P99 decision latency | 3,107.7–3,170.6 ms | **54.5–54.7 ms** |
 | P99 queue wait | 3,095.9–3,158.8 ms | **39.6–42.8 ms** |
 
-- Three standard runs on one Apple M4 Max (macOS 26.6.2, `laya-typed-decisions`); other
-  Macs will differ. In every run both rounds gave the same answer for every train.
-- Most of the gap is short decisions no longer waiting in the GPU queue while the long
+- Three standard runs on one Apple M4 Max (macOS 26.6.2, `laya-typed-decisions`). In every
+  run both rounds gave the same answer for every train.
+- Most of the gap comes from short decisions no longer waiting in the GPU queue while the long
   requests keep running there.
-- The benchmark runs headless first (about 2–3 minutes after an 800 MB first download). The
-  browser then replays the recorded request traces; the animation is not part of the
-  measurement. Without a built Neural Engine artifact it runs GPU-only and prints the setup
-  command, `uvx --from "laya-apple[convert]" laya-apple switchyard --setup-ane`.
-- Round order is fixed by the seed, so `hybrid` ran first in all three runs. These numbers
-  are not comparable with the v1.0 table below: the rate, the measurement boundary and the
-  workload differ.
+- The benchmark runs headless; the animation is a replay, not the measurement. These numbers
+  are not comparable with the v1.0 results below (different rate, boundary and workload).
 
-Workload, method and raw data: [`docs/switchyard.md`](docs/switchyard.md) and
-[`benchmarks/switchyard/README.md`](benchmarks/switchyard/README.md).
+First-run download, setup, method and raw data: [`docs/switchyard.md`](docs/switchyard.md)
+and [`benchmarks/switchyard/README.md`](benchmarks/switchyard/README.md).
+
+## Local Jev-compatible server
+
+`laya-apple serve` is a local stand-in for the Jev API. It serves the same API
+(`POST /v1/systemone`) on loopback and answers with upstream Laya, running on your Mac. Point
+an existing Jev client at it through its base-URL setting; the client's code does not change.
+
+```bash
+pip install 'laya-apple[serve,ane]'
+laya-apple serve                                   # http://127.0.0.1:8642
+export TYPESAFE_BASE_URL=http://127.0.0.1:8642     # then run your Jev client as usual
+```
+
+![A terminal: laya-apple serve starts locally; the released typesafe-sdk 0.7.1 for Python, unmodified, is pointed at it with TYPESAFE_BASE_URL and gets the answer fix_code; the same request with curl shows that laya-apple answered it with the laya checkpoint on the Apple Neural Engine](https://raw.githubusercontent.com/tc3oliver/laya-apple/main/docs/readme/serve-demo.svg)
+
+- **Tested with 7 unmodified Jev clients** at their released versions, including the Python
+  and JS SDKs and two Claude Code plugins
+  ([`integrations/jev-plugins/README.md`](integrations/jev-plugins/README.md)).
+- **The answers are Laya's, not Jev's.** 792 of 792 requests matched unmodified upstream
+  `laya.serve` 0.3.20 within the FP16 parity gate
+  ([`benchmarks/serve-compat/`](benchmarks/serve-compat/README.md)). No claim is made about
+  accuracy relative to Jev.
+
+API keys, models, security and client caveats: [`docs/serve.md`](docs/serve.md).
+
+### Earlier serve benchmark
+
+Measured on the 1.3 path with a 27B local LLM generating at saturation on the same Mac,
+short-decision P99 was **47.2 ms** with heterogeneous `auto` serving against **122.3 ms**
+GPU-only (one run on one M4 Max, `--model laya`). It has not been remeasured with 1.5
+adaptive execution.
+LLM throughput cost, method and limits:
+[`docs/serve.md`](docs/serve.md#beside-a-local-llm).
 
 ## Correctness
 
@@ -250,41 +218,30 @@ Each cell gives hard mismatches, then the max probability error.
 | **laya-apple MLX FP16** | ✅ 0, 0.0037 | ✅ 0, 0.0045 | ✅ 0, 0.0017 |
 | **laya-apple ANE FP16** | ✅ 0 (1 near-tie), 0.012 | ✅ 0, 0.013 | ✅ 0, 0.0077 |
 
-- **The FP16 gate:** probability error ≤ 0.02 and 0 hard mismatches.
-- **Near-tie flips** (upstream's top-two margin < 0.04) are listed, not hidden.
-- **Explicit ANE requests never fall back.** They run the validated artifact or raise, and
-  every loaded artifact is also timed against `CPU_ONLY` to catch a silent CPU placement.
-- **The 1.5 asynchronous path** must equal coremltools' output exactly on the goldens
-  (`tests/parity/test_ane_async_parity.py`).
-- Definitions, every configuration tested, and the fallback audit are in
-  [`docs/correctness.md`](docs/correctness.md) and
-  [`docs/no-silent-fallback.md`](docs/no-silent-fallback.md).
+- **The FP16 gate:** probability error ≤ 0.02 and 0 hard mismatches. Near-tie flips are
+  listed, not hidden.
+- **No silent fallback:** an explicit ANE request runs the validated artifact or raises.
+- **The 1.5 asynchronous path** must match coremltools' output exactly on the goldens.
 
-## Heterogeneous serving benchmark (v1.0)
+Definitions, every configuration tested and the fallback audit:
+[`docs/correctness.md`](docs/correctness.md) and
+[`docs/no-silent-fallback.md`](docs/no-silent-fallback.md).
 
-![The same model playing Lane Runner on the MLX GPU and on the Apple Neural Engine to the same score, then the same burst of requests served GPU-only and GPU + ANE: GPU-only short requests wait in the GPU queue for up to 1.5 s, while under GPU + ANE the router sends them to the ANE and they run as they arrive](https://raw.githubusercontent.com/tc3oliver/laya-apple/main/docs/media/heterogeneous-serving.gif)
+## Original heterogeneous serving benchmark (v1.0)
 
-![Mixed-workload throughput against GPU-only serving: laya 41.9 to 122.5 req/s (2.92×), laya-multilingual 55.7 to 241.8 req/s (4.34×), laya-typed-decisions 24.0 to 109.6 req/s (4.57×)](https://raw.githubusercontent.com/tc3oliver/laya-apple/main/docs/readme/hero-throughput.svg)
+These results showed the value of GPU + ANE serving and were measured before 1.5 adaptive
+execution.
 
-**Short-request P99 under open-loop bursty arrivals**, measured from arrival with queueing
-included (same arrival sequence for both):
+| Model | Throughput vs GPU-only | Short P99, GPU-only | Short P99, GPU + ANE |
+|---|---:|---:|---:|
+| laya | **2.92×** | 1538.0 ms | **108.5 ms** |
+| laya-multilingual | **4.34×** | 2052.3 ms | **29.6 ms** |
+| laya-typed-decisions | **4.57×** | 1592.9 ms | **79.5 ms** |
 
-| Model | GPU-only | GPU + ANE |
-|---|---:|---:|
-| laya (46.2 req/s offered) | 1538.0 ms | 108.5 ms |
-| laya-multilingual (83.8 req/s) | 2052.3 ms | 29.6 ms |
-| laya-typed-decisions (35.8 req/s) | 1592.9 ms | 79.5 ms |
-
-- One Apple M4 Max with macOS 26.6.2: one short and one long request stream through one
-  `Laya(execution="workers")` instance. It predates 1.5's adaptive execution.
-- The gain comes from running both engines at once, not from raw ANE latency: a single short
-  request is only somewhat faster on the ANE (for example 9.9 against 12.2 ms).
-- The animation first replays a recorded
-  [Lane Runner](https://github.com/tc3oliver/laya-playground-apple) game, the same model on
-  each device, then one burst of the laya-typed-decisions bursty workload. Every number's
-  source is in [`docs/media/README.md`](docs/media/README.md).
-
-Method and raw data: [`benchmarks/v1.0.md`](benchmarks/v1.0.md).
+One Apple M4 Max, a short and a long request stream through one `Laya(execution="workers")`.
+Short P99 is measured from arrival under open-loop bursty load, so queueing counts. The gain
+comes from running both engines at once, not from raw ANE speed. Method and raw data:
+[`benchmarks/v1.0.md`](benchmarks/v1.0.md).
 
 ## Supported models and platforms
 
@@ -294,102 +251,63 @@ Method and raw data: [`benchmarks/v1.0.md`](benchmarks/v1.0.md).
 | [`convaiinnovations/laya-multilingual`](https://huggingface.co/convaiinnovations/laya-multilingual) | 1024 | FP16 / FP32, any length | 64, 96, 128, 256 | 64, 96, 128 | No (worker-process ANE) |
 | [`convaiinnovations/laya-typed-decisions`](https://huggingface.co/convaiinnovations/laya-typed-decisions) | 1024 | FP16 / FP32, any length | 64, 96, 128 | 64, 96, 128 | Yes |
 
-**Tested:**
-- Apple M4 Max, macOS 26.6.2, MLX 0.32.2, coremltools 9.0;
-- Python 3.11–3.13.
-
-**Other Apple silicon:**
-- MLX is expected to work.
-- `auto` stays on MLX until artifacts are built and calibrated on that machine
-  (`laya-apple calibrate`).
-
-See [`docs/compatibility.md`](docs/compatibility.md).
+Adaptive ANE execution applies with `execution="workers"` and `device="auto"`. Validated on one Apple M4 Max with macOS 26.6.2. On other Macs, `auto` stays on MLX until
+ANE artifacts are built and calibrated there (`laya-apple calibrate`). Details:
+[`docs/compatibility.md`](docs/compatibility.md).
 
 ## Community benchmarks
 
-Every benchmark above covers only an M4 Max. The [community matrix](docs/community-benchmarks.md)
-collects results from other Macs as separate runs, not mixed into the numbers above. It has
-external results for an M4 Pro, an M4 and an M2 Pro (MLX only). If you have another Mac, one command adds it.
-
-- M1 / M2 → [#1](https://github.com/tc3oliver/laya-apple/issues/1)
-- M3 Max → [#2](https://github.com/tc3oliver/laya-apple/issues/2)
-- M5 or any other Mac → [add your Mac](docs/community-benchmarks.md#add-your-mac)
+Every benchmark above ran on an M4 Max. The [community matrix](docs/community-benchmarks.md)
+keeps results from other Macs separate, and already has an M4 Pro, an M4 and an M2 Pro (MLX
+only). One command adds yours:
 
 ```bash
 uv run python scripts/hardware_report.py --quick
 ```
 
-The linked issues and guide have the full steps, from `git clone` to opening the pull request; it takes about 10 minutes.
+The full steps, from `git clone` to the pull request, are in the
+[guide](docs/community-benchmarks.md#add-your-mac).
 
 ## Reproduction
 
 Each headline number above traces to a report, raw data, a command and an environment in
-[`docs/reproducibility.md`](docs/reproducibility.md). The full v1.0 suite, which compares
-PyTorch CPU/MPS, the ordinary Core ML export, MLX and laya-apple, is in
-[`benchmarks/v1.0.md`](benchmarks/v1.0.md). The 1.5 detector replay, recovery experiment and
-release validation are in
+[`docs/reproducibility.md`](docs/reproducibility.md). The 1.5 evidence is in
 [`research/coreml-adaptive-breaker/`](research/coreml-adaptive-breaker/README.md).
 
 ## Limitations
 
-- **One test machine.** Every benchmark is from one Apple M4 Max on macOS 26.6.2. Routing
-  thresholds are not assumed to hold on other Apple SoCs.
-- **Long contexts stay on MLX,** which is faster there. The ANE path is batch 1 only.
+- **One test machine.** Every benchmark, including the 1.5 validation and recovery runs, is
+  from one Apple M4 Max on macOS 26.6.2. Routing thresholds are not assumed to hold on other
+  Apple SoCs.
+- **Adaptive execution hands off conservatively:** the first ANE requests of every GPU + ANE
+  overlap run the 1.4 path. laya-multilingual, whose ANE runs in a worker process, does not
+  use it.
+- **`laya-apple serve` has not been benchmarked with 1.5 adaptive execution,** although it
+  uses it by default. Its benchmark above was measured on the 1.3 path.
+- **Long and multi-question requests stay on the GPU,** which is faster for them. The ANE
+  path is batch 1 only.
 - **Isolation is partial.** Under concurrency, each stream's P99 is above its solo value.
-- **Adaptive ANE execution was measured on one M4 Max only.**
-  - No slow state occurred in its 154 validation episodes, so recovery after a trip was
-    measured in a separate 12-episode experiment on the same machine.
-  - The first 64 Neural Engine requests of every GPU + ANE overlap run the 1.4 path.
-  - laya-multilingual, whose Neural Engine runs in a worker process, does not use it.
-  - `laya-apple serve` uses it by default, but it was not measured in serve or beside a local
-    LLM. The serve numbers above were measured on the 1.3 path.
 - **Cold start** on a fresh artifact location costs 3–5 minutes of Core ML compile per
   model. `ane_startup="background"` serves on MLX in the meantime.
-- **`choice` decisions can depend on option order.** This comes from upstream Laya, and
-  laya-apple reproduces it exactly ([`research/option-order/`](research/option-order/)).
-- **Not measured yet:** energy use, quantized artifacts and cross-SoC validation.
-- **`laya-apple serve` answers with Laya, not Jev.** Only fidelity to upstream Laya is
-  measured, not Jev-level accuracy. Clients with thresholds tuned on Jev may take their
-  fallback path more often; two of the seven tested did
-  ([`integrations/jev-plugins/README.md`](integrations/jev-plugins/README.md)).
-- **`laya-apple serve` performance is one run in one setting:** one M4 Max, one LLM
-  (`Qwen3.8-27B-oQ4e-mtp` on oMLX, decode-heavy, short prompts), `--model laya`, 8 decision
-  requests per second offered ([`benchmarks/serve/`](benchmarks/serve/README.md)). Not
-  measured: other LLM servers and models, prefill-heavy LLM loads, other request rates,
-  serve's maximum decision throughput (run 2 used a fixed 8 req/s offered load), and the
-  other checkpoints (`laya-typed-decisions`, `--model laya-multilingual`) and
-  `--model auto`.
-- **Serve `auto` still costs the LLM throughput:** 4.0% in that run, only 1.31 points less
-  than `--device gpu`, against a 1.28-point window-to-window spread of the LLM alone.
-- **Multi-question decisions always run on the GPU,** and their P99 grows with the LLM
-  busy: 117.1 ms against 84.1 ms idle with `auto`.
-- **Client compatibility was tested once,** on 2026-09-25, at the client versions listed and
-  on the tested M4 Max. A later client release may change what it sends or accepts.
-- **`serve --model auto` routes between English and multilingual only.** Upstream's opt-in
-  typed-decisions workflow detection (`LAYA_AUTO_TASK`) and caller language hints are not
-  implemented ([`docs/serve.md`](docs/serve.md#limits)).
-- **Switchyard ran on one M4 Max with a fixed round order** (`design.counterbalance` is
-  `"none"`, so `hybrid` always ran first) ([`docs/switchyard.md`](docs/switchyard.md)).
+- **Switchyard does not counterbalance round order:** with the standard seed, GPU + ANE ran
+  first in all three runs.
+
+Benchmark-specific limitations are documented with each experiment, for example option
+order in [`docs/correctness.md`](docs/correctness.md#option-order), serve and client caveats
+in [`docs/serve.md`](docs/serve.md#limits), and what has not been measured in
+[`docs/compatibility.md`](docs/compatibility.md#not-measured).
 
 ## Contributing
 
-The most useful first contribution is a benchmark from a Mac other than an M4 Max: run
-the command above and open a PR with `hardware-results/`
+The most useful first contribution is a benchmark from a Mac other than an M4 Max
 ([how](docs/community-benchmarks.md)).
 
-- [`CONTRIBUTING.md`](CONTRIBUTING.md) covers setup, test tiers (which tests a change
-  actually needs), parity checks and backend changes.
-- Open work is labelled `good first issue`, `help wanted` and `research`.
-- Coding agents: [`AGENTS.md`](AGENTS.md) has the repository rules.
+[`CONTRIBUTING.md`](CONTRIBUTING.md) covers setup, test tiers and parity checks; coding
+agents follow [`AGENTS.md`](AGENTS.md). Open work is labelled `good first issue`,
+`help wanted` and `research`.
 
-## More
-
-- User guide: [`docs/guide.md`](docs/guide.md).
-- Local Jev-compatible server: [`docs/serve.md`](docs/serve.md).
-- Stable API: [`docs/api.md`](docs/api.md).
-- Architecture: [`docs/architecture.md`](docs/architecture.md).
-- Changes: [`CHANGELOG.md`](CHANGELOG.md).
-- Security: [`SECURITY.md`](SECURITY.md).
+More: [user guide](docs/guide.md) · [stable API](docs/api.md) ·
+[architecture](docs/architecture.md) · [changes](CHANGELOG.md) · [security](SECURITY.md).
 
 Apache-2.0; see [`LICENSE`](LICENSE) and [`NOTICE`](NOTICE). Model weights are downloaded
 from their pinned Hugging Face revisions and are not redistributed. This is an independent

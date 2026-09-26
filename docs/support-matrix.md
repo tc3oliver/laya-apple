@@ -103,6 +103,11 @@ the first bucket that fails this test. Multi-question requests never
 auto-route to the ANE: MLX batching wins at every measured length for 4 and
 8 questions, and 2–3 questions were not measured.
 
+The rule is more conservative than the measured crossover. laya-multilingual is slightly
+faster on the ANE at exactly 256 tokens (8.3 ms against 8.6 ms on MLX), but that bucket
+stays explicit-only, because the ANE at 256 does not beat MLX at the previous bucket,
+128 tokens (6.4 ms) ([`benchmarks/v1.0.md`](../benchmarks/v1.0.md#auto-routing)).
+
 Regenerate and check the committed file with:
 
 ```bash

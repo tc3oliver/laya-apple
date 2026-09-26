@@ -13,6 +13,11 @@ a live measurement.
 laya-apple switchyard [--seed N] [--duration S] [--out DIR] [--no-open] [--setup-ane] [--replay DIR]
 ```
 
+The first run downloads the pinned `laya-typed-decisions` checkpoint (about 800 MB) and runs
+offline after that. A standard run (60 s timed window, plus a 5 s warmup, for one or two
+rounds) takes about 2–3 minutes once the checkpoint is cached. Without a built Neural Engine
+artifact it runs the GPU-only round and prints the setup command ([ANE states](#ane-states)).
+
 This document states the rules and the measurement method before any number is
 published. It contains no performance results.
 
