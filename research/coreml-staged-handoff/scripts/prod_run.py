@@ -159,10 +159,11 @@ def main():
     reqs = {"short": req(a.short), "long": req(a.long)}
     refs = {}
     for k, r in reqs.items():
-        refs[k] = {
-            "gpu": ref_gpu.predict(context=r["state"], questions=r["questions"]).answers,
-            "ane": ref_ane.predict(context=r["state"], questions=r["questions"]).answers,
-        }
+        refs[k] = {"gpu": ref_gpu.predict(context=r["state"], questions=r["questions"]).answers}
+        try:  # as #92's bench_concurrency: a length beyond the ANE buckets has no ANE reference
+            refs[k]["ane"] = ref_ane.predict(context=r["state"], questions=r["questions"]).answers
+        except laya_apple.LayaAppleError:
+            refs[k]["ane"] = None
     ref_gpu.close()
     ref_ane.close()
     for laya in (laya_auto, laya_gpu):  # warm both worker paths, as #92
