@@ -86,7 +86,11 @@ def main(argv=None):
     if fx["model"] != "laya":
         raise SystemExit("laya-fast serves the English `laya` checkpoint only")
     workloads = {n: fx["workloads"][n] for n in lf["workloads"]}
-    bodies = sorted(int(d.name[4:]) for d in (root / "ane").glob("body*") if (d / "model.mlmodelc").exists())
+    bodies = sorted(  # its export writes model.mlpackage; its loader accepts either form
+        int(d.name[4:])
+        for d in (root / "ane").glob("body*")
+        if (d / "model.mlmodelc").exists() or (d / "model.mlpackage").exists()
+    )
 
     from laya_fast import LayaFast  # laya-fast's public API
 
