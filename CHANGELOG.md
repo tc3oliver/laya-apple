@@ -10,6 +10,14 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **`laya-apple serve` reports adaptive ANE execution in `/health`.** For a checkpoint that
   uses it, `ane.<model>.handoff` is the `Laya.info()["ane_handoff"]` snapshot: state, episodes,
   breaker trips and forwards per Core ML path. Other checkpoints' entries are unchanged.
+- **`Laya.predict_shortlist`, off by default** (`laya_apple/shortlist.py`, adapted from
+  upstream laya v0.3.20 `laya/shortlist.py`). For high-cardinality `choice` questions it
+  keeps the top `k` labels by cosine similarity of a caller-supplied `embed_fn`, then runs
+  one `predict`. `predict` is unchanged and still scores every criterion. Also
+  `shortlist_choice` and `embed_fn_from_laya` (mean-pools the checkpoint's MLX encoder,
+  inline execution). The shortlist metadata is in `Result.extra["shortlist"]`, which
+  `Result.to_dict()` now returns as a top-level key, as upstream's dict has it. No accuracy
+  claim: upstream's reported BANKING77 figures are not remeasured here.
 
 ## [1.5.0] - 2026-09-26
 

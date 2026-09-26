@@ -17,6 +17,7 @@ from .errors import (  # noqa: E402
 )
 from .model import Laya  # noqa: E402
 from .result import Result, RuntimeInfo  # noqa: E402
+from .shortlist import embed_fn_from_laya, shortlist_choice  # noqa: E402
 from .trace import QueueSnapshot, RequestTrace  # noqa: E402
 
 __all__ = [
@@ -25,6 +26,8 @@ __all__ = [
     "RuntimeInfo",
     "RequestTrace",
     "QueueSnapshot",
+    "shortlist_choice",
+    "embed_fn_from_laya",
     "LayaAppleError",
     "UnsupportedModelError",
     "InvalidRequestError",

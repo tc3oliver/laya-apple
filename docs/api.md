@@ -14,12 +14,15 @@ Import these from the top-level `laya_apple` package:
 |---|---|
 | `Laya.from_pretrained(model_id, device="auto", *, dtype="float16", local_files_only=False, batch_size=16, execution="inline", ane_placement="auto", ane_startup="wait", trace=None, ane_handoff=None)` | Loads a pinned checkpoint. Invalid arguments raise `ValueError`. Every other failure raises a `LayaAppleError` subclass |
 | `Laya.predict(context=None, questions=None, *, state=None) -> Result` | Blocking and thread-safe |
+| `Laya.predict_shortlist(context=None, questions=None, *, state=None, embed_fn, k=20) -> Result` (since 1.6) | Opt-in, never used by `predict`. Upstream's `predict_shortlist`: each `choice` question with more than `k` labels is cut to the `k` labels whose `embed_fn` vectors are most cosine-similar to the state's, then one `predict` runs on the reduced questions. `Result.extra["shortlist"][qid]` (and the `shortlist` key of `to_dict()`) holds `labels`, `scores`, `k`, `n`, `passthrough`. Probabilities on a shortlisted choice are over the kept labels only. An invalid `k` or `embed_fn` raises `ValueError`, a malformed question `InvalidRequestError` |
+| `shortlist_choice(state, criteria, embed_fn, k=20, *, instructions=None) -> list` (since 1.6) | The top-`k` labels of one choice question, in rank order; all labels in their order, without calling `embed_fn`, when `k` covers them |
+| `embed_fn_from_laya(laya, max_length=512, batch_size=32)` (since 1.6) | An `embed_fn` that mean-pools the checkpoint's own MLX encoder. Needs `execution="inline"` and device `gpu` or `auto`; otherwise raises `BackendUnavailableError` |
 | `Laya.submit(...) -> concurrent.futures.Future[Result]` | Same arguments as `predict` |
 | `await Laya.apredict(...) -> Result` | Same arguments as `predict` |
 | `Laya.close()`, `with Laya.from_pretrained(...) as laya:` | Idempotent. Queued work fails with `BackendUnavailableError` |
 | `Laya.wait_for_ane(timeout=None) -> bool` | Only meaningful with `ane_startup="background"` |
 | `Laya.info() -> dict` | The keys below are stable. New keys may be added |
-| `Result` | Fields `answers`, `usage`, `runtime`, `model`, `extra`, and `to_dict()` |
+| `Result` | Fields `answers`, `usage`, `runtime`, `model`, `extra`, and `to_dict()`. `to_dict()` adds each `extra` entry as a top-level key (since 1.6), never replacing `model`, `answers`, `usage` or `runtime` |
 | `RuntimeInfo` | Every field listed in `laya_apple/result.py` at 1.0.0. New optional fields may be added |
 | `RequestTrace`, `QueueSnapshot` | The fields and duration properties in `laya_apple/trace.py`. `trace=` (workers only) calls the callback once per completed request, before its Future resolves; a callback exception is warned once and never fails the request. New fields may be added |
 | The exception classes in `laya_apple.errors`, re-exported at top level | Their hierarchy: every one derives from `LayaAppleError`, and the artifact errors from `ArtifactError` |
@@ -107,8 +110,8 @@ These are not covered by SemVer:
   attributes;
 - every submodule other than `laya_apple.errors`: `laya_apple.routing`, `scheduling`,
   `executor`, `artifacts`, `lifecycle`, `profiles`, `derivation`, `backends`,
-  `conversion`, `parity`, `schema`, `workload`, `benchmark`, `serve`, `lang` (use the
-  CLI and the HTTP API);
+  `conversion`, `parity`, `schema`, `workload`, `benchmark`, `serve`, `lang`, and
+  `shortlist` other than the names above (use the CLI and the HTTP API);
 - the bundled data files, except the manifest schema;
 - everything under `scripts/`.
 

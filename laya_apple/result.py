@@ -46,8 +46,12 @@ class Result:
     extra: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict:
-        """Upstream-compatible dict (model/answers/usage) plus a `runtime` block."""
+        """Upstream-compatible dict (model/answers/usage) plus a `runtime` block. Entries of
+        `extra` (such as the language router's `routing`) are added at the top level, as
+        upstream adds them to its result dict; they never replace a key above."""
         out = {"model": self.model, "answers": self.answers, "usage": self.usage}
+        for key, value in self.extra.items():
+            out.setdefault(key, value)
         out["runtime"] = asdict(self.runtime)
         out["runtime"]["buckets"] = list(self.runtime.buckets)
         return out
