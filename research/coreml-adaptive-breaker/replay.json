@@ -1,0 +1,4452 @@
+{
+ "m_a_ms": {
+  "async-predict": 10.0155835,
+  "async-transient": 10.022146,
+  "handoff-screen": 10.033292,
+  "handoff-confirm": 10.028,
+  "production-eval": 10.020875
+ },
+ "summary": {
+  "async_episodes": 67,
+  "sustained": 16,
+  "healthy": 51,
+  "a_episodes": 65,
+  "detectors": {
+   "C2": {
+    "recall": "16/16",
+    "missed": [],
+    "delay_ms": {
+     "median": 61.068083,
+     "p95": 70.627073,
+     "worst": 84.422417
+    },
+    "delay_requests": {
+     "median": 1.0,
+     "p95": 4.5,
+     "worst": 6
+    },
+    "false_trips": "4/51",
+    "false_trip_episodes": [
+     "async-predict laya-PB-ASYNC-r1.json.gz w1 @0.06s",
+     "async-transient laya-PB-ASYNC-r2.json.gz w0 @0.15s",
+     "dependency-qos laya-Q-r1.json.gz w0 @0.06s",
+     "handoff-screen laya-H32-r3.json.gz w0 @15.56s"
+    ],
+    "a_trips": "1/65"
+   },
+   "C3": {
+    "recall": "16/16",
+    "missed": [],
+    "delay_ms": {
+     "median": 108.65493749999999,
+     "p95": 122.137323,
+     "worst": 126.482667
+    },
+    "delay_requests": {
+     "median": 5.0,
+     "p95": 6.25,
+     "worst": 7
+    },
+    "false_trips": "4/51",
+    "false_trip_episodes": [
+     "async-predict laya-PB-ASYNC-r1.json.gz w1 @0.11s",
+     "async-transient laya-PB-ASYNC-r2.json.gz w0 @0.17s",
+     "dependency-qos laya-Q-r1.json.gz w0 @0.11s",
+     "handoff-screen laya-H32-r3.json.gz w0 @15.57s"
+    ],
+    "a_trips": "1/65"
+   },
+   "R3of5": {
+    "recall": "16/16",
+    "missed": [],
+    "delay_ms": {
+     "median": 85.452396,
+     "p95": 98.20503125,
+     "worst": 100.6595
+    },
+    "delay_requests": {
+     "median": 3.0,
+     "p95": 4.75,
+     "worst": 7
+    },
+    "false_trips": "4/51",
+    "false_trip_episodes": [
+     "async-predict laya-PB-ASYNC-r1.json.gz w1 @0.09s",
+     "async-transient laya-PB-ASYNC-r2.json.gz w0 @0.17s",
+     "dependency-qos laya-Q-r1.json.gz w0 @0.09s",
+     "handoff-screen laya-H32-r3.json.gz w0 @15.57s"
+    ],
+    "a_trips": "1/65"
+   },
+   "R4of8": {
+    "recall": "16/16",
+    "missed": [],
+    "delay_ms": {
+     "median": 97.004604,
+     "p95": 110.00833349999999,
+     "worst": 112.864083
+    },
+    "delay_requests": {
+     "median": 4.0,
+     "p95": 5.75,
+     "worst": 8
+    },
+    "false_trips": "4/51",
+    "false_trip_episodes": [
+     "async-predict laya-PB-ASYNC-r1.json.gz w1 @0.10s",
+     "async-transient laya-PB-ASYNC-r2.json.gz w0 @0.18s",
+     "dependency-qos laya-Q-r1.json.gz w0 @0.10s",
+     "handoff-screen laya-H32-r3.json.gz w0 @15.58s"
+    ],
+    "a_trips": "1/65"
+   },
+   "EWMA": {
+    "recall": "16/16",
+    "missed": [],
+    "delay_ms": {
+     "median": 7.1323954999999994,
+     "p95": 29.14015625,
+     "worst": 78.3335
+    },
+    "delay_requests": {
+     "median": 0.0,
+     "p95": 1.75,
+     "worst": 7
+    },
+    "false_trips": "4/51",
+    "false_trip_episodes": [
+     "async-predict laya-PB-ASYNC-r1.json.gz w1 @0.00s",
+     "async-transient laya-PB-ASYNC-r2.json.gz w0 @0.00s",
+     "dependency-qos laya-Q-r1.json.gz w0 @0.00s",
+     "handoff-screen laya-H32-r3.json.gz w0 @15.57s"
+    ],
+    "a_trips": "2/65"
+   },
+   "MED5": {
+    "recall": "16/16",
+    "missed": [],
+    "delay_ms": {
+     "median": 97.0053335,
+     "p95": 100.986479,
+     "worst": 101.967416
+    },
+    "delay_requests": {
+     "median": 4.0,
+     "p95": 4.75,
+     "worst": 7
+    },
+    "false_trips": "4/51",
+    "false_trip_episodes": [
+     "async-predict laya-PB-ASYNC-r1.json.gz w1 @0.10s",
+     "async-transient laya-PB-ASYNC-r2.json.gz w0 @0.17s",
+     "dependency-qos laya-Q-r1.json.gz w0 @0.10s",
+     "handoff-screen laya-H32-r3.json.gz w0 @15.57s"
+    ],
+    "a_trips": "1/65"
+   }
+  }
+ },
+ "episodes": [
+  {
+   "study": "async-predict",
+   "issue": "#92",
+   "run": "laya-A-r1.json.gz",
+   "window": 0,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1869,
+   "req_rate": 98.36842105263158,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.027834,
+   "m_a_ms": 10.0155835,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "async-predict",
+   "issue": "#92",
+   "run": "laya-A-r1.json.gz",
+   "window": 1,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1873,
+   "req_rate": 98.57894736842105,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.008417,
+   "m_a_ms": 10.0155835,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "async-predict",
+   "issue": "#92",
+   "run": "laya-A-r1.json.gz",
+   "window": 2,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1872,
+   "req_rate": 98.52631578947368,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.0108545,
+   "m_a_ms": 10.0155835,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "async-predict",
+   "issue": "#92",
+   "run": "laya-PB-ASYNC-r1.json.gz",
+   "window": 0,
+   "cell": "PB-ASYNC",
+   "reference": "async",
+   "t_a_s": 0.0,
+   "n": 1922,
+   "req_rate": 96.1,
+   "host_slow_share": 0.15608740894901144,
+   "median_e2e_ms": 9.868562,
+   "m_a_ms": 10.0155835,
+   "truth": {
+    "slow_spans": 4,
+    "longest_run": 4,
+    "spans": 20,
+    "sustained": true,
+    "onset_ns": 1009947191421750,
+    "onset_s": 0.0
+   },
+   "detectors": {
+    "C2": {
+     "index": 1,
+     "trip_s": 0.06174625,
+     "delay_ms": 61.74625,
+     "delay_requests": 1
+    },
+    "C3": {
+     "index": 5,
+     "trip_s": 0.110723083,
+     "delay_ms": 110.723083,
+     "delay_requests": 5
+    },
+    "R3of5": {
+     "index": 3,
+     "trip_s": 0.087240416,
+     "delay_ms": 87.240416,
+     "delay_requests": 3
+    },
+    "R4of8": {
+     "index": 4,
+     "trip_s": 0.099173083,
+     "delay_ms": 99.173083,
+     "delay_requests": 4
+    },
+    "EWMA": {
+     "index": 0,
+     "trip_s": 0.007382416,
+     "delay_ms": 7.382416,
+     "delay_requests": 0
+    },
+    "MED5": {
+     "index": 4,
+     "trip_s": 0.099173083,
+     "delay_ms": 99.173083,
+     "delay_requests": 4
+    }
+   }
+  },
+  {
+   "study": "async-predict",
+   "issue": "#92",
+   "run": "laya-PB-ASYNC-r1.json.gz",
+   "window": 1,
+   "cell": "PB-ASYNC",
+   "reference": "async",
+   "t_a_s": 0.0,
+   "n": 2000,
+   "req_rate": 100.0,
+   "host_slow_share": 0.0335,
+   "median_e2e_ms": 9.848666999999999,
+   "m_a_ms": 10.0155835,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 20,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": {
+     "index": 1,
+     "trip_s": 0.058502083
+    },
+    "C3": {
+     "index": 5,
+     "trip_s": 0.108442416
+    },
+    "R3of5": {
+     "index": 3,
+     "trip_s": 0.085097791
+    },
+    "R4of8": {
+     "index": 4,
+     "trip_s": 0.096415291
+    },
+    "EWMA": {
+     "index": 0,
+     "trip_s": 0.001904875
+    },
+    "MED5": {
+     "index": 4,
+     "trip_s": 0.096415291
+    }
+   }
+  },
+  {
+   "study": "async-predict",
+   "issue": "#92",
+   "run": "laya-PB-ASYNC-r1.json.gz",
+   "window": 2,
+   "cell": "PB-ASYNC",
+   "reference": "async",
+   "t_a_s": 0.0,
+   "n": 1965,
+   "req_rate": 98.25,
+   "host_slow_share": 0.0900763358778626,
+   "median_e2e_ms": 9.843917,
+   "m_a_ms": 10.0155835,
+   "truth": {
+    "slow_spans": 2,
+    "longest_run": 2,
+    "spans": 20,
+    "sustained": true,
+    "onset_ns": 1010127862097458,
+    "onset_s": 0.0
+   },
+   "detectors": {
+    "C2": {
+     "index": 1,
+     "trip_s": 0.0600085,
+     "delay_ms": 60.0085,
+     "delay_requests": 1
+    },
+    "C3": {
+     "index": 6,
+     "trip_s": 0.120688875,
+     "delay_ms": 120.688875,
+     "delay_requests": 6
+    },
+    "R3of5": {
+     "index": 4,
+     "trip_s": 0.097386875,
+     "delay_ms": 97.386875,
+     "delay_requests": 4
+    },
+    "R4of8": {
+     "index": 5,
+     "trip_s": 0.109056417,
+     "delay_ms": 109.056417,
+     "delay_requests": 5
+    },
+    "EWMA": {
+     "index": 0,
+     "trip_s": 0.007413833,
+     "delay_ms": 7.413833,
+     "delay_requests": 0
+    },
+    "MED5": {
+     "index": 4,
+     "trip_s": 0.097386875,
+     "delay_ms": 97.386875,
+     "delay_requests": 4
+    }
+   }
+  },
+  {
+   "study": "async-transient",
+   "issue": "#96",
+   "run": "laya-A-r1.json.gz",
+   "window": 0,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1870,
+   "req_rate": 98.42105263157895,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.0203545,
+   "m_a_ms": 10.022146,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "async-transient",
+   "issue": "#96",
+   "run": "laya-A-r1.json.gz",
+   "window": 1,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1871,
+   "req_rate": 98.47368421052632,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.01825,
+   "m_a_ms": 10.022146,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "async-transient",
+   "issue": "#96",
+   "run": "laya-A-r2.json.gz",
+   "window": 0,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1867,
+   "req_rate": 98.26315789473684,
+   "host_slow_share": 0.0005356186395286556,
+   "median_e2e_ms": 10.025125,
+   "m_a_ms": 10.022146,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "async-transient",
+   "issue": "#96",
+   "run": "laya-A-r2.json.gz",
+   "window": 1,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1866,
+   "req_rate": 98.21052631578948,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.024750000000001,
+   "m_a_ms": 10.022146,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "async-transient",
+   "issue": "#96",
+   "run": "laya-PB-ASYNC-r1.json.gz",
+   "window": 0,
+   "cell": "PB-ASYNC",
+   "reference": "async",
+   "t_a_s": 0.0,
+   "n": 1957,
+   "req_rate": 97.85,
+   "host_slow_share": 0.10168625447112928,
+   "median_e2e_ms": 9.846833,
+   "m_a_ms": 10.022146,
+   "truth": {
+    "slow_spans": 3,
+    "longest_run": 3,
+    "spans": 20,
+    "sustained": true,
+    "onset_ns": 1016279649666041,
+    "onset_s": 0.0
+   },
+   "detectors": {
+    "C2": {
+     "index": 1,
+     "trip_s": 0.0603765,
+     "delay_ms": 60.3765,
+     "delay_requests": 1
+    },
+    "C3": {
+     "index": 5,
+     "trip_s": 0.109021959,
+     "delay_ms": 109.021959,
+     "delay_requests": 5
+    },
+    "R3of5": {
+     "index": 3,
+     "trip_s": 0.085683709,
+     "delay_ms": 85.683709,
+     "delay_requests": 3
+    },
+    "R4of8": {
+     "index": 4,
+     "trip_s": 0.09759825,
+     "delay_ms": 97.59825,
+     "delay_requests": 4
+    },
+    "EWMA": {
+     "index": 0,
+     "trip_s": 0.007297709,
+     "delay_ms": 7.297709,
+     "delay_requests": 0
+    },
+    "MED5": {
+     "index": 4,
+     "trip_s": 0.09759825,
+     "delay_ms": 97.59825,
+     "delay_requests": 4
+    }
+   }
+  },
+  {
+   "study": "async-transient",
+   "issue": "#96",
+   "run": "laya-PB-ASYNC-r1.json.gz",
+   "window": 1,
+   "cell": "PB-ASYNC",
+   "reference": "async",
+   "t_a_s": 0.0,
+   "n": 1925,
+   "req_rate": 96.25,
+   "host_slow_share": 0.14805194805194805,
+   "median_e2e_ms": 9.866417,
+   "m_a_ms": 10.022146,
+   "truth": {
+    "slow_spans": 4,
+    "longest_run": 4,
+    "spans": 20,
+    "sustained": true,
+    "onset_ns": 1016347400061125,
+    "onset_s": 0.0
+   },
+   "detectors": {
+    "C2": {
+     "index": 1,
+     "trip_s": 0.065988,
+     "delay_ms": 65.988,
+     "delay_requests": 1
+    },
+    "C3": {
+     "index": 5,
+     "trip_s": 0.112941875,
+     "delay_ms": 112.941875,
+     "delay_requests": 5
+    },
+    "R3of5": {
+     "index": 3,
+     "trip_s": 0.090719791,
+     "delay_ms": 90.719791,
+     "delay_requests": 3
+    },
+    "R4of8": {
+     "index": 4,
+     "trip_s": 0.101967416,
+     "delay_ms": 101.967416,
+     "delay_requests": 4
+    },
+    "EWMA": {
+     "index": 0,
+     "trip_s": 0.002758458,
+     "delay_ms": 2.758458,
+     "delay_requests": 0
+    },
+    "MED5": {
+     "index": 4,
+     "trip_s": 0.101967416,
+     "delay_ms": 101.967416,
+     "delay_requests": 4
+    }
+   }
+  },
+  {
+   "study": "async-transient",
+   "issue": "#96",
+   "run": "laya-PB-ASYNC-r2.json.gz",
+   "window": 0,
+   "cell": "PB-ASYNC",
+   "reference": "async",
+   "t_a_s": 0.0,
+   "n": 2019,
+   "req_rate": 100.95,
+   "host_slow_share": 0.005943536404160475,
+   "median_e2e_ms": 9.844375,
+   "m_a_ms": 10.022146,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 20,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": {
+     "index": 11,
+     "trip_s": 0.15464175
+    },
+    "C3": {
+     "index": 12,
+     "trip_s": 0.166651958
+    },
+    "R3of5": {
+     "index": 12,
+     "trip_s": 0.166651958
+    },
+    "R4of8": {
+     "index": 13,
+     "trip_s": 0.178295416
+    },
+    "EWMA": {
+     "index": 0,
+     "trip_s": 0.002354083
+    },
+    "MED5": {
+     "index": 12,
+     "trip_s": 0.166651958
+    }
+   }
+  },
+  {
+   "study": "async-transient",
+   "issue": "#96",
+   "run": "laya-PB-ASYNC-r2.json.gz",
+   "window": 1,
+   "cell": "PB-ASYNC",
+   "reference": "async",
+   "t_a_s": 0.0,
+   "n": 1650,
+   "req_rate": 82.5,
+   "host_slow_share": 0.6793939393939394,
+   "median_e2e_ms": 12.045083,
+   "m_a_ms": 10.022146,
+   "truth": {
+    "slow_spans": 15,
+    "longest_run": 15,
+    "spans": 20,
+    "sustained": true,
+    "onset_ns": 1016536460088500,
+    "onset_s": 0.0
+   },
+   "detectors": {
+    "C2": {
+     "index": 1,
+     "trip_s": 0.064698166,
+     "delay_ms": 64.698166,
+     "delay_requests": 1
+    },
+    "C3": {
+     "index": 5,
+     "trip_s": 0.1139245,
+     "delay_ms": 113.9245,
+     "delay_requests": 5
+    },
+    "R3of5": {
+     "index": 3,
+     "trip_s": 0.088959625,
+     "delay_ms": 88.959625,
+     "delay_requests": 3
+    },
+    "R4of8": {
+     "index": 4,
+     "trip_s": 0.10033525,
+     "delay_ms": 100.33525,
+     "delay_requests": 4
+    },
+    "EWMA": {
+     "index": 0,
+     "trip_s": 0.00779325,
+     "delay_ms": 7.79325,
+     "delay_requests": 0
+    },
+    "MED5": {
+     "index": 4,
+     "trip_s": 0.10033525,
+     "delay_ms": 100.33525,
+     "delay_requests": 4
+    }
+   }
+  },
+  {
+   "study": "dependency-qos",
+   "issue": "#99",
+   "run": "laya-B-r1.json.gz",
+   "window": 0,
+   "cell": "B",
+   "reference": "async",
+   "t_a_s": 0.0,
+   "n": 1540,
+   "req_rate": 77.0,
+   "host_slow_share": 0.9681818181818181,
+   "median_e2e_ms": 12.319104,
+   "m_a_ms": 10.022146,
+   "truth": {
+    "slow_spans": 17,
+    "longest_run": 8,
+    "spans": 20,
+    "sustained": true,
+    "onset_ns": 1020394128994041,
+    "onset_s": 1.1
+   },
+   "detectors": {
+    "C2": {
+     "index": 1,
+     "trip_s": 0.062356709,
+     "delay_ms": -1037.643291,
+     "delay_requests": -82
+    },
+    "C3": {
+     "index": 5,
+     "trip_s": 0.111455042,
+     "delay_ms": -988.544958,
+     "delay_requests": -78
+    },
+    "R3of5": {
+     "index": 3,
+     "trip_s": 0.087611459,
+     "delay_ms": -1012.388541,
+     "delay_requests": -80
+    },
+    "R4of8": {
+     "index": 4,
+     "trip_s": 0.099728292,
+     "delay_ms": -1000.271708,
+     "delay_requests": -79
+    },
+    "EWMA": {
+     "index": 0,
+     "trip_s": 0.006897625,
+     "delay_ms": -1093.102375,
+     "delay_requests": -83
+    },
+    "MED5": {
+     "index": 4,
+     "trip_s": 0.099728292,
+     "delay_ms": -1000.271708,
+     "delay_requests": -79
+    }
+   }
+  },
+  {
+   "study": "dependency-qos",
+   "issue": "#99",
+   "run": "laya-B-r1.json.gz",
+   "window": 1,
+   "cell": "B",
+   "reference": "async",
+   "t_a_s": 0.0,
+   "n": 1588,
+   "req_rate": 79.4,
+   "host_slow_share": 0.8091939546599496,
+   "median_e2e_ms": 12.2135415,
+   "m_a_ms": 10.022146,
+   "truth": {
+    "slow_spans": 17,
+    "longest_run": 17,
+    "spans": 20,
+    "sustained": true,
+    "onset_ns": 1020460822613458,
+    "onset_s": 0.0
+   },
+   "detectors": {
+    "C2": {
+     "index": 4,
+     "trip_s": 0.084422417,
+     "delay_ms": 84.422417,
+     "delay_requests": 4
+    },
+    "C3": {
+     "index": 5,
+     "trip_s": 0.096046708,
+     "delay_ms": 96.046708,
+     "delay_requests": 5
+    },
+    "R3of5": {
+     "index": 4,
+     "trip_s": 0.084422417,
+     "delay_ms": 84.422417,
+     "delay_requests": 4
+    },
+    "R4of8": {
+     "index": 5,
+     "trip_s": 0.096046708,
+     "delay_ms": 96.046708,
+     "delay_requests": 5
+    },
+    "EWMA": {
+     "index": 0,
+     "trip_s": 0.002554667,
+     "delay_ms": 2.554667,
+     "delay_requests": 0
+    },
+    "MED5": {
+     "index": 4,
+     "trip_s": 0.084422417,
+     "delay_ms": 84.422417,
+     "delay_requests": 4
+    }
+   }
+  },
+  {
+   "study": "dependency-qos",
+   "issue": "#99",
+   "run": "laya-O-r1.json.gz",
+   "window": 0,
+   "cell": "O",
+   "reference": "async",
+   "t_a_s": 0.0,
+   "n": 1917,
+   "req_rate": 95.85,
+   "host_slow_share": 0.16223265519040167,
+   "median_e2e_ms": 9.86675,
+   "m_a_ms": 10.022146,
+   "truth": {
+    "slow_spans": 4,
+    "longest_run": 4,
+    "spans": 20,
+    "sustained": true,
+    "onset_ns": 1020582395740000,
+    "onset_s": 0.0
+   },
+   "detectors": {
+    "C2": {
+     "index": 1,
+     "trip_s": 0.061456916,
+     "delay_ms": 61.456916,
+     "delay_requests": 1
+    },
+    "C3": {
+     "index": 5,
+     "trip_s": 0.110923375,
+     "delay_ms": 110.923375,
+     "delay_requests": 5
+    },
+    "R3of5": {
+     "index": 3,
+     "trip_s": 0.087270958,
+     "delay_ms": 87.270958,
+     "delay_requests": 3
+    },
+    "R4of8": {
+     "index": 4,
+     "trip_s": 0.0992295,
+     "delay_ms": 99.2295,
+     "delay_requests": 4
+    },
+    "EWMA": {
+     "index": 0,
+     "trip_s": 0.007175458,
+     "delay_ms": 7.175458,
+     "delay_requests": 0
+    },
+    "MED5": {
+     "index": 4,
+     "trip_s": 0.0992295,
+     "delay_ms": 99.2295,
+     "delay_requests": 4
+    }
+   }
+  },
+  {
+   "study": "dependency-qos",
+   "issue": "#99",
+   "run": "laya-O-r1.json.gz",
+   "window": 1,
+   "cell": "O",
+   "reference": "async",
+   "t_a_s": 0.0,
+   "n": 1729,
+   "req_rate": 86.45,
+   "host_slow_share": 0.5083863504916136,
+   "median_e2e_ms": 11.45275,
+   "m_a_ms": 10.022146,
+   "truth": {
+    "slow_spans": 11,
+    "longest_run": 11,
+    "spans": 20,
+    "sustained": true,
+    "onset_ns": 1020650164363791,
+    "onset_s": 0.0
+   },
+   "detectors": {
+    "C2": {
+     "index": 1,
+     "trip_s": 0.056994459,
+     "delay_ms": 56.994459,
+     "delay_requests": 1
+    },
+    "C3": {
+     "index": 2,
+     "trip_s": 0.072068,
+     "delay_ms": 72.068,
+     "delay_requests": 2
+    },
+    "R3of5": {
+     "index": 2,
+     "trip_s": 0.072068,
+     "delay_ms": 72.068,
+     "delay_requests": 2
+    },
+    "R4of8": {
+     "index": 3,
+     "trip_s": 0.08437925,
+     "delay_ms": 84.37925,
+     "delay_requests": 3
+    },
+    "EWMA": {
+     "index": 0,
+     "trip_s": 0.002661292,
+     "delay_ms": 2.661292,
+     "delay_requests": 0
+    },
+    "MED5": {
+     "index": 4,
+     "trip_s": 0.096623792,
+     "delay_ms": 96.623792,
+     "delay_requests": 4
+    }
+   }
+  },
+  {
+   "study": "dependency-qos",
+   "issue": "#99",
+   "run": "laya-Q-r1.json.gz",
+   "window": 0,
+   "cell": "Q",
+   "reference": "async",
+   "t_a_s": 0.0,
+   "n": 1980,
+   "req_rate": 99.0,
+   "host_slow_share": 0.07424242424242425,
+   "median_e2e_ms": 9.8411875,
+   "m_a_ms": 10.022146,
+   "truth": {
+    "slow_spans": 1,
+    "longest_run": 1,
+    "spans": 20,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": {
+     "index": 1,
+     "trip_s": 0.062701
+    },
+    "C3": {
+     "index": 5,
+     "trip_s": 0.110570583
+    },
+    "R3of5": {
+     "index": 3,
+     "trip_s": 0.087354292
+    },
+    "R4of8": {
+     "index": 4,
+     "trip_s": 0.099222667
+    },
+    "EWMA": {
+     "index": 0,
+     "trip_s": 0.002780042
+    },
+    "MED5": {
+     "index": 4,
+     "trip_s": 0.099222667
+    }
+   }
+  },
+  {
+   "study": "dependency-qos",
+   "issue": "#99",
+   "run": "laya-Q-r1.json.gz",
+   "window": 1,
+   "cell": "Q",
+   "reference": "async",
+   "t_a_s": 0.0,
+   "n": 1528,
+   "req_rate": 76.4,
+   "host_slow_share": 0.993455497382199,
+   "median_e2e_ms": 12.311583500000001,
+   "m_a_ms": 10.022146,
+   "truth": {
+    "slow_spans": 19,
+    "longest_run": 14,
+    "spans": 20,
+    "sustained": true,
+    "onset_ns": 1020839670881208,
+    "onset_s": 0.0
+   },
+   "detectors": {
+    "C2": {
+     "index": 1,
+     "trip_s": 0.062068292,
+     "delay_ms": 62.068292,
+     "delay_requests": 1
+    },
+    "C3": {
+     "index": 5,
+     "trip_s": 0.111526667,
+     "delay_ms": 111.526667,
+     "delay_requests": 5
+    },
+    "R3of5": {
+     "index": 3,
+     "trip_s": 0.086876292,
+     "delay_ms": 86.876292,
+     "delay_requests": 3
+    },
+    "R4of8": {
+     "index": 4,
+     "trip_s": 0.098168083,
+     "delay_ms": 98.168083,
+     "delay_requests": 4
+    },
+    "EWMA": {
+     "index": 0,
+     "trip_s": 0.007647167,
+     "delay_ms": 7.647167,
+     "delay_requests": 0
+    },
+    "MED5": {
+     "index": 4,
+     "trip_s": 0.098168083,
+     "delay_ms": 98.168083,
+     "delay_requests": 4
+    }
+   }
+  },
+  {
+   "study": "handoff-screen",
+   "issue": "#102",
+   "run": "laya-A-r1.json.gz",
+   "window": 0,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1867,
+   "req_rate": 98.26315789473684,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.024875,
+   "m_a_ms": 10.033292,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-screen",
+   "issue": "#102",
+   "run": "laya-A-r1.json.gz",
+   "window": 1,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1865,
+   "req_rate": 98.15789473684211,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.025834,
+   "m_a_ms": 10.033292,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-screen",
+   "issue": "#102",
+   "run": "laya-A-r2.json.gz",
+   "window": 0,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1869,
+   "req_rate": 98.36842105263158,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.018833,
+   "m_a_ms": 10.033292,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-screen",
+   "issue": "#102",
+   "run": "laya-A-r2.json.gz",
+   "window": 1,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1870,
+   "req_rate": 98.42105263157895,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.018458,
+   "m_a_ms": 10.033292,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-screen",
+   "issue": "#102",
+   "run": "laya-A-r3.json.gz",
+   "window": 0,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1856,
+   "req_rate": 97.6842105263158,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.048375499999999,
+   "m_a_ms": 10.033292,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-screen",
+   "issue": "#102",
+   "run": "laya-A-r3.json.gz",
+   "window": 1,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1862,
+   "req_rate": 98.0,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.0326875,
+   "m_a_ms": 10.033292,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-screen",
+   "issue": "#102",
+   "run": "laya-A-r4.json.gz",
+   "window": 0,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1855,
+   "req_rate": 97.63157894736842,
+   "host_slow_share": 0.0005390835579514825,
+   "median_e2e_ms": 10.053167,
+   "m_a_ms": 10.033292,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-screen",
+   "issue": "#102",
+   "run": "laya-A-r4.json.gz",
+   "window": 1,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1865,
+   "req_rate": 98.15789473684211,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.02675,
+   "m_a_ms": 10.033292,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-screen",
+   "issue": "#102",
+   "run": "laya-A-r5.json.gz",
+   "window": 0,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1867,
+   "req_rate": 98.26315789473684,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.034458,
+   "m_a_ms": 10.033292,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-screen",
+   "issue": "#102",
+   "run": "laya-A-r5.json.gz",
+   "window": 1,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1865,
+   "req_rate": 98.15789473684211,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.036458,
+   "m_a_ms": 10.033292,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-screen",
+   "issue": "#102",
+   "run": "laya-A-r6.json.gz",
+   "window": 0,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1864,
+   "req_rate": 98.10526315789474,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.037083500000001,
+   "m_a_ms": 10.033292,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-screen",
+   "issue": "#102",
+   "run": "laya-A-r6.json.gz",
+   "window": 1,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1862,
+   "req_rate": 98.0,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.0390625,
+   "m_a_ms": 10.033292,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-screen",
+   "issue": "#102",
+   "run": "laya-B-r1.json.gz",
+   "window": 0,
+   "cell": "B",
+   "reference": "async",
+   "t_a_s": 0.0,
+   "n": 1532,
+   "req_rate": 76.6,
+   "host_slow_share": 0.9986945169712794,
+   "median_e2e_ms": 12.331208499999999,
+   "m_a_ms": 10.033292,
+   "truth": {
+    "slow_spans": 20,
+    "longest_run": 20,
+    "spans": 20,
+    "sustained": true,
+    "onset_ns": 1023535684549916,
+    "onset_s": 0.0
+   },
+   "detectors": {
+    "C2": {
+     "index": 1,
+     "trip_s": 0.059936667,
+     "delay_ms": 59.936667,
+     "delay_requests": 1
+    },
+    "C3": {
+     "index": 5,
+     "trip_s": 0.108203834,
+     "delay_ms": 108.203834,
+     "delay_requests": 5
+    },
+    "R3of5": {
+     "index": 3,
+     "trip_s": 0.084313,
+     "delay_ms": 84.313,
+     "delay_requests": 3
+    },
+    "R4of8": {
+     "index": 4,
+     "trip_s": 0.095542584,
+     "delay_ms": 95.542584,
+     "delay_requests": 4
+    },
+    "EWMA": {
+     "index": 0,
+     "trip_s": 0.002756084,
+     "delay_ms": 2.756084,
+     "delay_requests": 0
+    },
+    "MED5": {
+     "index": 4,
+     "trip_s": 0.095542584,
+     "delay_ms": 95.542584,
+     "delay_requests": 4
+    }
+   }
+  },
+  {
+   "study": "handoff-screen",
+   "issue": "#102",
+   "run": "laya-B-r1.json.gz",
+   "window": 1,
+   "cell": "B",
+   "reference": "async",
+   "t_a_s": 0.0,
+   "n": 1535,
+   "req_rate": 76.75,
+   "host_slow_share": 0.9986970684039088,
+   "median_e2e_ms": 12.315,
+   "m_a_ms": 10.033292,
+   "truth": {
+    "slow_spans": 20,
+    "longest_run": 20,
+    "spans": 20,
+    "sustained": true,
+    "onset_ns": 1023603457821708,
+    "onset_s": 0.0
+   },
+   "detectors": {
+    "C2": {
+     "index": 1,
+     "trip_s": 0.062879458,
+     "delay_ms": 62.879458,
+     "delay_requests": 1
+    },
+    "C3": {
+     "index": 6,
+     "trip_s": 0.126482667,
+     "delay_ms": 126.482667,
+     "delay_requests": 6
+    },
+    "R3of5": {
+     "index": 4,
+     "trip_s": 0.1006595,
+     "delay_ms": 100.6595,
+     "delay_requests": 4
+    },
+    "R4of8": {
+     "index": 5,
+     "trip_s": 0.112864083,
+     "delay_ms": 112.864083,
+     "delay_requests": 5
+    },
+    "EWMA": {
+     "index": 0,
+     "trip_s": 0.007089333,
+     "delay_ms": 7.089333,
+     "delay_requests": 0
+    },
+    "MED5": {
+     "index": 4,
+     "trip_s": 0.1006595,
+     "delay_ms": 100.6595,
+     "delay_requests": 4
+    }
+   }
+  },
+  {
+   "study": "handoff-screen",
+   "issue": "#102",
+   "run": "laya-B-r2.json.gz",
+   "window": 0,
+   "cell": "B",
+   "reference": "async",
+   "t_a_s": 0.0,
+   "n": 1534,
+   "req_rate": 76.7,
+   "host_slow_share": 0.9967405475880052,
+   "median_e2e_ms": 12.322063,
+   "m_a_ms": 10.033292,
+   "truth": {
+    "slow_spans": 20,
+    "longest_run": 20,
+    "spans": 20,
+    "sustained": true,
+    "onset_ns": 1023725066629958,
+    "onset_s": 0.0
+   },
+   "detectors": {
+    "C2": {
+     "index": 1,
+     "trip_s": 0.057128208,
+     "delay_ms": 57.128208,
+     "delay_requests": 1
+    },
+    "C3": {
+     "index": 5,
+     "trip_s": 0.104464625,
+     "delay_ms": 104.464625,
+     "delay_requests": 5
+    },
+    "R3of5": {
+     "index": 3,
+     "trip_s": 0.081508167,
+     "delay_ms": 81.508167,
+     "delay_requests": 3
+    },
+    "R4of8": {
+     "index": 4,
+     "trip_s": 0.092784208,
+     "delay_ms": 92.784208,
+     "delay_requests": 4
+    },
+    "EWMA": {
+     "index": 0,
+     "trip_s": 0.002358708,
+     "delay_ms": 2.358708,
+     "delay_requests": 0
+    },
+    "MED5": {
+     "index": 4,
+     "trip_s": 0.092784208,
+     "delay_ms": 92.784208,
+     "delay_requests": 4
+    }
+   }
+  },
+  {
+   "study": "handoff-screen",
+   "issue": "#102",
+   "run": "laya-B-r2.json.gz",
+   "window": 1,
+   "cell": "B",
+   "reference": "async",
+   "t_a_s": 0.0,
+   "n": 1529,
+   "req_rate": 76.45,
+   "host_slow_share": 0.9986919555264879,
+   "median_e2e_ms": 12.356208,
+   "m_a_ms": 10.033292,
+   "truth": {
+    "slow_spans": 20,
+    "longest_run": 20,
+    "spans": 20,
+    "sustained": true,
+    "onset_ns": 1023792907076125,
+    "onset_s": 0.0
+   },
+   "detectors": {
+    "C2": {
+     "index": 1,
+     "trip_s": 0.06067925,
+     "delay_ms": 60.67925,
+     "delay_requests": 1
+    },
+    "C3": {
+     "index": 5,
+     "trip_s": 0.108287916,
+     "delay_ms": 108.287916,
+     "delay_requests": 5
+    },
+    "R3of5": {
+     "index": 3,
+     "trip_s": 0.085221083,
+     "delay_ms": 85.221083,
+     "delay_requests": 3
+    },
+    "R4of8": {
+     "index": 4,
+     "trip_s": 0.096410958,
+     "delay_ms": 96.410958,
+     "delay_requests": 4
+    },
+    "EWMA": {
+     "index": 0,
+     "trip_s": 0.0070005,
+     "delay_ms": 7.0005,
+     "delay_requests": 0
+    },
+    "MED5": {
+     "index": 4,
+     "trip_s": 0.096410958,
+     "delay_ms": 96.410958,
+     "delay_requests": 4
+    }
+   }
+  },
+  {
+   "study": "handoff-screen",
+   "issue": "#102",
+   "run": "laya-H32-r1.json.gz",
+   "window": 0,
+   "cell": "H32",
+   "reference": "async",
+   "t_a_s": 0.426120375,
+   "n": 1978,
+   "req_rate": 101.05303792068253,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.861854000000001,
+   "m_a_ms": 10.033292,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-screen",
+   "issue": "#102",
+   "run": "laya-H32-r1.json.gz",
+   "window": 1,
+   "cell": "H32",
+   "reference": "async",
+   "t_a_s": 0.439568541,
+   "n": 1976,
+   "req_rate": 101.02026655914165,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.862479,
+   "m_a_ms": 10.033292,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-screen",
+   "issue": "#102",
+   "run": "laya-H32-r2.json.gz",
+   "window": 0,
+   "cell": "H32",
+   "reference": "async",
+   "t_a_s": 0.441105167,
+   "n": 1981,
+   "req_rate": 101.2838412862486,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.841917,
+   "m_a_ms": 10.033292,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-screen",
+   "issue": "#102",
+   "run": "laya-H32-r2.json.gz",
+   "window": 1,
+   "cell": "H32",
+   "reference": "async",
+   "t_a_s": 0.44136575,
+   "n": 1978,
+   "req_rate": 101.13180576501654,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.854645999999999,
+   "m_a_ms": 10.033292,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-screen",
+   "issue": "#102",
+   "run": "laya-H32-r3.json.gz",
+   "window": 0,
+   "cell": "H32",
+   "reference": "async",
+   "t_a_s": 0.462287667,
+   "n": 1967,
+   "req_rate": 100.67708882567874,
+   "host_slow_share": 0.002541942043721403,
+   "median_e2e_ms": 9.874792,
+   "m_a_ms": 10.033292,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": {
+     "index": 1569,
+     "trip_s": 15.556174833
+    },
+    "C3": {
+     "index": 1570,
+     "trip_s": 15.567161958
+    },
+    "R3of5": {
+     "index": 1570,
+     "trip_s": 15.567161958
+    },
+    "R4of8": {
+     "index": 1571,
+     "trip_s": 15.578320833
+    },
+    "EWMA": {
+     "index": 1570,
+     "trip_s": 15.567161958
+    },
+    "MED5": {
+     "index": 1570,
+     "trip_s": 15.567161958
+    }
+   }
+  },
+  {
+   "study": "handoff-screen",
+   "issue": "#102",
+   "run": "laya-H32-r3.json.gz",
+   "window": 1,
+   "cell": "H32",
+   "reference": "async",
+   "t_a_s": 0.47704025,
+   "n": 1712,
+   "req_rate": 87.69162165588136,
+   "host_slow_share": 0.5070093457943925,
+   "median_e2e_ms": 11.3098125,
+   "m_a_ms": 10.033292,
+   "truth": {
+    "slow_spans": 10,
+    "longest_run": 10,
+    "spans": 19,
+    "sustained": true,
+    "onset_ns": 1024583724805208,
+    "onset_s": 0.0
+   },
+   "detectors": {
+    "C2": {
+     "index": 1,
+     "trip_s": 0.027720125,
+     "delay_ms": 27.720125,
+     "delay_requests": 1
+    },
+    "C3": {
+     "index": 2,
+     "trip_s": 0.039755,
+     "delay_ms": 39.755,
+     "delay_requests": 2
+    },
+    "R3of5": {
+     "index": 2,
+     "trip_s": 0.039755,
+     "delay_ms": 39.755,
+     "delay_requests": 2
+    },
+    "R4of8": {
+     "index": 3,
+     "trip_s": 0.052409792,
+     "delay_ms": 52.409792,
+     "delay_requests": 3
+    },
+    "EWMA": {
+     "index": 0,
+     "trip_s": 0.012742375,
+     "delay_ms": 12.742375,
+     "delay_requests": 0
+    },
+    "MED5": {
+     "index": 4,
+     "trip_s": 0.065153792,
+     "delay_ms": 65.153792,
+     "delay_requests": 4
+    }
+   }
+  },
+  {
+   "study": "handoff-screen",
+   "issue": "#102",
+   "run": "laya-H32-r4.json.gz",
+   "window": 0,
+   "cell": "H32",
+   "reference": "async",
+   "t_a_s": 0.471908709,
+   "n": 1961,
+   "req_rate": 100.41944042446048,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.880833,
+   "m_a_ms": 10.033292,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-screen",
+   "issue": "#102",
+   "run": "laya-H32-r4.json.gz",
+   "window": 1,
+   "cell": "H32",
+   "reference": "async",
+   "t_a_s": 0.362864084,
+   "n": 1962,
+   "req_rate": 99.9127371930749,
+   "host_slow_share": 0.0015290519877675841,
+   "median_e2e_ms": 9.9366245,
+   "m_a_ms": 10.033292,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-screen",
+   "issue": "#102",
+   "run": "laya-H32-r5.json.gz",
+   "window": 0,
+   "cell": "H32",
+   "reference": "async",
+   "t_a_s": 0.449395958,
+   "n": 1957,
+   "req_rate": 100.09920899609205,
+   "host_slow_share": 0.000510986203372509,
+   "median_e2e_ms": 9.89325,
+   "m_a_ms": 10.033292,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-screen",
+   "issue": "#102",
+   "run": "laya-H32-r5.json.gz",
+   "window": 1,
+   "cell": "H32",
+   "reference": "async",
+   "t_a_s": 0.442773125,
+   "n": 1977,
+   "req_rate": 101.08795140722117,
+   "host_slow_share": 0.0005058168942842691,
+   "median_e2e_ms": 9.845833,
+   "m_a_ms": 10.033292,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-screen",
+   "issue": "#102",
+   "run": "laya-H64-r1.json.gz",
+   "window": 0,
+   "cell": "H64",
+   "reference": "async",
+   "t_a_s": 0.762288125,
+   "n": 1934,
+   "req_rate": 100.53170629472275,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.878896000000001,
+   "m_a_ms": 10.033292,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-screen",
+   "issue": "#102",
+   "run": "laya-H64-r1.json.gz",
+   "window": 1,
+   "cell": "H64",
+   "reference": "async",
+   "t_a_s": 0.758266625,
+   "n": 1942,
+   "req_rate": 100.92645824326625,
+   "host_slow_share": 0.0005149330587023687,
+   "median_e2e_ms": 9.860104,
+   "m_a_ms": 10.033292,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-screen",
+   "issue": "#102",
+   "run": "laya-H64-r2.json.gz",
+   "window": 0,
+   "cell": "H64",
+   "reference": "async",
+   "t_a_s": 0.762600417,
+   "n": 1948,
+   "req_rate": 101.26108737281928,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.8421455,
+   "m_a_ms": 10.033292,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-screen",
+   "issue": "#102",
+   "run": "laya-H64-r2.json.gz",
+   "window": 1,
+   "cell": "H64",
+   "reference": "async",
+   "t_a_s": 0.766889375,
+   "n": 1948,
+   "req_rate": 101.28366846015581,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.8437085,
+   "m_a_ms": 10.033292,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-screen",
+   "issue": "#102",
+   "run": "laya-H64-r3.json.gz",
+   "window": 0,
+   "cell": "H64",
+   "reference": "async",
+   "t_a_s": 0.775040125,
+   "n": 1945,
+   "req_rate": 101.17056226105647,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.851208,
+   "m_a_ms": 10.033292,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-screen",
+   "issue": "#102",
+   "run": "laya-H64-r3.json.gz",
+   "window": 1,
+   "cell": "H64",
+   "reference": "async",
+   "t_a_s": 0.751414583,
+   "n": 1947,
+   "req_rate": 101.15029015485185,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.856542,
+   "m_a_ms": 10.033292,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-screen",
+   "issue": "#102",
+   "run": "laya-H64-r4.json.gz",
+   "window": 0,
+   "cell": "H64",
+   "reference": "async",
+   "t_a_s": 0.758582458,
+   "n": 1950,
+   "req_rate": 101.34388465629192,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.838396,
+   "m_a_ms": 10.033292,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-screen",
+   "issue": "#102",
+   "run": "laya-H64-r4.json.gz",
+   "window": 1,
+   "cell": "H64",
+   "reference": "async",
+   "t_a_s": 0.759788541,
+   "n": 1945,
+   "req_rate": 101.09036504846658,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.858958,
+   "m_a_ms": 10.033292,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-screen",
+   "issue": "#102",
+   "run": "laya-H64-r5.json.gz",
+   "window": 0,
+   "cell": "H64",
+   "reference": "async",
+   "t_a_s": 0.755880625,
+   "n": 1946,
+   "req_rate": 101.12180048768793,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.8602495,
+   "m_a_ms": 10.033292,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-screen",
+   "issue": "#102",
+   "run": "laya-H64-r5.json.gz",
+   "window": 1,
+   "cell": "H64",
+   "reference": "async",
+   "t_a_s": 0.759125542,
+   "n": 1951,
+   "req_rate": 101.39871783160096,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.820833,
+   "m_a_ms": 10.033292,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-confirm",
+   "issue": "#102",
+   "run": "laya-A-r1.json.gz",
+   "window": 0,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1867,
+   "req_rate": 98.26315789473684,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.032584,
+   "m_a_ms": 10.028,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-confirm",
+   "issue": "#102",
+   "run": "laya-A-r1.json.gz",
+   "window": 1,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1868,
+   "req_rate": 98.3157894736842,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.032313,
+   "m_a_ms": 10.028,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-confirm",
+   "issue": "#102",
+   "run": "laya-A-r2.json.gz",
+   "window": 0,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1870,
+   "req_rate": 98.42105263157895,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.0144795,
+   "m_a_ms": 10.028,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-confirm",
+   "issue": "#102",
+   "run": "laya-A-r2.json.gz",
+   "window": 1,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1865,
+   "req_rate": 98.15789473684211,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.036375,
+   "m_a_ms": 10.028,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-confirm",
+   "issue": "#102",
+   "run": "laya-A-r3.json.gz",
+   "window": 0,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1870,
+   "req_rate": 98.42105263157895,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.0167085,
+   "m_a_ms": 10.028,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-confirm",
+   "issue": "#102",
+   "run": "laya-A-r3.json.gz",
+   "window": 1,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1867,
+   "req_rate": 98.26315789473684,
+   "host_slow_share": 0.0005356186395286556,
+   "median_e2e_ms": 10.033458,
+   "m_a_ms": 10.028,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-confirm",
+   "issue": "#102",
+   "run": "laya-A-r4.json.gz",
+   "window": 0,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1868,
+   "req_rate": 98.3157894736842,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.0226045,
+   "m_a_ms": 10.028,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-confirm",
+   "issue": "#102",
+   "run": "laya-A-r4.json.gz",
+   "window": 1,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1869,
+   "req_rate": 98.36842105263158,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.024666,
+   "m_a_ms": 10.028,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-confirm",
+   "issue": "#102",
+   "run": "laya-A-r5.json.gz",
+   "window": 0,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1861,
+   "req_rate": 97.94736842105263,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.044375,
+   "m_a_ms": 10.028,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-confirm",
+   "issue": "#102",
+   "run": "laya-A-r5.json.gz",
+   "window": 1,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1864,
+   "req_rate": 98.10526315789474,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.0351665,
+   "m_a_ms": 10.028,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-confirm",
+   "issue": "#102",
+   "run": "laya-A-r6.json.gz",
+   "window": 0,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1870,
+   "req_rate": 98.42105263157895,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.014666,
+   "m_a_ms": 10.028,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-confirm",
+   "issue": "#102",
+   "run": "laya-A-r6.json.gz",
+   "window": 1,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1866,
+   "req_rate": 98.21052631578948,
+   "host_slow_share": 0.0005359056806002144,
+   "median_e2e_ms": 10.0331455,
+   "m_a_ms": 10.028,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-confirm",
+   "issue": "#102",
+   "run": "laya-A-r7.json.gz",
+   "window": 0,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1867,
+   "req_rate": 98.26315789473684,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.032917,
+   "m_a_ms": 10.028,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-confirm",
+   "issue": "#102",
+   "run": "laya-A-r7.json.gz",
+   "window": 1,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1870,
+   "req_rate": 98.42105263157895,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.017688,
+   "m_a_ms": 10.028,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-confirm",
+   "issue": "#102",
+   "run": "laya-A-r8.json.gz",
+   "window": 0,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1866,
+   "req_rate": 98.21052631578948,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.035625,
+   "m_a_ms": 10.028,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-confirm",
+   "issue": "#102",
+   "run": "laya-A-r8.json.gz",
+   "window": 1,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1870,
+   "req_rate": 98.42105263157895,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.018979,
+   "m_a_ms": 10.028,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-confirm",
+   "issue": "#102",
+   "run": "laya-H64-r1.json.gz",
+   "window": 0,
+   "cell": "H64",
+   "reference": "async",
+   "t_a_s": 0.755584792,
+   "n": 1948,
+   "req_rate": 101.22417225700923,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.8441665,
+   "m_a_ms": 10.028,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-confirm",
+   "issue": "#102",
+   "run": "laya-H64-r1.json.gz",
+   "window": 1,
+   "cell": "H64",
+   "reference": "async",
+   "t_a_s": 0.692550917,
+   "n": 1950,
+   "req_rate": 100.99728822887089,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.86425,
+   "m_a_ms": 10.028,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-confirm",
+   "issue": "#102",
+   "run": "laya-H64-r2.json.gz",
+   "window": 0,
+   "cell": "H64",
+   "reference": "async",
+   "t_a_s": 0.761378584,
+   "n": 1945,
+   "req_rate": 101.09872001444035,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.85625,
+   "m_a_ms": 10.028,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-confirm",
+   "issue": "#102",
+   "run": "laya-H64-r2.json.gz",
+   "window": 1,
+   "cell": "H64",
+   "reference": "async",
+   "t_a_s": 0.768409208,
+   "n": 1947,
+   "req_rate": 101.2396749212196,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.845167,
+   "m_a_ms": 10.028,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-confirm",
+   "issue": "#102",
+   "run": "laya-H64-r3.json.gz",
+   "window": 0,
+   "cell": "H64",
+   "reference": "async",
+   "t_a_s": 0.767189167,
+   "n": 1945,
+   "req_rate": 101.12926378201227,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.8585,
+   "m_a_ms": 10.028,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-confirm",
+   "issue": "#102",
+   "run": "laya-H64-r3.json.gz",
+   "window": 1,
+   "cell": "H64",
+   "reference": "async",
+   "t_a_s": 0.707308085,
+   "n": 1954,
+   "req_rate": 101.28187443250322,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.8427705,
+   "m_a_ms": 10.028,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-confirm",
+   "issue": "#102",
+   "run": "laya-H64-r4.json.gz",
+   "window": 0,
+   "cell": "H64",
+   "reference": "async",
+   "t_a_s": 0.758223084,
+   "n": 1948,
+   "req_rate": 101.23805137664762,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.848145500000001,
+   "m_a_ms": 10.028,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-confirm",
+   "issue": "#102",
+   "run": "laya-H64-r4.json.gz",
+   "window": 1,
+   "cell": "H64",
+   "reference": "async",
+   "t_a_s": 0.7594565,
+   "n": 1944,
+   "req_rate": 101.03664691176732,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.8646665,
+   "m_a_ms": 10.028,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-confirm",
+   "issue": "#102",
+   "run": "laya-H64-r5.json.gz",
+   "window": 0,
+   "cell": "H64",
+   "reference": "async",
+   "t_a_s": 0.753784208,
+   "n": 1945,
+   "req_rate": 101.05882740899489,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.857042,
+   "m_a_ms": 10.028,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-confirm",
+   "issue": "#102",
+   "run": "laya-H64-r5.json.gz",
+   "window": 1,
+   "cell": "H64",
+   "reference": "async",
+   "t_a_s": 0.811188375,
+   "n": 1942,
+   "req_rate": 101.20480819509844,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.842979499999998,
+   "m_a_ms": 10.028,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-confirm",
+   "issue": "#102",
+   "run": "laya-H64-r6.json.gz",
+   "window": 0,
+   "cell": "H64",
+   "reference": "async",
+   "t_a_s": 0.759126958,
+   "n": 1946,
+   "req_rate": 101.13886182566496,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.8542085,
+   "m_a_ms": 10.028,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-confirm",
+   "issue": "#102",
+   "run": "laya-H64-r6.json.gz",
+   "window": 1,
+   "cell": "H64",
+   "reference": "async",
+   "t_a_s": 0.767089542,
+   "n": 1947,
+   "req_rate": 101.23272836172012,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.844958,
+   "m_a_ms": 10.028,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-confirm",
+   "issue": "#102",
+   "run": "laya-H64-r7.json.gz",
+   "window": 0,
+   "cell": "H64",
+   "reference": "async",
+   "t_a_s": 0.7648695,
+   "n": 1939,
+   "req_rate": 100.80513880579079,
+   "host_slow_share": 0.0005157297576070139,
+   "median_e2e_ms": 9.859667,
+   "m_a_ms": 10.028,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-confirm",
+   "issue": "#102",
+   "run": "laya-H64-r7.json.gz",
+   "window": 1,
+   "cell": "H64",
+   "reference": "async",
+   "t_a_s": 0.75894125,
+   "n": 1948,
+   "req_rate": 101.2418300526212,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.8435205,
+   "m_a_ms": 10.028,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-confirm",
+   "issue": "#102",
+   "run": "laya-H64-r8.json.gz",
+   "window": 0,
+   "cell": "H64",
+   "reference": "async",
+   "t_a_s": 0.779605458,
+   "n": 1948,
+   "req_rate": 101.35067705000911,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.8350835,
+   "m_a_ms": 10.028,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "handoff-confirm",
+   "issue": "#102",
+   "run": "laya-H64-r8.json.gz",
+   "window": 1,
+   "cell": "H64",
+   "reference": "async",
+   "t_a_s": 0.915130916,
+   "n": 1929,
+   "req_rate": 101.07483533210072,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.856959,
+   "m_a_ms": 10.028,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "mix-laya-A-r1.json.gz",
+   "window": 0,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1870,
+   "req_rate": 98.42105263157895,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.0252705,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "mix-laya-A-r1.json.gz",
+   "window": 1,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1873,
+   "req_rate": 98.57894736842105,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.007875,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "mix-laya-A-r2.json.gz",
+   "window": 0,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1868,
+   "req_rate": 98.3157894736842,
+   "host_slow_share": 0.0021413276231263384,
+   "median_e2e_ms": 10.016958500000001,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": {
+     "index": 4,
+     "trip_s": 0.050336459
+    },
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "mix-laya-A-r2.json.gz",
+   "window": 1,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1867,
+   "req_rate": 98.26315789473684,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.033333,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "mix-laya-A-r3.json.gz",
+   "window": 0,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1868,
+   "req_rate": 98.3157894736842,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.030750000000001,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "mix-laya-A-r3.json.gz",
+   "window": 1,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1869,
+   "req_rate": 98.36842105263158,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.026583,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "mix-laya-A-r4.json.gz",
+   "window": 0,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1868,
+   "req_rate": 98.3157894736842,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.023437,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "mix-laya-A-r4.json.gz",
+   "window": 1,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1863,
+   "req_rate": 98.05263157894737,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.039334,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "mix-laya-A-r5.json.gz",
+   "window": 0,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1874,
+   "req_rate": 98.63157894736842,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.006542,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "mix-laya-A-r5.json.gz",
+   "window": 1,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1868,
+   "req_rate": 98.3157894736842,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.0308955,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "mix-laya-A-r6.json.gz",
+   "window": 0,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1872,
+   "req_rate": 98.52631578947368,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.0133545,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "mix-laya-A-r6.json.gz",
+   "window": 1,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1871,
+   "req_rate": 98.47368421052632,
+   "host_slow_share": 0.0005344735435595938,
+   "median_e2e_ms": 10.015,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "mix-laya-P-r1.json.gz",
+   "window": 0,
+   "cell": "P",
+   "reference": "async",
+   "t_a_s": 0.766058084,
+   "n": 1950,
+   "req_rate": 101.38327382479343,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.832771000000001,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "mix-laya-P-r1.json.gz",
+   "window": 1,
+   "cell": "P",
+   "reference": "async",
+   "t_a_s": 0.750664459,
+   "n": 1950,
+   "req_rate": 101.30219798219059,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.8374795,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "mix-laya-P-r2.json.gz",
+   "window": 0,
+   "cell": "P",
+   "reference": "async",
+   "t_a_s": 0.745683083,
+   "n": 1951,
+   "req_rate": 101.327926013175,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.8385,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "mix-laya-P-r2.json.gz",
+   "window": 1,
+   "cell": "P",
+   "reference": "async",
+   "t_a_s": 0.739015333,
+   "n": 1951,
+   "req_rate": 101.29284840471651,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.843667,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "mix-laya-P-r3.json.gz",
+   "window": 0,
+   "cell": "P",
+   "reference": "async",
+   "t_a_s": 0.75050325,
+   "n": 1952,
+   "req_rate": 101.40524842552054,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.8316665,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "mix-laya-P-r3.json.gz",
+   "window": 1,
+   "cell": "P",
+   "reference": "async",
+   "t_a_s": 0.751873541,
+   "n": 1948,
+   "req_rate": 101.20465512055891,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.8516245,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "mix-laya-P-r4.json.gz",
+   "window": 0,
+   "cell": "P",
+   "reference": "async",
+   "t_a_s": 0.761731166,
+   "n": 1950,
+   "req_rate": 101.36047150738138,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.834625,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "mix-laya-P-r4.json.gz",
+   "window": 1,
+   "cell": "P",
+   "reference": "async",
+   "t_a_s": 0.771280959,
+   "n": 1944,
+   "req_rate": 101.09877812739111,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.855458,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "mix-laya-P-r5-b.json.gz",
+   "window": 0,
+   "cell": "P",
+   "reference": "async",
+   "t_a_s": 0.758961583,
+   "n": 1951,
+   "req_rate": 101.39785378091842,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.834333,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "mix-laya-P-r5-b.json.gz",
+   "window": 1,
+   "cell": "P",
+   "reference": "async",
+   "t_a_s": 0.787343417,
+   "n": 1947,
+   "req_rate": 101.33944733716682,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.835958,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "mix-laya-P-r5.json.gz",
+   "window": 0,
+   "cell": "P",
+   "reference": "async",
+   "t_a_s": 0.742201084,
+   "n": 1950,
+   "req_rate": 101.25767791561461,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.838417,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "mix-laya-P-r5.json.gz",
+   "window": 1,
+   "cell": "P",
+   "reference": "async",
+   "t_a_s": 0.733756,
+   "n": 1602,
+   "req_rate": 83.15061306189209,
+   "host_slow_share": 0.6978776529338327,
+   "median_e2e_ms": 12.0181465,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 13,
+    "longest_run": 12,
+    "spans": 19,
+    "sustained": true,
+    "onset_ns": 1059129294654791,
+    "onset_s": 4.7
+   },
+   "detectors": {
+    "C2": {
+     "index": 481,
+     "trip_s": 4.766028625,
+     "delay_ms": 66.028625,
+     "delay_requests": 6
+    },
+    "C3": {
+     "index": 482,
+     "trip_s": 4.7783335,
+     "delay_ms": 78.3335,
+     "delay_requests": 7
+    },
+    "R3of5": {
+     "index": 482,
+     "trip_s": 4.7783335,
+     "delay_ms": 78.3335,
+     "delay_requests": 7
+    },
+    "R4of8": {
+     "index": 483,
+     "trip_s": 4.793119084,
+     "delay_ms": 93.119084,
+     "delay_requests": 8
+    },
+    "EWMA": {
+     "index": 482,
+     "trip_s": 4.7783335,
+     "delay_ms": 78.3335,
+     "delay_requests": 7
+    },
+    "MED5": {
+     "index": 482,
+     "trip_s": 4.7783335,
+     "delay_ms": 78.3335,
+     "delay_requests": 7
+    }
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "mix-laya-P-r6.json.gz",
+   "window": 0,
+   "cell": "P",
+   "reference": "async",
+   "t_a_s": 0.751867083,
+   "n": 1951,
+   "req_rate": 101.36048043791675,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.834083,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "mix-laya-P-r6.json.gz",
+   "window": 1,
+   "cell": "P",
+   "reference": "async",
+   "t_a_s": 0.760249417,
+   "n": 1950,
+   "req_rate": 101.35266523272892,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 9.8348335,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "product-laya-A-r1.json.gz",
+   "window": 0,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1866,
+   "req_rate": 98.21052631578948,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.0078545,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "product-laya-A-r1.json.gz",
+   "window": 1,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1874,
+   "req_rate": 98.63157894736842,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.0032705,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "product-laya-A-r1.json.gz",
+   "window": 2,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1870,
+   "req_rate": 98.42105263157895,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.0173335,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "product-laya-A-r1.json.gz",
+   "window": 3,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1873,
+   "req_rate": 98.57894736842105,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.010917,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "product-laya-A-r1.json.gz",
+   "window": 4,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1870,
+   "req_rate": 98.42105263157895,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.020687,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "product-laya-A-r1.json.gz",
+   "window": 5,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1858,
+   "req_rate": 97.78947368421052,
+   "host_slow_share": 0.0032292787944025836,
+   "median_e2e_ms": 10.040375000000001,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": {
+     "index": 1300,
+     "trip_s": 13.223026
+    },
+    "C3": {
+     "index": 1301,
+     "trip_s": 13.234152625
+    },
+    "R3of5": {
+     "index": 1300,
+     "trip_s": 13.223026
+    },
+    "R4of8": {
+     "index": 1301,
+     "trip_s": 13.234152625
+    },
+    "EWMA": {
+     "index": 1297,
+     "trip_s": 13.187448375
+    },
+    "MED5": {
+     "index": 1300,
+     "trip_s": 13.223026
+    }
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "product-laya-A-r2.json.gz",
+   "window": 0,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1870,
+   "req_rate": 98.42105263157895,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.0179165,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "product-laya-A-r2.json.gz",
+   "window": 1,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1870,
+   "req_rate": 98.42105263157895,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.015021,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "product-laya-A-r2.json.gz",
+   "window": 2,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1867,
+   "req_rate": 98.26315789473684,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.0195,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "product-laya-A-r2.json.gz",
+   "window": 3,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1866,
+   "req_rate": 98.21052631578948,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.0273335,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "product-laya-A-r2.json.gz",
+   "window": 4,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1866,
+   "req_rate": 98.21052631578948,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.025166500000001,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "product-laya-A-r2.json.gz",
+   "window": 5,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1863,
+   "req_rate": 98.05263157894737,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.035041,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "product-laya-A-r3.json.gz",
+   "window": 0,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1871,
+   "req_rate": 98.47368421052632,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.014834,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "product-laya-A-r3.json.gz",
+   "window": 1,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1872,
+   "req_rate": 98.52631578947368,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.013458499999999,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "product-laya-A-r3.json.gz",
+   "window": 2,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1871,
+   "req_rate": 98.47368421052632,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.011,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "product-laya-A-r3.json.gz",
+   "window": 3,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1871,
+   "req_rate": 98.47368421052632,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.010292,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "product-laya-A-r3.json.gz",
+   "window": 4,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1868,
+   "req_rate": 98.3157894736842,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.031833,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  },
+  {
+   "study": "production-eval",
+   "issue": "#103",
+   "run": "product-laya-A-r3.json.gz",
+   "window": 5,
+   "cell": "A",
+   "reference": "A",
+   "t_a_s": 1.0,
+   "n": 1868,
+   "req_rate": 98.3157894736842,
+   "host_slow_share": 0.0,
+   "median_e2e_ms": 10.0316875,
+   "m_a_ms": 10.020875,
+   "truth": {
+    "slow_spans": 0,
+    "longest_run": 0,
+    "spans": 19,
+    "sustained": false
+   },
+   "detectors": {
+    "C2": null,
+    "C3": null,
+    "R3of5": null,
+    "R4of8": null,
+    "EWMA": null,
+    "MED5": null
+   }
+  }
+ ]
+}
