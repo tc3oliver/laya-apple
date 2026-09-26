@@ -24,6 +24,11 @@ MLX GPU，兩個引擎同時服務。從 v1.0 開始，這樣的分工就讓短�
 長時間持有 GIL 的問題。Runtime 會監看這條較快的路徑，一旦持續變慢，就退回已知安全的 1.4 同步
 路徑。在 `execution="workers"`、`device="auto"` 下預設開啟，不需要再改程式。
 
+![GPU 已經算完，但結果卡在同步 Core ML predict 持有的 GIL 前面；改用非同步 Core ML 後結果直接通過，GPU 結果回傳從 8.60 降到 0.043 ms；接著是一段非同步路徑變慢的實測紀錄，以及受控恢復實驗中 1.5 偵測到變慢、退回 1.4 路徑並恢復：12 個 episode 全部在 164–414 ms 內恢復](https://raw.githubusercontent.com/tc3oliver/laya-apple/main/docs/media/release15-social.gif)
+
+前 10 秒是示意動畫。畫面上每個數字的來源：
+[`docs/media/release15-social.md`](docs/media/release15-social.md)。
+
 | 相較於 1.4 路徑（一台 Apple M4 Max） | laya | laya-typed-decisions |
 |---|---:|---:|
 | GPU 回傳（P50） | 4.28–4.29 → **0.035–0.037 ms** | 8.60 → **0.043 ms** |
