@@ -17,6 +17,14 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   choice is recorded in the new `RuntimeInfo.model_routing` field (stable codes, see
   `docs/api.md`) and in `Result.extra["routing"]`, upstream's routing block, which
   `Result.to_dict()` now returns as a top-level `routing` key, as upstream's Router does.
+- **`Laya.predict_shortlist`, off by default** (`laya_apple/shortlist.py`, adapted from
+  upstream laya v0.3.20 `laya/shortlist.py`). For high-cardinality `choice` questions it
+  keeps the top `k` labels by cosine similarity of a caller-supplied `embed_fn`, then runs
+  one `predict`. `predict` is unchanged and still scores every criterion. Also
+  `shortlist_choice` and `embed_fn_from_laya` (mean-pools the checkpoint's MLX encoder,
+  inline execution). The shortlist metadata is in `Result.extra["shortlist"]`, which
+  `Result.to_dict()` now returns as a top-level key, as upstream's dict has it. No accuracy
+  claim: upstream's reported BANKING77 figures are not remeasured here.
 
 ## [1.5.0] - 2026-09-26
 

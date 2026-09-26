@@ -15,6 +15,9 @@ Import these from the top-level `laya_apple` package:
 | `Laya.from_pretrained(model_id, device="auto", *, dtype="float16", local_files_only=False, batch_size=16, execution="inline", ane_placement="auto", ane_startup="wait", trace=None, ane_handoff=None)` | Loads a pinned checkpoint. Invalid arguments raise `ValueError`. Every other failure raises a `LayaAppleError` subclass |
 | `Laya.from_pretrained("auto", ...) -> LayaRouter` (since 1.6) | Language routing between `laya` and `laya-multilingual`, the decision `laya-apple serve --model auto` and upstream's Router make. Both checkpoints load with the given arguments. `LayaRouter` has `predict`, `submit`, `apredict`, `close`, `wait_for_ane`, `info` and the context manager, with the same contracts as `Laya`. The chosen checkpoint is `RuntimeInfo.model`, why is `RuntimeInfo.model_routing`, and upstream's routing block (`model`, `repo`, `reason`, `detection`, `workflow`) is `Result.extra["routing"]` and the `routing` key of `to_dict()`. The `reason` text is not stable |
 | `Laya.predict(context=None, questions=None, *, state=None) -> Result` | Blocking and thread-safe |
+| `Laya.predict_shortlist(context=None, questions=None, *, state=None, embed_fn, k=20) -> Result` (since 1.6) | Opt-in, never used by `predict`. Upstream's `predict_shortlist`: each `choice` question with more than `k` labels is cut to the `k` labels whose `embed_fn` vectors are most cosine-similar to the state's, then one `predict` runs on the reduced questions. `Result.extra["shortlist"][qid]` (and the `shortlist` key of `to_dict()`) holds `labels`, `scores`, `k`, `n`, `passthrough`. Probabilities on a shortlisted choice are over the kept labels only. An invalid `k` or `embed_fn` raises `ValueError`, a malformed question `InvalidRequestError` |
+| `shortlist_choice(state, criteria, embed_fn, k=20, *, instructions=None) -> list` (since 1.6) | The top-`k` labels of one choice question, in rank order; all labels in their order, without calling `embed_fn`, when `k` covers them |
+| `embed_fn_from_laya(laya, max_length=512, batch_size=32)` (since 1.6) | An `embed_fn` that mean-pools the checkpoint's own MLX encoder. Needs `execution="inline"` and device `gpu` or `auto`; otherwise raises `BackendUnavailableError` |
 | `Laya.submit(...) -> concurrent.futures.Future[Result]` | Same arguments as `predict` |
 | `await Laya.apredict(...) -> Result` | Same arguments as `predict` |
 | `Laya.close()`, `with Laya.from_pretrained(...) as laya:` | Idempotent. Queued work fails with `BackendUnavailableError` |
@@ -113,8 +116,9 @@ These are not covered by SemVer:
   attributes;
 - every submodule other than `laya_apple.errors`: `laya_apple.routing`, `scheduling`,
   `executor`, `artifacts`, `lifecycle`, `profiles`, `derivation`, `backends`,
-  `conversion`, `parity`, `schema`, `workload`, `benchmark`, `serve`, `lang`, and `router`
-  other than `LayaRouter` (use the CLI and the HTTP API);
+  `conversion`, `parity`, `schema`, `workload`, `benchmark`, `serve`, `lang`, `router`
+  other than `LayaRouter`, and `shortlist` other than the names above (use the CLI and the
+  HTTP API);
 - the bundled data files, except the manifest schema;
 - everything under `scripts/`.
 

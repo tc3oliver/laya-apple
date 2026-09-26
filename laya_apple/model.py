@@ -639,6 +639,20 @@ class Laya:
         answers = format_answers(prep, logits, act, self.calibration)
         return self._result(prep, decision, backend, buckets, answers, t0, time.monotonic_ns(), request_id)
 
+    def predict_shortlist(self, context=None, questions=None, *, state=None, embed_fn, k: int = 20) -> Result:
+        """Opt-in embedding shortlist (upstream's `predict_shortlist`, laya_apple/shortlist.py):
+        rank each choice question's labels by cosine similarity between `embed_fn(state)` and
+        `embed_fn(option)`, keep the top `k`, and run one `predict` on the reduced questions.
+        Other questions, and choices with at most `k` labels, pass through unchanged. The
+        result's `extra["shortlist"][qid]` holds `labels`, `scores`, `k`, `n`, `passthrough`;
+        a shortlisted choice's probabilities are over the kept labels only. `embed_fn(texts)`
+        returns one vector per string; `laya_apple.embed_fn_from_laya(laya)` mean-pools this
+        checkpoint's own MLX encoder (inline execution)."""
+        from .shortlist import predict_shortlist
+
+        context, questions = self._request(context, questions, state)
+        return predict_shortlist(self, context, questions, embed_fn, k)
+
     def submit(self, context=None, questions=None, *, state=None) -> Future:
         """Queue a request; the Future resolves to a Result or raises the request's error."""
         if self.execution == "inline":
