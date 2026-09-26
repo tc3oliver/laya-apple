@@ -62,6 +62,23 @@ def ane_placement_for(model: str) -> str:
     return table["models"][model]["ane"]
 
 
+def _check_ane_handoff(ane_handoff, model: str, execution: str, device: str, ane_placement: str) -> None:
+    """Raise ValueError unless ane_handoff is False, or True on an eligible configuration:
+    execution="workers", device="auto", and the ANE on a thread by this model's measured
+    placement (not an override: laya-multilingual's is "process", and never uses it)."""
+    if ane_handoff is not True and ane_handoff is not False:
+        raise ValueError(f"ane_handoff must be True or False, got {ane_handoff!r}")
+    if not ane_handoff:
+        return
+    measured = ane_placement_for(model)
+    placement = measured if ane_placement == "auto" else ane_placement
+    if execution != "workers" or device != "auto" or placement != "thread" or measured != "thread":
+        raise ValueError(
+            'ane_handoff=True applies only to execution="workers", device="auto" with the ANE on a thread by '
+            f"the model's measured placement ({model}: {measured!r}; requested {ane_placement!r})"
+        )
+
+
 def _coremltools_available() -> bool:
     try:
         import coremltools  # noqa: F401
@@ -90,6 +107,9 @@ class _GPUView:
 class Laya:
     """A loaded checkpoint plus the backends its `device` setting allows."""
 
+    ane_handoff = False  # the staged Core ML handoff (opt-in); set per instance by __init__
+    _handoff = None
+
     def __init__(
         self,
         spec: ModelSpec,
@@ -102,6 +122,7 @@ class Laya:
         ane_placement: str = "auto",
         ane_startup: str = "wait",
         trace: TraceCallback | None = None,
+        ane_handoff: bool = False,
     ):
         if device not in routing.DEVICES:
             raise ValueError(f"device must be one of {routing.DEVICES}, got {device!r}")
@@ -127,6 +148,9 @@ class Laya:
         if ane_placement not in ANE_PLACEMENTS:
             raise ValueError(f"ane_placement must be one of {ANE_PLACEMENTS}, got {ane_placement!r}")
         self.ane_placement = ane_placement_for(spec.name) if ane_placement == "auto" else ane_placement
+        _check_ane_handoff(ane_handoff, spec.name, execution, device, ane_placement)
+        self.ane_handoff = ane_handoff
+        self._handoff = None  # laya_apple.handoff.StagedHandoff when the staged handoff is in use
         self.config = json.loads((checkpoint / "rl_agent_config.json").read_text())
         self._encoder_cfg = json.loads((checkpoint / "encoder/config.json").read_text())
         self.tokenizer = Tokenizer(checkpoint / "tokenizer")
@@ -166,6 +190,7 @@ class Laya:
         ane_placement: str = "auto",
         ane_startup: str = "wait",
         trace: TraceCallback | None = None,
+        ane_handoff: bool = False,
     ) -> "Laya":
         """Load a pinned checkpoint.
 
@@ -180,12 +205,22 @@ class Laya:
         routes to MLX with reason "ane_starting".
         trace (workers only): called with one laya_apple.trace.RequestTrace per completed
         request (see laya_apple/trace.py); None, the default, records nothing.
+        ane_handoff: opt in to the staged Core ML handoff of an in-process ANE
+        (laya_apple/handoff.py, docs/guide.md). False, the default, is the path of earlier
+        releases. True needs execution="workers", device="auto" and a model whose ANE runs on
+        a thread (ValueError otherwise, before anything loads), plus both devices started,
+        pyobjc-framework-CoreML, and asynchronous models that pass their load checks
+        (BackendUnavailableError otherwise).
         """
         if device not in routing.DEVICES:
             raise ValueError(f"device must be one of {routing.DEVICES}, got {device!r}")
         if execution not in EXECUTIONS:
             raise ValueError(f"execution must be one of {EXECUTIONS}, got {execution!r}")
         spec = resolve(model_id)
+        if ane_handoff is not False:  # checked before any download; the default path is unchanged
+            if ane_placement not in ANE_PLACEMENTS:
+                raise ValueError(f"ane_placement must be one of {ANE_PLACEMENTS}, got {ane_placement!r}")
+            _check_ane_handoff(ane_handoff, spec.name, execution, device, ane_placement)
         path = checkpoint_path(spec, local_files_only=local_files_only)
         verify_weights(spec, path)
         return cls(
@@ -198,6 +233,7 @@ class Laya:
             ane_placement=ane_placement,
             ane_startup=ane_startup,
             trace=trace,
+            ane_handoff=ane_handoff,
         )
 
     def _routing_profile(self):
@@ -304,6 +340,7 @@ class Laya:
             raise BackendUnavailableError(
                 "device='ane' needs coremltools: install the [ane] extra (uv sync --extra ane)"
             )
+        gpu_activity = self._handoff_activity(want_ane)
         # Launch every worker first, then wait: the devices load in parallel.
         if want_ane:
             ane_args = dict(
@@ -312,10 +349,14 @@ class Laya:
                 buckets=list(self.spec.ane_buckets),  # auto also loads the tie band for queue-aware routing
                 strict=self.device == "ane",
             )
+            if gpu_activity is not None:
+                ane_args["async_models"] = True
             self._workers["ane"] = DeviceWorker("ane", ane_args, placement=self.ane_placement, wait=False)
         if self.device in ("auto", "gpu"):
             gpu_args = dict(common, dtype=self.dtype, batch_size=batch_size)
             self._workers["gpu"] = DeviceWorker("gpu", gpu_args, placement="process", wait=False)
+            if gpu_activity is not None:
+                self._workers["gpu"].activity = gpu_activity  # before any submit
         background = want_ane and self.ane_startup == "background"
         for kind, w in self._workers.items():
             if not (background and kind == "ane"):
@@ -330,6 +371,41 @@ class Laya:
             self._ane_thread.start()
         elif want_ane:
             self._finish_ane()
+
+    def _handoff_activity(self, want_ane: bool):
+        """With ane_handoff=True (arguments already checked by _check_ane_handoff), create the
+        staged handoff and return the GpuActivity the GPU worker feeds, or raise
+        BackendUnavailableError when this machine cannot run it. With False (the default),
+        None: nothing is imported or loaded for it."""
+        if not self.ane_handoff:
+            return None
+        if not want_ane:
+            why = f"the ANE is not started ({self.ane_state.unavailable or 'no ANE bucket for this model'})"
+        else:
+            from .backends.coreml_async import unavailable_reason
+
+            why = unavailable_reason()
+        if why is not None:
+            raise BackendUnavailableError(f"ane_handoff=True cannot be used: {why}")
+        from .handoff import GpuActivity, StagedHandoff
+
+        activity = GpuActivity()
+        self._handoff = StagedHandoff(activity)
+        return activity
+
+    def _attach_handoff(self, worker) -> None:
+        """Give the loaded in-process ANE backend the staged handoff, or raise
+        BackendUnavailableError if its asynchronous Core ML models did not load or failed their
+        load checks (ane_handoff=True asked for them)."""
+        handoff, backend = self._handoff, worker._backend
+        if handoff is None:
+            return
+        error = getattr(backend, "async_error", None)
+        if error is not None or not getattr(backend, "async_models", None):
+            reason = f"{type(error).__name__}: {error}" if error is not None else "no async Core ML model loaded"
+            handoff.disable(f"async Core ML load failed: {reason}")
+            raise BackendUnavailableError(f"ane_handoff=True: the asynchronous Core ML path is unavailable: {reason}")
+        backend.handoff = handoff
 
     def _finish_ane_background(self):
         try:
@@ -348,6 +424,8 @@ class Laya:
             worker = self._workers.pop("ane", None)
             if worker is not None:
                 worker.close()
+            if self._handoff is not None:
+                self._handoff.disable("ANE startup failed")
             self.ane_state = routing.AneState(routing.RUNTIME_UNAVAILABLE)
 
     def _finish_ane(self):
@@ -363,12 +441,16 @@ class Laya:
         if self.device == "auto":
             self._warn_rejected(load_errors)
         if shapes.buckets:
+            self._attach_handoff(worker)  # before auto routing can send a request to the ANE
             self.ane = shapes
             auto = tuple(b for b in shapes.buckets if b in self.spec.auto_ane_buckets)
             self._tie_buckets = tuple(b for b in shapes.buckets if b not in self.spec.auto_ane_buckets)
             self.ane_state = routing.AneState(None, auto if self.device == "auto" else shapes.buckets)
         else:
             self._workers.pop("ane").close()
+            if self._handoff is not None:
+                self._handoff.disable("no ANE bucket loaded")
+                raise BackendUnavailableError("ane_handoff=True: no ANE bucket loaded")
             self.ane_state = routing.AneState(None, ())
 
     def wait_for_ane(self, timeout: float | None = None) -> bool:
@@ -656,7 +738,7 @@ class Laya:
         return Result(answers={}, usage={"input_tokens": 0, "output_tokens": 0}, runtime=runtime)
 
     def info(self) -> dict:
-        return {
+        info = {
             "model": self.spec.name,
             "repo": self.spec.repo,
             "revision": self.spec.revision,
@@ -678,3 +760,6 @@ class Laya:
                 "tie_buckets": list(self._tie_buckets),
             },
         }
+        if self.ane_handoff:  # opt-in only: info() is unchanged without it
+            info["ane_handoff"] = self._handoff.snapshot() if self._handoff is not None else None
+        return info

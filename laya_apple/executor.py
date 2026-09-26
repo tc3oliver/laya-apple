@@ -56,7 +56,15 @@ def load_backend(kind: str, args: dict):
         return MLXBackend(spec, ckpt, args["pad_id"], dtype=args["dtype"], batch_size=args["batch_size"])
     from .backends.coreml_ane import ANEBackend
 
-    return ANEBackend(spec, ckpt, args["pad_id"], args["local_attention"], args["buckets"], strict=args["strict"])
+    return ANEBackend(
+        spec,
+        ckpt,
+        args["pad_id"],
+        args["local_attention"],
+        args["buckets"],
+        strict=args["strict"],
+        async_models=bool(args.get("async_models", False)),  # ane_handoff=True only
+    )
 
 
 def warm(kind: str, backend, pad_id: int) -> None:
@@ -135,7 +143,14 @@ class DeviceWorker:
 
     A job's Future resolves to (logits, act, queue_enter_ns, dispatch_ns, service_start_ns,
     service_end_ns), all time.monotonic_ns().
+
+    `activity` (optional, set by the owner before the first submit; ane_handoff=True only): an
+    object with started() and ended(), such as laya_apple.handoff.GpuActivity. submit() calls
+    started() for every job and ended() exactly once when that job's Future is done, whatever
+    the outcome: a result, an error, a cancellation, a dead worker, or a job failed by close().
     """
+
+    activity = None
 
     def __init__(
         self, kind: str, args: dict, *, placement: str = "process", start_timeout: float = 600.0, wait: bool = True
@@ -279,6 +294,10 @@ class DeviceWorker:
     def submit(self, rows, estimate_ms: float, job_id: int) -> Future:
         """Queue one job; `job_id` (the request's id) names it on the worker protocol."""
         fut: Future = Future()
+        activity = self.activity
+        if activity is not None:
+            activity.started()
+            fut.add_done_callback(lambda _f: activity.ended())
         if self._dead is not None:
             fut.set_exception(BackendUnavailableError(f"{self.kind} worker is not running: {self._dead}"))
             return fut

@@ -170,6 +170,65 @@ If the ANE worker process dies:
   issued once;
 - explicit `device="ane"` requests keep raising.
 
+### Staged Core ML handoff (in-process ANE, opt-in)
+
+**Off by default.** `Laya(..., ane_handoff=True)` turns it on. The default,
+`ane_handoff=False`, is the path of earlier releases, unchanged: nothing of the handoff is
+imported or loaded, every ANE forward runs coremltools' `predict`, and `info()` has no
+`ane_handoff` key. Enabling it by default is a release decision that has not been made.
+
+With the ANE on a thread in your process, coremltools' `predict` holds the GIL for much of
+each ANE call, which delays the GPU worker's completions in your process. Core ML's
+asynchronous prediction API with prebound buffers (`backends/coreml_async.py`) avoids that,
+but at the start of a period where both devices are busy its threads can stay on the
+efficiency cores. The staged handoff (`laya_apple/handoff.py`) combines the two:
+
+- Outside a GPU+ANE overlap, every ANE forward runs coremltools' `predict`, as before.
+- When an ANE forward arrives while the GPU worker has work queued or running (or finished
+  it at most 1.0 s earlier), an episode starts. Its first 64 ANE forwards still run
+  coremltools' `predict` (forward 64 included); from forward 65 on they run the asynchronous
+  path.
+- The episode ends, and the next overlap starts again with 64 synchronous forwards, when the
+  GPU has been idle for more than 1.0 s or no ANE forward came for more than 1.0 s.
+- Only real requests move the state: no background thread, no timer, no sleep, no CPU
+  counters, no QoS call and no private API.
+- The guard counts ANE forwards, one per ANE job, not client requests. Tie-band forwards
+  (longer buckets that queue-aware routing sends to the ANE when the GPU is backed up) count
+  too. The load-time warm-up does not.
+
+Both paths run the same verified artifact on `CPU_AND_NE` in FP16; only the Python call
+into Core ML differs. At load, each asynchronous bucket's outputs must be identical to the
+coremltools model's (names, shapes, dtypes and values, on the pad probe and on one non-pad
+row), and it must pass the placement probe's ratio. With `ane_handoff=True`,
+`info()["ane_handoff"]` reports the state, the guard, the episode count, the forwards per
+path, whether it is disabled and why, and whether its state is consistent.
+
+**Eligibility.** `ane_handoff` must be `True` or `False`. `True` needs all of these:
+- `execution="workers"` and `device="auto"`, and a model whose measured ANE placement is
+  `thread` (`laya`, `laya-typed-decisions`), not overridden to `process`. `laya-multilingual`,
+  whose ANE runs in a worker process, never uses it, even with `ane_placement="thread"`.
+  Otherwise `Laya.from_pretrained` raises `ValueError` before anything is downloaded or
+  loaded.
+- The ANE path starts (coremltools installed, a validated platform, at least one bucket).
+- `pyobjc-framework-CoreML` is importable (it is part of the `ane` extra) and Core ML has the
+  asynchronous prediction API.
+- The asynchronous models load and pass their load checks.
+
+The last three raise `BackendUnavailableError` at start-up. With `ane_startup="background"`,
+a failure there is an ANE start-up failure: one warning, and `auto` routes to MLX with
+`ane_runtime_unavailable`.
+
+**Failures.** The synchronous coremltools path is the production path the handoff starts
+from, not a fallback device: a request never changes device, compute units, artifact or
+precision because of the handoff.
+- If an asynchronous predict fails or does not complete within 5 s, that request fails with
+  its error (it is not re-run on the other path), the handoff is disabled with one warning,
+  and every later ANE forward runs coremltools' `predict`.
+- If the handoff ever finds its own state inconsistent, it disables itself the same way.
+
+The evidence and its status are in
+[`research/coreml-staged-handoff/`](../research/coreml-staged-handoff/).
+
 ## The ANE path: building artifacts
 
 `device="ane"` and the auto-ANE path need a Core ML artifact for the exact
