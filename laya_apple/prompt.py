@@ -13,7 +13,10 @@ from __future__ import annotations
 
 import json
 import math
+import threading
 import warnings
+from array import array
+from collections import OrderedDict
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -30,10 +33,59 @@ _DEFAULT_NOUL_LABELS = {"false": "false", "true": "true"}
 # ----------------------------------------------------------------------------- tokenizer
 
 
+# Token-id cache for Tokenizer.encode. A request tokenizes its context once and each question's
+# instruction and option texts once; agents re-send the same questions with a new context, or
+# the same context with new questions, so most of those texts repeat across calls. The key is
+# the exact text and the cache belongs to one Tokenizer, so a hit returns the ids that
+# tokenizer would compute. Its size is bounded by TOKEN_CACHE_BUDGET cost units, where one
+# entry costs len(text) + len(ids) (at most ~4 bytes per unit, so ~16 MB of data), and by
+# TOKEN_CACHE_ENTRIES entries; a text costing more than TOKEN_CACHE_MAX_ENTRY is never kept.
+TOKEN_CACHE_ENTRIES = 4096
+TOKEN_CACHE_BUDGET = 4_000_000
+TOKEN_CACHE_MAX_ENTRY = 500_000
+
+
+class TokenCache:
+    """A thread-safe LRU of text -> token ids, bounded by entry count and total cost."""
+
+    def __init__(self, entries: int = TOKEN_CACHE_ENTRIES, budget: int = TOKEN_CACHE_BUDGET):
+        self.entries, self.budget = entries, budget
+        self.cost = 0
+        self._data: OrderedDict[str, array] = OrderedDict()
+        self._lock = threading.Lock()
+
+    def __len__(self) -> int:
+        return len(self._data)
+
+    def get(self, text: str) -> list[int] | None:
+        with self._lock:
+            ids = self._data.get(text)
+            if ids is None:
+                return None
+            self._data.move_to_end(text)
+        return ids.tolist()  # a fresh list: callers may modify it
+
+    def put(self, text: str, ids: list[int]) -> None:
+        cost = len(text) + len(ids)
+        if cost > min(TOKEN_CACHE_MAX_ENTRY, self.budget) or self.entries < 1:
+            return
+        stored = array("i", ids)  # int32: token ids fit
+        with self._lock:
+            old = self._data.pop(text, None)
+            if old is not None:
+                self.cost -= len(text) + len(old)
+            self._data[text] = stored
+            self.cost += cost
+            while len(self._data) > self.entries or self.cost > self.budget:
+                key, value = self._data.popitem(last=False)
+                self.cost -= len(key) + len(value)
+
+
 class Tokenizer:
     """The checkpoint's Rust tokenizer, without Transformers or torch."""
 
     def __init__(self, path):
+        self.cache: TokenCache | None = TokenCache()  # None: tokenize every text every time
         from tokenizers import Tokenizer as Backend
 
         path = Path(path)
@@ -52,7 +104,13 @@ class Tokenizer:
             setattr(self, name + "_id", token_id)
 
     def encode(self, text: str) -> list[int]:
-        return self.backend.encode(text, add_special_tokens=False).ids
+        cache = self.cache
+        if cache is not None and (ids := cache.get(text)) is not None:
+            return ids
+        ids = self.backend.encode(text, add_special_tokens=False).ids
+        if cache is not None:
+            cache.put(text, ids)
+        return ids
 
 
 # ----------------------------------------------------------------------------- schema
