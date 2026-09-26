@@ -13,9 +13,10 @@ import numpy as np
 from ..errors import BackendUnavailableError
 from ..registry import DTYPES, ModelSpec
 
-# Opt-in compiled forward (mx.compile). Off by default: it is not yet shown to be bitwise
-# identical to the eager forward (fused kernels may round differently), only expected to stay
-# inside the FP16 parity gate with identical decisions (tests/integration/test_mlx_compile_checkpoints.py).
+# Opt-in compiled forward (mx.compile). It was bitwise identical to the eager forward on every
+# golden row of all three models (FP16 and FP32, M4 Max, MLX 0.32.2;
+# tests/integration/test_mlx_compile_checkpoints.py prints it); off by default until a
+# benchmark shows it pays.
 COMPILE_ENV = "LAYA_APPLE_MLX_COMPILE"
 # A compiled graph is traced per input shape, so the compiled path pads each batch's length up
 # to a multiple of COMPILE_LENGTH_STEP and its option count up to a power of two: at most
