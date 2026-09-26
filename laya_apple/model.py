@@ -62,10 +62,14 @@ def ane_placement_for(model: str) -> str:
     return table["models"][model]["ane"]
 
 
-def _check_ane_handoff(ane_handoff, model: str, execution: str, device: str, ane_placement: str) -> None:
+def _check_ane_handoff(
+    ane_handoff, model: str, execution: str, device: str, ane_placement: str, ane_startup: str = "wait"
+) -> None:
     """Raise ValueError unless ane_handoff is False, or True on an eligible configuration:
-    execution="workers", device="auto", and the ANE on a thread by this model's measured
-    placement (not an override: laya-multilingual's is "process", and never uses it)."""
+    execution="workers", device="auto", ane_startup="wait", and the ANE on a thread by this
+    model's measured placement (not an override: laya-multilingual's is "process", and never
+    uses it). ane_startup="background" is rejected: a background start-up cannot raise to the
+    caller, so an async load failure there could only be a warning."""
     if ane_handoff is not True and ane_handoff is not False:
         raise ValueError(f"ane_handoff must be True or False, got {ane_handoff!r}")
     if not ane_handoff:
@@ -77,6 +81,8 @@ def _check_ane_handoff(ane_handoff, model: str, execution: str, device: str, ane
             'ane_handoff=True applies only to execution="workers", device="auto" with the ANE on a thread by '
             f"the model's measured placement ({model}: {measured!r}; requested {ane_placement!r})"
         )
+    if ane_startup != "wait":
+        raise ValueError('ane_handoff=True needs ane_startup="wait": its load failure must raise, not warn')
 
 
 def _coremltools_available() -> bool:
@@ -148,7 +154,7 @@ class Laya:
         if ane_placement not in ANE_PLACEMENTS:
             raise ValueError(f"ane_placement must be one of {ANE_PLACEMENTS}, got {ane_placement!r}")
         self.ane_placement = ane_placement_for(spec.name) if ane_placement == "auto" else ane_placement
-        _check_ane_handoff(ane_handoff, spec.name, execution, device, ane_placement)
+        _check_ane_handoff(ane_handoff, spec.name, execution, device, ane_placement, ane_startup)
         self.ane_handoff = ane_handoff
         self._handoff = None  # laya_apple.handoff.StagedHandoff when the staged handoff is in use
         self.config = json.loads((checkpoint / "rl_agent_config.json").read_text())
@@ -220,7 +226,7 @@ class Laya:
         if ane_handoff is not False:  # checked before any download; the default path is unchanged
             if ane_placement not in ANE_PLACEMENTS:
                 raise ValueError(f"ane_placement must be one of {ANE_PLACEMENTS}, got {ane_placement!r}")
-            _check_ane_handoff(ane_handoff, spec.name, execution, device, ane_placement)
+            _check_ane_handoff(ane_handoff, spec.name, execution, device, ane_placement, ane_startup)
         path = checkpoint_path(spec, local_files_only=local_files_only)
         verify_weights(spec, path)
         return cls(

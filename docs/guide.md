@@ -209,14 +209,14 @@ path, whether it is disabled and why, and whether its state is consistent.
   whose ANE runs in a worker process, never uses it, even with `ane_placement="thread"`.
   Otherwise `Laya.from_pretrained` raises `ValueError` before anything is downloaded or
   loaded.
+- `ane_startup="wait"` (the default). `ane_startup="background"` raises `ValueError`: a
+  background start-up cannot raise its load failure to the caller.
 - The ANE path starts (coremltools installed, a validated platform, at least one bucket).
 - `pyobjc-framework-CoreML` is importable (it is part of the `ane` extra) and Core ML has the
   asynchronous prediction API.
 - The asynchronous models load and pass their load checks.
 
-The last three raise `BackendUnavailableError` at start-up. With `ane_startup="background"`,
-a failure there is an ANE start-up failure: one warning, and `auto` routes to MLX with
-`ane_runtime_unavailable`.
+The last three raise `BackendUnavailableError` at start-up.
 
 **Failures.** The synchronous coremltools path is the production path the handoff starts
 from, not a fallback device: a request never changes device, compute units, artifact or

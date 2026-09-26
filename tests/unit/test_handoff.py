@@ -20,6 +20,7 @@ import importlib.util
 import json
 import random
 import threading
+import time
 import warnings
 from concurrent.futures import CancelledError
 from pathlib import Path
@@ -297,7 +298,20 @@ def test_activity_on_dead_worker(fake_backends):
     w._dead = BackendUnavailableError("gone")
     with pytest.raises(BackendUnavailableError):
         w.submit(ROW, 1.0, 1).result(5)
-    assert w.activity.inflight == 0
+    assert w.activity.inflight == 0 and w.activity._last_end_ns is None  # never counted as activity
+    assert not w.activity.active(time.monotonic_ns(), 10**9)
+    w.close()
+
+
+def test_dead_gpu_worker_cannot_start_a_handoff_episode(fake_backends):
+    w, _ = gpu_worker(fake_backends)
+    w._dead = BackendUnavailableError("gone")
+    h = handoff.StagedHandoff(w.activity, guard=2)
+    for i in range(5):
+        with pytest.raises(BackendUnavailableError):
+            w.submit(ROW, 1.0, i).result(5)
+        assert h.decide()[:2] == ("sync", handoff.ARMED)
+    assert h.episodes == 0
     w.close()
 
 
@@ -765,22 +779,22 @@ def test_forced_handoff_async_load_failure_raises(fake_workers):
     assert laya.ane is None
 
 
-def test_forced_handoff_background_async_failure_is_a_startup_failure(fake_workers):
-    fake_workers.async_error = BackendUnavailableError("Core ML could not load")
-    laya = make_laya("laya", ane_handoff=True, startup="background")
-    with pytest.warns(RuntimeWarning, match="ANE startup failed"):
-        laya._start_workers(16)
-        assert laya.wait_for_ane(5) is False
-    assert laya.ane_state.unavailable == routing.RUNTIME_UNAVAILABLE and "ane" not in laya._workers
+@pytest.mark.parametrize("entry", ["init", "from_pretrained"])
+def test_handoff_with_background_startup_is_rejected(entry, monkeypatch):
+    """A background start-up cannot raise to the caller, so ane_handoff=True refuses it outright."""
+    if entry == "init":
+        with pytest.raises(ValueError, match='ane_startup="wait"'):
+            model._check_ane_handoff(True, "laya", "workers", "auto", "auto", "background")
+        return
+    monkeypatch.setattr(model, "checkpoint_path", lambda *a, **k: pytest.fail("download attempted"))
+    with pytest.raises(ValueError, match='ane_startup="wait"'):
+        model.Laya.from_pretrained(
+            "laya", device="auto", execution="workers", ane_handoff=True, ane_startup="background"
+        )
 
 
-def test_background_startup_attaches_handoff(fake_workers):
-    laya = make_laya("laya", ane_handoff=True, startup="background")
-    laya._start_workers(16)
-    assert laya.wait_for_ane(5)
-    w = workers_of(fake_workers)
-    assert w["ane"]._backend.handoff is laya._handoff and laya._handoff.enabled
-    assert w["ane"].args["async_models"] is True
+def test_background_startup_without_handoff_is_unchanged():
+    model._check_ane_handoff(False, "laya", "workers", "auto", "auto", "background")  # no error
 
 
 def test_close_mid_episode(fake_backends):

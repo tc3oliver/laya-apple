@@ -295,7 +295,10 @@ class DeviceWorker:
         """Queue one job; `job_id` (the request's id) names it on the worker protocol."""
         fut: Future = Future()
         activity = self.activity
-        if activity is not None:
+        # With the handoff (activity attached), a dead worker's job never counts as GPU activity, so
+        # it cannot start a handoff episode; alive also notices a process that exited unreported.
+        # Without it (the default), submit is unchanged.
+        if activity is not None and self.alive:
             activity.started()
             fut.add_done_callback(lambda _f: activity.ended())
         if self._dead is not None:
