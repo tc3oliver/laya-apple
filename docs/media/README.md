@@ -2,6 +2,7 @@
 
 | Files | Sources |
 |---|---|
+| `release15-social.gif`, `release15-social.mp4` | [`release15-social.md`](release15-social.md) |
 | `jev-local.gif`, `jev-local.mp4` | [`jev-local.md`](jev-local.md) |
 | `switchyard-launch.gif`, `switchyard-launch.mp4` | [`switchyard-launch.md`](switchyard-launch.md) |
 | `switchyard-gpu-only.png`, `switchyard-gpu-ane.png`, `switchyard-result.png` | [`switchyard.md`](switchyard.md) |

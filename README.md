@@ -25,6 +25,11 @@ execution, which avoids the synchronous path's long GIL hold. The runtime watche
 path, and on a sustained slowdown falls back to the known-safe 1.4 synchronous path. With
 `execution="workers"` and `device="auto"` it is on by default and needs no other code change.
 
+![The GPU finishes but its result waits on the GIL held by the synchronous Core ML predict; with asynchronous Core ML it goes straight through, GPU result return 8.60 to 0.043 ms; then a recorded run where the asynchronous path turns slow, and a controlled recovery test where 1.5 detects it, falls back to the 1.4 path and recovers: 12 of 12 within 164–414 ms](https://raw.githubusercontent.com/tc3oliver/laya-apple/main/docs/media/release15-social.gif)
+
+The first 10 s are a schematic. Sources for every number on screen:
+[`docs/media/release15-social.md`](docs/media/release15-social.md).
+
 | vs the 1.4 path (one Apple M4 Max) | laya | laya-typed-decisions |
 |---|---:|---:|
 | GPU return (P50) | 4.28–4.29 → **0.035–0.037 ms** | 8.60 → **0.043 ms** |
