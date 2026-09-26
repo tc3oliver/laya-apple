@@ -53,7 +53,7 @@ under [Re-running everything](#re-running-everything).
 | `laya-apple serve`: 792 of 792 requests match unmodified upstream `laya.serve` 0.3.20 within the FP16 parity gate (1.3.0, not v1.0) | [`benchmarks/serve-compat/README.md`](../benchmarks/serve-compat/README.md), "Results" | `benchmarks/serve-compat/*.json`: `passed` per file and per case, 9 files, 792 cases | `scripts/upstream_serve_pinned.py`, `laya-apple serve --preload typed-decisions`, then `scripts/compare_serve_upstream.py` per file ([Reproduce](../benchmarks/serve-compat/README.md#reproduce)) | count `cases[].passed` over the 9 files | "Setup" in the report; not recorded in the files |
 | `laya-apple serve`: 365 of those answered on the Neural Engine | same | `benchmarks/serve-compat/*-split.json`, `cases[].ours_device == "ane"` (122 + 121 + 122) | the `--split` runs above | count `ours_device` | same |
 | `laya-apple serve`: tested unmodified with 7 Jev clients | [`integrations/jev-plugins/README.md`](../integrations/jev-plugins/README.md) | [`integrations/jev-plugins/runs/2026-09-25.md`](../integrations/jev-plugins/runs/2026-09-25.md): versions, install and run commands, decoded output per client | by hand, per client, as in the run record | — | `integrations/jev-plugins/README.md`, "Tested" (Apple M4 Max); macOS not recorded |
-| `laya-apple serve` beside a local LLM (run 2, 1.4.0, not v1.0): short-decision P99 with the LLM busy 47.2 ms (`auto`) against 122.3 ms (`--device gpu`); LLM idle 43.2 and 55.9 ms | [`benchmarks/serve/README.md`](../benchmarks/serve/README.md), run 2; [`m4-max-r2/tables.md`](../benchmarks/serve/m4-max-r2/tables.md), "Decisions" | `benchmarks/serve/m4-max-r2/results.json`: `cells.<config>/<kind>.classes.short_1q.p99_ms_median`; per-window raw data in `m4-max-r2/raw/` | `benchmarks/serve/run.sh benchmarks/serve/<machine>` ([Run](../benchmarks/serve/README.md#run)) | `benchmarks/serve/analyze.py benchmarks/serve/m4-max-r2` | `raw/campaign.json`, `platform` (Apple M4 Max, macOS 26.6.2); LLM server version in `llm_status_start` |
+| `laya-apple serve` beside a local LLM (run 2, 1.3.0, not v1.0): short-decision P99 with the LLM busy 47.2 ms (`auto`) against 122.3 ms (`--device gpu`); LLM idle 43.2 and 55.9 ms | [`benchmarks/serve/README.md`](../benchmarks/serve/README.md), run 2; [`m4-max-r2/tables.md`](../benchmarks/serve/m4-max-r2/tables.md), "Decisions" | `benchmarks/serve/m4-max-r2/results.json`: `cells.<config>/<kind>.classes.short_1q.p99_ms_median`; per-window raw data in `m4-max-r2/raw/` | `benchmarks/serve/run.sh benchmarks/serve/<machine>` ([Run](../benchmarks/serve/README.md#run)) | `benchmarks/serve/analyze.py benchmarks/serve/m4-max-r2` | `raw/campaign.json`, `platform` (Apple M4 Max, macOS 26.6.2); LLM server version in `llm_status_start` |
 | Same run: LLM 42.2 tok/s alone, −4.0% beside serve `auto`, −5.3% beside `--device gpu`; the 1.31-point gap against the 1.28-point LLM-alone window spread (G1, G2) | same, "LLM throughput" and "Criteria" | `results.json`: `cells.llm_alone.llm_tok_s_median`, `llm_tok_s_drop`, `llm_alone_noise`, `results.gpu_free` | same | same | same |
 | Same run: 0 hard mismatches and 0 errors over 7,728 decisions, max probability error 0.0039 (C1, E1) | same, "Decisions" and "Criteria" | `results.json`: `results.correctness`; `n`, `hard_mismatches`, `errors` per cell and class (4 cells × (1,572 + 360)) | same | same | same |
 | Same run: about 4% of `auto` short decisions on the GPU by the backlog spill (130 of 3,144) | same, "Validity" (V4) | `results.json`: `validity.V4_auto_short_policy_path.spill_share_windows`; `cells.auto/*.classes.short_1q.devices.gpu` (67 + 63) | same | same | same |
@@ -61,21 +61,20 @@ under [Re-running everything](#re-running-everything).
 | Serve run 1 is invalid (V2 and V4 failed) | [`benchmarks/serve/README.md`](../benchmarks/serve/README.md#run-1-m4-max-invalid) | `benchmarks/serve/m4-max/results.json`: `valid`, `validity` | — | `benchmarks/serve/analyze.py benchmarks/serve/m4-max` | `m4-max/raw/campaign.json` |
 | Adaptive ANE execution (1.5.0, not v1.0): 154 production episodes of laya and laya-typed-decisions all stayed on the fast path; GPU return 0.035–0.043 ms against 4.28–8.60 ms on the 1.4 path; throughput 1.038–1.042×; median episode P99 0.18–0.53 ms lower; 0 mismatches, routing failures, lost requests or crashes | [`research/coreml-adaptive-breaker/val_tables.md`](../research/coreml-adaptive-breaker/val_tables.md) | `research/coreml-adaptive-breaker/val_results.json`: `phases.<2,3,5>.stats`; raw runs in `raw-val/` | `research/coreml-adaptive-breaker/scripts/run_val.sh <phase>` ([`validation.md`](../research/coreml-adaptive-breaker/validation.md)) | `research/coreml-adaptive-breaker/scripts/val_analyze.py` | `raw-val/*.before.json` / `.after.json` (machine), `runtime` in each run |
 | Adaptive ANE execution recovery: in 12 of 12 slow episodes the breaker tripped within 40 ms and latency was A-like within 164–414 ms; the slow state's median short latency 12.3 ms against 10.0 ms | [`research/coreml-adaptive-breaker/phase1_tables.md`](../research/coreml-adaptive-breaker/phase1_tables.md) | `phase1_results.json`: `stats.R` and `stats.worst_recovery`; the slow state from the B rows of `episodes` (`median_ms`) against `reference.m_a_ms`; raw runs in `raw/` | `research/coreml-adaptive-breaker/scripts/run_phase1.sh` ([`phase1.md`](../research/coreml-adaptive-breaker/phase1.md)) | `research/coreml-adaptive-breaker/scripts/phase1_analyze.py` | `raw/*.before.json` / `.after.json`, `runtime` in each run |
+| Switchyard (1.1.0, not v1.0): late trains 1,407–1,408 / 1,422 GPU-only against 0 / 1,422 GPU + ANE; P99 decision latency 3,107.7–3,170.6 against 54.5–54.7 ms; P99 queue wait 3,095.9–3,158.8 against 39.6–42.8 ms; three runs | [`benchmarks/switchyard/README.md`](../benchmarks/switchyard/README.md), "v1-m4-max" | `benchmarks/switchyard/v1-m4-max/raw/run-00{1,2,3}/result.json` | `benchmarks/switchyard/run.sh benchmarks/switchyard/v1-m4-max` | `scripts/switchyard_report.py benchmarks/switchyard/v1-m4-max` | `result.json`: `machine`, `laya_apple`, `rounds[].conditions` |
 
-The README figure `docs/readme/serve-llm-load.svg` is drawn from the run-2 `results.json`
+The figure `docs/readme/serve-llm-load.svg` in [`serve.md`](serve.md#beside-a-local-llm) is drawn from the run-2 `results.json`
 and `raw/campaign.json` above by `scripts/generate_readme_svgs.py`, which refuses a run
 that is not valid under its own checks; `--check` fails if the committed figure differs
 from the data.
 
-Three README figures are not benchmark data:
-- the Quickstart output (`high`, its probabilities and 11.2 ms);
-- "probabilities within 0.002" on `device="gpu"`;
+Two README figures are not benchmark data:
+- the Quickstart output (`high` and 11.2 ms), from running the Quickstart; re-run it to see
+  the values on your machine;
 - the `laya-apple serve` terminal figure (`docs/readme/serve-demo.svg`, answer `fix_code`
   on the ANE). It is one recorded session, `docs/readme/serve-demo.json`, captured by
-  `scripts/capture_serve_demo.py` and rendered by `scripts/generate_readme_svgs.py`.
-
-The first two come from running the Quickstart; re-run it to see the values on your
-machine. Re-run `scripts/capture_serve_demo.py` for the third.
+  `scripts/capture_serve_demo.py` and rendered by `scripts/generate_readme_svgs.py`; re-run
+  the capture script to record it again.
 
 ## Re-running everything
 

@@ -124,6 +124,12 @@ current goldens covers more rows and is not the same measurement.
   ([`architecture.md`](architecture.md#runtime-placement-probe)).
 - **On demand.** `laya-apple parity MODEL --device gpu|ane` runs the gate
   against the shipped goldens.
+- **The 1.5 asynchronous path.** Adaptive ANE execution runs the same verified artifact
+  through Core ML's asynchronous API. At load, its outputs must be identical to coremltools'.
+  On the goldens, every forward it serves must pass the FP16 gate and equal coremltools'
+  output exactly (same logits, same activations), on every present bucket of every eligible
+  model (`tests/parity/test_ane_async_parity.py`;
+  [`no-silent-fallback.md`](no-silent-fallback.md), row 22).
 
 ## Option order
 

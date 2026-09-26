@@ -101,6 +101,18 @@ This is the same "no silent fallback" policy the runtime applies everywhere else
 [`no-silent-fallback.md`](no-silent-fallback.md)): an unvalidated configuration is never
 quietly used as if it were validated.
 
+## Not measured
+
+laya-apple makes no claim about the following, because none of them has been measured, or
+measured beyond the community data points above:
+
+- **Energy use.** No power or efficiency figure exists for MLX, the ANE or GPU + ANE
+  serving, and no routing decision uses one.
+- **Quantized artifacts.** Every ANE artifact is FP16 and every MLX path FP16 or FP32; no
+  quantized model has passed, or been run through, the parity gate.
+- **Cross-SoC validation** beyond the community data points above: routing thresholds and
+  ANE placement are not assumed to hold on another SoC.
+
 ## Where to look for more detail
 
 - Per-model, per-compute-unit validation status, exact pinned revisions and weight
