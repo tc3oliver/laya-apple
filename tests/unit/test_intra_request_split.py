@@ -23,9 +23,18 @@ def _load(name, path):
 
 
 sys.path.insert(0, str(SCRIPTS))
-split = _load("irs_split_for_tests", SCRIPTS / "split.py")
-design = _load("irs_design_for_tests", SCRIPTS / "design.py")
-analyze = _load("irs_analyze_for_tests", SCRIPTS / "analyze.py")
+try:
+    split = _load("irs_split_for_tests", SCRIPTS / "split.py")
+    design = _load("irs_design_for_tests", SCRIPTS / "design.py")
+    analyze = _load("irs_analyze_for_tests", SCRIPTS / "analyze.py")
+finally:
+    # The scripts import each other by plain name (common, design, split). Other research tracks'
+    # tests use the same names for their own scripts: leave nothing of ours behind for them.
+    sys.path.remove(str(SCRIPTS))
+    for _name in ("common", "design", "split"):
+        _mod = sys.modules.get(_name)
+        if _mod is not None and Path(getattr(_mod, "__file__", "") or "").parent == SCRIPTS:
+            del sys.modules[_name]
 CRITERIA = json.loads((SCRIPTS.parent / "criteria.json").read_text())
 
 
