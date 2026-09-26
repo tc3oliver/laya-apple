@@ -117,7 +117,7 @@ class LayaRouter:
     """`laya` and `laya-multilingual` behind one `predict`, chosen per request by language.
 
     Built by `Laya.from_pretrained("auto", ...)` (or `LayaRouter.from_pretrained`), which loads
-    both checkpoints with the same arguments. `predict`, `submit`, `apredict`, `close`,
+    both checkpoints with the same arguments. `predict`, `predict_shortlist`, `submit`, `apredict`, `close`,
     `wait_for_ane` and the context manager behave as on `Laya`."""
 
     model = AUTO
@@ -169,6 +169,15 @@ class LayaRouter:
     def predict(self, context=None, questions=None, *, state=None):
         decision = self.route(context, questions, state=state)
         result = self.instances[decision["checkpoint"]].predict(context, questions, state=state)
+        return self._annotate(result, decision)
+
+    def predict_shortlist(self, context=None, questions=None, *, state=None, embed_fn, k: int = 20):
+        """`Laya.predict_shortlist` on the checkpoint the language router chooses for this state.
+        The result carries both `extra["shortlist"]` and `extra["routing"]`. For the chosen
+        checkpoint's own encoder, pass `embed_fn_from_laya(router.instances[name])`."""
+        decision = self.route(context, questions, state=state)
+        laya = self.instances[decision["checkpoint"]]
+        result = laya.predict_shortlist(context, questions, state=state, embed_fn=embed_fn, k=k)
         return self._annotate(result, decision)
 
     def submit(self, context=None, questions=None, *, state=None) -> Future:

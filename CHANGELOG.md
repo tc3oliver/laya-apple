@@ -25,6 +25,7 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   inline execution). The shortlist metadata is in `Result.extra["shortlist"]`, which
   `Result.to_dict()` now returns as a top-level key, as upstream's dict has it. No accuracy
   claim: upstream's reported BANKING77 figures are not remeasured here.
+  `LayaRouter.predict_shortlist` runs it on the checkpoint the language router chooses.
 
 ## [1.5.0] - 2026-09-26
 

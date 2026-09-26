@@ -8,6 +8,7 @@ import asyncio
 import dataclasses
 from concurrent.futures import Future
 
+import numpy as np
 import pytest
 
 from laya_apple import Laya, LayaRouter, router, serve
@@ -37,6 +38,11 @@ class FakeLaya:
     def predict(self, context=None, questions=None, *, state=None):
         self.calls.append((context, questions, state))
         return self._result(questions)
+
+    def predict_shortlist(self, context=None, questions=None, *, state=None, embed_fn, k=20):
+        from laya_apple.shortlist import predict_shortlist
+
+        return predict_shortlist(self, state if state is not None else context, questions, embed_fn, k)
 
     def submit(self, context=None, questions=None, *, state=None):
         fut: Future = Future()
@@ -181,3 +187,24 @@ def test_plain_result_is_unchanged():
     result = FakeLaya("laya").predict("s", QUESTIONS)
     assert result.runtime.model_routing is None and "routing" not in result.to_dict()
     assert dataclasses.asdict(result.runtime)["model_routing"] is None
+
+
+def test_predict_shortlist_runs_on_the_routed_checkpoint():
+    labels = [f"label_{i}" for i in range(5)]
+    questions = {"intent": {"type": "choice", "instructions": "", "criteria": labels}}
+    state = "修正失敗的測試，然後重新執行"
+    vectors = {state: [1.0, 0.0], "label_3": [1.0, 0.0], "label_1": [0.7, 0.7]}
+
+    def embed(texts):
+        return np.array([vectors.get(t, [0.0, 1.0]) for t in texts])
+
+    r = make_router()
+    result = r.predict_shortlist(state, questions, embed_fn=embed, k=2)
+    assert result.runtime.model == "laya-multilingual"
+    assert result.runtime.model_routing == router.LANGUAGE_NON_LATIN_SCRIPT
+    assert result.extra["shortlist"]["intent"]["labels"] == ["label_3", "label_1"]
+    assert result.extra["routing"]["model"] == "multilingual"
+    ((context, sent, _state),) = r.instances["laya-multilingual"].calls
+    assert sent["intent"]["criteria"] == ["label_3", "label_1"]
+    assert r.instances["laya"].calls == []
+    assert set(result.to_dict()) >= {"shortlist", "routing"}
