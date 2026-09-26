@@ -340,8 +340,8 @@ bucket. If the system evicts its cache, the next load pays it again.
 - **Warm after eviction.** `laya-apple artifacts warm MODEL` pays Core ML's on-device ANE
   compile ahead of the first request.
 
-**Moving artifacts between machines.** Artifacts are never downloaded. You can build them
-once and carry them to another machine yourself:
+**Moving artifacts between machines.** Artifacts are never downloaded implicitly: loading a
+model never fetches one. You can build them once and carry them to another machine yourself:
 
 ```bash
 laya-apple artifacts export laya-typed-decisions --out exports/   # one .tar.gz per offered bucket
@@ -357,6 +357,23 @@ An import is registered only after the receiving machine has checked, itself:
 - the full parity gate against the shipped goldens (the checkpoint must be downloaded).
 
 The local results are recorded in the manifest under `imported`.
+
+**Prebuilt artifacts** (since 1.6). `laya-apple artifacts fetch MODEL [--length L ...]
+[--repo OWNER/NAME] [--revision REV]` downloads `artifacts export` archives from a Hugging
+Face repository and registers each one through the same import, so every check above runs on
+this machine. In addition:
+- the archive's SHA-256 must match the repository's `index.json`;
+- only archives built on this machine's platform profile (same SoC, macOS major and
+  coremltools) are selected. Any other profile gets `ArtifactMissingError`, which names the
+  build command;
+- each fetched bucket is loaded once and must pass the runtime placement probe.
+
+A download is trusted no more than a local build. The repository is `--repo`, or
+`LAYA_APPLE_PREBUILT_REPO`. A default repository is not published yet, so without either
+the command raises and names the alternatives. Fetching removes the build and its PyTorch
+dependency. It does not remove Core ML's on-device ANE compile, which still runs once when
+the artifact is first loaded at its registered location. `research/coreml-compile-cache/`
+is the measurement plan for that cost.
 
 ### Artifact provenance
 
@@ -463,6 +480,7 @@ laya-apple artifacts warm [MODEL] [--length L ...]
 laya-apple artifacts prune [--yes]
 laya-apple artifacts export MODEL [--length L ...] [--out DIR]
 laya-apple artifacts import ARCHIVE.tar.gz [--force]
+laya-apple artifacts fetch MODEL [--length L ...] [--repo OWNER/NAME] [--revision REV] [--force]
 laya-apple calibrate [MODEL ...] [--warmup N] [--iters N]
 laya-apple parity MODEL [--device gpu|ane] [--dtype float16|float32]
 laya-apple benchmark MODEL [--device auto|gpu|ane] [--lengths L ...] [--questions N] [--warmup N] [--iters N] [--output FILE]

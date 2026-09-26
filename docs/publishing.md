@@ -98,3 +98,43 @@ gh workflow run release.yml --ref main -f tag=v1.0.1
 The workflow then builds that tag's source, with the same checks as a tag push. It refuses
 a ref other than `main`, a tag that is not `vX.Y.Z`, and any tag but the newest, so an old
 version cannot be published by accident. It never creates or changes a tag.
+
+## Prebuilt ANE artifacts (Hugging Face)
+
+`laya-apple artifacts fetch` reads a Hugging Face model repository of `artifacts export`
+archives plus an `index.json` (`laya_apple/prebuilt.py`). Publishing one needs the
+maintainer's Hugging Face account and is never done by CI or by an automated agent. Nothing
+is uploaded from the package itself.
+
+**Before the first upload**, check that redistribution is allowed. The archives contain the
+checkpoint's weights, converted, so each model's license on Hugging Face applies to them.
+State that license in the repository card and link each source checkpoint at its pinned
+revision.
+
+**Once:**
+1. Create the repository on huggingface.co: a model repository, public, named as you
+   choose (the code's placeholder is `tc3oliver/laya-apple-artifacts`).
+2. Log in on the build machine with `hf auth login`, using a token with write access to that
+   repository only. The token stays in the Hugging Face credential store, never in this
+   repository.
+3. In a release PR, set `DEFAULT_PREBUILT_REPO` in `laya_apple/prebuilt.py` to that id and
+   `DEFAULT_REPO_PUBLISHED = True`, only after the first upload below is complete.
+
+**For each platform profile** (SoC, macOS major, coremltools version), on a machine of that
+profile whose artifacts are built and validated (`laya-apple artifacts verify` passes):
+
+```bash
+export LAYA_APPLE_CACHE=<cache> HF_HUB_OFFLINE=1
+STAGE=<empty staging directory>
+# Merge with what is already published (skip on the very first upload):
+hf download <owner>/<repo> index.json --repo-type model --local-dir "$STAGE"
+uv run python scripts/publish_prebuilt.py --out "$STAGE" --repo <owner>/<repo>
+# Check the printed list and "$STAGE/index.json", then:
+hf upload <owner>/<repo> "$STAGE" . --repo-type model --commit-message "Add prebuilt ANE artifacts for <profile>"
+```
+
+**Afterwards:** on a *second* machine of the same profile, run `laya-apple artifacts fetch
+MODEL --repo <owner>/<repo>` into an empty `LAYA_APPLE_CACHE`, then `laya-apple artifacts
+verify MODEL`. The fetch must pass the parity gate and the placement probe there before the
+repository is announced. A pinned model revision change needs new archives. Old archives
+stay under their old revision's directory and are never selected for the new pin.

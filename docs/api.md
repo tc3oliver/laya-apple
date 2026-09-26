@@ -64,7 +64,7 @@ recorded in `RuntimeInfo`, never that a given request lands on a given device.
 The `laya-apple` subcommands, and their arguments as listed in the CLI reference in
 [`docs/guide.md`](guide.md), are stable:
 - `predict`, `info`, `download`;
-- `artifacts build|list [--capabilities]|verify|warm|prune|export|import`;
+- `artifacts build|list [--capabilities]|verify|warm|prune|export|import`, and `fetch` (since 1.6);
 - `parity`, `calibrate`, `benchmark`;
 - `serve` (since 1.3.0, needs the `[serve]` extra).
 
@@ -78,6 +78,8 @@ The `laya-apple` subcommands, and their arguments as listed in the CLI reference
 | Item | Contract |
 |---|---|
 | `LAYA_APPLE_CACHE`, `XDG_CACHE_HOME`, `HF_HUB_OFFLINE` | Their meaning as documented in [`docs/guide.md`](guide.md) |
+| `LAYA_APPLE_PREBUILT_REPO` (since 1.6) | The Hugging Face repository `artifacts fetch` reads when `--repo` is not given |
+| Prebuilt index, `format: "laya-apple-prebuilt-index"`, `format_version: 1` (since 1.6) | `index.json` at the root of a prebuilt-artifact repository (`laya_apple/prebuilt.py`). Entries may gain fields; a reader refuses other format versions |
 | Artifact manifest, `format: "laya-apple-artifact"`, `format_version: 1` | The shipped JSON Schema is [`laya_apple/data/manifest.schema.json`](../laya_apple/data/manifest.schema.json). Fields may be added without a version change, and readers ignore fields they do not know. Removing a field or changing its meaning requires `format_version: 2`. A release that reads v2 keeps reading v1 for at least one major version |
 | Export archive (`artifacts export`) | A `.tar.gz` holding `manifest.json` and `model.mlmodelc/` |
 | Local capability profile, `format: "laya-apple-profile"`, `format_version: 1` | `<cache>/profiles/<profile>.json` |
