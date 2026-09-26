@@ -234,6 +234,15 @@ questions at 128 tokens. `serve --model laya` ran once with `--device gpu` and o
 
 ## Limits
 
+- **Adaptive ANE execution (1.5) is on in serve by default and not measured in serve.**
+  - `serve` loads laya and laya-typed-decisions with `execution="workers"` and
+    `device="auto"`, so it uses adaptive execution ([`guide.md`](guide.md#adaptive-ane-execution-in-process-ane-the-default-since-15)).
+  - Its validation ran the library's closed-loop harness, not serve, and never beside a local
+    LLM.
+  - The "Beside a local LLM" numbers were measured on the 1.3 code path, which is the path
+    adaptive execution falls back to.
+  - Its breaker only sees GPU work from laya-apple's own worker, not from another process
+    such as the LLM.
 - **No Jev accuracy claim.** Only runtime fidelity to upstream Laya is guaranteed and tested.
 - **Client thresholds tuned on Jev** may rarely trigger on Laya's confidences (see
   "Client compatibility").

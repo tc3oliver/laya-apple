@@ -1,0 +1,102 @@
+{
+ "version": "1.5.0",
+ "quick": false,
+ "soak_seconds": 0,
+ "generated_at": "2026-09-26T19:41:09+0800",
+ "git_revision": "50707a70ddf48dc0a6336dc96f11977f9da0f7e1",
+ "git_dirty": true,
+ "python": "3.12.14 (main, Sep  1 2026, 14:09:38) [Clang 22.1.3 ]",
+ "platform_profile": {
+  "soc": "Apple M4 Max",
+  "macos": "26.6.2",
+  "macos_build": "25G83",
+  "coremltools": "9.0"
+ },
+ "steps": [
+  {
+   "name": "ruff check",
+   "status": "pass",
+   "required": true,
+   "duration_s": 0.03,
+   "output_tail": "All checks passed!\n"
+  },
+  {
+   "name": "ruff format --check",
+   "status": "pass",
+   "required": true,
+   "duration_s": 0.02,
+   "output_tail": "139 files already formatted\n"
+  },
+  {
+   "name": "derive_routing --check",
+   "status": "pass",
+   "required": true,
+   "duration_s": 0.07,
+   "output_tail": "routing.json is up to date\n"
+  },
+  {
+   "name": "make_goldens --check",
+   "status": "pass",
+   "required": true,
+   "duration_s": 0.05,
+   "output_tail": "goldens are up to date\n"
+  },
+  {
+   "name": "derive_placement --check",
+   "status": "pass",
+   "required": true,
+   "duration_s": 0.04,
+   "output_tail": "placement.json is up to date\n"
+  },
+  {
+   "name": "pytest",
+   "status": "pass",
+   "required": true,
+   "duration_s": 405.01,
+   "output_tail": "..................................... [ 98%]\n..................                                                       [100%]\n=============================== warnings summary ===============================\n.venv/lib/python3.12/site-packages/fastapi/testclient.py:1\n  ./.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.\n    from starlette.testclient import TestClient as TestClient  # noqa\n\ntests/integration/test_benchmark.py: 2 warnings\ntests/integration/test_cli.py: 2 warnings\ntests/integration/test_gpu_ane_agreement.py: 2 warnings\ntests/integration/test_predict.py: 2 warnings\ntests/integration/test_routing_e2e.py: 10 warnings\ntests/parity/test_ane_async_parity.py: 2 warnings\ntests/parity/test_ane_parity.py: 2 warnings\ntests/parity/test_mlx_parity.py: 2 warnings\ntests/integration/test_option_order.py: 2 warnings\ntests/integration/test_no_silent_fallback.py: 10 warnings\ntests/integration/test_profiles.py: 4 warnings\ntests/integration/test_request_trace_workers.py: 2 warnings\ntests/integration/test_serve_http.py: 1 warning\ntests/integration/test_switchyard.py: 6 warnings\ntests/integration/test_workers.py: 8 warnings\n  ./laya_apple/model.py:250: RuntimeWarning: laya-apple: checkpoint temperatures that are invalid or outside [0.5, 5.0] are replaced (choice:11+=0.10058280825614929 -> 0.5), as upstream does; treat confidence from those entries as uncalibrated\n    return cls(\n\ntests/parity/test_ane_async_parity.py::test_async_path_passes_parity_and_equals_coremltools[laya]\ntests/parity/test_ane_async_parity.py::test_async_path_passes_parity_and_equals_coremltools[laya-typed-decisions]\n  ./tests/parity/test_ane_async_parity.py:59: RuntimeWarning: laya-apple: checkpoint temperatures that are invalid or outside [0.5, 5.0] are replaced (choice:11+=0.10058280825614929 -> 0.5), as upstream does; treat confidence from those entries as uncalibrated\n    summary = evaluate(\n\ntests/parity/test_ane_parity.py::test_ane_passes_parity_gate_for_each_present_bucket[laya]\ntests/parity/test_ane_parity.py::test_ane_passes_parity_gate_for_each_present_bucket[laya-typed-decisions]\n  ./tests/parity/test_ane_parity.py:24: RuntimeWarning: laya-apple: checkpoint temperatures that are invalid or outside [0.5, 5.0] are replaced (choice:11+=0.10058280825614929 -> 0.5), as upstream does; treat confidence from those entries as uncalibrated\n    summary = evaluate(\n\ntests/parity/test_mlx_parity.py::test_mlx_passes_parity_gate[laya-float16]\ntests/parity/test_mlx_parity.py::test_mlx_passes_parity_gate[laya-float32]\ntests/parity/test_mlx_parity.py::test_mlx_passes_parity_gate[laya-typed-decisions-float16]\ntests/parity/test_mlx_parity.py::test_mlx_passes_parity_gate[laya-typed-decisions-float32]\n  ./tests/parity/test_mlx_parity.py:15: RuntimeWarning: laya-apple: checkpoint temperatures that are invalid or outside [0.5, 5.0] are replaced (choice:11+=0.10058280825614929 -> 0.5), as upstream does; treat confidence from those entries as uncalibrated\n    summary = evaluate(\n\ntests/unit/test_prompt.py::test_answers_match_upstream_on_every_golden[laya]\ntests/unit/test_prompt.py::test_answers_match_upstream_on_every_golden[laya-typed-decisions]\n  ./.venv/lib/python3.12/site-packages/_pytest/fixtures.py:1005: RuntimeWarning: laya-apple: checkpoint temperatures that are invalid or outside [0.5, 5.0] are replaced (choice:11+=0.10058280825614929 -> 0.5), as upstream does; treat confidence from those entries as uncalibrated\n    fixture_result = fixturefunc(**kwargs)\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n1305 passed, 9 skipped, 68 warnings in 403.48s (0:06:43)\n"
+  },
+  {
+   "name": "clean install matrix",
+   "status": "pass",
+   "required": true,
+   "duration_s": 53.04,
+   "output_tail": "    \"name\": \"numpy\",\n    \"bytes\": 20357655\n   },\n   {\n    \"name\": \"tokenizers\",\n    \"bytes\": 9968754\n   },\n   {\n    \"name\": \"hf_xet\",\n    \"bytes\": 8152433\n   },\n   {\n    \"name\": \"huggingface_hub\",\n    \"bytes\": 3292749\n   },\n   {\n    \"name\": \"mlx\",\n    \"bytes\": 2116934\n   },\n   {\n    \"name\": \"laya_apple\",\n    \"bytes\": 1706168\n   },\n   {\n    \"name\": \"safetensors\",\n    \"bytes\": 1213241\n   },\n   {\n    \"name\": \"fsspec\",\n    \"bytes\": 810762\n   },\n   {\n    \"name\": \"pyyaml\",\n    \"bytes\": 608301\n   }\n  ]\n },\n {\n  \"python\": \"3.11\",\n  \"extra\": \"ane\",\n  \"ok\": true,\n  \"installed_size_bytes\": 376909824,\n  \"top_distributions\": [\n   {\n    \"name\": \"mlx_metal\",\n    \"bytes\": 209269287\n   },\n   {\n    \"name\": \"sympy\",\n    \"bytes\": 26842474\n   },\n   {\n    \"name\": \"pyobjc_core\",\n    \"bytes\": 24171111\n   },\n   {\n    \"name\": \"numpy\",\n    \"bytes\": 19621377\n   },\n   {\n    \"name\": \"coremltools\",\n    \"bytes\": 12252231\n   },\n   {\n    \"name\": \"tokenizers\",\n    \"bytes\": 9968754\n   },\n   {\n    \"name\": \"hf_xet\",\n    \"bytes\": 8152433\n   },\n   {\n    \"name\": \"huggingface_hub\",\n    \"bytes\": 3292746\n   },\n   {\n    \"name\": \"pyobjc_framework_cocoa\",\n    \"bytes\": 2585415\n   },\n   {\n    \"name\": \"mlx\",\n    \"bytes\": 2116932\n   }\n  ]\n },\n {\n  \"python\": \"3.12\",\n  \"extra\": \"base\",\n  \"ok\": true,\n  \"installed_size_bytes\": 277225472,\n  \"top_distributions\": [\n   {\n    \"name\": \"mlx_metal\",\n    \"bytes\": 209269287\n   },\n   {\n    \"name\": \"numpy\",\n    \"bytes\": 20580374\n   },\n   {\n    \"name\": \"tokenizers\",\n    \"bytes\": 9968754\n   },\n   {\n    \"name\": \"hf_xet\",\n    \"bytes\": 8152433\n   },\n   {\n    \"name\": \"huggingface_hub\",\n    \"bytes\": 3292725\n   },\n   {\n    \"name\": \"mlx\",\n    \"bytes\": 2117150\n   },\n   {\n    \"name\": \"laya_apple\",\n    \"bytes\": 1706160\n   },\n   {\n    \"name\": \"safetensors\",\n    \"bytes\": 1213241\n   },\n   {\n    \"name\": \"fsspec\",\n    \"bytes\": 810762\n   },\n   {\n    \"name\": \"pyyaml\",\n    \"bytes\": 606237\n   }\n  ]\n },\n {\n  \"python\": \"3.12\",\n  \"extra\": \"ane\",\n  \"ok\": true,\n  \"installed_size_bytes\": 374657024,\n  \"top_distributions\": [\n   {\n    \"name\": \"mlx_metal\",\n    \"bytes\": 209269287\n   },\n   {\n    \"name\": \"sympy\",\n    \"bytes\": 26842466\n   },\n   {\n    \"name\": \"pyobjc_core\",\n    \"bytes\": 25376655\n   },\n   {\n    \"name\": \"numpy\",\n    \"bytes\": 18796226\n   },\n   {\n    \"name\": \"coremltools\",\n    \"bytes\": 12235783\n   },\n   {\n    \"name\": \"tokenizers\",\n    \"bytes\": 9968754\n   },\n   {\n    \"name\": \"hf_xet\",\n    \"bytes\": 8152433\n   },\n   {\n    \"name\": \"huggingface_hub\",\n    \"bytes\": 3292722\n   },\n   {\n    \"name\": \"pyobjc_framework_cocoa\",\n    \"bytes\": 2585592\n   },\n   {\n    \"name\": \"mlx\",\n    \"bytes\": 2117148\n   }\n  ]\n },\n {\n  \"python\": \"3.13\",\n  \"extra\": \"base\",\n  \"ok\": true,\n  \"installed_size_bytes\": 276922368,\n  \"top_distributions\": [\n   {\n    \"name\": \"mlx_metal\",\n    \"bytes\": 209269287\n   },\n   {\n    \"name\": \"numpy\",\n    \"bytes\": 20562534\n   },\n   {\n    \"name\": \"tokenizers\",\n    \"bytes\": 9968754\n   },\n   {\n    \"name\": \"hf_xet\",\n    \"bytes\": 8152433\n   },\n   {\n    \"name\": \"huggingface_hub\",\n    \"bytes\": 3292725\n   },\n   {\n    \"name\": \"mlx\",\n    \"bytes\": 2117326\n   },\n   {\n    \"name\": \"laya_apple\",\n    \"bytes\": 1706160\n   },\n   {\n    \"name\": \"safetensors\",\n    \"bytes\": 1213241\n   },\n   {\n    \"name\": \"fsspec\",\n    \"bytes\": 810762\n   },\n   {\n    \"name\": \"pyyaml\",\n    \"bytes\": 605677\n   }\n  ]\n },\n {\n  \"python\": \"3.13\",\n  \"extra\": \"ane\",\n  \"ok\": true,\n  \"installed_size_bytes\": 374276096,\n  \"top_distributions\": [\n   {\n    \"name\": \"mlx_metal\",\n    \"bytes\": 209269287\n   },\n   {\n    \"name\": \"sympy\",\n    \"bytes\": 26842466\n   },\n   {\n    \"name\": \"pyobjc_core\",\n    \"bytes\": 25378341\n   },\n   {\n    \"name\": \"numpy\",\n    \"bytes\": 18760114\n   },\n   {\n    \"name\": \"coremltools\",\n    \"bytes\": 12236535\n   },\n   {\n    \"name\": \"tokenizers\",\n    \"bytes\": 9968754\n   },\n   {\n    \"name\": \"hf_xet\",\n    \"bytes\": 8152433\n   },\n   {\n    \"name\": \"huggingface_hub\",\n    \"bytes\": 3292722\n   },\n   {\n    \"name\": \"pyobjc_framework_cocoa\",\n    \"bytes\": 2585496\n   },\n   {\n    \"name\": \"mlx\",\n    \"bytes\": 2117324\n   }\n  ]\n }\n]"
+  },
+  {
+   "name": "artifacts verify",
+   "status": "pass",
+   "required": true,
+   "duration_s": 14.15,
+   "output_tail": "OK    laya L64 f6263eb65898\nOK    laya L96 1d0eb7da1015\nOK    laya L128 85ee23bf8edc\nOK    laya-multilingual L64 5501b83508f5\nOK    laya-multilingual L96 8fcc0f79e982\nOK    laya-multilingual L128 62c1f978aec1\nOK    laya-multilingual L256 044e8e748edc\nOK    laya-typed-decisions L64 1273fcd30495\nOK    laya-typed-decisions L96 4145579a0a09\nOK    laya-typed-decisions L128 5db688bf7803\n"
+  },
+  {
+   "name": "manifest schema",
+   "status": "pass",
+   "required": true,
+   "duration_s": 0.0,
+   "output_tail": "10 manifest(s) validated"
+  },
+  {
+   "name": "no silent fallback tests",
+   "status": "pass",
+   "required": true,
+   "duration_s": 0.01,
+   "output_tail": "15 reference(s) all resolved"
+  },
+  {
+   "name": "docs versions",
+   "status": "pass",
+   "required": true,
+   "duration_s": 0.0,
+   "output_tail": "pyproject.toml and CHANGELOG.md agree on version '1.5.0'"
+  },
+  {
+   "name": "soak",
+   "status": "skipped",
+   "required": false,
+   "duration_s": 0.0,
+   "output_tail": "skipped: --soak not given (0 seconds)"
+  }
+ ],
+ "passed": true
+}

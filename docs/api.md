@@ -30,7 +30,7 @@ Import these from the top-level `laya_apple` package:
 - `device`, `execution`, `ane_placement`, `dtype`;
 - `mlx`, `ane_buckets`, `ane_load_errors`;
 - `routing_profile`, `ane_ready`, `auto_ane`;
-- `ane_handoff` (since 1.5), present only on instances eligible for adaptive execution: its state, and whether it is enabled and why not.
+- `ane_handoff` (since 1.5), present only on instances eligible for adaptive execution: its state, and whether it is enabled and why not. When adaptive execution could not start, the dict has only `enabled`, `disabled` and `disabled_reason`.
 
 **Argument values:**
 

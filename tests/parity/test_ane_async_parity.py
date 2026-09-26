@@ -11,6 +11,7 @@ import numpy as np
 import pytest
 
 from laya_apple import Laya
+from laya_apple.errors import ArtifactError, BackendUnavailableError
 from laya_apple.model import ane_placement_for
 from laya_apple.parity import evaluate
 from laya_apple.registry import models
@@ -35,8 +36,15 @@ def test_async_path_passes_parity_and_equals_coremltools(model_name, cached_laya
     pytest.importorskip("CoreML")
     try:
         laya = Laya.from_pretrained(model_name, device="ane", local_files_only=True)
-    except Exception:
-        pytest.skip(f"{model_name}: no validated ANE artifacts present")
+    except (ArtifactError, BackendUnavailableError) as e:
+        pytest.skip(f"{model_name}: no validated ANE artifacts present ({type(e).__name__})")
+    try:
+        _check(model_name, spec, laya)
+    finally:
+        laya.close()
+
+
+def _check(model_name, spec, laya):
     backend = laya.ane
     backend._load_async(spec)
     assert backend.async_error is None, backend.async_error

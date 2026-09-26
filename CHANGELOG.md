@@ -49,6 +49,14 @@ and the published v1.0 measurements are unchanged.
 
 ### Changed
 
+- **The default Core ML call path changed for eligible instances.**
+  - laya and laya-typed-decisions with `execution="workers"` and `device="auto"` now use
+    adaptive execution unless `ane_handoff=False`. That includes `laya-apple serve`, where it
+    has not been measured.
+  - An eligible instance that cannot use it (for example an environment upgraded without
+    re-resolving the `ane` extra, so without `pyobjc-framework-CoreML`) emits one
+    `RuntimeWarning` per process. Code running with warnings as errors should install the
+    extra or pass `ane_handoff=False`.
 - **`DeviceWorker.submit` takes an optional `callback`,** attached before the job is queued,
   so it runs on the dispatcher thread before the next job. `Laya.submit` uses it, so a
   request's completion is always handled before the next forward on that device.

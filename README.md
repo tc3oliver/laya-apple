@@ -401,6 +401,8 @@ the command above and open a PR with `hardware-results/`
     from a separate 12-episode experiment on the same machine.
   - The first 64 Neural Engine requests of every GPU + ANE overlap run the 1.4 path.
   - laya-multilingual, whose Neural Engine runs in a worker process, does not use it.
+  - `laya-apple serve` uses it by default, but it was not measured in serve or beside a local
+    LLM. The serve numbers above were measured on the 1.3 path.
 - **Cold start** on a fresh artifact location costs 3–5 minutes of Core ML compile per
   model. `ane_startup="background"` serves on MLX in the meantime.
 - **`choice` decisions can depend on option order.** This comes from upstream Laya, and

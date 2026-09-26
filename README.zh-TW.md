@@ -380,6 +380,8 @@ uv run python scripts/hardware_report.py --quick
     episode 的實驗。
   - 每段 GPU + ANE 重疊的前 64 個 Neural Engine 請求走 1.4 路徑。
   - laya-multilingual 的 Neural Engine 在 worker process 中執行，不使用此功能。
+  - `laya-apple serve` 預設也會使用，但沒有在 serve 中或本機 LLM 旁量測過。上方的 serve 數據是在
+    1.3 路徑上量測的。
 - **Cold start 需要編譯：** 如果 artifact 目錄是全新的，cold start 時每個模型需要 3–5 分鐘編譯 Core ML。
   設定 `ane_startup="background"` 時，這段期間會先用 MLX 提供服務。
 - **`choice` 決策可能受選項順序影響。** 這是上游 Laya 本身的行為，laya-apple 完全照樣重現

@@ -176,8 +176,9 @@ With the ANE on a thread in your process (`laya`, `laya-typed-decisions`), corem
 `predict` holds the GIL for much of each ANE call, which delays the GPU worker's completions
 in your process. Core ML's asynchronous prediction API with prebound buffers
 (`backends/coreml_async.py`) releases it. On a contended Mac, though, that path can fall into
-a slow state: its threads sit on the efficiency cores and the median short latency rises from
-about 10.0 to 12.3 ms. Adaptive execution (`laya_apple/handoff.py`) uses the fast path while it is healthy and
+a slow state: its threads sit on the efficiency cores
+([`research/coreml-async-transient/`](../research/coreml-async-transient/README.md)) and the
+median short latency rises from about 10.0 to 12.3 ms. Adaptive execution (`laya_apple/handoff.py`) uses the fast path while it is healthy and
 falls back to the 1.4 path when it is not.
 
 **How it works:**
@@ -197,6 +198,11 @@ falls back to the 1.4 path when it is not.
   the GPU has been idle for more than 1.0 s or no ANE forward came for more than 1.0 s.
 - **Only real requests move the state:** no background thread, no timer, no sleep, no CPU
   counters, no QoS call and no private API. The breaker needs no `trace=` callback.
+- **"GPU active" means this instance's own GPU worker.** GPU work from another process, such
+  as a local LLM, does not start an episode. Without laya-apple's own GPU work, the ANE runs
+  the 1.4 path anyway.
+- **Start-up cost:** it loads a second Core ML model per ANE bucket, plus its load checks.
+  That adds to start-up time and memory; neither was measured.
 
 **Measured** on one Apple M4 Max
 ([`research/coreml-adaptive-breaker/`](../research/coreml-adaptive-breaker/README.md)):
