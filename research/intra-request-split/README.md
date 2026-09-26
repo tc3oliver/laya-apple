@@ -3,8 +3,11 @@
 This is research only. The `laya_apple` package never imports it, and nothing here changes the
 product.
 
-**Status: preregistered, no data.** The criteria are in [`criteria.json`](criteria.json), copied
-verbatim into the preregistration issue
+**Status: stopped. G1–G3 PASS; G4a INVALID (every Switchyard round failed the 5 ms client-lag
+validity rule); the serve mix was not run; no promotion to the product.** See
+[`results/verdict.md`](results/verdict.md). It also records a deviation: `analyze.py` evaluates
+the futility stop before the lag rule and so prints FAIL. The criteria are in
+[`criteria.json`](criteria.json), copied verbatim into the preregistration issue
 [#123](https://github.com/tc3oliver/laya-apple/issues/123) before any run. They do not change after data is seen.
 Harness smoke checks made while the scripts were written are not data and are not committed.
 
