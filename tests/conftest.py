@@ -11,6 +11,14 @@ from laya_apple.prompt import Calibration, Tokenizer
 from laya_apple.registry import ANE_COMPUTE_UNITS, ANE_GRAPH, ANE_MAX_OPTIONS, ANE_PRECISION, models
 
 MODEL_NAMES = list(models().keys())
+# LAYA_APPLE_TEST_MODELS=a,b limits the per-model tests to those checkpoints (the CI
+# integration job caches two of the three). Unset: every supported checkpoint.
+if os.environ.get("LAYA_APPLE_TEST_MODELS"):
+    _wanted = [m.strip() for m in os.environ["LAYA_APPLE_TEST_MODELS"].split(",") if m.strip()]
+    _unknown = sorted(set(_wanted) - set(MODEL_NAMES))
+    if _unknown:
+        raise ValueError(f"LAYA_APPLE_TEST_MODELS names unsupported checkpoints: {_unknown}")
+    MODEL_NAMES = [m for m in MODEL_NAMES if m in _wanted]
 
 
 def _hf_offline():
