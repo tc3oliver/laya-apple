@@ -213,7 +213,8 @@ def test_run_lines():
     ]
     assert va.run_lines("3")[-1] == "soak55 laya-typed-decisions P 3 128 1024 20.0"
     assert va.run_lines("4") == ["mix laya-multilingual P 1 128 512 5.0 --expect-rejected"]
-    assert va.run_lines("6") == ["soak55 laya P 1 128 512 20.0"]
+    assert va.run_lines("5") == ["productsoak laya P 1 128 512 20.0", "bursty laya A 1 128 512 20.0"]
+    assert va.ORDER == ("2", "3", "4", "5")
 
 
 def test_phase_passes_when_healthy(raw):
@@ -318,23 +319,24 @@ def test_multilingual_smoke(raw):
     assert j["status"] == "FAIL" and len(j["fail"]) == 2
 
 
-def test_soak_uses_earlier_a_references_and_extends_on_a_trigger(raw, monkeypatch):
-    # synthetic P and A have equal throughput, so move only the borderline throughput trigger
-    monkeypatch.setitem(va.BORDERLINE, "throughput_ratio", 0.99)
+def test_product_mix_soak_uses_phase_2_and_its_bursty_a_reference(raw):
     _phase(raw, "2")
     _phase(raw, "5")
-    _phase(raw, "6")
-    j = va.judge(raw, "6")
+    j = va.judge(raw, "5")
     assert j["status"] == "PASS", (j["fail"], j["invalid"])
-    assert j["stats"]["p_episodes"] == 66 and j["stats"]["a_episodes"] == 6 + 8 and not j["triggers"]
-    assert va.reruns(raw, "6") == []
-    _write(raw, "soak55-laya-P-r1", _record("soak55", "laya", "P", ["false"]))
-    j = va.judge(raw, "6")
-    assert j["status"] == "PENDING" and j["triggers"]  # r1 passes but triggers r2
-    assert va.reruns(raw, "6") == ["soak55 laya P 2 128 512 20.0"]
-    _write(raw, "soak55-laya-P-r2", _record("soak55", "laya", "P"))
-    j = va.judge(raw, "6")
-    assert j["status"] == "PASS" and j["stats"]["p_episodes"] == 132
+    st = j["stats"]
+    assert st["p_episodes"] == 64 and st["a_episodes"] == 6 + 8
+    assert set(st["by_condition"]) == {"hetero", "hetero_bursty"}
+    assert st["by_condition"]["hetero_bursty"]["p"] == 8 and not j["triggers"]
+    assert va.reruns(raw, "5") == []
+
+
+def test_product_mix_soak_needs_60_episodes(raw, monkeypatch):
+    _phase(raw, "2")
+    _phase(raw, "5")
+    monkeypatch.setattr(va, "SOAK_MIN_EPISODES", 65)
+    j = va.judge(raw, "5")
+    assert j["status"] == "FAIL" and any("soak: 64" in x for x in j["fail"])
 
 
 def test_phase_order_and_soak_minimum(raw):

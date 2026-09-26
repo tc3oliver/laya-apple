@@ -61,16 +61,17 @@ PHASES = {
         ("soak55", "laya-typed-decisions", 128, 1024, 20.0, "", (("P", 3),)),
     ],
     "4": [("mix", "laya-multilingual", 128, 512, 5.0, "--expect-rejected", (("P", 1),))],
-    "5": [("bursty", "laya", 128, 512, 20.0, "", _PAP)],
-    "6": [("soak55", "laya", 128, 512, 20.0, "", (("P", 1),))],
+    # addendum 1: phases 5 and 6 merged into one production product-mix soak; its hetero_bursty
+    # episodes get a same-day A reference (a short bursty A run), its hetero episodes phase 2's A runs
+    "5": [
+        ("productsoak", "laya", 128, 512, 20.0, "", (("P", 1),)),
+        ("bursty", "laya", 128, 512, 20.0, "", (("A", 1),)),
+    ],
 }
-# phase 6 has no A run of its own: its A reference is phases 2 and 5's A runs (same model, same day)
-REFERENCE_PHASES = {"6": ("2", "5")}
-# phase 6 runs one more soak55 P run (r2) when the first shows an unexplained trip, a borderline
-# result or an anomaly (validation.md)
-EXTENSION = {"6": ("soak55", "laya", 128, 512, 20.0, "", ("P", 2))}
-ORDER = ("2", "3", "4", "5", "6")
-NAMES = {"2": "laya", "3": "typed-decisions", "4": "multilingual smoke", "5": "product mix", "6": "soak"}
+REFERENCE_PHASES = {"5": ("2",)}
+EXTENSION: dict = {}  # addendum 1: no second soak
+ORDER = ("2", "3", "4", "5")
+NAMES = {"2": "laya", "3": "typed-decisions", "4": "multilingual smoke", "5": "product-mix soak"}
 ROUTES = {
     "solo_short": {"short": "ane"},
     "solo_long": {"long": "gpu"},
@@ -561,22 +562,33 @@ def judge(raw: Path, phase: str, extended: bool | None = None) -> dict:
         fail.append(f"product value: async residency {residency} < {ASYNC_RESIDENCY:.0%}")
     if n_p and false_trips > FALSE_TRIP_SHARE * n_p:
         fail.append(f"false trips: {false_trips} of {n_p} P episodes (> {FALSE_TRIP_SHARE:.0%})")
-    # throughput and latency against the A reference, over each episode's steady span
+    # throughput and latency against the A reference, over each episode's steady span, per condition
+    # (addendum 1: a bursty episode is compared with bursty A episodes, a hetero one with hetero A)
     ratio = dp99 = None
-    if A and P:
-        p_rate = sum(e["steady"]["completions"] for e in P) / sum(e["steady"]["seconds"] for e in P)
-        a_rate = sum(e["steady"]["completions"] for e in A) / sum(e["steady"]["seconds"] for e in A)
-        ratio = p_rate / a_rate
-        if ratio < THROUGHPUT_RATIO:
+    by_cond = {}
+    for cond in HETERO:
+        pc = [e for e in P if e["condition"] == cond]
+        ac = [e for e in A if e["condition"] == cond]
+        if not pc:
+            continue
+        if not ac:
+            invalid.append(f"no A reference for {cond}")
+            continue
+        p_rate = sum(e["steady"]["completions"] for e in pc) / sum(e["steady"]["seconds"] for e in pc)
+        a_rate = sum(e["steady"]["completions"] for e in ac) / sum(e["steady"]["seconds"] for e in ac)
+        r = p_rate / a_rate
+        p99_p = float(np.median([e["steady"]["short_p99_ms"] for e in pc]))
+        p99_a = float(np.median([e["steady"]["short_p99_ms"] for e in ac]))
+        by_cond[cond] = {"throughput_ratio": r, "episode_p99_delta_ms": p99_p - p99_a, "p": len(pc), "a": len(ac)}
+        if r < THROUGHPUT_RATIO:
             fail.append(
-                f"throughput: P {p_rate:.1f} = {ratio:.3f} x A {a_rate:.1f} completions/s (< {THROUGHPUT_RATIO})"
+                f"throughput {cond}: P {p_rate:.1f} = {r:.3f} x A {a_rate:.1f} completions/s (< {THROUGHPUT_RATIO})"
             )
-        p99_p = float(np.median([e["steady"]["short_p99_ms"] for e in P]))
-        p99_a = float(np.median([e["steady"]["short_p99_ms"] for e in A]))
-        dp99 = p99_p - p99_a
-        if dp99 > EPISODE_P99_MS:
-            fail.append(f"latency: median episode P99 {p99_p:.2f} ms > A {p99_a:.2f} + {EPISODE_P99_MS} ms")
-    if phase == "6" and n_p < SOAK_MIN_EPISODES:
+        if p99_p - p99_a > EPISODE_P99_MS:
+            fail.append(f"latency {cond}: median episode P99 {p99_p:.2f} ms > A {p99_a:.2f} + {EPISODE_P99_MS} ms")
+        ratio = r if ratio is None else min(ratio, r)
+        dp99 = p99_p - p99_a if dp99 is None else max(dp99, p99_p - p99_a)
+    if phase == "5" and n_p < SOAK_MIN_EPISODES:
         fail.append(f"soak: {n_p} P hetero episodes < {SOAK_MIN_EPISODES}")
     rec = [e["trip_to_recovery_ms"] for e in T if e.get("trip_to_recovery_ms") is not None]
     ott = [e["onset_to_trip_ms"] for e in T if e.get("onset_to_trip_ms") is not None]
@@ -608,8 +620,9 @@ def judge(raw: Path, phase: str, extended: bool | None = None) -> dict:
             "P_healthy_worst": max(gr_u) if gr_u else None,
             "A_median": _pct(a_gr, 50),
         },
-        "throughput_ratio": ratio,
+        "throughput_ratio": ratio,  # the worst condition
         "episode_p99_delta_ms": dp99,
+        "by_condition": by_cond,
         "latency_ms": {"P": _qs(p_lat), "A": _qs(a_lat)},
     }
     for e in P + A:
@@ -743,6 +756,11 @@ def tables(res: dict) -> str:
             f"{f(lat['P']['p99'])} / {f(lat['P']['p999'])}; A {f(lat['A']['median'])} / {f(lat['A']['p95'])} / "
             f"{f(lat['A']['p99'])} / {f(lat['A']['p999'])}; median episode P99 P − A {f(st['episode_p99_delta_ms'])} ms.",
             f"- A reference episodes with a sustained slow state: {st['a_sustained']}.",
+            *[
+                f"- {c}: {x['p']} P / {x['a']} A episodes; throughput P / A {f(x['throughput_ratio'], 3)}; "
+                f"median episode P99 P − A {f(x['episode_p99_delta_ms'])} ms."
+                for c, x in (st.get("by_condition") or {}).items()
+            ],
             "",
         ]
         trips = [e for e in j.get("episodes", []) if e.get("tripped")]

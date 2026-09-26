@@ -215,3 +215,36 @@ The pass needs all of the following:
 Analysis: [`scripts/val_analyze.py`](scripts/val_analyze.py), which writes `val_tables.md` and
 `val_results.json`. It was unit-tested (`tests/unit/test_breaker_validation.py`) before the first
 run. Runner: [`scripts/run_val.sh`](scripts/run_val.sh).
+
+## Addendum 1 (2026-09-26, after phase 2 PASS, during phase 3; no gate changed)
+
+The user asked for the remaining validation to be compressed so that no evidence is produced
+twice. The pins, the definitions and every gate above are unchanged. Phases 2 and 3 run as
+registered: phase 2 passed, and phase 3 completes as planned with no extra typed runs. Phase 4 runs
+as registered. Only the structure of the last two phases changes.
+
+**Phases 5 and 6 become one production product-mix soak (new phase 5).** Phase 6 and its
+conditional second soak are removed.
+- **P, 1 run, schedule `productsoak`:** 48 units of "predecessor, 1.0 s gap, hetero 8 s". The
+  predecessors cycle through idle 3 s, solo_short 4 s, solo_long 4 s, gpu_only 4 s, hetero 8 s and
+  hetero_bursty 8 s. Every hetero window is an episode: 64 new P episodes in one run (56 hetero,
+  8 bursty). They cover:
+  - idle, solo_short, solo_long and gpu_only → hetero;
+  - hetero → single device → hetero;
+  - hetero → hetero at 1.5 s;
+  - bursty hetero;
+  - the auto instance's real routing: short → ANE and long → GPU in hetero, the single-device
+    windows, and the GPU-only instance.
+- **The A reference.** Hetero episodes use phase 2's A runs, as phase 6 would have. Bursty
+  episodes need a same-day bursty reference, because their pauses change the rolling-window span
+  and the throughput. So there is one short `bursty` A run (8 episodes, about 2 min).
+- **Gates.** All the phase-5/6 gates above apply to this one data set, with these changes:
+  - the minimum is 60 new P hetero episodes;
+  - throughput and latency are compared per condition (hetero with hetero A, bursty with bursty
+    A), and every condition must pass;
+  - there is no extension run.
+- **The workload:** phases 5 + 6 were about 32 min (47 with the extension). Now they are about
+  17 min: the productsoak run about 15 min, the bursty A run about 2 min.
+
+**The release follows** when phases 2, 3, 4 and this phase 5 all pass: no Phase 7, confirmation
+run, second soak or new gate.

@@ -33,6 +33,10 @@ Windows start 0.5 s after they are scheduled, after the schedule's gap.
   - The long stream is continuous.
   - The short stream runs in bursts: closed loop for 0.4 s, then 0.2 s with no request.
   - The pauses are shorter than the 1.0 s episode gap, so each window is one episode.
+- **productsoak** (validation.md addendum 1): 48 units, each "predecessor window, 1.0 s gap,
+  hetero 8 s". The predecessors cycle through idle 3 s, solo_short 4 s, solo_long 4 s, gpu_only
+  4 s, hetero 8 s and hetero_bursty 8 s. Every hetero window is an episode: 64 per run (56 hetero,
+  8 bursty).
 - **soak55:** 55 units per run, each "predecessor window, 1.0 s gap, hetero 8 s".
   - The predecessors cycle through idle 3 s, solo_short 4 s, solo_long 4 s, gpu_only 4 s and a
     hetero 8 s window.
@@ -68,7 +72,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import bench_concurrency  # noqa: E402  #92's closed loop and stats, unchanged
 
 CELLS = ("A", "P")
-SCHEDULES = ("mix", "product", "bursty", "soak55")
+SCHEDULES = ("mix", "product", "bursty", "soak55", "productsoak")
 TRACE_COLUMNS = [
     "target",
     "submit_ns",
@@ -103,6 +107,21 @@ def schedule(name: str, seconds: float = 20.0) -> list[dict]:
         out = [{"condition": "idle", "seconds": 5.0, "gap_s": 2.0}]
         for _ in range(8):
             out.append({"condition": "hetero_bursty", "seconds": 12.0, "gap_s": 2.0})
+        return out
+    if name == "productsoak":  # validation.md addendum 1: the combined product-mix soak
+        before = [
+            ("idle", 3.0),
+            ("solo_short", 4.0),
+            ("solo_long", 4.0),
+            ("gpu_only", 4.0),
+            ("hetero", 8.0),
+            ("hetero_bursty", 8.0),
+        ]
+        out = []
+        for i in range(48):
+            c, s = before[i % len(before)]
+            out.append({"condition": c, "seconds": s, "gap_s": 1.0, "role": "before"})
+            out.append({"condition": "hetero", "seconds": 8.0, "gap_s": 1.0, "role": "episode"})
         return out
     if name == "soak55":  # evaluation.md: 55 hetero episodes per run, 11 of each predecessor kind
         before = [("idle", 3.0), ("solo_short", 4.0), ("solo_long", 4.0), ("gpu_only", 4.0), ("hetero", 8.0)]
