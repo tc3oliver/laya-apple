@@ -1,0 +1,9 @@
+<user-cache>/com.apple.metal/16777235_467
+<user-cache>/com.apple.metal/16777235_467/functions.list
+<user-cache>/com.apple.metal/32024
+<user-cache>/com.apple.metal/32024/libraries.list
+<user-cache>/com.apple.Safari.SafeBrowsing/Google
+<user-cache>/com.apple.Safari.SafeBrowsing/Google/malware,osx,url_expression
+<user-cache>/com.apple.Safari.SafeBrowsing/Google/social_engineering,osx,url_expression
+<user-cache>/com.apple.Safari.SafeBrowsing/Google/high_confidence_allowlist,osx,url_expression
+<user-cache>/com.apple.Safari.SafeBrowsing/Google/unwanted_software,osx,url_expression
