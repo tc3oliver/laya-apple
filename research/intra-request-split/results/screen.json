@@ -1,0 +1,26 @@
+{
+ "look": "screen",
+ "ratios_split_over_gpu": [
+  0.6728319855210462,
+  0.6737101074497626,
+  0.6730995847493401,
+  0.6735305342022592,
+  0.6732810500739973,
+  0.6730398029731508
+ ],
+ "geomean_split_over_gpu": 0.673248778204947,
+ "median_window_p50_ms": {
+  "split": 163.40316675,
+  "gpu": 242.66084375,
+  "laya_fast": 211.7366045
+ },
+ "split_over_laya_fast_medians": 0.7717284743271681,
+ "split_hard_mismatches": [],
+ "k": {
+  "8x512": {
+   "3": 180
+  }
+ },
+ "stopped_by": [],
+ "decision": "SCREEN CONTINUE"
+}

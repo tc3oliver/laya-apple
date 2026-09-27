@@ -1,0 +1,4831 @@
+{
+ "model": "laya",
+ "revision": "c5d78730f3493e4fe16d61507ef4b78eef7318cf",
+ "reference": "laya_apple.conversion.torch_reference (PyTorch CPU FP32, one row at a time, no padding)",
+ "fixtures_sha256": "f34cdfa7e0d9825de56798caaf06f1b9214e6d5a65c6d9f8043bda72030c028b",
+ "environment": {
+  "laya_apple": "1.5.0",
+  "git": "899401ef0378cf0acdffc68449dfe4050f491b22",
+  "python": "3.12.14",
+  "platform": {
+   "soc": "Apple M4 Max",
+   "macos": "26.6.2",
+   "macos_build": "25G83",
+   "coremltools": "9.0"
+  },
+  "loadavg": [
+   122.25439453125,
+   74.17431640625,
+   36.26171875
+  ],
+  "mlx": "0.32.2",
+  "coremltools": "9.0",
+  "numpy": "2.1.3",
+  "torch": "2.7.0",
+  "pmset_therm": [
+   "Note: No thermal warning level has been recorded",
+   "Note: No performance warning level has been recorded",
+   "Note: No CPU power status has been recorded"
+  ]
+ },
+ "workloads": {
+  "8x128": [
+   {
+    "seed": 0,
+    "answers": {
+     "q0": {
+      "type": "choice",
+      "choice": "technical",
+      "probabilities": {
+       "billing": 0.292,
+       "technical": 0.4959,
+       "account": 0.1099,
+       "other": 0.1022
+      },
+      "confidence": 0.1466,
+      "answer_confidence": 0.4959,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q1": {
+      "type": "score",
+      "score": 1.5521,
+      "legend": {
+       "0": "can wait",
+       "1": "should be handled today",
+       "2": "blocking, handle now"
+      },
+      "probabilities": {
+       "0": 0.033,
+       "1": 0.3819,
+       "2": 0.5851
+      },
+      "confidence": 0.2775,
+      "answer_confidence": 0.5851,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q2": {
+      "type": "noul",
+      "noul": 0.1145,
+      "confidence": 0.8855,
+      "answer_confidence": 0.8855,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q3": {
+      "type": "choice",
+      "choice": "negative",
+      "probabilities": {
+       "positive": 0.0082,
+       "neutral": 0.0411,
+       "negative": 0.9507
+      },
+      "confidence": 0.8009,
+      "answer_confidence": 0.9507,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q4": {
+      "type": "noul",
+      "noul": 0.3018,
+      "confidence": 0.6982,
+      "answer_confidence": 0.6982,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q5": {
+      "type": "score",
+      "score": 2.5815,
+      "legend": {
+       "0": "unclear",
+       "1": "partly clear",
+       "2": "clear",
+       "3": "very clear with evidence"
+      },
+      "probabilities": {
+       "0": 0.0175,
+       "1": 0.0838,
+       "2": 0.1984,
+       "3": 0.7003
+      },
+      "confidence": 0.3876,
+      "answer_confidence": 0.7003,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q6": {
+      "type": "noul",
+      "noul": 0.1419,
+      "confidence": 0.8581,
+      "answer_confidence": 0.8581,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q7": {
+      "type": "choice",
+      "choice": "technical",
+      "probabilities": {
+       "billing": 0.292,
+       "technical": 0.4959,
+       "account": 0.1099,
+       "other": 0.1022
+      },
+      "confidence": 0.1466,
+      "answer_confidence": 0.4959,
+      "action": {
+       "act_probability": 1.0
+      }
+     }
+    },
+    "logits": [
+     [
+      1.2760157585144043,
+      2.208029270172119,
+      -0.44460558891296387,
+      -0.5723931789398193
+     ],
+     [
+      -0.9992631673812866,
+      2.064805269241333,
+      2.5988945960998535,
+      -10000.0
+     ],
+     [
+      3.8820924758911133,
+      -0.1748042106628418,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -3.6500096321105957,
+      -0.8163294196128845,
+      4.712831497192383,
+      -10000.0
+     ],
+     [
+      2.28377628326416,
+      0.6197906732559204,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -2.140942335128784,
+      -0.180214524269104,
+      0.8982870578765869,
+      2.4764442443847656
+     ],
+     [
+      3.532081365585327,
+      -0.03780296444892883,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      1.2760157585144043,
+      2.208029270172119,
+      -0.44460558891296387,
+      -0.5723931789398193
+     ]
+    ],
+    "action_logits": [
+     [
+      4650.85498046875,
+      -3799.015625
+     ],
+     [
+      4123.7138671875,
+      -3387.095703125
+     ],
+     [
+      4531.01171875,
+      -3710.59619140625
+     ],
+     [
+      4048.583740234375,
+      -3308.6845703125
+     ],
+     [
+      4727.66552734375,
+      -3871.53759765625
+     ],
+     [
+      4214.80078125,
+      -3459.2568359375
+     ],
+     [
+      4554.63916015625,
+      -3731.31982421875
+     ],
+     [
+      4650.85498046875,
+      -3799.015625
+     ]
+    ]
+   },
+   {
+    "seed": 1,
+    "answers": {
+     "q0": {
+      "type": "score",
+      "score": 1.6002,
+      "legend": {
+       "0": "can wait",
+       "1": "should be handled today",
+       "2": "blocking, handle now"
+      },
+      "probabilities": {
+       "0": 0.047,
+       "1": 0.3058,
+       "2": 0.6472
+      },
+      "confidence": 0.283,
+      "answer_confidence": 0.6472,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q1": {
+      "type": "noul",
+      "noul": 0.7028,
+      "confidence": 0.7028,
+      "answer_confidence": 0.7028,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q2": {
+      "type": "choice",
+      "choice": "negative",
+      "probabilities": {
+       "positive": 0.009,
+       "neutral": 0.0372,
+       "negative": 0.9539
+      },
+      "confidence": 0.8091,
+      "answer_confidence": 0.9539,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q3": {
+      "type": "noul",
+      "noul": 0.6658,
+      "confidence": 0.6658,
+      "answer_confidence": 0.6658,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q4": {
+      "type": "score",
+      "score": 2.5772,
+      "legend": {
+       "0": "unclear",
+       "1": "partly clear",
+       "2": "clear",
+       "3": "very clear with evidence"
+      },
+      "probabilities": {
+       "0": 0.0173,
+       "1": 0.0811,
+       "2": 0.2087,
+       "3": 0.6929
+      },
+      "confidence": 0.3831,
+      "answer_confidence": 0.6929,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q5": {
+      "type": "noul",
+      "noul": 0.643,
+      "confidence": 0.643,
+      "answer_confidence": 0.643,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q6": {
+      "type": "choice",
+      "choice": "billing",
+      "probabilities": {
+       "billing": 0.7904,
+       "technical": 0.1191,
+       "account": 0.052,
+       "other": 0.0385
+      },
+      "confidence": 0.4818,
+      "answer_confidence": 0.7904,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q7": {
+      "type": "score",
+      "score": 1.6002,
+      "legend": {
+       "0": "can wait",
+       "1": "should be handled today",
+       "2": "blocking, handle now"
+      },
+      "probabilities": {
+       "0": 0.047,
+       "1": 0.3058,
+       "2": 0.6472
+      },
+      "confidence": 0.283,
+      "answer_confidence": 0.6472,
+      "action": {
+       "act_probability": 1.0
+      }
+     }
+    },
+    "logits": [
+     [
+      -0.9555010795593262,
+      1.387576937675476,
+      2.3257524967193604,
+      -10000.0
+     ],
+     [
+      -0.8444958925247192,
+      0.862143874168396,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -3.6280717849731445,
+      -1.1218740940093994,
+      4.589295864105225,
+      -10000.0
+     ],
+     [
+      -0.5332351922988892,
+      0.834026575088501,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -2.1359944343566895,
+      -0.20650893449783325,
+      0.9765933752059937,
+      2.4786248207092285
+     ],
+     [
+      -0.3545019030570984,
+      0.8123797178268433,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      3.518749952316284,
+      0.18779198825359344,
+      -1.2719769477844238,
+      -1.802558422088623
+     ],
+     [
+      -0.9555010795593262,
+      1.387576937675476,
+      2.3257524967193604,
+      -10000.0
+     ]
+    ],
+    "action_logits": [
+     [
+      4308.2294921875,
+      -3531.89501953125
+     ],
+     [
+      4820.9951171875,
+      -3950.21484375
+     ],
+     [
+      4198.76123046875,
+      -3432.0029296875
+     ],
+     [
+      4752.5322265625,
+      -3894.98193359375
+     ],
+     [
+      4293.4453125,
+      -3522.33447265625
+     ],
+     [
+      4741.7138671875,
+      -3884.53857421875
+     ],
+     [
+      4692.89453125,
+      -3836.404296875
+     ],
+     [
+      4308.2294921875,
+      -3531.89501953125
+     ]
+    ]
+   },
+   {
+    "seed": 2,
+    "answers": {
+     "q0": {
+      "type": "noul",
+      "noul": 0.5978,
+      "confidence": 0.5978,
+      "answer_confidence": 0.5978,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q1": {
+      "type": "choice",
+      "choice": "negative",
+      "probabilities": {
+       "positive": 0.0077,
+       "neutral": 0.0543,
+       "negative": 0.938
+      },
+      "confidence": 0.7672,
+      "answer_confidence": 0.938,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q2": {
+      "type": "noul",
+      "noul": 0.6697,
+      "confidence": 0.6697,
+      "answer_confidence": 0.6697,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q3": {
+      "type": "score",
+      "score": 2.6024,
+      "legend": {
+       "0": "unclear",
+       "1": "partly clear",
+       "2": "clear",
+       "3": "very clear with evidence"
+      },
+      "probabilities": {
+       "0": 0.0126,
+       "1": 0.0674,
+       "2": 0.2249,
+       "3": 0.6951
+      },
+      "confidence": 0.4046,
+      "answer_confidence": 0.6951,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q4": {
+      "type": "noul",
+      "noul": 0.41,
+      "confidence": 0.59,
+      "answer_confidence": 0.59,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q5": {
+      "type": "choice",
+      "choice": "billing",
+      "probabilities": {
+       "billing": 0.8205,
+       "technical": 0.0818,
+       "account": 0.061,
+       "other": 0.0368
+      },
+      "confidence": 0.5246,
+      "answer_confidence": 0.8205,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q6": {
+      "type": "score",
+      "score": 1.5142,
+      "legend": {
+       "0": "can wait",
+       "1": "should be handled today",
+       "2": "blocking, handle now"
+      },
+      "probabilities": {
+       "0": 0.0369,
+       "1": 0.412,
+       "2": 0.5511
+      },
+      "confidence": 0.2577,
+      "answer_confidence": 0.5511,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q7": {
+      "type": "noul",
+      "noul": 0.5978,
+      "confidence": 0.5978,
+      "answer_confidence": 0.5978,
+      "action": {
+       "act_probability": 1.0
+      }
+     }
+    },
+    "logits": [
+     [
+      -0.006297558546066284,
+      0.779849648475647,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -3.650475025177002,
+      -0.22502902150154114,
+      4.791559219360352,
+      -10000.0
+     ],
+     [
+      -0.5763540267944336,
+      0.825299859046936,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -2.2380306720733643,
+      -0.14176544547080994,
+      1.3653602600097656,
+      2.7776589393615723
+     ],
+     [
+      1.201688289642334,
+      0.4795870780944824,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      4.092901229858398,
+      0.03446212410926819,
+      -0.4823700785636902,
+      -1.3736579418182373
+     ],
+     [
+      -0.9696530103683472,
+      2.0493366718292236,
+      2.413585901260376,
+      -10000.0
+     ],
+     [
+      -0.006297558546066284,
+      0.779849648475647,
+      -10000.0,
+      -10000.0
+     ]
+    ],
+    "action_logits": [
+     [
+      4767.4599609375,
+      -3904.431640625
+     ],
+     [
+      3853.025634765625,
+      -3152.48486328125
+     ],
+     [
+      4777.298828125,
+      -3914.3115234375
+     ],
+     [
+      4071.864990234375,
+      -3342.8662109375
+     ],
+     [
+      4706.97998046875,
+      -3855.712890625
+     ],
+     [
+      4653.00927734375,
+      -3804.1435546875
+     ],
+     [
+      4199.52880859375,
+      -3447.3359375
+     ],
+     [
+      4767.4599609375,
+      -3904.431640625
+     ]
+    ]
+   },
+   {
+    "seed": 3,
+    "answers": {
+     "q0": {
+      "type": "choice",
+      "choice": "negative",
+      "probabilities": {
+       "positive": 0.0164,
+       "neutral": 0.0769,
+       "negative": 0.9067
+      },
+      "confidence": 0.6782,
+      "answer_confidence": 0.9067,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q1": {
+      "type": "noul",
+      "noul": 0.7923,
+      "confidence": 0.7923,
+      "answer_confidence": 0.7923,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q2": {
+      "type": "score",
+      "score": 2.515,
+      "legend": {
+       "0": "unclear",
+       "1": "partly clear",
+       "2": "clear",
+       "3": "very clear with evidence"
+      },
+      "probabilities": {
+       "0": 0.0207,
+       "1": 0.0904,
+       "2": 0.242,
+       "3": 0.6468
+      },
+      "confidence": 0.3343,
+      "answer_confidence": 0.6468,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q3": {
+      "type": "noul",
+      "noul": 0.5012,
+      "confidence": 0.5012,
+      "answer_confidence": 0.5012,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q4": {
+      "type": "choice",
+      "choice": "billing",
+      "probabilities": {
+       "billing": 0.9486,
+       "technical": 0.0222,
+       "account": 0.0146,
+       "other": 0.0147
+      },
+      "confidence": 0.8138,
+      "answer_confidence": 0.9486,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q5": {
+      "type": "score",
+      "score": 1.3948,
+      "legend": {
+       "0": "can wait",
+       "1": "should be handled today",
+       "2": "blocking, handle now"
+      },
+      "probabilities": {
+       "0": 0.0615,
+       "1": 0.4822,
+       "2": 0.4563
+      },
+      "confidence": 0.1978,
+      "answer_confidence": 0.4822,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q6": {
+      "type": "noul",
+      "noul": 0.1847,
+      "confidence": 0.8153,
+      "answer_confidence": 0.8153,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q7": {
+      "type": "choice",
+      "choice": "negative",
+      "probabilities": {
+       "positive": 0.0164,
+       "neutral": 0.0769,
+       "negative": 0.9067
+      },
+      "confidence": 0.6782,
+      "answer_confidence": 0.9067,
+      "action": {
+       "act_probability": 1.0
+      }
+     }
+    },
+    "logits": [
+     [
+      -2.8623781204223633,
+      -0.14594882726669312,
+      4.197187900543213,
+      -10000.0
+     ],
+     [
+      -1.6896722316741943,
+      0.9663853645324707,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -1.969834566116333,
+      -0.12573525309562683,
+      1.1064802408218384,
+      2.336606979370117
+     ],
+     [
+      0.6126039028167725,
+      0.622272253036499,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      4.894744873046875,
+      -1.7163288593292236,
+      -2.4575002193450928,
+      -2.4404234886169434
+     ],
+     [
+      -0.7344740629196167,
+      1.8421194553375244,
+      1.7729671001434326,
+      -10000.0
+     ],
+     [
+      3.109490156173706,
+      0.16398781538009644,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -2.8623781204223633,
+      -0.14594882726669312,
+      4.197187900543213,
+      -10000.0
+     ]
+    ],
+    "action_logits": [
+     [
+      4366.56494140625,
+      -3568.2060546875
+     ],
+     [
+      4748.6201171875,
+      -3889.26953125
+     ],
+     [
+      4258.9169921875,
+      -3494.51513671875
+     ],
+     [
+      4665.90625,
+      -3821.78466796875
+     ],
+     [
+      4151.96484375,
+      -3396.5869140625
+     ],
+     [
+      4304.1435546875,
+      -3527.33642578125
+     ],
+     [
+      4753.951171875,
+      -3893.82080078125
+     ],
+     [
+      4366.56494140625,
+      -3568.2060546875
+     ]
+    ]
+   }
+  ],
+  "8x512": [
+   {
+    "seed": 0,
+    "answers": {
+     "q0": {
+      "type": "choice",
+      "choice": "billing",
+      "probabilities": {
+       "billing": 0.7819,
+       "technical": 0.1078,
+       "account": 0.0511,
+       "other": 0.0592
+      },
+      "confidence": 0.4577,
+      "answer_confidence": 0.7819,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q1": {
+      "type": "score",
+      "score": 1.292,
+      "legend": {
+       "0": "can wait",
+       "1": "should be handled today",
+       "2": "blocking, handle now"
+      },
+      "probabilities": {
+       "0": 0.1526,
+       "1": 0.4028,
+       "2": 0.4446
+      },
+      "confidence": 0.0775,
+      "answer_confidence": 0.4446,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q2": {
+      "type": "noul",
+      "noul": 0.6592,
+      "confidence": 0.6592,
+      "answer_confidence": 0.6592,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q3": {
+      "type": "choice",
+      "choice": "negative",
+      "probabilities": {
+       "positive": 0.0246,
+       "neutral": 0.0883,
+       "negative": 0.8871
+      },
+      "confidence": 0.6252,
+      "answer_confidence": 0.8871,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q4": {
+      "type": "noul",
+      "noul": 0.7832,
+      "confidence": 0.7832,
+      "answer_confidence": 0.7832,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q5": {
+      "type": "score",
+      "score": 2.3852,
+      "legend": {
+       "0": "unclear",
+       "1": "partly clear",
+       "2": "clear",
+       "3": "very clear with evidence"
+      },
+      "probabilities": {
+       "0": 0.0342,
+       "1": 0.1245,
+       "2": 0.2632,
+       "3": 0.5781
+      },
+      "confidence": 0.2477,
+      "answer_confidence": 0.5781,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q6": {
+      "type": "noul",
+      "noul": 0.6087,
+      "confidence": 0.6087,
+      "answer_confidence": 0.6087,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q7": {
+      "type": "choice",
+      "choice": "billing",
+      "probabilities": {
+       "billing": 0.7819,
+       "technical": 0.1078,
+       "account": 0.0511,
+       "other": 0.0592
+      },
+      "confidence": 0.4577,
+      "answer_confidence": 0.7819,
+      "action": {
+       "act_probability": 1.0
+      }
+     }
+    },
+    "logits": [
+     [
+      3.4491050243377686,
+      -0.038429707288742065,
+      -1.3510220050811768,
+      -1.0946203470230103
+     ],
+     [
+      0.4296525716781616,
+      1.6446006298065186,
+      1.768164873123169,
+      -10000.0
+     ],
+     [
+      -0.5246777534484863,
+      0.7840673923492432,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -1.9795739650726318,
+      0.2700731158256531,
+      4.331020355224609,
+      -10000.0
+     ],
+     [
+      -1.6267411708831787,
+      0.9211968183517456,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -1.0733747482299805,
+      0.544036865234375,
+      1.4806897640228271,
+      2.465406894683838
+     ],
+     [
+      -0.0973539650440216,
+      0.7789418697357178,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      3.4491050243377686,
+      -0.038429707288742065,
+      -1.3510220050811768,
+      -1.0946203470230103
+     ]
+    ],
+    "action_logits": [
+     [
+      4656.07666015625,
+      -3806.95556640625
+     ],
+     [
+      4297.82861328125,
+      -3522.7939453125
+     ],
+     [
+      4816.97412109375,
+      -3945.8359375
+     ],
+     [
+      4323.33154296875,
+      -3533.96728515625
+     ],
+     [
+      4791.9990234375,
+      -3922.990234375
+     ],
+     [
+      4452.3408203125,
+      -3648.9921875
+     ],
+     [
+      4620.8076171875,
+      -3783.82275390625
+     ],
+     [
+      4656.07666015625,
+      -3806.95556640625
+     ]
+    ]
+   },
+   {
+    "seed": 1,
+    "answers": {
+     "q0": {
+      "type": "score",
+      "score": 1.4154,
+      "legend": {
+       "0": "can wait",
+       "1": "should be handled today",
+       "2": "blocking, handle now"
+      },
+      "probabilities": {
+       "0": 0.0994,
+       "1": 0.3857,
+       "2": 0.5148
+      },
+      "confidence": 0.1455,
+      "answer_confidence": 0.5148,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q1": {
+      "type": "noul",
+      "noul": 0.7956,
+      "confidence": 0.7956,
+      "answer_confidence": 0.7956,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q2": {
+      "type": "choice",
+      "choice": "negative",
+      "probabilities": {
+       "positive": 0.0124,
+       "neutral": 0.0771,
+       "negative": 0.9105
+      },
+      "confidence": 0.6929,
+      "answer_confidence": 0.9105,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q3": {
+      "type": "noul",
+      "noul": 0.8605,
+      "confidence": 0.8605,
+      "answer_confidence": 0.8605,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q4": {
+      "type": "score",
+      "score": 2.384,
+      "legend": {
+       "0": "unclear",
+       "1": "partly clear",
+       "2": "clear",
+       "3": "very clear with evidence"
+      },
+      "probabilities": {
+       "0": 0.0365,
+       "1": 0.124,
+       "2": 0.2587,
+       "3": 0.5809
+      },
+      "confidence": 0.2463,
+      "answer_confidence": 0.5809,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q5": {
+      "type": "noul",
+      "noul": 0.7373,
+      "confidence": 0.7373,
+      "answer_confidence": 0.7373,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q6": {
+      "type": "choice",
+      "choice": "billing",
+      "probabilities": {
+       "billing": 0.6592,
+       "technical": 0.1752,
+       "account": 0.0993,
+       "other": 0.0663
+      },
+      "confidence": 0.2865,
+      "answer_confidence": 0.6592,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q7": {
+      "type": "score",
+      "score": 1.4154,
+      "legend": {
+       "0": "can wait",
+       "1": "should be handled today",
+       "2": "blocking, handle now"
+      },
+      "probabilities": {
+       "0": 0.0994,
+       "1": 0.3857,
+       "2": 0.5148
+      },
+      "confidence": 0.1455,
+      "answer_confidence": 0.5148,
+      "action": {
+       "act_probability": 1.0
+      }
+     }
+    },
+    "logits": [
+     [
+      0.2581294775009155,
+      1.9544875621795654,
+      2.31579852104187,
+      -10000.0
+     ],
+     [
+      -1.6793549060821533,
+      1.0160348415374756,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -3.1070139408111572,
+      0.108231320977211,
+      4.454319477081299,
+      -10000.0
+     ],
+     [
+      -2.433040142059326,
+      1.1750454902648926,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -1.0327930450439453,
+      0.4988184869289398,
+      1.4190702438354492,
+      2.4316091537475586
+     ],
+     [
+      -1.1968951225280762,
+      0.8500852584838867,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      3.1411824226379395,
+      0.808936595916748,
+      -0.1904708743095398,
+      -0.9017736911773682
+     ],
+     [
+      0.2581294775009155,
+      1.9544875621795654,
+      2.31579852104187,
+      -10000.0
+     ]
+    ],
+    "action_logits": [
+     [
+      4328.736328125,
+      -3548.60302734375
+     ],
+     [
+      4734.2958984375,
+      -3874.8447265625
+     ],
+     [
+      4318.94189453125,
+      -3529.23876953125
+     ],
+     [
+      4603.80810546875,
+      -3767.3203125
+     ],
+     [
+      4416.333984375,
+      -3619.90673828125
+     ],
+     [
+      4759.27294921875,
+      -3896.6611328125
+     ],
+     [
+      4791.7255859375,
+      -3917.341796875
+     ],
+     [
+      4328.736328125,
+      -3548.60302734375
+     ]
+    ]
+   },
+   {
+    "seed": 2,
+    "answers": {
+     "q0": {
+      "type": "noul",
+      "noul": 0.4148,
+      "confidence": 0.5852,
+      "answer_confidence": 0.5852,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q1": {
+      "type": "choice",
+      "choice": "negative",
+      "probabilities": {
+       "positive": 0.0234,
+       "neutral": 0.116,
+       "negative": 0.8606
+      },
+      "confidence": 0.5751,
+      "answer_confidence": 0.8606,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q2": {
+      "type": "noul",
+      "noul": 0.8504,
+      "confidence": 0.8504,
+      "answer_confidence": 0.8504,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q3": {
+      "type": "score",
+      "score": 2.3372,
+      "legend": {
+       "0": "unclear",
+       "1": "partly clear",
+       "2": "clear",
+       "3": "very clear with evidence"
+      },
+      "probabilities": {
+       "0": 0.0378,
+       "1": 0.1382,
+       "2": 0.2731,
+       "3": 0.551
+      },
+      "confidence": 0.2209,
+      "answer_confidence": 0.551,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q4": {
+      "type": "noul",
+      "noul": 0.7215,
+      "confidence": 0.7215,
+      "answer_confidence": 0.7215,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q5": {
+      "type": "choice",
+      "choice": "billing",
+      "probabilities": {
+       "billing": 0.8601,
+       "technical": 0.0602,
+       "account": 0.037,
+       "other": 0.0428
+      },
+      "confidence": 0.5993,
+      "answer_confidence": 0.8601,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q6": {
+      "type": "score",
+      "score": 1.2545,
+      "legend": {
+       "0": "can wait",
+       "1": "should be handled today",
+       "2": "blocking, handle now"
+      },
+      "probabilities": {
+       "0": 0.1529,
+       "1": 0.4397,
+       "2": 0.4074
+      },
+      "confidence": 0.0768,
+      "answer_confidence": 0.4397,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q7": {
+      "type": "noul",
+      "noul": 0.4148,
+      "confidence": 0.5852,
+      "answer_confidence": 0.5852,
+      "action": {
+       "act_probability": 1.0
+      }
+     }
+    },
+    "logits": [
+     [
+      1.3229594230651855,
+      0.6407199501991272,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -2.1543397903442383,
+      0.6656894683837891,
+      4.193063735961914,
+      -10000.0
+     ],
+     [
+      -2.2908005714416504,
+      1.155653715133667,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -1.0705387592315674,
+      0.5528866052627563,
+      1.4051191806793213,
+      2.283599853515625
+     ],
+     [
+      -1.0775871276855469,
+      0.8106073141098022,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      3.916734457015991,
+      -0.7655866146087646,
+      -1.6219924688339233,
+      -1.364761471748352
+     ],
+     [
+      0.7363755106925964,
+      2.058382987976074,
+      1.9626728296279907,
+      -10000.0
+     ],
+     [
+      1.3229594230651855,
+      0.6407199501991272,
+      -10000.0,
+      -10000.0
+     ]
+    ],
+    "action_logits": [
+     [
+      4718.6123046875,
+      -3866.12841796875
+     ],
+     [
+      4358.130859375,
+      -3561.27685546875
+     ],
+     [
+      4641.9501953125,
+      -3800.5498046875
+     ],
+     [
+      4492.84765625,
+      -3681.98974609375
+     ],
+     [
+      4801.763671875,
+      -3932.6669921875
+     ],
+     [
+      4637.22412109375,
+      -3790.96630859375
+     ],
+     [
+      4451.759765625,
+      -3647.5849609375
+     ],
+     [
+      4718.6123046875,
+      -3866.12841796875
+     ]
+    ]
+   },
+   {
+    "seed": 3,
+    "answers": {
+     "q0": {
+      "type": "choice",
+      "choice": "negative",
+      "probabilities": {
+       "positive": 0.0379,
+       "neutral": 0.1218,
+       "negative": 0.8404
+      },
+      "confidence": 0.5208,
+      "answer_confidence": 0.8404,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q1": {
+      "type": "noul",
+      "noul": 0.8418,
+      "confidence": 0.8418,
+      "answer_confidence": 0.8418,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q2": {
+      "type": "score",
+      "score": 2.3734,
+      "legend": {
+       "0": "unclear",
+       "1": "partly clear",
+       "2": "clear",
+       "3": "very clear with evidence"
+      },
+      "probabilities": {
+       "0": 0.0391,
+       "1": 0.1298,
+       "2": 0.2497,
+       "3": 0.5814
+      },
+      "confidence": 0.24,
+      "answer_confidence": 0.5814,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q3": {
+      "type": "noul",
+      "noul": 0.8076,
+      "confidence": 0.8076,
+      "answer_confidence": 0.8076,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q4": {
+      "type": "choice",
+      "choice": "billing",
+      "probabilities": {
+       "billing": 0.8892,
+       "technical": 0.0525,
+       "account": 0.0269,
+       "other": 0.0314
+      },
+      "confidence": 0.6644,
+      "answer_confidence": 0.8892,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q5": {
+      "type": "score",
+      "score": 1.2716,
+      "legend": {
+       "0": "can wait",
+       "1": "should be handled today",
+       "2": "blocking, handle now"
+      },
+      "probabilities": {
+       "0": 0.1391,
+       "1": 0.4502,
+       "2": 0.4107
+      },
+      "confidence": 0.0906,
+      "answer_confidence": 0.4502,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q6": {
+      "type": "noul",
+      "noul": 0.7022,
+      "confidence": 0.7022,
+      "answer_confidence": 0.7022,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q7": {
+      "type": "choice",
+      "choice": "negative",
+      "probabilities": {
+       "positive": 0.0379,
+       "neutral": 0.1218,
+       "negative": 0.8404
+      },
+      "confidence": 0.5208,
+      "answer_confidence": 0.8404,
+      "action": {
+       "act_probability": 1.0
+      }
+     }
+    },
+    "logits": [
+     [
+      -1.527198314666748,
+      0.5292697548866272,
+      3.9295246601104736,
+      -10000.0
+     ],
+     [
+      -2.197697162628174,
+      1.11863112449646,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -0.9678907990455627,
+      0.5328319668769836,
+      1.3516640663146973,
+      2.4094090461730957
+     ],
+     [
+      -1.8391023874282837,
+      1.0056167840957642,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      4.483288764953613,
+      -0.4955415725708008,
+      -1.6722028255462646,
+      -1.403177261352539
+     ],
+     [
+      0.5498683452606201,
+      2.020066738128662,
+      1.9051125049591064,
+      -10000.0
+     ],
+     [
+      -0.8455743789672852,
+      0.8561956286430359,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -1.527198314666748,
+      0.5292697548866272,
+      3.9295246601104736,
+      -10000.0
+     ]
+    ],
+    "action_logits": [
+     [
+      4565.2001953125,
+      -3731.32421875
+     ],
+     [
+      4670.50244140625,
+      -3823.15625
+     ],
+     [
+      4363.96630859375,
+      -3576.07861328125
+     ],
+     [
+      4744.3046875,
+      -3883.6455078125
+     ],
+     [
+      4316.8271484375,
+      -3529.27490234375
+     ],
+     [
+      4422.470703125,
+      -3623.24072265625
+     ],
+     [
+      4831.78271484375,
+      -3957.74169921875
+     ],
+     [
+      4565.2001953125,
+      -3731.32421875
+     ]
+    ]
+   }
+  ],
+  "1x512": [
+   {
+    "seed": 0,
+    "answers": {
+     "q0": {
+      "type": "choice",
+      "choice": "billing",
+      "probabilities": {
+       "billing": 0.7819,
+       "technical": 0.1078,
+       "account": 0.0511,
+       "other": 0.0592
+      },
+      "confidence": 0.4577,
+      "answer_confidence": 0.7819,
+      "action": {
+       "act_probability": 1.0
+      }
+     }
+    },
+    "logits": [
+     [
+      3.4491050243377686,
+      -0.038429707288742065,
+      -1.3510220050811768,
+      -1.0946203470230103
+     ]
+    ],
+    "action_logits": [
+     [
+      4656.07666015625,
+      -3806.95556640625
+     ]
+    ]
+   },
+   {
+    "seed": 1,
+    "answers": {
+     "q0": {
+      "type": "score",
+      "score": 1.4441,
+      "legend": {
+       "0": "can wait",
+       "1": "should be handled today",
+       "2": "blocking, handle now"
+      },
+      "probabilities": {
+       "0": 0.0957,
+       "1": 0.3644,
+       "2": 0.5398
+      },
+      "confidence": 0.1578,
+      "answer_confidence": 0.5398,
+      "action": {
+       "act_probability": 1.0
+      }
+     }
+    },
+    "logits": [
+     [
+      0.13576830923557281,
+      1.808512806892395,
+      2.300173282623291
+     ]
+    ],
+    "action_logits": [
+     [
+      4394.35595703125,
+      -3601.64013671875
+     ]
+    ]
+   },
+   {
+    "seed": 2,
+    "answers": {
+     "q0": {
+      "type": "noul",
+      "noul": 0.4561,
+      "confidence": 0.5439,
+      "answer_confidence": 0.5439,
+      "action": {
+       "act_probability": 1.0
+      }
+     }
+    },
+    "logits": [
+     [
+      1.0497249364852905,
+      0.7002604603767395
+     ]
+    ],
+    "action_logits": [
+     [
+      4697.146484375,
+      -3848.14892578125
+     ]
+    ]
+   },
+   {
+    "seed": 3,
+    "answers": {
+     "q0": {
+      "type": "choice",
+      "choice": "negative",
+      "probabilities": {
+       "positive": 0.0256,
+       "neutral": 0.111,
+       "negative": 0.8635
+      },
+      "confidence": 0.5772,
+      "answer_confidence": 0.8635,
+      "action": {
+       "act_probability": 1.0
+      }
+     }
+    },
+    "logits": [
+     [
+      -2.0762486457824707,
+      0.5060120820999146,
+      4.117565155029297
+     ]
+    ],
+    "action_logits": [
+     [
+      4495.14599609375,
+      -3673.92333984375
+     ]
+    ]
+   }
+  ],
+  "32x64": [
+   {
+    "seed": 0,
+    "answers": {
+     "q0": {
+      "type": "choice",
+      "choice": "technical",
+      "probabilities": {
+       "billing": 0.0264,
+       "technical": 0.5222,
+       "account": 0.3817,
+       "other": 0.0696
+      },
+      "confidence": 0.287,
+      "answer_confidence": 0.5222,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q1": {
+      "type": "score",
+      "score": 1.6767,
+      "legend": {
+       "0": "can wait",
+       "1": "should be handled today",
+       "2": "blocking, handle now"
+      },
+      "probabilities": {
+       "0": 0.025,
+       "1": 0.2732,
+       "2": 0.7017
+      },
+      "confidence": 0.3671,
+      "answer_confidence": 0.7017,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q2": {
+      "type": "noul",
+      "noul": 0.0781,
+      "confidence": 0.9219,
+      "answer_confidence": 0.9219,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q3": {
+      "type": "choice",
+      "choice": "negative",
+      "probabilities": {
+       "positive": 0.0138,
+       "neutral": 0.2493,
+       "negative": 0.7369
+      },
+      "confidence": 0.4262,
+      "answer_confidence": 0.7369,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q4": {
+      "type": "noul",
+      "noul": 0.1997,
+      "confidence": 0.8003,
+      "answer_confidence": 0.8003,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q5": {
+      "type": "score",
+      "score": 2.5014,
+      "legend": {
+       "0": "unclear",
+       "1": "partly clear",
+       "2": "clear",
+       "3": "very clear with evidence"
+      },
+      "probabilities": {
+       "0": 0.0101,
+       "1": 0.0727,
+       "2": 0.3229,
+       "3": 0.5943
+      },
+      "confidence": 0.3427,
+      "answer_confidence": 0.5943,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q6": {
+      "type": "noul",
+      "noul": 0.1186,
+      "confidence": 0.8814,
+      "answer_confidence": 0.8814,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q7": {
+      "type": "choice",
+      "choice": "technical",
+      "probabilities": {
+       "billing": 0.0264,
+       "technical": 0.5222,
+       "account": 0.3817,
+       "other": 0.0696
+      },
+      "confidence": 0.287,
+      "answer_confidence": 0.5222,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q8": {
+      "type": "score",
+      "score": 1.6767,
+      "legend": {
+       "0": "can wait",
+       "1": "should be handled today",
+       "2": "blocking, handle now"
+      },
+      "probabilities": {
+       "0": 0.025,
+       "1": 0.2732,
+       "2": 0.7017
+      },
+      "confidence": 0.3671,
+      "answer_confidence": 0.7017,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q9": {
+      "type": "noul",
+      "noul": 0.0781,
+      "confidence": 0.9219,
+      "answer_confidence": 0.9219,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q10": {
+      "type": "choice",
+      "choice": "negative",
+      "probabilities": {
+       "positive": 0.0138,
+       "neutral": 0.2493,
+       "negative": 0.7369
+      },
+      "confidence": 0.4262,
+      "answer_confidence": 0.7369,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q11": {
+      "type": "noul",
+      "noul": 0.1997,
+      "confidence": 0.8003,
+      "answer_confidence": 0.8003,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q12": {
+      "type": "score",
+      "score": 2.5014,
+      "legend": {
+       "0": "unclear",
+       "1": "partly clear",
+       "2": "clear",
+       "3": "very clear with evidence"
+      },
+      "probabilities": {
+       "0": 0.0101,
+       "1": 0.0727,
+       "2": 0.3229,
+       "3": 0.5943
+      },
+      "confidence": 0.3427,
+      "answer_confidence": 0.5943,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q13": {
+      "type": "noul",
+      "noul": 0.1186,
+      "confidence": 0.8814,
+      "answer_confidence": 0.8814,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q14": {
+      "type": "choice",
+      "choice": "technical",
+      "probabilities": {
+       "billing": 0.0264,
+       "technical": 0.5222,
+       "account": 0.3817,
+       "other": 0.0696
+      },
+      "confidence": 0.287,
+      "answer_confidence": 0.5222,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q15": {
+      "type": "score",
+      "score": 1.6767,
+      "legend": {
+       "0": "can wait",
+       "1": "should be handled today",
+       "2": "blocking, handle now"
+      },
+      "probabilities": {
+       "0": 0.025,
+       "1": 0.2732,
+       "2": 0.7017
+      },
+      "confidence": 0.3671,
+      "answer_confidence": 0.7017,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q16": {
+      "type": "noul",
+      "noul": 0.0781,
+      "confidence": 0.9219,
+      "answer_confidence": 0.9219,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q17": {
+      "type": "choice",
+      "choice": "negative",
+      "probabilities": {
+       "positive": 0.0138,
+       "neutral": 0.2493,
+       "negative": 0.7369
+      },
+      "confidence": 0.4262,
+      "answer_confidence": 0.7369,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q18": {
+      "type": "noul",
+      "noul": 0.1997,
+      "confidence": 0.8003,
+      "answer_confidence": 0.8003,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q19": {
+      "type": "score",
+      "score": 2.5014,
+      "legend": {
+       "0": "unclear",
+       "1": "partly clear",
+       "2": "clear",
+       "3": "very clear with evidence"
+      },
+      "probabilities": {
+       "0": 0.0101,
+       "1": 0.0727,
+       "2": 0.3229,
+       "3": 0.5943
+      },
+      "confidence": 0.3427,
+      "answer_confidence": 0.5943,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q20": {
+      "type": "noul",
+      "noul": 0.1186,
+      "confidence": 0.8814,
+      "answer_confidence": 0.8814,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q21": {
+      "type": "choice",
+      "choice": "technical",
+      "probabilities": {
+       "billing": 0.0264,
+       "technical": 0.5222,
+       "account": 0.3817,
+       "other": 0.0696
+      },
+      "confidence": 0.287,
+      "answer_confidence": 0.5222,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q22": {
+      "type": "score",
+      "score": 1.6767,
+      "legend": {
+       "0": "can wait",
+       "1": "should be handled today",
+       "2": "blocking, handle now"
+      },
+      "probabilities": {
+       "0": 0.025,
+       "1": 0.2732,
+       "2": 0.7017
+      },
+      "confidence": 0.3671,
+      "answer_confidence": 0.7017,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q23": {
+      "type": "noul",
+      "noul": 0.0781,
+      "confidence": 0.9219,
+      "answer_confidence": 0.9219,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q24": {
+      "type": "choice",
+      "choice": "negative",
+      "probabilities": {
+       "positive": 0.0138,
+       "neutral": 0.2493,
+       "negative": 0.7369
+      },
+      "confidence": 0.4262,
+      "answer_confidence": 0.7369,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q25": {
+      "type": "noul",
+      "noul": 0.1997,
+      "confidence": 0.8003,
+      "answer_confidence": 0.8003,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q26": {
+      "type": "score",
+      "score": 2.5014,
+      "legend": {
+       "0": "unclear",
+       "1": "partly clear",
+       "2": "clear",
+       "3": "very clear with evidence"
+      },
+      "probabilities": {
+       "0": 0.0101,
+       "1": 0.0727,
+       "2": 0.3229,
+       "3": 0.5943
+      },
+      "confidence": 0.3427,
+      "answer_confidence": 0.5943,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q27": {
+      "type": "noul",
+      "noul": 0.1186,
+      "confidence": 0.8814,
+      "answer_confidence": 0.8814,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q28": {
+      "type": "choice",
+      "choice": "technical",
+      "probabilities": {
+       "billing": 0.0264,
+       "technical": 0.5222,
+       "account": 0.3817,
+       "other": 0.0696
+      },
+      "confidence": 0.287,
+      "answer_confidence": 0.5222,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q29": {
+      "type": "score",
+      "score": 1.6767,
+      "legend": {
+       "0": "can wait",
+       "1": "should be handled today",
+       "2": "blocking, handle now"
+      },
+      "probabilities": {
+       "0": 0.025,
+       "1": 0.2732,
+       "2": 0.7017
+      },
+      "confidence": 0.3671,
+      "answer_confidence": 0.7017,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q30": {
+      "type": "noul",
+      "noul": 0.0781,
+      "confidence": 0.9219,
+      "answer_confidence": 0.9219,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q31": {
+      "type": "choice",
+      "choice": "negative",
+      "probabilities": {
+       "positive": 0.0138,
+       "neutral": 0.2493,
+       "negative": 0.7369
+      },
+      "confidence": 0.4262,
+      "answer_confidence": 0.7369,
+      "action": {
+       "act_probability": 1.0
+      }
+     }
+    },
+    "logits": [
+     [
+      -3.056405782699585,
+      2.1972780227661133,
+      1.6455641984939575,
+      -1.3488612174987793
+     ],
+     [
+      -1.0222469568252563,
+      1.9693889617919922,
+      3.1497182846069336,
+      -10000.0
+     ],
+     [
+      4.634929656982422,
+      -0.2615213096141815,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -3.506105899810791,
+      1.589457631111145,
+      3.4967403411865234,
+      -10000.0
+     ],
+     [
+      3.010392189025879,
+      0.2576461732387543,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -2.399594306945801,
+      0.0715501606464386,
+      1.9372727870941162,
+      2.70066499710083
+     ],
+     [
+      3.820754289627075,
+      -0.15831035375595093,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -3.056405782699585,
+      2.1972780227661133,
+      1.6455641984939575,
+      -1.3488612174987793
+     ],
+     [
+      -1.0222469568252563,
+      1.9693889617919922,
+      3.1497182846069336,
+      -10000.0
+     ],
+     [
+      4.634929656982422,
+      -0.2615213096141815,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -3.506105899810791,
+      1.589457631111145,
+      3.4967403411865234,
+      -10000.0
+     ],
+     [
+      3.010392189025879,
+      0.2576461732387543,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -2.399594306945801,
+      0.0715501606464386,
+      1.9372727870941162,
+      2.70066499710083
+     ],
+     [
+      3.820754289627075,
+      -0.15831035375595093,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -3.056405782699585,
+      2.1972780227661133,
+      1.6455641984939575,
+      -1.3488612174987793
+     ],
+     [
+      -1.0222469568252563,
+      1.9693889617919922,
+      3.1497182846069336,
+      -10000.0
+     ],
+     [
+      4.634929656982422,
+      -0.2615213096141815,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -3.506105899810791,
+      1.589457631111145,
+      3.4967403411865234,
+      -10000.0
+     ],
+     [
+      3.010392189025879,
+      0.2576461732387543,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -2.399594306945801,
+      0.0715501606464386,
+      1.9372727870941162,
+      2.70066499710083
+     ],
+     [
+      3.820754289627075,
+      -0.15831035375595093,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -3.056405782699585,
+      2.1972780227661133,
+      1.6455641984939575,
+      -1.3488612174987793
+     ],
+     [
+      -1.0222469568252563,
+      1.9693889617919922,
+      3.1497182846069336,
+      -10000.0
+     ],
+     [
+      4.634929656982422,
+      -0.2615213096141815,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -3.506105899810791,
+      1.589457631111145,
+      3.4967403411865234,
+      -10000.0
+     ],
+     [
+      3.010392189025879,
+      0.2576461732387543,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -2.399594306945801,
+      0.0715501606464386,
+      1.9372727870941162,
+      2.70066499710083
+     ],
+     [
+      3.820754289627075,
+      -0.15831035375595093,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -3.056405782699585,
+      2.1972780227661133,
+      1.6455641984939575,
+      -1.3488612174987793
+     ],
+     [
+      -1.0222469568252563,
+      1.9693889617919922,
+      3.1497182846069336,
+      -10000.0
+     ],
+     [
+      4.634929656982422,
+      -0.2615213096141815,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -3.506105899810791,
+      1.589457631111145,
+      3.4967403411865234,
+      -10000.0
+     ]
+    ],
+    "action_logits": [
+     [
+      4562.8291015625,
+      -3728.47412109375
+     ],
+     [
+      4352.109375,
+      -3567.23291015625
+     ],
+     [
+      4291.5595703125,
+      -3501.73583984375
+     ],
+     [
+      1971.0931396484375,
+      -1660.0897216796875
+     ],
+     [
+      4817.58056640625,
+      -3939.25048828125
+     ],
+     [
+      4063.403564453125,
+      -3335.66845703125
+     ],
+     [
+      4433.234375,
+      -3627.65625
+     ],
+     [
+      4562.8291015625,
+      -3728.47412109375
+     ],
+     [
+      4352.109375,
+      -3567.23291015625
+     ],
+     [
+      4291.5595703125,
+      -3501.73583984375
+     ],
+     [
+      1971.0931396484375,
+      -1660.0897216796875
+     ],
+     [
+      4817.58056640625,
+      -3939.25048828125
+     ],
+     [
+      4063.403564453125,
+      -3335.66845703125
+     ],
+     [
+      4433.234375,
+      -3627.65625
+     ],
+     [
+      4562.8291015625,
+      -3728.47412109375
+     ],
+     [
+      4352.109375,
+      -3567.23291015625
+     ],
+     [
+      4291.5595703125,
+      -3501.73583984375
+     ],
+     [
+      1971.0931396484375,
+      -1660.0897216796875
+     ],
+     [
+      4817.58056640625,
+      -3939.25048828125
+     ],
+     [
+      4063.403564453125,
+      -3335.66845703125
+     ],
+     [
+      4433.234375,
+      -3627.65625
+     ],
+     [
+      4562.8291015625,
+      -3728.47412109375
+     ],
+     [
+      4352.109375,
+      -3567.23291015625
+     ],
+     [
+      4291.5595703125,
+      -3501.73583984375
+     ],
+     [
+      1971.0931396484375,
+      -1660.0897216796875
+     ],
+     [
+      4817.58056640625,
+      -3939.25048828125
+     ],
+     [
+      4063.403564453125,
+      -3335.66845703125
+     ],
+     [
+      4433.234375,
+      -3627.65625
+     ],
+     [
+      4562.8291015625,
+      -3728.47412109375
+     ],
+     [
+      4352.109375,
+      -3567.23291015625
+     ],
+     [
+      4291.5595703125,
+      -3501.73583984375
+     ],
+     [
+      1971.0931396484375,
+      -1660.0897216796875
+     ]
+    ]
+   },
+   {
+    "seed": 1,
+    "answers": {
+     "q0": {
+      "type": "score",
+      "score": 1.6526,
+      "legend": {
+       "0": "can wait",
+       "1": "should be handled today",
+       "2": "blocking, handle now"
+      },
+      "probabilities": {
+       "0": 0.0198,
+       "1": 0.3078,
+       "2": 0.6724
+      },
+      "confidence": 0.3563,
+      "answer_confidence": 0.6724,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q1": {
+      "type": "noul",
+      "noul": 0.653,
+      "confidence": 0.653,
+      "answer_confidence": 0.653,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q2": {
+      "type": "choice",
+      "choice": "negative",
+      "probabilities": {
+       "positive": 0.0127,
+       "neutral": 0.0476,
+       "negative": 0.9397
+      },
+      "confidence": 0.7644,
+      "answer_confidence": 0.9397,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q3": {
+      "type": "noul",
+      "noul": 0.0962,
+      "confidence": 0.9038,
+      "answer_confidence": 0.9038,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q4": {
+      "type": "score",
+      "score": 2.6181,
+      "legend": {
+       "0": "unclear",
+       "1": "partly clear",
+       "2": "clear",
+       "3": "very clear with evidence"
+      },
+      "probabilities": {
+       "0": 0.0079,
+       "1": 0.055,
+       "2": 0.248,
+       "3": 0.689
+      },
+      "confidence": 0.4226,
+      "answer_confidence": 0.689,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q5": {
+      "type": "noul",
+      "noul": 0.3328,
+      "confidence": 0.6672,
+      "answer_confidence": 0.6672,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q6": {
+      "type": "choice",
+      "choice": "technical",
+      "probabilities": {
+       "billing": 0.2119,
+       "technical": 0.6678,
+       "account": 0.0384,
+       "other": 0.082
+      },
+      "confidence": 0.3302,
+      "answer_confidence": 0.6678,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q7": {
+      "type": "score",
+      "score": 1.6526,
+      "legend": {
+       "0": "can wait",
+       "1": "should be handled today",
+       "2": "blocking, handle now"
+      },
+      "probabilities": {
+       "0": 0.0198,
+       "1": 0.3078,
+       "2": 0.6724
+      },
+      "confidence": 0.3563,
+      "answer_confidence": 0.6724,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q8": {
+      "type": "noul",
+      "noul": 0.653,
+      "confidence": 0.653,
+      "answer_confidence": 0.653,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q9": {
+      "type": "choice",
+      "choice": "negative",
+      "probabilities": {
+       "positive": 0.0127,
+       "neutral": 0.0476,
+       "negative": 0.9397
+      },
+      "confidence": 0.7644,
+      "answer_confidence": 0.9397,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q10": {
+      "type": "noul",
+      "noul": 0.0962,
+      "confidence": 0.9038,
+      "answer_confidence": 0.9038,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q11": {
+      "type": "score",
+      "score": 2.6181,
+      "legend": {
+       "0": "unclear",
+       "1": "partly clear",
+       "2": "clear",
+       "3": "very clear with evidence"
+      },
+      "probabilities": {
+       "0": 0.0079,
+       "1": 0.055,
+       "2": 0.248,
+       "3": 0.689
+      },
+      "confidence": 0.4226,
+      "answer_confidence": 0.689,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q12": {
+      "type": "noul",
+      "noul": 0.3328,
+      "confidence": 0.6672,
+      "answer_confidence": 0.6672,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q13": {
+      "type": "choice",
+      "choice": "technical",
+      "probabilities": {
+       "billing": 0.2119,
+       "technical": 0.6678,
+       "account": 0.0384,
+       "other": 0.082
+      },
+      "confidence": 0.3302,
+      "answer_confidence": 0.6678,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q14": {
+      "type": "score",
+      "score": 1.6526,
+      "legend": {
+       "0": "can wait",
+       "1": "should be handled today",
+       "2": "blocking, handle now"
+      },
+      "probabilities": {
+       "0": 0.0198,
+       "1": 0.3078,
+       "2": 0.6724
+      },
+      "confidence": 0.3563,
+      "answer_confidence": 0.6724,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q15": {
+      "type": "noul",
+      "noul": 0.653,
+      "confidence": 0.653,
+      "answer_confidence": 0.653,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q16": {
+      "type": "choice",
+      "choice": "negative",
+      "probabilities": {
+       "positive": 0.0127,
+       "neutral": 0.0476,
+       "negative": 0.9397
+      },
+      "confidence": 0.7644,
+      "answer_confidence": 0.9397,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q17": {
+      "type": "noul",
+      "noul": 0.0962,
+      "confidence": 0.9038,
+      "answer_confidence": 0.9038,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q18": {
+      "type": "score",
+      "score": 2.6181,
+      "legend": {
+       "0": "unclear",
+       "1": "partly clear",
+       "2": "clear",
+       "3": "very clear with evidence"
+      },
+      "probabilities": {
+       "0": 0.0079,
+       "1": 0.055,
+       "2": 0.248,
+       "3": 0.689
+      },
+      "confidence": 0.4226,
+      "answer_confidence": 0.689,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q19": {
+      "type": "noul",
+      "noul": 0.3328,
+      "confidence": 0.6672,
+      "answer_confidence": 0.6672,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q20": {
+      "type": "choice",
+      "choice": "technical",
+      "probabilities": {
+       "billing": 0.2119,
+       "technical": 0.6678,
+       "account": 0.0384,
+       "other": 0.082
+      },
+      "confidence": 0.3302,
+      "answer_confidence": 0.6678,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q21": {
+      "type": "score",
+      "score": 1.6526,
+      "legend": {
+       "0": "can wait",
+       "1": "should be handled today",
+       "2": "blocking, handle now"
+      },
+      "probabilities": {
+       "0": 0.0198,
+       "1": 0.3078,
+       "2": 0.6724
+      },
+      "confidence": 0.3563,
+      "answer_confidence": 0.6724,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q22": {
+      "type": "noul",
+      "noul": 0.653,
+      "confidence": 0.653,
+      "answer_confidence": 0.653,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q23": {
+      "type": "choice",
+      "choice": "negative",
+      "probabilities": {
+       "positive": 0.0127,
+       "neutral": 0.0476,
+       "negative": 0.9397
+      },
+      "confidence": 0.7644,
+      "answer_confidence": 0.9397,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q24": {
+      "type": "noul",
+      "noul": 0.0962,
+      "confidence": 0.9038,
+      "answer_confidence": 0.9038,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q25": {
+      "type": "score",
+      "score": 2.6181,
+      "legend": {
+       "0": "unclear",
+       "1": "partly clear",
+       "2": "clear",
+       "3": "very clear with evidence"
+      },
+      "probabilities": {
+       "0": 0.0079,
+       "1": 0.055,
+       "2": 0.248,
+       "3": 0.689
+      },
+      "confidence": 0.4226,
+      "answer_confidence": 0.689,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q26": {
+      "type": "noul",
+      "noul": 0.3328,
+      "confidence": 0.6672,
+      "answer_confidence": 0.6672,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q27": {
+      "type": "choice",
+      "choice": "technical",
+      "probabilities": {
+       "billing": 0.2119,
+       "technical": 0.6678,
+       "account": 0.0384,
+       "other": 0.082
+      },
+      "confidence": 0.3302,
+      "answer_confidence": 0.6678,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q28": {
+      "type": "score",
+      "score": 1.6526,
+      "legend": {
+       "0": "can wait",
+       "1": "should be handled today",
+       "2": "blocking, handle now"
+      },
+      "probabilities": {
+       "0": 0.0198,
+       "1": 0.3078,
+       "2": 0.6724
+      },
+      "confidence": 0.3563,
+      "answer_confidence": 0.6724,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q29": {
+      "type": "noul",
+      "noul": 0.653,
+      "confidence": 0.653,
+      "answer_confidence": 0.653,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q30": {
+      "type": "choice",
+      "choice": "negative",
+      "probabilities": {
+       "positive": 0.0127,
+       "neutral": 0.0476,
+       "negative": 0.9397
+      },
+      "confidence": 0.7644,
+      "answer_confidence": 0.9397,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q31": {
+      "type": "noul",
+      "noul": 0.0962,
+      "confidence": 0.9038,
+      "answer_confidence": 0.9038,
+      "action": {
+       "act_probability": 1.0
+      }
+     }
+    },
+    "logits": [
+     [
+      -1.3139212131500244,
+      2.120211124420166,
+      3.0980608463287354,
+      -10000.0
+     ],
+     [
+      -0.429137647151947,
+      0.8244533538818359,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -3.1620209217071533,
+      -0.8294928669929504,
+      4.418992042541504,
+      -10000.0
+     ],
+     [
+      4.11203145980835,
+      -0.3311031460762024,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -2.5996975898742676,
+      -0.17816635966300964,
+      1.7062698602676392,
+      2.984933376312256
+     ],
+     [
+      1.5351300239562988,
+      0.15552082657814026,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      0.4511248469352722,
+      2.4719154834747314,
+      -2.5563158988952637,
+      -1.2202907800674438
+     ],
+     [
+      -1.3139212131500244,
+      2.120211124420166,
+      3.0980608463287354,
+      -10000.0
+     ],
+     [
+      -0.429137647151947,
+      0.8244533538818359,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -3.1620209217071533,
+      -0.8294928669929504,
+      4.418992042541504,
+      -10000.0
+     ],
+     [
+      4.11203145980835,
+      -0.3311031460762024,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -2.5996975898742676,
+      -0.17816635966300964,
+      1.7062698602676392,
+      2.984933376312256
+     ],
+     [
+      1.5351300239562988,
+      0.15552082657814026,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      0.4511248469352722,
+      2.4719154834747314,
+      -2.5563158988952637,
+      -1.2202907800674438
+     ],
+     [
+      -1.3139212131500244,
+      2.120211124420166,
+      3.0980608463287354,
+      -10000.0
+     ],
+     [
+      -0.429137647151947,
+      0.8244533538818359,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -3.1620209217071533,
+      -0.8294928669929504,
+      4.418992042541504,
+      -10000.0
+     ],
+     [
+      4.11203145980835,
+      -0.3311031460762024,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -2.5996975898742676,
+      -0.17816635966300964,
+      1.7062698602676392,
+      2.984933376312256
+     ],
+     [
+      1.5351300239562988,
+      0.15552082657814026,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      0.4511248469352722,
+      2.4719154834747314,
+      -2.5563158988952637,
+      -1.2202907800674438
+     ],
+     [
+      -1.3139212131500244,
+      2.120211124420166,
+      3.0980608463287354,
+      -10000.0
+     ],
+     [
+      -0.429137647151947,
+      0.8244533538818359,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -3.1620209217071533,
+      -0.8294928669929504,
+      4.418992042541504,
+      -10000.0
+     ],
+     [
+      4.11203145980835,
+      -0.3311031460762024,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -2.5996975898742676,
+      -0.17816635966300964,
+      1.7062698602676392,
+      2.984933376312256
+     ],
+     [
+      1.5351300239562988,
+      0.15552082657814026,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      0.4511248469352722,
+      2.4719154834747314,
+      -2.5563158988952637,
+      -1.2202907800674438
+     ],
+     [
+      -1.3139212131500244,
+      2.120211124420166,
+      3.0980608463287354,
+      -10000.0
+     ],
+     [
+      -0.429137647151947,
+      0.8244533538818359,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -3.1620209217071533,
+      -0.8294928669929504,
+      4.418992042541504,
+      -10000.0
+     ],
+     [
+      4.11203145980835,
+      -0.3311031460762024,
+      -10000.0,
+      -10000.0
+     ]
+    ],
+    "action_logits": [
+     [
+      4192.5029296875,
+      -3442.44140625
+     ],
+     [
+      4819.8740234375,
+      -3950.06640625
+     ],
+     [
+      4039.70458984375,
+      -3305.72021484375
+     ],
+     [
+      4443.7021484375,
+      -3623.62890625
+     ],
+     [
+      4091.792724609375,
+      -3360.6884765625
+     ],
+     [
+      4755.814453125,
+      -3890.9658203125
+     ],
+     [
+      4413.9970703125,
+      -3603.9677734375
+     ],
+     [
+      4192.5029296875,
+      -3442.44140625
+     ],
+     [
+      4819.8740234375,
+      -3950.06640625
+     ],
+     [
+      4039.70458984375,
+      -3305.72021484375
+     ],
+     [
+      4443.7021484375,
+      -3623.62890625
+     ],
+     [
+      4091.792724609375,
+      -3360.6884765625
+     ],
+     [
+      4755.814453125,
+      -3890.9658203125
+     ],
+     [
+      4413.9970703125,
+      -3603.9677734375
+     ],
+     [
+      4192.5029296875,
+      -3442.44140625
+     ],
+     [
+      4819.8740234375,
+      -3950.06640625
+     ],
+     [
+      4039.70458984375,
+      -3305.72021484375
+     ],
+     [
+      4443.7021484375,
+      -3623.62890625
+     ],
+     [
+      4091.792724609375,
+      -3360.6884765625
+     ],
+     [
+      4755.814453125,
+      -3890.9658203125
+     ],
+     [
+      4413.9970703125,
+      -3603.9677734375
+     ],
+     [
+      4192.5029296875,
+      -3442.44140625
+     ],
+     [
+      4819.8740234375,
+      -3950.06640625
+     ],
+     [
+      4039.70458984375,
+      -3305.72021484375
+     ],
+     [
+      4443.7021484375,
+      -3623.62890625
+     ],
+     [
+      4091.792724609375,
+      -3360.6884765625
+     ],
+     [
+      4755.814453125,
+      -3890.9658203125
+     ],
+     [
+      4413.9970703125,
+      -3603.9677734375
+     ],
+     [
+      4192.5029296875,
+      -3442.44140625
+     ],
+     [
+      4819.8740234375,
+      -3950.06640625
+     ],
+     [
+      4039.70458984375,
+      -3305.72021484375
+     ],
+     [
+      4443.7021484375,
+      -3623.62890625
+     ]
+    ]
+   },
+   {
+    "seed": 2,
+    "answers": {
+     "q0": {
+      "type": "noul",
+      "noul": 0.0912,
+      "confidence": 0.9088,
+      "answer_confidence": 0.9088,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q1": {
+      "type": "choice",
+      "choice": "negative",
+      "probabilities": {
+       "positive": 0.0101,
+       "neutral": 0.1454,
+       "negative": 0.8445
+      },
+      "confidence": 0.5727,
+      "answer_confidence": 0.8445,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q2": {
+      "type": "noul",
+      "noul": 0.2853,
+      "confidence": 0.7147,
+      "answer_confidence": 0.7147,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q3": {
+      "type": "score",
+      "score": 2.545,
+      "legend": {
+       "0": "unclear",
+       "1": "partly clear",
+       "2": "clear",
+       "3": "very clear with evidence"
+      },
+      "probabilities": {
+       "0": 0.013,
+       "1": 0.0749,
+       "2": 0.2661,
+       "3": 0.646
+      },
+      "confidence": 0.3614,
+      "answer_confidence": 0.646,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q4": {
+      "type": "noul",
+      "noul": 0.1845,
+      "confidence": 0.8155,
+      "answer_confidence": 0.8155,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q5": {
+      "type": "choice",
+      "choice": "billing",
+      "probabilities": {
+       "billing": 0.9577,
+       "technical": 0.0145,
+       "account": 0.0119,
+       "other": 0.0159
+      },
+      "confidence": 0.8404,
+      "answer_confidence": 0.9577,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q6": {
+      "type": "score",
+      "score": 1.5375,
+      "legend": {
+       "0": "can wait",
+       "1": "should be handled today",
+       "2": "blocking, handle now"
+      },
+      "probabilities": {
+       "0": 0.0497,
+       "1": 0.363,
+       "2": 0.5872
+      },
+      "confidence": 0.2448,
+      "answer_confidence": 0.5872,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q7": {
+      "type": "noul",
+      "noul": 0.0912,
+      "confidence": 0.9088,
+      "answer_confidence": 0.9088,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q8": {
+      "type": "choice",
+      "choice": "negative",
+      "probabilities": {
+       "positive": 0.0101,
+       "neutral": 0.1454,
+       "negative": 0.8445
+      },
+      "confidence": 0.5727,
+      "answer_confidence": 0.8445,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q9": {
+      "type": "noul",
+      "noul": 0.2853,
+      "confidence": 0.7147,
+      "answer_confidence": 0.7147,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q10": {
+      "type": "score",
+      "score": 2.545,
+      "legend": {
+       "0": "unclear",
+       "1": "partly clear",
+       "2": "clear",
+       "3": "very clear with evidence"
+      },
+      "probabilities": {
+       "0": 0.013,
+       "1": 0.0749,
+       "2": 0.2661,
+       "3": 0.646
+      },
+      "confidence": 0.3614,
+      "answer_confidence": 0.646,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q11": {
+      "type": "noul",
+      "noul": 0.1845,
+      "confidence": 0.8155,
+      "answer_confidence": 0.8155,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q12": {
+      "type": "choice",
+      "choice": "billing",
+      "probabilities": {
+       "billing": 0.9577,
+       "technical": 0.0145,
+       "account": 0.0119,
+       "other": 0.0159
+      },
+      "confidence": 0.8404,
+      "answer_confidence": 0.9577,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q13": {
+      "type": "score",
+      "score": 1.5375,
+      "legend": {
+       "0": "can wait",
+       "1": "should be handled today",
+       "2": "blocking, handle now"
+      },
+      "probabilities": {
+       "0": 0.0497,
+       "1": 0.363,
+       "2": 0.5872
+      },
+      "confidence": 0.2448,
+      "answer_confidence": 0.5872,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q14": {
+      "type": "noul",
+      "noul": 0.0912,
+      "confidence": 0.9088,
+      "answer_confidence": 0.9088,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q15": {
+      "type": "choice",
+      "choice": "negative",
+      "probabilities": {
+       "positive": 0.0101,
+       "neutral": 0.1454,
+       "negative": 0.8445
+      },
+      "confidence": 0.5727,
+      "answer_confidence": 0.8445,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q16": {
+      "type": "noul",
+      "noul": 0.2853,
+      "confidence": 0.7147,
+      "answer_confidence": 0.7147,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q17": {
+      "type": "score",
+      "score": 2.545,
+      "legend": {
+       "0": "unclear",
+       "1": "partly clear",
+       "2": "clear",
+       "3": "very clear with evidence"
+      },
+      "probabilities": {
+       "0": 0.013,
+       "1": 0.0749,
+       "2": 0.2661,
+       "3": 0.646
+      },
+      "confidence": 0.3614,
+      "answer_confidence": 0.646,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q18": {
+      "type": "noul",
+      "noul": 0.1845,
+      "confidence": 0.8155,
+      "answer_confidence": 0.8155,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q19": {
+      "type": "choice",
+      "choice": "billing",
+      "probabilities": {
+       "billing": 0.9577,
+       "technical": 0.0145,
+       "account": 0.0119,
+       "other": 0.0159
+      },
+      "confidence": 0.8404,
+      "answer_confidence": 0.9577,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q20": {
+      "type": "score",
+      "score": 1.5375,
+      "legend": {
+       "0": "can wait",
+       "1": "should be handled today",
+       "2": "blocking, handle now"
+      },
+      "probabilities": {
+       "0": 0.0497,
+       "1": 0.363,
+       "2": 0.5872
+      },
+      "confidence": 0.2448,
+      "answer_confidence": 0.5872,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q21": {
+      "type": "noul",
+      "noul": 0.0912,
+      "confidence": 0.9088,
+      "answer_confidence": 0.9088,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q22": {
+      "type": "choice",
+      "choice": "negative",
+      "probabilities": {
+       "positive": 0.0101,
+       "neutral": 0.1454,
+       "negative": 0.8445
+      },
+      "confidence": 0.5727,
+      "answer_confidence": 0.8445,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q23": {
+      "type": "noul",
+      "noul": 0.2853,
+      "confidence": 0.7147,
+      "answer_confidence": 0.7147,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q24": {
+      "type": "score",
+      "score": 2.545,
+      "legend": {
+       "0": "unclear",
+       "1": "partly clear",
+       "2": "clear",
+       "3": "very clear with evidence"
+      },
+      "probabilities": {
+       "0": 0.013,
+       "1": 0.0749,
+       "2": 0.2661,
+       "3": 0.646
+      },
+      "confidence": 0.3614,
+      "answer_confidence": 0.646,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q25": {
+      "type": "noul",
+      "noul": 0.1845,
+      "confidence": 0.8155,
+      "answer_confidence": 0.8155,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q26": {
+      "type": "choice",
+      "choice": "billing",
+      "probabilities": {
+       "billing": 0.9577,
+       "technical": 0.0145,
+       "account": 0.0119,
+       "other": 0.0159
+      },
+      "confidence": 0.8404,
+      "answer_confidence": 0.9577,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q27": {
+      "type": "score",
+      "score": 1.5375,
+      "legend": {
+       "0": "can wait",
+       "1": "should be handled today",
+       "2": "blocking, handle now"
+      },
+      "probabilities": {
+       "0": 0.0497,
+       "1": 0.363,
+       "2": 0.5872
+      },
+      "confidence": 0.2448,
+      "answer_confidence": 0.5872,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q28": {
+      "type": "noul",
+      "noul": 0.0912,
+      "confidence": 0.9088,
+      "answer_confidence": 0.9088,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q29": {
+      "type": "choice",
+      "choice": "negative",
+      "probabilities": {
+       "positive": 0.0101,
+       "neutral": 0.1454,
+       "negative": 0.8445
+      },
+      "confidence": 0.5727,
+      "answer_confidence": 0.8445,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q30": {
+      "type": "noul",
+      "noul": 0.2853,
+      "confidence": 0.7147,
+      "answer_confidence": 0.7147,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q31": {
+      "type": "score",
+      "score": 2.545,
+      "legend": {
+       "0": "unclear",
+       "1": "partly clear",
+       "2": "clear",
+       "3": "very clear with evidence"
+      },
+      "probabilities": {
+       "0": 0.013,
+       "1": 0.0749,
+       "2": 0.2661,
+       "3": 0.646
+      },
+      "confidence": 0.3614,
+      "answer_confidence": 0.646,
+      "action": {
+       "act_probability": 1.0
+      }
+     }
+    },
+    "logits": [
+     [
+      4.299768447875977,
+      -0.2595970332622528,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -3.459263801574707,
+      1.2328481674194336,
+      4.330028533935547,
+      -10000.0
+     ],
+     [
+      2.0207507610321045,
+      0.19980847835540771,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -2.526068687438965,
+      -0.335207998752594,
+      1.250413179397583,
+      2.3604495525360107
+     ],
+     [
+      2.9267940521240234,
+      -0.020712435245513916,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      4.575101852416992,
+      -2.8009843826293945,
+      -3.1535162925720215,
+      -2.637082815170288
+     ],
+     [
+      -1.1548106670379639,
+      1.3327630758285522,
+      1.9345096349716187,
+      -10000.0
+     ],
+     [
+      4.299768447875977,
+      -0.2595970332622528,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -3.459263801574707,
+      1.2328481674194336,
+      4.330028533935547,
+      -10000.0
+     ],
+     [
+      2.0207507610321045,
+      0.19980847835540771,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -2.526068687438965,
+      -0.335207998752594,
+      1.250413179397583,
+      2.3604495525360107
+     ],
+     [
+      2.9267940521240234,
+      -0.020712435245513916,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      4.575101852416992,
+      -2.8009843826293945,
+      -3.1535162925720215,
+      -2.637082815170288
+     ],
+     [
+      -1.1548106670379639,
+      1.3327630758285522,
+      1.9345096349716187,
+      -10000.0
+     ],
+     [
+      4.299768447875977,
+      -0.2595970332622528,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -3.459263801574707,
+      1.2328481674194336,
+      4.330028533935547,
+      -10000.0
+     ],
+     [
+      2.0207507610321045,
+      0.19980847835540771,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -2.526068687438965,
+      -0.335207998752594,
+      1.250413179397583,
+      2.3604495525360107
+     ],
+     [
+      2.9267940521240234,
+      -0.020712435245513916,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      4.575101852416992,
+      -2.8009843826293945,
+      -3.1535162925720215,
+      -2.637082815170288
+     ],
+     [
+      -1.1548106670379639,
+      1.3327630758285522,
+      1.9345096349716187,
+      -10000.0
+     ],
+     [
+      4.299768447875977,
+      -0.2595970332622528,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -3.459263801574707,
+      1.2328481674194336,
+      4.330028533935547,
+      -10000.0
+     ],
+     [
+      2.0207507610321045,
+      0.19980847835540771,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -2.526068687438965,
+      -0.335207998752594,
+      1.250413179397583,
+      2.3604495525360107
+     ],
+     [
+      2.9267940521240234,
+      -0.020712435245513916,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      4.575101852416992,
+      -2.8009843826293945,
+      -3.1535162925720215,
+      -2.637082815170288
+     ],
+     [
+      -1.1548106670379639,
+      1.3327630758285522,
+      1.9345096349716187,
+      -10000.0
+     ],
+     [
+      4.299768447875977,
+      -0.2595970332622528,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -3.459263801574707,
+      1.2328481674194336,
+      4.330028533935547,
+      -10000.0
+     ],
+     [
+      2.0207507610321045,
+      0.19980847835540771,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -2.526068687438965,
+      -0.335207998752594,
+      1.250413179397583,
+      2.3604495525360107
+     ]
+    ],
+    "action_logits": [
+     [
+      4185.72998046875,
+      -3416.173828125
+     ],
+     [
+      1317.2691650390625,
+      -1174.2889404296875
+     ],
+     [
+      4804.29150390625,
+      -3932.927734375
+     ],
+     [
+      3922.661865234375,
+      -3222.689453125
+     ],
+     [
+      4579.43603515625,
+      -3743.50390625
+     ],
+     [
+      4280.19189453125,
+      -3499.115234375
+     ],
+     [
+      4003.2041015625,
+      -3290.337890625
+     ],
+     [
+      4185.72998046875,
+      -3416.173828125
+     ],
+     [
+      1317.2691650390625,
+      -1174.2889404296875
+     ],
+     [
+      4804.29150390625,
+      -3932.927734375
+     ],
+     [
+      3922.661865234375,
+      -3222.689453125
+     ],
+     [
+      4579.43603515625,
+      -3743.50390625
+     ],
+     [
+      4280.19189453125,
+      -3499.115234375
+     ],
+     [
+      4003.2041015625,
+      -3290.337890625
+     ],
+     [
+      4185.72998046875,
+      -3416.173828125
+     ],
+     [
+      1317.2691650390625,
+      -1174.2889404296875
+     ],
+     [
+      4804.29150390625,
+      -3932.927734375
+     ],
+     [
+      3922.661865234375,
+      -3222.689453125
+     ],
+     [
+      4579.43603515625,
+      -3743.50390625
+     ],
+     [
+      4280.19189453125,
+      -3499.115234375
+     ],
+     [
+      4003.2041015625,
+      -3290.337890625
+     ],
+     [
+      4185.72998046875,
+      -3416.173828125
+     ],
+     [
+      1317.2691650390625,
+      -1174.2889404296875
+     ],
+     [
+      4804.29150390625,
+      -3932.927734375
+     ],
+     [
+      3922.661865234375,
+      -3222.689453125
+     ],
+     [
+      4579.43603515625,
+      -3743.50390625
+     ],
+     [
+      4280.19189453125,
+      -3499.115234375
+     ],
+     [
+      4003.2041015625,
+      -3290.337890625
+     ],
+     [
+      4185.72998046875,
+      -3416.173828125
+     ],
+     [
+      1317.2691650390625,
+      -1174.2889404296875
+     ],
+     [
+      4804.29150390625,
+      -3932.927734375
+     ],
+     [
+      3922.661865234375,
+      -3222.689453125
+     ]
+    ]
+   },
+   {
+    "seed": 3,
+    "answers": {
+     "q0": {
+      "type": "choice",
+      "choice": "neutral",
+      "probabilities": {
+       "positive": 0.1173,
+       "neutral": 0.8002,
+       "negative": 0.0826
+      },
+      "confidence": 0.4214,
+      "answer_confidence": 0.8002,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q1": {
+      "type": "noul",
+      "noul": 0.8735,
+      "confidence": 0.8735,
+      "answer_confidence": 0.8735,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q2": {
+      "type": "score",
+      "score": 2.5797,
+      "legend": {
+       "0": "unclear",
+       "1": "partly clear",
+       "2": "clear",
+       "3": "very clear with evidence"
+      },
+      "probabilities": {
+       "0": 0.0115,
+       "1": 0.055,
+       "2": 0.2759,
+       "3": 0.6576
+      },
+      "confidence": 0.3928,
+      "answer_confidence": 0.6576,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q3": {
+      "type": "noul",
+      "noul": 0.0805,
+      "confidence": 0.9195,
+      "answer_confidence": 0.9195,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q4": {
+      "type": "choice",
+      "choice": "billing",
+      "probabilities": {
+       "billing": 0.9864,
+       "technical": 0.0048,
+       "account": 0.0037,
+       "other": 0.005
+      },
+      "confidence": 0.9375,
+      "answer_confidence": 0.9864,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q5": {
+      "type": "score",
+      "score": 1.6714,
+      "legend": {
+       "0": "can wait",
+       "1": "should be handled today",
+       "2": "blocking, handle now"
+      },
+      "probabilities": {
+       "0": 0.0403,
+       "1": 0.248,
+       "2": 0.7117
+      },
+      "confidence": 0.3471,
+      "answer_confidence": 0.7117,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q6": {
+      "type": "noul",
+      "noul": 0.108,
+      "confidence": 0.892,
+      "answer_confidence": 0.892,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q7": {
+      "type": "choice",
+      "choice": "neutral",
+      "probabilities": {
+       "positive": 0.1173,
+       "neutral": 0.8002,
+       "negative": 0.0826
+      },
+      "confidence": 0.4214,
+      "answer_confidence": 0.8002,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q8": {
+      "type": "noul",
+      "noul": 0.8735,
+      "confidence": 0.8735,
+      "answer_confidence": 0.8735,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q9": {
+      "type": "score",
+      "score": 2.5797,
+      "legend": {
+       "0": "unclear",
+       "1": "partly clear",
+       "2": "clear",
+       "3": "very clear with evidence"
+      },
+      "probabilities": {
+       "0": 0.0115,
+       "1": 0.055,
+       "2": 0.2759,
+       "3": 0.6576
+      },
+      "confidence": 0.3928,
+      "answer_confidence": 0.6576,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q10": {
+      "type": "noul",
+      "noul": 0.0805,
+      "confidence": 0.9195,
+      "answer_confidence": 0.9195,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q11": {
+      "type": "choice",
+      "choice": "billing",
+      "probabilities": {
+       "billing": 0.9864,
+       "technical": 0.0048,
+       "account": 0.0037,
+       "other": 0.005
+      },
+      "confidence": 0.9375,
+      "answer_confidence": 0.9864,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q12": {
+      "type": "score",
+      "score": 1.6714,
+      "legend": {
+       "0": "can wait",
+       "1": "should be handled today",
+       "2": "blocking, handle now"
+      },
+      "probabilities": {
+       "0": 0.0403,
+       "1": 0.248,
+       "2": 0.7117
+      },
+      "confidence": 0.3471,
+      "answer_confidence": 0.7117,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q13": {
+      "type": "noul",
+      "noul": 0.108,
+      "confidence": 0.892,
+      "answer_confidence": 0.892,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q14": {
+      "type": "choice",
+      "choice": "neutral",
+      "probabilities": {
+       "positive": 0.1173,
+       "neutral": 0.8002,
+       "negative": 0.0826
+      },
+      "confidence": 0.4214,
+      "answer_confidence": 0.8002,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q15": {
+      "type": "noul",
+      "noul": 0.8735,
+      "confidence": 0.8735,
+      "answer_confidence": 0.8735,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q16": {
+      "type": "score",
+      "score": 2.5797,
+      "legend": {
+       "0": "unclear",
+       "1": "partly clear",
+       "2": "clear",
+       "3": "very clear with evidence"
+      },
+      "probabilities": {
+       "0": 0.0115,
+       "1": 0.055,
+       "2": 0.2759,
+       "3": 0.6576
+      },
+      "confidence": 0.3928,
+      "answer_confidence": 0.6576,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q17": {
+      "type": "noul",
+      "noul": 0.0805,
+      "confidence": 0.9195,
+      "answer_confidence": 0.9195,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q18": {
+      "type": "choice",
+      "choice": "billing",
+      "probabilities": {
+       "billing": 0.9864,
+       "technical": 0.0048,
+       "account": 0.0037,
+       "other": 0.005
+      },
+      "confidence": 0.9375,
+      "answer_confidence": 0.9864,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q19": {
+      "type": "score",
+      "score": 1.6714,
+      "legend": {
+       "0": "can wait",
+       "1": "should be handled today",
+       "2": "blocking, handle now"
+      },
+      "probabilities": {
+       "0": 0.0403,
+       "1": 0.248,
+       "2": 0.7117
+      },
+      "confidence": 0.3471,
+      "answer_confidence": 0.7117,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q20": {
+      "type": "noul",
+      "noul": 0.108,
+      "confidence": 0.892,
+      "answer_confidence": 0.892,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q21": {
+      "type": "choice",
+      "choice": "neutral",
+      "probabilities": {
+       "positive": 0.1173,
+       "neutral": 0.8002,
+       "negative": 0.0826
+      },
+      "confidence": 0.4214,
+      "answer_confidence": 0.8002,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q22": {
+      "type": "noul",
+      "noul": 0.8735,
+      "confidence": 0.8735,
+      "answer_confidence": 0.8735,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q23": {
+      "type": "score",
+      "score": 2.5797,
+      "legend": {
+       "0": "unclear",
+       "1": "partly clear",
+       "2": "clear",
+       "3": "very clear with evidence"
+      },
+      "probabilities": {
+       "0": 0.0115,
+       "1": 0.055,
+       "2": 0.2759,
+       "3": 0.6576
+      },
+      "confidence": 0.3928,
+      "answer_confidence": 0.6576,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q24": {
+      "type": "noul",
+      "noul": 0.0805,
+      "confidence": 0.9195,
+      "answer_confidence": 0.9195,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q25": {
+      "type": "choice",
+      "choice": "billing",
+      "probabilities": {
+       "billing": 0.9864,
+       "technical": 0.0048,
+       "account": 0.0037,
+       "other": 0.005
+      },
+      "confidence": 0.9375,
+      "answer_confidence": 0.9864,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q26": {
+      "type": "score",
+      "score": 1.6714,
+      "legend": {
+       "0": "can wait",
+       "1": "should be handled today",
+       "2": "blocking, handle now"
+      },
+      "probabilities": {
+       "0": 0.0403,
+       "1": 0.248,
+       "2": 0.7117
+      },
+      "confidence": 0.3471,
+      "answer_confidence": 0.7117,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q27": {
+      "type": "noul",
+      "noul": 0.108,
+      "confidence": 0.892,
+      "answer_confidence": 0.892,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q28": {
+      "type": "choice",
+      "choice": "neutral",
+      "probabilities": {
+       "positive": 0.1173,
+       "neutral": 0.8002,
+       "negative": 0.0826
+      },
+      "confidence": 0.4214,
+      "answer_confidence": 0.8002,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q29": {
+      "type": "noul",
+      "noul": 0.8735,
+      "confidence": 0.8735,
+      "answer_confidence": 0.8735,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q30": {
+      "type": "score",
+      "score": 2.5797,
+      "legend": {
+       "0": "unclear",
+       "1": "partly clear",
+       "2": "clear",
+       "3": "very clear with evidence"
+      },
+      "probabilities": {
+       "0": 0.0115,
+       "1": 0.055,
+       "2": 0.2759,
+       "3": 0.6576
+      },
+      "confidence": 0.3928,
+      "answer_confidence": 0.6576,
+      "action": {
+       "act_probability": 1.0
+      }
+     },
+     "q31": {
+      "type": "noul",
+      "noul": 0.0805,
+      "confidence": 0.9195,
+      "answer_confidence": 0.9195,
+      "action": {
+       "act_probability": 1.0
+      }
+     }
+    },
+    "logits": [
+     [
+      -1.4726482629776,
+      1.9074517488479614,
+      -2.0903735160827637,
+      -10000.0
+     ],
+     [
+      -2.591303825378418,
+      1.241441249847412,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -2.1796202659606934,
+      -0.21778565645217896,
+      1.7999600172042847,
+      2.887089490890503
+     ],
+     [
+      4.560300827026367,
+      -0.27127644419670105,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      6.526036262512207,
+      -2.8457422256469727,
+      -3.29240083694458,
+      -2.761796236038208
+     ],
+     [
+      -1.0655951499938965,
+      1.2083699703216553,
+      2.527505397796631,
+      -10000.0
+     ],
+     [
+      4.011538982391357,
+      -0.1755915880203247,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -1.4726482629776,
+      1.9074517488479614,
+      -2.0903735160827637,
+      -10000.0
+     ],
+     [
+      -2.591303825378418,
+      1.241441249847412,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -2.1796202659606934,
+      -0.21778565645217896,
+      1.7999600172042847,
+      2.887089490890503
+     ],
+     [
+      4.560300827026367,
+      -0.27127644419670105,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      6.526036262512207,
+      -2.8457422256469727,
+      -3.29240083694458,
+      -2.761796236038208
+     ],
+     [
+      -1.0655951499938965,
+      1.2083699703216553,
+      2.527505397796631,
+      -10000.0
+     ],
+     [
+      4.011538982391357,
+      -0.1755915880203247,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -1.4726482629776,
+      1.9074517488479614,
+      -2.0903735160827637,
+      -10000.0
+     ],
+     [
+      -2.591303825378418,
+      1.241441249847412,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -2.1796202659606934,
+      -0.21778565645217896,
+      1.7999600172042847,
+      2.887089490890503
+     ],
+     [
+      4.560300827026367,
+      -0.27127644419670105,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      6.526036262512207,
+      -2.8457422256469727,
+      -3.29240083694458,
+      -2.761796236038208
+     ],
+     [
+      -1.0655951499938965,
+      1.2083699703216553,
+      2.527505397796631,
+      -10000.0
+     ],
+     [
+      4.011538982391357,
+      -0.1755915880203247,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -1.4726482629776,
+      1.9074517488479614,
+      -2.0903735160827637,
+      -10000.0
+     ],
+     [
+      -2.591303825378418,
+      1.241441249847412,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -2.1796202659606934,
+      -0.21778565645217896,
+      1.7999600172042847,
+      2.887089490890503
+     ],
+     [
+      4.560300827026367,
+      -0.27127644419670105,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      6.526036262512207,
+      -2.8457422256469727,
+      -3.29240083694458,
+      -2.761796236038208
+     ],
+     [
+      -1.0655951499938965,
+      1.2083699703216553,
+      2.527505397796631,
+      -10000.0
+     ],
+     [
+      4.011538982391357,
+      -0.1755915880203247,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -1.4726482629776,
+      1.9074517488479614,
+      -2.0903735160827637,
+      -10000.0
+     ],
+     [
+      -2.591303825378418,
+      1.241441249847412,
+      -10000.0,
+      -10000.0
+     ],
+     [
+      -2.1796202659606934,
+      -0.21778565645217896,
+      1.7999600172042847,
+      2.887089490890503
+     ],
+     [
+      4.560300827026367,
+      -0.27127644419670105,
+      -10000.0,
+      -10000.0
+     ]
+    ],
+    "action_logits": [
+     [
+      3318.891357421875,
+      -2723.03076171875
+     ],
+     [
+      4447.3359375,
+      -3642.0771484375
+     ],
+     [
+      3948.723876953125,
+      -3241.73779296875
+     ],
+     [
+      4178.349609375,
+      -3416.36962890625
+     ],
+     [
+      4010.329345703125,
+      -3278.740234375
+     ],
+     [
+      4186.6416015625,
+      -3437.58154296875
+     ],
+     [
+      4522.5048828125,
+      -3702.1787109375
+     ],
+     [
+      3318.891357421875,
+      -2723.03076171875
+     ],
+     [
+      4447.3359375,
+      -3642.0771484375
+     ],
+     [
+      3948.723876953125,
+      -3241.73779296875
+     ],
+     [
+      4178.349609375,
+      -3416.36962890625
+     ],
+     [
+      4010.329345703125,
+      -3278.740234375
+     ],
+     [
+      4186.6416015625,
+      -3437.58154296875
+     ],
+     [
+      4522.5048828125,
+      -3702.1787109375
+     ],
+     [
+      3318.891357421875,
+      -2723.03076171875
+     ],
+     [
+      4447.3359375,
+      -3642.0771484375
+     ],
+     [
+      3948.723876953125,
+      -3241.73779296875
+     ],
+     [
+      4178.349609375,
+      -3416.36962890625
+     ],
+     [
+      4010.329345703125,
+      -3278.740234375
+     ],
+     [
+      4186.6416015625,
+      -3437.58154296875
+     ],
+     [
+      4522.5048828125,
+      -3702.1787109375
+     ],
+     [
+      3318.891357421875,
+      -2723.03076171875
+     ],
+     [
+      4447.3359375,
+      -3642.0771484375
+     ],
+     [
+      3948.723876953125,
+      -3241.73779296875
+     ],
+     [
+      4178.349609375,
+      -3416.36962890625
+     ],
+     [
+      4010.329345703125,
+      -3278.740234375
+     ],
+     [
+      4186.6416015625,
+      -3437.58154296875
+     ],
+     [
+      4522.5048828125,
+      -3702.1787109375
+     ],
+     [
+      3318.891357421875,
+      -2723.03076171875
+     ],
+     [
+      4447.3359375,
+      -3642.0771484375
+     ],
+     [
+      3948.723876953125,
+      -3241.73779296875
+     ],
+     [
+      4178.349609375,
+      -3416.36962890625
+     ]
+    ]
+   }
+  ]
+ },
+ "seconds": 56.2
+}

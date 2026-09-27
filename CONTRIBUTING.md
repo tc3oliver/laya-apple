@@ -42,6 +42,13 @@ HF_HUB_OFFLINE=1 uv run pytest -q -m "integration or parity or ane"
 `LAYA_APPLE_CACHE` points laya-apple's own cache (build artifacts, verification stamps)
 at a directory of your choice; it defaults to `~/.cache/laya-apple`. Set `HF_HUB_OFFLINE=1`
 once checkpoints are cached to keep tests from touching the network.
+`LAYA_APPLE_TEST_MODELS=laya-typed-decisions,laya-multilingual` limits the per-model tests to
+those checkpoints.
+
+CI also runs the MLX-only part of the integration tier on a GitHub-hosted Apple silicon
+runner, with the checkpoints cached (`.github/workflows/integration.yml`, not part of the
+required `test` check). It installs no `[ane]` extra and never runs `ane`, `parity` or `stress`
+tests; ANE validation stays on a local Mac.
 
 Stress tests are opt-in and long-running:
 

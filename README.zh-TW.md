@@ -259,6 +259,7 @@ uv run python scripts/hardware_report.py --quick
 上面每個主要數字，都能在 [`docs/reproducibility.md`](docs/reproducibility.md) 找到對應的
 報告、原始資料、指令與環境。1.5 的相關證據收錄在
 [`research/coreml-adaptive-breaker/`](research/coreml-adaptive-breaker/README.md)。
+走到 1.5 的整條研究脈絡，包括失敗的路線，整理在 [`research/README.md`](research/README.md)。
 
 ## 限制
 

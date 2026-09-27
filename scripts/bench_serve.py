@@ -211,6 +211,49 @@ def estimate_seconds(steps: list[dict], a) -> float:
     return total
 
 
+def handoff_snapshot(health, model: str) -> dict | None:
+    """The model's adaptive-execution snapshot in a serve /health body (ane.<model>.handoff,
+    Laya.info()["ane_handoff"]), or None: an ineligible instance (--device gpu), a serve older
+    than the field, or a failed /health read."""
+    if not isinstance(health, dict):
+        return None
+    return ((health.get("ane") or {}).get(model) or {}).get("handoff")
+
+
+def handoff_delta(before: dict | None, after: dict | None) -> dict:
+    """Adaptive execution across one window, from the snapshots before and after it: state at
+    each end, episodes started, breaker trips, and ANE forwards per Core ML path. Counters are
+    cumulative per serve process, so the difference is the window's (warm-up included). A
+    disabled snapshot has no counters; those deltas are None."""
+
+    def diff(get):
+        try:
+            return get(after) - get(before)
+        except (TypeError, AttributeError, KeyError):
+            return None
+
+    out = {"present": before is not None and after is not None}
+    if not out["present"]:
+        return out
+    fwd = {p: diff(lambda s, p=p: s["forwards"][p]) for p in ("sync", "async")}
+    n = None if None in fwd.values() else fwd["sync"] + fwd["async"]
+    out.update(
+        enabled_before=before.get("enabled"),
+        enabled_after=after.get("enabled"),
+        disabled_reason=after.get("disabled_reason"),
+        consistent_before=before.get("consistent"),
+        consistent_after=after.get("consistent"),
+        state_before=before.get("state"),
+        state_after=after.get("state"),
+        episodes=diff(lambda s: s["episodes"]),
+        trips=diff(lambda s: s["breaker"]["trips"]),
+        forwards_sync=fwd["sync"],
+        forwards_async=fwd["async"],
+        async_share=(fwd["async"] / n) if n else None,
+    )
+    return out
+
+
 def read_api_key(settings: str | None, env: dict | None = None) -> str | None:
     """The LLM server's key: $LLM_API_KEY, else `auth.api_key` of a JSON settings file."""
     env = os.environ if env is None else env
@@ -238,6 +281,19 @@ def conditions() -> dict:
         "top_cpu": [(float(c), n.rsplit("/", 1)[-1]) for c, n in busy],
         "therm": therm,
     }
+
+
+def git_revision() -> dict:
+    """The checkout's commit and whether it had local changes (the package version alone does
+    not tell an unreleased main from the release)."""
+    root = Path(__file__).resolve().parents[1]
+
+    def git(*args):
+        r = subprocess.run(["git", "-C", str(root), *args], capture_output=True, text=True)
+        return r.stdout.strip() if r.returncode == 0 else None
+
+    status = git("status", "--porcelain", "--untracked-files=no")
+    return {"commit": git("rev-parse", "HEAD"), "dirty": None if status is None else bool(status)}
 
 
 def free_port() -> int:
@@ -443,6 +499,15 @@ class Serve:
             time.sleep(0.5)
         raise RuntimeError(f"serve not ready after {timeout:.0f} s")
 
+    def health(self) -> dict:
+        """/health now (outside measured windows only); an error is recorded, never raised."""
+        import httpx
+
+        try:
+            return httpx.get(self.base + "/health", timeout=5).json()
+        except (httpx.HTTPError, ValueError) as e:
+            return {"error": type(e).__name__}
+
     def stop(self) -> int | None:
         if self.proc.poll() is None:
             self.proc.send_signal(signal.SIGINT)  # uvicorn shuts down gracefully, closing the models
@@ -641,6 +706,8 @@ def run_window(a, kind: str, serve: Serve | None, ctx: dict, key: str | None) ->
     w: dict = {"kind": kind, "config": serve.device if serve else None}
     w["llm_status_before"] = wait_llm_idle(a.llm_url, key, a.idle_wait)
     w["conditions_before"] = conditions()
+    if serve is not None:  # adaptive execution state (run 3): before the warm-up, outside the window
+        w["serve_health_before"] = serve.health()
     schedule = ctx.get("schedule")
     llm_out = ctx["raw_dir"] / f".llm-{ctx['index']:03d}.json"
     proc = None
@@ -662,6 +729,14 @@ def run_window(a, kind: str, serve: Serve | None, ctx: dict, key: str | None) ->
             ]
             full = warm + schedule
             recs = asyncio.run(run_decisions(serve.base, a.clients, full, start_ns, ctx["reqs"], ctx["refs"]))
+            # read after the window ends (the LLM may still be draining), never inside it
+            while time.monotonic_ns() < end_ns:
+                time.sleep(0.05)
+            w["serve_health_after"] = serve.health()
+            w["handoff"] = handoff_delta(
+                handoff_snapshot(w["serve_health_before"], serve.model),
+                handoff_snapshot(w["serve_health_after"], serve.model),
+            )
             for r in recs:
                 r["warmup"] = r["t"] < 0
             w["decisions"] = recs
@@ -722,6 +797,7 @@ def cmd_campaign(a) -> None:
         "args": {k: v for k, v in vars(a).items() if k not in ("fn", "llm_settings")},
         "llm_key_source": "env LLM_API_KEY" if os.environ.get("LLM_API_KEY") else ("settings file" if key else None),
         "laya_apple": laya_apple.__version__,
+        "git": git_revision(),
         "platform": platform_profile() | {"python": platform.python_version()},
         "time": datetime.now(timezone.utc).isoformat(),
         "plan": steps,
@@ -761,6 +837,9 @@ def cmd_campaign(a) -> None:
             write_json(raw / f"refs-step{bi:02d}-{cfg}.json", block)
             ref_dev = {c: sorted({r["device"] for r in v}) for c, v in refs.items()}
             print(f"serve {cfg} ready in {health['startup_s']:.1f} s; reference devices {ref_dev}", flush=True)
+            snap = handoff_snapshot(health, a.model)
+            if cfg == "auto" and not (snap or {}).get("enabled"):
+                print(f"  WARNING: adaptive ANE execution not in use in this serve process: {snap}", flush=True)
             for kind in step["windows"]:
                 ctx = {
                     "raw_dir": raw,
@@ -781,7 +860,14 @@ def cmd_campaign(a) -> None:
                     for c in CLASSES
                 )
                 tok = f" tok/s {w['llm_summary']['tok_s']:.1f}" if "llm_summary" in w else ""
-                print(f"[{index:03d}] {kind:<13} {cfg:<4} {line}{tok}", flush=True)
+                h = w.get("handoff") or {}
+                ho = (
+                    f" handoff {h.get('state_after')} episodes {h.get('episodes')} trips {h.get('trips')} "
+                    f"async {h.get('forwards_async')}/sync {h.get('forwards_sync')}"
+                    if h.get("present")
+                    else ""
+                )
+                print(f"[{index:03d}] {kind:<13} {cfg:<4} {line}{tok}{ho}", flush=True)
                 index += 1
         finally:
             rc = serve.stop()
