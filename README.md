@@ -10,9 +10,9 @@
 **Correctness-validated, adaptive [Laya](https://github.com/NandhaKishorM/laya) inference on
 Apple silicon:** the MLX GPU and the Apple Neural Engine, serving at the same time.
 
-## From one call to the Neural Engine, without a local build (1.6)
+## Fetch validated ANE artifacts, then route and predict (1.6)
 
-`from_pretrained("auto")` → verified artifact fetch → `predict` / `predict_shortlist`.
+`laya-apple artifacts fetch` → `from_pretrained("auto")` → `predict` / `predict_shortlist`.
 
 ```bash
 pip install -U 'laya-apple[ane]'
@@ -38,8 +38,9 @@ with Laya.from_pretrained("auto") as model:       # laya or laya-multilingual, p
   [`tc3oliver/laya-apple-artifacts`](https://huggingface.co/tc3oliver/laya-apple-artifacts)
   and registers it through the validating `artifacts import`: SHA-256 against the index,
   manifest and platform profile, compute plan, the full FP16 parity gate and the placement
-  probe, all on the receiving machine. A download is trusted no more than a local build. It
-  replaces the local build and its PyTorch dependency: the `convert` extra is not needed.
+  probe, all on the receiving machine. A download is trusted no more than a local build.
+  laya-apple 1.6.0 reads that repository at the commit it was validated against, never at
+  its mutable `main`. It replaces the local build and its PyTorch dependency: the `convert` extra is not needed.
 - **`predict` as before; `predict_shortlist` opt-in.** For `choice` questions with many
   labels, `predict_shortlist(..., embed_fn, k=20)` keeps the `k` labels most similar to the
   request, then runs one `predict`. `predict` itself is unchanged

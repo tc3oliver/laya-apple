@@ -7,11 +7,11 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [1.6.0] - 2026-09-27
 
-One path from a Python call to an answer on the Neural Engine, without a local artifact
-build on the one platform profile that has prebuilt artifacts: `Laya.from_pretrained("auto")` picks `laya` or
-`laya-multilingual` per request by language, `laya-apple artifacts fetch` downloads a prebuilt
-ANE artifact and validates it on the receiving machine like a local build, and
-`predict_shortlist` is available, opt-in, for high-cardinality `choice` questions. Prebuilt
+The 1.6 flow is `laya-apple artifacts fetch` → `from_pretrained("auto")` → `predict` / `predict_shortlist`: `laya-apple artifacts fetch` downloads a prebuilt ANE
+artifact and validates it on the receiving machine like a local build,
+`Laya.from_pretrained("auto")` then picks `laya` or `laya-multilingual` per request by
+language, and `predict_shortlist` is available, opt-in, for high-cardinality `choice`
+questions. Prebuilt
 artifacts exist for one platform profile only (Apple M4 Max, macOS 26, coremltools 9.0), and
 the first Core ML load still compiles on the device. Routing thresholds, parity tolerances and
 the published v1.0 measurements are unchanged.
@@ -44,7 +44,10 @@ the published v1.0 measurements are unchanged.
   fetched bucket must pass the runtime placement probe. Only archives built on the same
   platform profile are selected. The default repository is
   `tc3oliver/laya-apple-artifacts`, with one profile so far (Apple M4 Max, macOS 26,
-  coremltools 9.0); `--repo` or `LAYA_APPLE_PREBUILT_REPO` overrides it. `scripts/publish_prebuilt.py` stages a repository
+  coremltools 9.0); `--repo` or `LAYA_APPLE_PREBUILT_REPO` overrides it. Without
+  `--revision`, the default repository is read at the immutable commit this release was
+  validated against (`93181067cfee9c6117a7919321eb303ec36fcbd4`, `prebuilt.DEFAULT_PREBUILT_REVISION`), never at `main`; any
+  other repository defaults to `main`. `scripts/publish_prebuilt.py` stages a repository
   (archives + `index.json`) from a machine's validated artifacts and uploads nothing.
 - `artifacts import` records an optional provenance `source` under `imported.from` and logs
   how long its parity gate and first registered load take.

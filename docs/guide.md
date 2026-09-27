@@ -453,6 +453,11 @@ this machine. In addition:
   build command;
 - each fetched bucket is loaded once and must pass the runtime placement probe.
 
+Without `--revision`, the default repository is read at the commit this release was
+validated against (`93181067cfee9c6117a7919321eb303ec36fcbd4` for 1.6.0), never at its mutable `main`, so one
+laya-apple version always gets the same index and archives. `--revision` overrides it. A
+repository given with `--repo` or `LAYA_APPLE_PREBUILT_REPO` defaults to `main`.
+
 A download is trusted no more than a local build. The repository is `--repo`, or
 `LAYA_APPLE_PREBUILT_REPO`, and otherwise the default
 [`tc3oliver/laya-apple-artifacts`](https://huggingface.co/tc3oliver/laya-apple-artifacts).

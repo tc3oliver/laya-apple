@@ -12,9 +12,9 @@
 **在 Apple 芯片上运行、经过正确性验证的自适应 [Laya](https://github.com/NandhaKishorM/laya)
 推理：MLX GPU 和 Apple Neural Engine 同时提供服务。**
 
-## 一次调用直达 Neural Engine，无需本地构建（1.6）
+## 先获取经过验证的 ANE artifact，再路由和预测（1.6）
 
-`from_pretrained("auto")` → 下载并验证 artifact → `predict` / `predict_shortlist`。
+`laya-apple artifacts fetch` → `from_pretrained("auto")` → `predict` / `predict_shortlist`。
 
 ```bash
 pip install -U 'laya-apple[ane]'
@@ -38,7 +38,8 @@ with Laya.from_pretrained("auto") as model:       # laya or laya-multilingual, p
   [`tc3oliver/laya-apple-artifacts`](https://huggingface.co/tc3oliver/laya-apple-artifacts)
   下载预构建的 artifact，再交给会做验证的 `artifacts import` 注册：核对索引中的 SHA-256、manifest
   和平台 profile、compute plan、完整的 FP16 parity 关卡以及 placement probe，全部在接收端机器上执行。
-  下载来的 artifact 不会比本地构建的更受信任。它省去了本地构建及其 PyTorch 依赖，不需要 `convert` extra。
+  下载来的 artifact 不会比本地构建的更受信任。laya-apple 1.6.0 固定读取这个 repository 中经过验证的那个
+  commit，不会读取可变的 `main`。它省去了本地构建及其 PyTorch 依赖，不需要 `convert` extra。
 - **`predict` 不变；`predict_shortlist` 需手动启用。** 标签很多的 `choice` 问题可以用
   `predict_shortlist(..., embed_fn, k=20)`：先保留与请求最相近的 `k` 个标签，再运行一次 `predict`。
   `predict` 本身没有变化（[`examples/auto_fetch_shortlist.py`](examples/auto_fetch_shortlist.py)）。

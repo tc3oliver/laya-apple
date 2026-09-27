@@ -324,7 +324,12 @@ def build_parser():
     s.add_argument("--yes", action="store_true", help="prune: actually delete (default is a dry run)")
     s.add_argument("--out", help="export: output directory")
     s.add_argument("--repo", help="fetch: Hugging Face repository of prebuilt artifacts (or $LAYA_APPLE_PREBUILT_REPO)")
-    s.add_argument("--revision", default="main", help="fetch: repository revision (branch, tag or commit)")
+    s.add_argument(
+        "--revision",
+        default=None,
+        help="fetch: repository revision (branch, tag or commit); default: the commit this release was "
+        "validated against for the default repository, `main` for any other",
+    )
     s.add_argument(
         "--capabilities", action="store_true", help="list: print full provenance records instead of the summary"
     )

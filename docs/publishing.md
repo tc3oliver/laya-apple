@@ -136,5 +136,11 @@ hf upload <owner>/<repo> "$STAGE" . --repo-type model --commit-message "Add preb
 **Afterwards:** on a *second* machine of the same profile, run `laya-apple artifacts fetch
 MODEL --repo <owner>/<repo>` into an empty `LAYA_APPLE_CACHE`, then `laya-apple artifacts
 verify MODEL`. The fetch must pass the parity gate and the placement probe there before the
-repository is announced. A pinned model revision change needs new archives. Old archives
+repository is announced.
+
+**Pin the release to the upload.** `fetch` reads the default repository at
+`DEFAULT_PREBUILT_REVISION` in `laya_apple/prebuilt.py`, never at `main`. After an upload has
+passed the check above, the next release PR sets that constant to the upload's Hugging Face
+commit SHA (the `commit/<sha>` in `hf upload`'s output). Until then, released versions keep
+reading the commit they were qualified against. A pinned model revision change needs new archives. Old archives
 stay under their old revision's directory and are never selected for the new pin.
