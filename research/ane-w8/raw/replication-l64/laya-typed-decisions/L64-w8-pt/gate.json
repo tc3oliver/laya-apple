@@ -1,0 +1,96 @@
+{
+ "experiment": "ane-w8/replication-gate",
+ "model": "laya-typed-decisions",
+ "length": 64,
+ "config": "w8-pt",
+ "started_at": "2026-09-27T05:31:23.723693+00:00",
+ "environment": {
+  "laya_apple": "1.5.0",
+  "git_revision": "de4f6f7f24e3d78de56d83ddfa50ad5fd2d41b08",
+  "python": "3.12.14",
+  "packages": {
+   "coremltools": "9.0",
+   "torch": "2.7.0",
+   "numpy": "2.1.3",
+   "mlx": "0.32.2",
+   "tokenizers": "0.23.2",
+   "safetensors": "0.8.0"
+  },
+  "platform": {
+   "soc": "Apple M4 Max",
+   "macos": "26.6.2",
+   "macos_build": "25G83",
+   "coremltools": "9.0"
+  },
+  "loadavg": [
+   1.94775390625,
+   3.90283203125,
+   3.34716796875
+  ]
+ },
+ "candidate": {
+  "tree_sha256": "e6db736f63f414d2db176702ed57374749afeb21546879aaba5b0243d13e58b1",
+  "compiled_bytes": 372335130,
+  "weight_bin_bytes": 369653888
+ },
+ "baseline": {
+  "tree_sha256": "1273fcd304953d4eae8dccb89f52ef3f74560a742b012072f01c8d3226e720d0",
+  "compiled_bytes": 741604501,
+  "weight_bin_bytes": 738945088
+ },
+ "placement": {
+  "compute_units": "CPU_AND_NE",
+  "ops": {
+   "ane": 10594,
+   "gpu": 0,
+   "cpu": 0
+  },
+  "cost_share": {
+   "ane": 1.0,
+   "gpu": 0.0,
+   "cpu": 0.0
+  },
+  "transitions": 0
+ },
+ "placement_gate": "PASS",
+ "parity": {
+  "precision": "float16",
+  "tolerance": 0.02,
+  "rows": 41,
+  "skipped_rows": 159,
+  "token_mismatch_cases": 0,
+  "prob_max_abs": 0.01696363041261245,
+  "action_prob_max_abs": 0.0,
+  "logit_max_abs": 0.09044961631298065,
+  "hard_mismatches": 0,
+  "near_tie_flips": [
+   {
+    "case": "L64-s13",
+    "row": 5,
+    "tokens": 52,
+    "ref_margin": 0.009120173871519976
+   },
+   {
+    "case": "lang-es",
+    "row": 0,
+    "tokens": 64,
+    "ref_margin": 0.02229029502780716
+   }
+  ],
+  "all_finite": true,
+  "repeat_identical": true,
+  "passed": true,
+  "reference": "upstream laya 0.3.20 (NandhaKishorM/laya@23a1752), PyTorch CPU FP32",
+  "seconds": 0.6099136250559241,
+  "recording_pass": {
+   "rows": 41,
+   "prob_max_abs": 0.01696363041261245,
+   "action_prob_max_abs": 0.0,
+   "hard_mismatches": 0,
+   "passed": true
+  },
+  "recording_pass_agrees": true
+ },
+ "parity_gate": "PASS",
+ "finished_at": "2026-09-27T05:31:27.792811+00:00"
+}
