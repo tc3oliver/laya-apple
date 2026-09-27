@@ -1,0 +1,64 @@
+{
+ "generated_at": "2026-09-27T02:12:45+0800",
+ "location": "fresh-copy",
+ "modes": [
+  "wait"
+ ],
+ "repeats": 1,
+ "platform": {
+  "soc": "Apple M4 Max",
+  "macos": "26.6.2",
+  "macos_build": "25G83",
+  "coremltools": "9.0"
+ },
+ "python": "3.12.14",
+ "rows": [
+  {
+   "location": "fresh-copy",
+   "repeat": 0,
+   "model": "laya-typed-decisions",
+   "mode": "wait",
+   "ready_s": 273.469,
+   "first_request_s": 0.0112,
+   "first_request_device": "ane",
+   "first_request_reason": "validated_short_single_question_path",
+   "ane_ready_s": 273.482,
+   "after_ready_device": "ane",
+   "after_ready_answers": {
+    "q0": {
+     "type": "choice",
+     "choice": "negative",
+     "probabilities": {
+      "positive": 0.0448,
+      "neutral": 0.1788,
+      "negative": 0.7764
+     },
+     "confidence": 0.4144,
+     "answer_confidence": 0.7764,
+     "action": {
+      "act_probability": 1.0
+     }
+    }
+   },
+   "same_answers": true,
+   "warm_ready_s": 2.681,
+   "ane_probes": {
+    "64": {
+     "ane_ms": 7.868,
+     "cpu_ms": 15.682,
+     "ratio": 0.502
+    },
+    "96": {
+     "ane_ms": 8.576,
+     "cpu_ms": 24.592,
+     "ratio": 0.349
+    },
+    "128": {
+     "ane_ms": 9.338,
+     "cpu_ms": 26.722,
+     "ratio": 0.349
+    }
+   }
+  }
+ ]
+}
