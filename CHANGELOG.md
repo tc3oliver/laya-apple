@@ -31,8 +31,9 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   manifest, platform profile, file hash, compute plan and the full parity gate run on the
   receiving machine. The archive's SHA-256 must match the repository index, and each
   fetched bucket must pass the runtime placement probe. Only archives built on the same
-  platform profile are selected. No default repository is published yet: `--repo` or
-  `LAYA_APPLE_PREBUILT_REPO` is required. `scripts/publish_prebuilt.py` stages a repository
+  platform profile are selected. The default repository is
+  `tc3oliver/laya-apple-artifacts`, with one profile so far (Apple M4 Max, macOS 26,
+  coremltools 9.0); `--repo` or `LAYA_APPLE_PREBUILT_REPO` overrides it. `scripts/publish_prebuilt.py` stages a repository
   (archives + `index.json`) from a machine's validated artifacts and uploads nothing.
 - `artifacts import` records an optional provenance `source` under `imported.from` and logs
   how long its parity gate and first registered load take.

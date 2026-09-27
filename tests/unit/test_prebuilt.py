@@ -82,9 +82,15 @@ def put(files, *entries, payloads=None):
 # ----------------------------------------------------------------------------- repository
 
 
-def test_the_placeholder_repository_is_refused_until_published(monkeypatch):
+def test_the_default_repository_is_used_once_published(monkeypatch):
     monkeypatch.delenv(prebuilt.PREBUILT_REPO_ENV, raising=False)
-    assert prebuilt.DEFAULT_REPO_PUBLISHED is False
+    assert prebuilt.DEFAULT_REPO_PUBLISHED is True
+    assert prebuilt.resolve_repo() == prebuilt.DEFAULT_PREBUILT_REPO
+
+
+def test_an_unpublished_default_repository_is_refused(monkeypatch):
+    monkeypatch.delenv(prebuilt.PREBUILT_REPO_ENV, raising=False)
+    monkeypatch.setattr(prebuilt, "DEFAULT_REPO_PUBLISHED", False)
     with pytest.raises(BackendUnavailableError, match="no prebuilt artifact repository is published"):
         prebuilt.resolve_repo()
     monkeypatch.setenv(prebuilt.PREBUILT_REPO_ENV, "someone/artifacts")

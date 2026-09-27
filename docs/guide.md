@@ -369,8 +369,10 @@ this machine. In addition:
 - each fetched bucket is loaded once and must pass the runtime placement probe.
 
 A download is trusted no more than a local build. The repository is `--repo`, or
-`LAYA_APPLE_PREBUILT_REPO`. A default repository is not published yet, so without either
-the command raises and names the alternatives. Fetching removes the build and its PyTorch
+`LAYA_APPLE_PREBUILT_REPO`, and otherwise the default
+[`tc3oliver/laya-apple-artifacts`](https://huggingface.co/tc3oliver/laya-apple-artifacts).
+It currently holds one platform profile: Apple M4 Max, macOS 26, coremltools 9.0. Any other
+profile gets `ArtifactMissingError` and builds locally. Fetching removes the build and its PyTorch
 dependency. It does not remove Core ML's on-device ANE compile, which still runs once when
 the artifact is first loaded at its registered location.
 

@@ -45,11 +45,11 @@ from .hub import sha256_file
 from .registry import ANE_GRAPH, ModelSpec
 
 PREBUILT_REPO_ENV = "LAYA_APPLE_PREBUILT_REPO"
-# PLACEHOLDER. The maintainer has not created this Hugging Face repository yet. Until
-# DEFAULT_REPO_PUBLISHED is True, fetching without --repo / LAYA_APPLE_PREBUILT_REPO raises
+# The published repository (first upload: Apple M4 Max, macOS 26, coremltools 9.0). While
+# DEFAULT_REPO_PUBLISHED is False, fetching without --repo / LAYA_APPLE_PREBUILT_REPO raises
 # instead of trying a repository that does not exist.
 DEFAULT_PREBUILT_REPO = "tc3oliver/laya-apple-artifacts"
-DEFAULT_REPO_PUBLISHED = False
+DEFAULT_REPO_PUBLISHED = True
 
 INDEX = "index.json"
 INDEX_FORMAT = "laya-apple-prebuilt-index"

@@ -113,11 +113,11 @@ revision.
 
 **Once:**
 1. Create the repository on huggingface.co: a model repository, public, named as you
-   choose (the code's placeholder is `tc3oliver/laya-apple-artifacts`).
+   choose (the published one is `tc3oliver/laya-apple-artifacts`).
 2. Log in on the build machine with `hf auth login`, using a token with write access to that
    repository only. The token stays in the Hugging Face credential store, never in this
    repository.
-3. In a release PR, set `DEFAULT_PREBUILT_REPO` in `laya_apple/prebuilt.py` to that id and
+3. Set `DEFAULT_PREBUILT_REPO` in `laya_apple/prebuilt.py` to that id and
    `DEFAULT_REPO_PUBLISHED = True`, only after the first upload below is complete.
 
 **For each platform profile** (SoC, macOS major, coremltools version), on a machine of that
