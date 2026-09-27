@@ -30,6 +30,26 @@ interval is narrow, but it is still one run, in one session, of one configuratio
 separately preregistered replication before it is used for anything, including a promotion
 decision.
 
+**Replication: reproduced** ([`addendum-2.md`](addendum-2.md), preregistered on #11 before any
+data; `raw/replication-l64/replication.json`). The same cell, artifacts and protocol, in 3 fresh
+processes in an exclusive slot:
+
+| run | ratio (W8 / FP16 predict P50) | 95% CI | FP16 P50 / P99 | W8 P50 / P99 | probe (W8) |
+|---|---|---|---|---|---|
+| 1 (screen) | 0.649 | [0.644, 0.653] | 8.02 / 8.18 ms | 5.19 / 5.36 ms | 0.314 |
+| 2 | 0.649 | [0.648, 0.649] | 7.96 / 8.06 ms | 5.16 / 5.25 ms | 0.317 |
+| 3 | 0.651 | [0.650, 0.653] | 7.98 / 8.11 ms | 5.19 / 5.29 ms | 0.324 |
+
+- Pooled geometric mean over the 30 pairs is 0.650, and the per-run SD is 0.0016. All three
+  conditions of the addendum hold.
+- The same artifact still passes the unchanged gates: probability error 0.0170, 0 hard mismatches
+  and 2 near-tie flips listed; placement 100% ANE with 0 transitions
+  (`raw/replication-l64/laya-typed-decisions/L64-w8-pt/gate.json`).
+- Load average was 2.8 at the start, against about 1.7 in the first run.
+
+This confirms the L64 latency result only. It does not change the no-ship cells, re-measure L96
+or L128, or make a promotion decision.
+
 **No-ship cells, all failing on calibrated probability error > 0.02:**
 
 | model | `w8-pt` prob max (per bucket) | `w8-gc32` prob max (per bucket) |
