@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from pathlib import Path
 
 import pytest
@@ -96,6 +97,21 @@ def test_an_unpublished_default_repository_is_refused(monkeypatch):
     monkeypatch.setenv(prebuilt.PREBUILT_REPO_ENV, "someone/artifacts")
     assert prebuilt.resolve_repo() == "someone/artifacts"
     assert prebuilt.resolve_repo("explicit/repo") == "explicit/repo"
+
+
+def test_the_default_repository_is_pinned_to_an_immutable_commit():
+    pin = prebuilt.DEFAULT_PREBUILT_REVISION
+    assert re.fullmatch(r"[0-9a-f]{40}", pin)
+    assert prebuilt.resolve_revision(prebuilt.DEFAULT_PREBUILT_REPO) == pin
+    assert prebuilt.resolve_revision(prebuilt.DEFAULT_PREBUILT_REPO, "") == pin
+    # an explicit revision still wins, also on the default repository
+    assert prebuilt.resolve_revision(prebuilt.DEFAULT_PREBUILT_REPO, "main") == "main"
+    assert prebuilt.resolve_revision(prebuilt.DEFAULT_PREBUILT_REPO, "abc123") == "abc123"
+
+
+def test_another_repository_is_not_bound_to_the_default_pin():
+    assert prebuilt.resolve_revision("someone/artifacts") == prebuilt.CUSTOM_REPO_REVISION == "main"
+    assert prebuilt.resolve_revision("someone/artifacts", "v2") == "v2"
 
 
 def test_archive_path_names_model_revision_and_profile():
@@ -204,6 +220,27 @@ def test_already_registered_bucket_is_skipped_unless_forced(repo):
     assert calls["import"][0]["force"] is True
 
 
+def test_fetch_from_the_default_repository_reads_the_pinned_commit(repo, monkeypatch):
+    files, calls = repo
+    monkeypatch.delenv(prebuilt.PREBUILT_REPO_ENV, raising=False)
+    put(files, entry(64))
+    prebuilt.fetch(SPEC, [64], log=lambda m: None)
+    pin = prebuilt.DEFAULT_PREBUILT_REVISION
+    assert calls["download"] and all(
+        d[:1] == (prebuilt.DEFAULT_PREBUILT_REPO,) and d[2] == pin for d in calls["download"]
+    )
+    assert calls["import"][0]["source"].startswith(f"hf://{prebuilt.DEFAULT_PREBUILT_REPO}@{pin}/")
+
+
+def test_fetch_from_another_repository_defaults_to_main(repo, monkeypatch):
+    files, calls = repo
+    put(files, entry(64))
+    monkeypatch.setenv(prebuilt.PREBUILT_REPO_ENV, "someone/artifacts")
+    prebuilt.fetch(SPEC, [64], log=lambda m: None)
+    prebuilt.fetch(SPEC, [64], repo="o/r", force=True, log=lambda m: None)
+    assert {(d[0], d[2]) for d in calls["download"]} == {("someone/artifacts", "main"), ("o/r", "main")}
+
+
 def test_unoffered_bucket_is_refused(repo):
     with pytest.raises(ArtifactError, match="does not offer"):
         prebuilt.fetch(SPEC, [999], repo="o/r", log=lambda m: None)
@@ -211,4 +248,6 @@ def test_unoffered_bucket_is_refused(repo):
 
 def test_cli_parses_fetch():
     a = cli.build_parser().parse_args(["artifacts", "fetch", "laya", "--length", "64", "--repo", "o/r"])
-    assert (a.action, a.model, a.length, a.repo, a.revision) == ("fetch", "laya", [64], "o/r", "main")
+    assert (a.action, a.model, a.length, a.repo, a.revision) == ("fetch", "laya", [64], "o/r", None)
+    a = cli.build_parser().parse_args(["artifacts", "fetch", "laya", "--revision", "abc"])
+    assert (a.repo, a.revision) == (None, "abc")

@@ -50,6 +50,12 @@ PREBUILT_REPO_ENV = "LAYA_APPLE_PREBUILT_REPO"
 # instead of trying a repository that does not exist.
 DEFAULT_PREBUILT_REPO = "tc3oliver/laya-apple-artifacts"
 DEFAULT_REPO_PUBLISHED = True
+# The immutable repository commit this release was qualified against. A fetch from the default
+# repository without an explicit revision reads this commit, never the mutable `main`, so one
+# laya-apple version always resolves to the same index and archives. Another repository
+# (--repo / LAYA_APPLE_PREBUILT_REPO) defaults to CUSTOM_REPO_REVISION instead.
+DEFAULT_PREBUILT_REVISION = "93181067cfee9c6117a7919321eb303ec36fcbd4"
+CUSTOM_REPO_REVISION = "main"
 
 INDEX = "index.json"
 INDEX_FORMAT = "laya-apple-prebuilt-index"
@@ -80,6 +86,16 @@ def resolve_repo(repo: str | None = None) -> str:
             f"{PREBUILT_REPO_ENV}), or build the artifacts here: laya-apple artifacts build MODEL"
         )
     return DEFAULT_PREBUILT_REPO
+
+
+def resolve_revision(repo: str, revision: str | None = None) -> str:
+    """The repository revision to read: `revision` when given; else the pinned
+    DEFAULT_PREBUILT_REVISION for the default repository, and CUSTOM_REPO_REVISION for any
+    other repository."""
+    revision = (revision or "").strip()
+    if revision:
+        return revision
+    return DEFAULT_PREBUILT_REVISION if repo == DEFAULT_PREBUILT_REPO else CUSTOM_REPO_REVISION
 
 
 def profile_slug(profile: dict) -> str:
@@ -204,7 +220,7 @@ def fetch(
     buckets=None,
     *,
     repo: str | None = None,
-    revision: str = "main",
+    revision: str | None = None,
     local_files_only: bool = False,
     force: bool = False,
     log=print,
@@ -220,6 +236,7 @@ def fetch(
     from .lifecycle import BUILDING, import_artifact
 
     repo = resolve_repo(repo)
+    revision = resolve_revision(repo, revision)
     buckets = [int(b) for b in (buckets or spec.ane_buckets)]
     unoffered = [b for b in buckets if b not in spec.ane_buckets]
     if unoffered:
