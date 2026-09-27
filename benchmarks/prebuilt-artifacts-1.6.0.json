@@ -1,0 +1,710 @@
+[
+ {
+  "path": "artifacts/laya/c5d78730f349/bc1s-masked-L128-B1",
+  "status": "validated",
+  "parity": {
+   "precision": "float16",
+   "tolerance": 0.02,
+   "rows": 112,
+   "skipped_rows": 51,
+   "token_mismatch_cases": 0,
+   "prob_max_abs": 0.01215065788183145,
+   "action_prob_max_abs": 0.0,
+   "logit_max_abs": 0.46543312072753906,
+   "hard_mismatches": 0,
+   "near_tie_flips": [
+    {
+     "case": "lang-fr",
+     "row": 0,
+     "tokens": 69,
+     "ref_margin": 0.0034966281565775303
+    }
+   ],
+   "all_finite": true,
+   "repeat_identical": true,
+   "passed": true,
+   "reference": "upstream laya 0.3.5 (NandhaKishorM/laya@573e5b6), PyTorch CPU FP32"
+  },
+  "compute_plan": null,
+  "imported": {
+   "at": "2026-09-27T08:12:13.226239+00:00",
+   "from": "hf://tc3oliver/laya-apple-artifacts@main/laya/c5d78730f349/apple-m4-max-macos26-coremltools9.0/laya-L128.tar.gz#sha256=7e7e1ef3459b02efc5fffc9c153187fd60fb6409e1744354aafb62e84e4e9410",
+   "platform": {
+    "soc": "Apple M4 Max",
+    "macos": "26.6.2",
+    "macos_build": "25G83",
+    "coremltools": "9.0"
+   },
+   "placement": {
+    "compute_units": "CPU_AND_NE",
+    "ops": {
+     "ane": 10594,
+     "gpu": 0,
+     "cpu": 0
+    },
+    "cost_share": {
+     "ane": 1.0,
+     "gpu": 0.0,
+     "cpu": 0.0
+    },
+    "transitions": 0
+   },
+   "parity": {
+    "precision": "float16",
+    "tolerance": 0.02,
+    "rows": 122,
+    "skipped_rows": 54,
+    "token_mismatch_cases": 0,
+    "prob_max_abs": 0.01257044066898344,
+    "action_prob_max_abs": 0.0,
+    "logit_max_abs": 0.46543312072753906,
+    "hard_mismatches": 0,
+    "near_tie_flips": [
+     {
+      "case": "lang-fr",
+      "row": 0,
+      "tokens": 69,
+      "ref_margin": 0.0034966281565775303
+     }
+    ],
+    "all_finite": true,
+    "repeat_identical": true,
+    "passed": true,
+    "reference": "upstream laya 0.3.20 (NandhaKishorM/laya@23a1752), PyTorch CPU FP32"
+   },
+   "artifact_sha256_check": "85ee23bf8edc58ca5dbaef1c7765e0aa595a017e2ae5051b88d8c5b82aaae89a"
+  },
+  "platform": {
+   "soc": "Apple M4 Max",
+   "macos": "26.6.2",
+   "macos_build": "25G83",
+   "coremltools": "9.0"
+  }
+ },
+ {
+  "path": "artifacts/laya/c5d78730f349/bc1s-masked-L64-B1",
+  "status": "validated",
+  "parity": {
+   "precision": "float16",
+   "tolerance": 0.02,
+   "rows": 36,
+   "skipped_rows": 127,
+   "token_mismatch_cases": 0,
+   "prob_max_abs": 0.00933087152072301,
+   "action_prob_max_abs": 0.0,
+   "logit_max_abs": 0.36231422424316406,
+   "hard_mismatches": 0,
+   "near_tie_flips": [],
+   "all_finite": true,
+   "repeat_identical": true,
+   "passed": true,
+   "reference": "upstream laya 0.3.5 (NandhaKishorM/laya@573e5b6), PyTorch CPU FP32"
+  },
+  "compute_plan": null,
+  "imported": {
+   "at": "2026-09-27T08:06:05.228611+00:00",
+   "from": "hf://tc3oliver/laya-apple-artifacts@main/laya/c5d78730f349/apple-m4-max-macos26-coremltools9.0/laya-L64.tar.gz#sha256=bb4b3a35f88ae2af9dd19d39a62b0c8e2a39aea63e12cbae9416c55d47a36f03",
+   "platform": {
+    "soc": "Apple M4 Max",
+    "macos": "26.6.2",
+    "macos_build": "25G83",
+    "coremltools": "9.0"
+   },
+   "placement": {
+    "compute_units": "CPU_AND_NE",
+    "ops": {
+     "ane": 10594,
+     "gpu": 0,
+     "cpu": 0
+    },
+    "cost_share": {
+     "ane": 1.0,
+     "gpu": 0.0,
+     "cpu": 0.0
+    },
+    "transitions": 0
+   },
+   "parity": {
+    "precision": "float16",
+    "tolerance": 0.02,
+    "rows": 41,
+    "skipped_rows": 135,
+    "token_mismatch_cases": 0,
+    "prob_max_abs": 0.00933087152072301,
+    "action_prob_max_abs": 0.0,
+    "logit_max_abs": 0.36231422424316406,
+    "hard_mismatches": 0,
+    "near_tie_flips": [],
+    "all_finite": true,
+    "repeat_identical": true,
+    "passed": true,
+    "reference": "upstream laya 0.3.20 (NandhaKishorM/laya@23a1752), PyTorch CPU FP32"
+   },
+   "artifact_sha256_check": "f6263eb65898fd68cdba234366112261957d667ecb5b1037ee55b1cba2333d4d"
+  },
+  "platform": {
+   "soc": "Apple M4 Max",
+   "macos": "26.6.2",
+   "macos_build": "25G83",
+   "coremltools": "9.0"
+  }
+ },
+ {
+  "path": "artifacts/laya/c5d78730f349/bc1s-masked-L96-B1",
+  "status": "validated",
+  "parity": {
+   "precision": "float16",
+   "tolerance": 0.02,
+   "rows": 83,
+   "skipped_rows": 80,
+   "token_mismatch_cases": 0,
+   "prob_max_abs": 0.00933087152072301,
+   "action_prob_max_abs": 0.0,
+   "logit_max_abs": 0.46543312072753906,
+   "hard_mismatches": 0,
+   "near_tie_flips": [
+    {
+     "case": "lang-fr",
+     "row": 0,
+     "tokens": 69,
+     "ref_margin": 0.0034966281565775303
+    }
+   ],
+   "all_finite": true,
+   "repeat_identical": true,
+   "passed": true,
+   "reference": "upstream laya 0.3.5 (NandhaKishorM/laya@573e5b6), PyTorch CPU FP32"
+  },
+  "compute_plan": null,
+  "imported": {
+   "at": "2026-09-27T08:09:07.471468+00:00",
+   "from": "hf://tc3oliver/laya-apple-artifacts@main/laya/c5d78730f349/apple-m4-max-macos26-coremltools9.0/laya-L96.tar.gz#sha256=779395ff629c24f602c89e180d06de60815c137a1759c097df293238e3dcb109",
+   "platform": {
+    "soc": "Apple M4 Max",
+    "macos": "26.6.2",
+    "macos_build": "25G83",
+    "coremltools": "9.0"
+   },
+   "placement": {
+    "compute_units": "CPU_AND_NE",
+    "ops": {
+     "ane": 10594,
+     "gpu": 0,
+     "cpu": 0
+    },
+    "cost_share": {
+     "ane": 1.0,
+     "gpu": 0.0,
+     "cpu": 0.0
+    },
+    "transitions": 0
+   },
+   "parity": {
+    "precision": "float16",
+    "tolerance": 0.02,
+    "rows": 93,
+    "skipped_rows": 83,
+    "token_mismatch_cases": 0,
+    "prob_max_abs": 0.01257044066898344,
+    "action_prob_max_abs": 0.0,
+    "logit_max_abs": 0.46543312072753906,
+    "hard_mismatches": 0,
+    "near_tie_flips": [
+     {
+      "case": "lang-fr",
+      "row": 0,
+      "tokens": 69,
+      "ref_margin": 0.0034966281565775303
+     }
+    ],
+    "all_finite": true,
+    "repeat_identical": true,
+    "passed": true,
+    "reference": "upstream laya 0.3.20 (NandhaKishorM/laya@23a1752), PyTorch CPU FP32"
+   },
+   "artifact_sha256_check": "1d0eb7da10157e750acb3af3a85db6bbe082957e55725593b87f708bf54217a9"
+  },
+  "platform": {
+   "soc": "Apple M4 Max",
+   "macos": "26.6.2",
+   "macos_build": "25G83",
+   "coremltools": "9.0"
+  }
+ },
+ {
+  "path": "artifacts/laya-multilingual/052592a15d19/bc1s-masked-L128-B1",
+  "status": "validated",
+  "parity": {
+   "precision": "float16",
+   "tolerance": 0.02,
+   "rows": 111,
+   "skipped_rows": 76,
+   "token_mismatch_cases": 0,
+   "prob_max_abs": 0.012800862258820267,
+   "action_prob_max_abs": 0.0,
+   "logit_max_abs": 0.10682868957519531,
+   "hard_mismatches": 0,
+   "near_tie_flips": [],
+   "all_finite": true,
+   "repeat_identical": true,
+   "passed": true,
+   "reference": "upstream laya 0.3.5 (NandhaKishorM/laya@573e5b6), PyTorch CPU FP32"
+  },
+  "compute_plan": null,
+  "imported": {
+   "at": "2026-09-27T08:17:41.857013+00:00",
+   "from": "hf://tc3oliver/laya-apple-artifacts@main/laya-multilingual/052592a15d19/apple-m4-max-macos26-coremltools9.0/laya-multilingual-L128.tar.gz#sha256=cf508dc8126f789f4dc58ac8f1648df8a82eb80d11ed7ff18d2ba58638d98ee8",
+   "platform": {
+    "soc": "Apple M4 Max",
+    "macos": "26.6.2",
+    "macos_build": "25G83",
+    "coremltools": "9.0"
+   },
+   "placement": {
+    "compute_units": "CPU_AND_NE",
+    "ops": {
+     "ane": 6390,
+     "gpu": 0,
+     "cpu": 0
+    },
+    "cost_share": {
+     "ane": 1.0,
+     "gpu": 0.0,
+     "cpu": 0.0
+    },
+    "transitions": 0
+   },
+   "parity": {
+    "precision": "float16",
+    "tolerance": 0.02,
+    "rows": 121,
+    "skipped_rows": 79,
+    "token_mismatch_cases": 0,
+    "prob_max_abs": 0.012800862258820267,
+    "action_prob_max_abs": 0.0,
+    "logit_max_abs": 0.10682868957519531,
+    "hard_mismatches": 0,
+    "near_tie_flips": [],
+    "all_finite": true,
+    "repeat_identical": true,
+    "passed": true,
+    "reference": "upstream laya 0.3.20 (NandhaKishorM/laya@23a1752), PyTorch CPU FP32"
+   },
+   "artifact_sha256_check": "62c1f978aec16056c794e7e0edb0d0d3909ccf2a9f314c534ab760000b4595a0"
+  },
+  "platform": {
+   "soc": "Apple M4 Max",
+   "macos": "26.6.2",
+   "macos_build": "25G83",
+   "coremltools": "9.0"
+  }
+ },
+ {
+  "path": "artifacts/laya-multilingual/052592a15d19/bc1s-masked-L256-B1",
+  "status": "validated",
+  "parity": {
+   "precision": "float16",
+   "tolerance": 0.02,
+   "rows": 136,
+   "skipped_rows": 51,
+   "token_mismatch_cases": 0,
+   "prob_max_abs": 0.012800862258820267,
+   "action_prob_max_abs": 0.0,
+   "logit_max_abs": 0.10682868957519531,
+   "hard_mismatches": 0,
+   "near_tie_flips": [],
+   "all_finite": true,
+   "repeat_identical": true,
+   "passed": true,
+   "reference": "upstream laya 0.3.5 (NandhaKishorM/laya@573e5b6), PyTorch CPU FP32"
+  },
+  "compute_plan": null,
+  "imported": {
+   "at": "2026-09-27T08:19:17.449712+00:00",
+   "from": "hf://tc3oliver/laya-apple-artifacts@main/laya-multilingual/052592a15d19/apple-m4-max-macos26-coremltools9.0/laya-multilingual-L256.tar.gz#sha256=0c954dbd6ad6a4fa2f4816a50fba768cb2c205f6536385f2cdcb1034e0c8681e",
+   "platform": {
+    "soc": "Apple M4 Max",
+    "macos": "26.6.2",
+    "macos_build": "25G83",
+    "coremltools": "9.0"
+   },
+   "placement": {
+    "compute_units": "CPU_AND_NE",
+    "ops": {
+     "ane": 6390,
+     "gpu": 0,
+     "cpu": 0
+    },
+    "cost_share": {
+     "ane": 1.0,
+     "gpu": 0.0,
+     "cpu": 0.0
+    },
+    "transitions": 0
+   },
+   "parity": {
+    "precision": "float16",
+    "tolerance": 0.02,
+    "rows": 146,
+    "skipped_rows": 54,
+    "token_mismatch_cases": 0,
+    "prob_max_abs": 0.012800862258820267,
+    "action_prob_max_abs": 0.0,
+    "logit_max_abs": 0.10682868957519531,
+    "hard_mismatches": 0,
+    "near_tie_flips": [],
+    "all_finite": true,
+    "repeat_identical": true,
+    "passed": true,
+    "reference": "upstream laya 0.3.20 (NandhaKishorM/laya@23a1752), PyTorch CPU FP32"
+   },
+   "artifact_sha256_check": "044e8e748edca85a8be2452100812def6de265480b96c1cd20a0a4c35e5247c7"
+  },
+  "platform": {
+   "soc": "Apple M4 Max",
+   "macos": "26.6.2",
+   "macos_build": "25G83",
+   "coremltools": "9.0"
+  }
+ },
+ {
+  "path": "artifacts/laya-multilingual/052592a15d19/bc1s-masked-L64-B1",
+  "status": "validated",
+  "parity": {
+   "precision": "float16",
+   "tolerance": 0.02,
+   "rows": 40,
+   "skipped_rows": 147,
+   "token_mismatch_cases": 0,
+   "prob_max_abs": 0.007930902595345929,
+   "action_prob_max_abs": 0.0,
+   "logit_max_abs": 0.09191417694091797,
+   "hard_mismatches": 0,
+   "near_tie_flips": [],
+   "all_finite": true,
+   "repeat_identical": true,
+   "passed": true,
+   "reference": "upstream laya 0.3.5 (NandhaKishorM/laya@573e5b6), PyTorch CPU FP32"
+  },
+  "compute_plan": null,
+  "imported": {
+   "at": "2026-09-27T08:14:44.263770+00:00",
+   "from": "hf://tc3oliver/laya-apple-artifacts@main/laya-multilingual/052592a15d19/apple-m4-max-macos26-coremltools9.0/laya-multilingual-L64.tar.gz#sha256=488fa6b03b440a36d26e741e5c05789ecb45386e8a88a1251e91d508ec2d6c16",
+   "platform": {
+    "soc": "Apple M4 Max",
+    "macos": "26.6.2",
+    "macos_build": "25G83",
+    "coremltools": "9.0"
+   },
+   "placement": {
+    "compute_units": "CPU_AND_NE",
+    "ops": {
+     "ane": 6390,
+     "gpu": 0,
+     "cpu": 0
+    },
+    "cost_share": {
+     "ane": 1.0,
+     "gpu": 0.0,
+     "cpu": 0.0
+    },
+    "transitions": 0
+   },
+   "parity": {
+    "precision": "float16",
+    "tolerance": 0.02,
+    "rows": 47,
+    "skipped_rows": 153,
+    "token_mismatch_cases": 0,
+    "prob_max_abs": 0.007930902595345929,
+    "action_prob_max_abs": 0.0,
+    "logit_max_abs": 0.09191417694091797,
+    "hard_mismatches": 0,
+    "near_tie_flips": [],
+    "all_finite": true,
+    "repeat_identical": true,
+    "passed": true,
+    "reference": "upstream laya 0.3.20 (NandhaKishorM/laya@23a1752), PyTorch CPU FP32"
+   },
+   "artifact_sha256_check": "5501b83508f5125c67ba6336067abdf2dbd02f0c811f024d0b019e3bb65ddd1c"
+  },
+  "platform": {
+   "soc": "Apple M4 Max",
+   "macos": "26.6.2",
+   "macos_build": "25G83",
+   "coremltools": "9.0"
+  }
+ },
+ {
+  "path": "artifacts/laya-multilingual/052592a15d19/bc1s-masked-L96-B1",
+  "status": "validated",
+  "parity": {
+   "precision": "float16",
+   "tolerance": 0.02,
+   "rows": 87,
+   "skipped_rows": 100,
+   "token_mismatch_cases": 0,
+   "prob_max_abs": 0.012800862258820267,
+   "action_prob_max_abs": 0.0,
+   "logit_max_abs": 0.09191417694091797,
+   "hard_mismatches": 0,
+   "near_tie_flips": [],
+   "all_finite": true,
+   "repeat_identical": true,
+   "passed": true,
+   "reference": "upstream laya 0.3.5 (NandhaKishorM/laya@573e5b6), PyTorch CPU FP32"
+  },
+  "compute_plan": null,
+  "imported": {
+   "at": "2026-09-27T08:16:12.281373+00:00",
+   "from": "hf://tc3oliver/laya-apple-artifacts@main/laya-multilingual/052592a15d19/apple-m4-max-macos26-coremltools9.0/laya-multilingual-L96.tar.gz#sha256=201f868b8769c8e5d86264ee67f0025ba6fbd18e2b4267102535c80899ef9e1b",
+   "platform": {
+    "soc": "Apple M4 Max",
+    "macos": "26.6.2",
+    "macos_build": "25G83",
+    "coremltools": "9.0"
+   },
+   "placement": {
+    "compute_units": "CPU_AND_NE",
+    "ops": {
+     "ane": 6390,
+     "gpu": 0,
+     "cpu": 0
+    },
+    "cost_share": {
+     "ane": 1.0,
+     "gpu": 0.0,
+     "cpu": 0.0
+    },
+    "transitions": 0
+   },
+   "parity": {
+    "precision": "float16",
+    "tolerance": 0.02,
+    "rows": 97,
+    "skipped_rows": 103,
+    "token_mismatch_cases": 0,
+    "prob_max_abs": 0.012800862258820267,
+    "action_prob_max_abs": 0.0,
+    "logit_max_abs": 0.09191417694091797,
+    "hard_mismatches": 0,
+    "near_tie_flips": [],
+    "all_finite": true,
+    "repeat_identical": true,
+    "passed": true,
+    "reference": "upstream laya 0.3.20 (NandhaKishorM/laya@23a1752), PyTorch CPU FP32"
+   },
+   "artifact_sha256_check": "8fcc0f79e982248f986012fdcc9a531162153e1cb1c0a980e87da50cbb9b09a2"
+  },
+  "platform": {
+   "soc": "Apple M4 Max",
+   "macos": "26.6.2",
+   "macos_build": "25G83",
+   "coremltools": "9.0"
+  }
+ },
+ {
+  "path": "artifacts/laya-typed-decisions/f9ab0b228f0f/bc1s-masked-L128-B1",
+  "status": "validated",
+  "parity": {
+   "precision": "float16",
+   "tolerance": 0.02,
+   "rows": 112,
+   "skipped_rows": 75,
+   "token_mismatch_cases": 0,
+   "prob_max_abs": 0.007666298291743701,
+   "action_prob_max_abs": 0.0,
+   "logit_max_abs": 0.053394630551338196,
+   "hard_mismatches": 0,
+   "near_tie_flips": [],
+   "all_finite": true,
+   "repeat_identical": true,
+   "passed": true,
+   "reference": "upstream laya 0.3.5 (NandhaKishorM/laya@573e5b6), PyTorch CPU FP32"
+  },
+  "compute_plan": null,
+  "imported": {
+   "at": "2026-09-27T08:02:45.197095+00:00",
+   "from": "hf://tc3oliver/laya-apple-artifacts@main/laya-typed-decisions/f9ab0b228f0f/apple-m4-max-macos26-coremltools9.0/laya-typed-decisions-L128.tar.gz#sha256=8abd996f5019eda8eaeb50270401857577197b96cf101098029740e5a5f14f52",
+   "platform": {
+    "soc": "Apple M4 Max",
+    "macos": "26.6.2",
+    "macos_build": "25G83",
+    "coremltools": "9.0"
+   },
+   "placement": {
+    "compute_units": "CPU_AND_NE",
+    "ops": {
+     "ane": 10594,
+     "gpu": 0,
+     "cpu": 0
+    },
+    "cost_share": {
+     "ane": 1.0,
+     "gpu": 0.0,
+     "cpu": 0.0
+    },
+    "transitions": 0
+   },
+   "parity": {
+    "precision": "float16",
+    "tolerance": 0.02,
+    "rows": 122,
+    "skipped_rows": 78,
+    "token_mismatch_cases": 0,
+    "prob_max_abs": 0.007666298291743701,
+    "action_prob_max_abs": 0.0,
+    "logit_max_abs": 0.053394630551338196,
+    "hard_mismatches": 0,
+    "near_tie_flips": [],
+    "all_finite": true,
+    "repeat_identical": true,
+    "passed": true,
+    "reference": "upstream laya 0.3.20 (NandhaKishorM/laya@23a1752), PyTorch CPU FP32"
+   },
+   "artifact_sha256_check": "5db688bf78039fd5adf86766e8be98740c5f574ffa3e1dbb0ffb3bd9c55a6aa9"
+  },
+  "platform": {
+   "soc": "Apple M4 Max",
+   "macos": "26.6.2",
+   "macos_build": "25G83",
+   "coremltools": "9.0"
+  }
+ },
+ {
+  "path": "artifacts/laya-typed-decisions/f9ab0b228f0f/bc1s-masked-L64-B1",
+  "status": "validated",
+  "parity": {
+   "precision": "float16",
+   "tolerance": 0.02,
+   "rows": 36,
+   "skipped_rows": 151,
+   "token_mismatch_cases": 0,
+   "prob_max_abs": 0.004626551731036654,
+   "action_prob_max_abs": 0.0,
+   "logit_max_abs": 0.03325338661670685,
+   "hard_mismatches": 0,
+   "near_tie_flips": [],
+   "all_finite": true,
+   "repeat_identical": true,
+   "passed": true,
+   "reference": "upstream laya 0.3.5 (NandhaKishorM/laya@573e5b6), PyTorch CPU FP32"
+  },
+  "compute_plan": null,
+  "imported": {
+   "at": "2026-09-27T07:56:33.784213+00:00",
+   "from": "hf://tc3oliver/laya-apple-artifacts@main/laya-typed-decisions/f9ab0b228f0f/apple-m4-max-macos26-coremltools9.0/laya-typed-decisions-L64.tar.gz#sha256=959e18c65f92a5143287765f982dd28cb4c511587a705e25384ed3f31f005b96",
+   "platform": {
+    "soc": "Apple M4 Max",
+    "macos": "26.6.2",
+    "macos_build": "25G83",
+    "coremltools": "9.0"
+   },
+   "placement": {
+    "compute_units": "CPU_AND_NE",
+    "ops": {
+     "ane": 10594,
+     "gpu": 0,
+     "cpu": 0
+    },
+    "cost_share": {
+     "ane": 1.0,
+     "gpu": 0.0,
+     "cpu": 0.0
+    },
+    "transitions": 0
+   },
+   "parity": {
+    "precision": "float16",
+    "tolerance": 0.02,
+    "rows": 41,
+    "skipped_rows": 159,
+    "token_mismatch_cases": 0,
+    "prob_max_abs": 0.004626551731036654,
+    "action_prob_max_abs": 0.0,
+    "logit_max_abs": 0.03325338661670685,
+    "hard_mismatches": 0,
+    "near_tie_flips": [],
+    "all_finite": true,
+    "repeat_identical": true,
+    "passed": true,
+    "reference": "upstream laya 0.3.20 (NandhaKishorM/laya@23a1752), PyTorch CPU FP32"
+   },
+   "artifact_sha256_check": "1273fcd304953d4eae8dccb89f52ef3f74560a742b012072f01c8d3226e720d0"
+  },
+  "platform": {
+   "soc": "Apple M4 Max",
+   "macos": "26.6.2",
+   "macos_build": "25G83",
+   "coremltools": "9.0"
+  }
+ },
+ {
+  "path": "artifacts/laya-typed-decisions/f9ab0b228f0f/bc1s-masked-L96-B1",
+  "status": "validated",
+  "parity": {
+   "precision": "float16",
+   "tolerance": 0.02,
+   "rows": 83,
+   "skipped_rows": 104,
+   "token_mismatch_cases": 0,
+   "prob_max_abs": 0.004629080340655012,
+   "action_prob_max_abs": 0.0,
+   "logit_max_abs": 0.053394630551338196,
+   "hard_mismatches": 0,
+   "near_tie_flips": [],
+   "all_finite": true,
+   "repeat_identical": true,
+   "passed": true,
+   "reference": "upstream laya 0.3.5 (NandhaKishorM/laya@573e5b6), PyTorch CPU FP32"
+  },
+  "compute_plan": null,
+  "imported": {
+   "at": "2026-09-27T07:59:38.404118+00:00",
+   "from": "hf://tc3oliver/laya-apple-artifacts@main/laya-typed-decisions/f9ab0b228f0f/apple-m4-max-macos26-coremltools9.0/laya-typed-decisions-L96.tar.gz#sha256=9500017f7b329c95a93041bc33d2e5ba4a9f8d4cd4cd0b50b7b38e4042b42926",
+   "platform": {
+    "soc": "Apple M4 Max",
+    "macos": "26.6.2",
+    "macos_build": "25G83",
+    "coremltools": "9.0"
+   },
+   "placement": {
+    "compute_units": "CPU_AND_NE",
+    "ops": {
+     "ane": 10594,
+     "gpu": 0,
+     "cpu": 0
+    },
+    "cost_share": {
+     "ane": 1.0,
+     "gpu": 0.0,
+     "cpu": 0.0
+    },
+    "transitions": 0
+   },
+   "parity": {
+    "precision": "float16",
+    "tolerance": 0.02,
+    "rows": 93,
+    "skipped_rows": 107,
+    "token_mismatch_cases": 0,
+    "prob_max_abs": 0.004629080340655012,
+    "action_prob_max_abs": 0.0,
+    "logit_max_abs": 0.053394630551338196,
+    "hard_mismatches": 0,
+    "near_tie_flips": [],
+    "all_finite": true,
+    "repeat_identical": true,
+    "passed": true,
+    "reference": "upstream laya 0.3.20 (NandhaKishorM/laya@23a1752), PyTorch CPU FP32"
+   },
+   "artifact_sha256_check": "4145579a0a09dbad8d5d3d6ed8a2ed95f8edada8911a9a362789cccee13c16a0"
+  },
+  "platform": {
+   "soc": "Apple M4 Max",
+   "macos": "26.6.2",
+   "macos_build": "25G83",
+   "coremltools": "9.0"
+  }
+ }
+]
