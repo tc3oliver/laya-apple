@@ -57,9 +57,12 @@ probe. The raw per-bucket import records (parity, placement, provenance) are in
 ## Limits of this check
 
 - **It ran on the build machine, with an empty cache.** It shows that the archives, the index
-  and the fetch → import → parity → probe path are intact. It does not show that the archives
-  work on a second machine of the same profile, which `docs/publishing.md` asks for before
-  the repository is announced.
+  and the fetch → import → parity → probe path are intact. It is not an independent check on a
+  second machine of the same profile; none has been done yet. Under
+  [`docs/publishing.md`](../docs/publishing.md) that check is recommended, not required, for
+  publishing the first profile, because every receiving machine re-validates each artifact
+  (integrity, platform, parity, placement) before it registers it. A second-machine record
+  will be added here when one is available.
 - **It covers one profile only.** Every other SoC, macOS major or coremltools version gets
   `ArtifactMissingError` and builds locally.
 - **Fetching does not remove the on-device compile.** The cold-start numbers are in

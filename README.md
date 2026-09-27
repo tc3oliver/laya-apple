@@ -53,7 +53,8 @@ Limits:
 - **The published artifacts were checked by a clean-cache download** on that profile: fetch,
   verify, parity and placement passed for all 10 model/bucket pairs
   ([`benchmarks/prebuilt-artifacts-1.6.0.md`](benchmarks/prebuilt-artifacts-1.6.0.md)). That
-  check ran on the build machine with an empty cache, not on a second machine.
+  check ran on the build machine with an empty cache. Every receiving machine repeats the
+  integrity, platform, parity and placement checks before it registers an artifact.
 - **The first Core ML load still compiles on the device:** about 4.5 minutes. In one run,
   laya-typed-decisions (buckets 64/96/128) took 273.5 s cold at a new location against 2.7 s
   warm ([`research/coreml-compile-cache/screen.md`](research/coreml-compile-cache/screen.md)).
@@ -367,8 +368,10 @@ line that led to it, failed routes included, is mapped in [`research/README.md`]
   ([guide](docs/guide.md#artifact-lifecycle)).
 - **Prebuilt artifacts exist for one platform profile only** (Apple M4 Max, macOS 26,
   coremltools 9.0), and have been fetched only on the machine that built them, with an empty
-  cache ([`benchmarks/prebuilt-artifacts-1.6.0.md`](benchmarks/prebuilt-artifacts-1.6.0.md)),
-  not on a second machine.
+  cache ([`benchmarks/prebuilt-artifacts-1.6.0.md`](benchmarks/prebuilt-artifacts-1.6.0.md)).
+  No independent check on a second machine of the same profile has been done yet. It is
+  recommended, not required, before publishing ([`docs/publishing.md`](docs/publishing.md));
+  each receiving machine still validates every artifact before registering it.
 - **No quantized artifact ships.** In the W8 research only the laya-typed-decisions L64
   `w8-pt` result is reproduced (0.650 of FP16 latency); laya and laya-multilingual failed the
   parity gate ([`research/ane-w8/README.md`](research/ane-w8/README.md)).

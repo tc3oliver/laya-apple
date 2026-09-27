@@ -51,7 +51,8 @@ with Laya.from_pretrained("auto") as model:       # laya or laya-multilingual, p
 - **已发布的 artifact 经过一次空缓存下载检查：** 在该 profile 上，全部 10 组 model/bucket 的
   fetch、verify、parity 和 placement 都通过
   （[`benchmarks/prebuilt-artifacts-1.6.0.md`](benchmarks/prebuilt-artifacts-1.6.0.md)）。
-  这项检查是在构建 artifact 的同一台机器上、用空缓存执行的，不是在第二台机器上。
+  这项检查是在构建 artifact 的同一台机器上、用空缓存执行的。每一台接收端机器在注册 artifact 前，
+  都会再做一次完整性、平台、parity 和 placement 检查。
 - **第一次加载 Core ML 仍然要在设备上编译：** 约 4.5 分钟。在一次实测中，laya-typed-decisions
   （bucket 64/96/128）在新位置冷启动用了 273.5 s，热启动只要 2.7 s
   （[`research/coreml-compile-cache/screen.md`](research/coreml-compile-cache/screen.md)）。
@@ -340,7 +341,8 @@ uv run python scripts/hardware_report.py --quick
 - **预构建的 artifact 只有一个平台 profile**（Apple M4 Max、macOS 26、coremltools 9.0），而且
   只在构建它们的那台机器上用空缓存下载验证过
   （[`benchmarks/prebuilt-artifacts-1.6.0.md`](benchmarks/prebuilt-artifacts-1.6.0.md)），
-  没有在第二台机器上验证。
+  目前还没有在第二台同 profile 的机器上做独立验证。这项验证是建议而不是发布的必要条件
+  （[`docs/publishing.md`](docs/publishing.md)）；每一台接收端机器仍会在注册前验证每个 artifact。
 - **没有任何量化 artifact 发布。** W8 研究中只有 laya-typed-decisions L64 `w8-pt` 的结果得到复现
   （延迟为 FP16 的 0.650）；laya 和 laya-multilingual 没有通过 parity 关卡
   （[`research/ane-w8/README.md`](research/ane-w8/README.md)）。

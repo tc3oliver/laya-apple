@@ -28,7 +28,7 @@ the placement probe on the receiving machine ([guide](guide.md#artifact-lifecycl
 
 | Platform profile | Models and buckets | Status |
 |---|---|---|
-| Apple M4 Max, macOS 26, coremltools 9.0 | `laya` 64/96/128, `laya-multilingual` 64/96/128/256, `laya-typed-decisions` 64/96/128 | **Published** in [`tc3oliver/laya-apple-artifacts`](https://huggingface.co/tc3oliver/laya-apple-artifacts). Downloaded into an empty cache on the build machine: fetch, verify, parity and placement passed for all 10 model/bucket pairs ([`benchmarks/prebuilt-artifacts-1.6.0.md`](../benchmarks/prebuilt-artifacts-1.6.0.md)). **Not yet fetched on a second machine** |
+| Apple M4 Max, macOS 26, coremltools 9.0 | `laya` 64/96/128, `laya-multilingual` 64/96/128/256, `laya-typed-decisions` 64/96/128 | **Published** in [`tc3oliver/laya-apple-artifacts`](https://huggingface.co/tc3oliver/laya-apple-artifacts). Downloaded into an empty cache on the build machine: fetch, verify, parity and placement passed for all 10 model/bucket pairs ([`benchmarks/prebuilt-artifacts-1.6.0.md`](../benchmarks/prebuilt-artifacts-1.6.0.md)). No independent check on a second machine of the same profile yet (recommended, not required: [`publishing.md`](publishing.md)); every receiving machine re-validates before registering |
 | Any other profile | — | **None published.** `artifacts fetch` raises `ArtifactMissingError` naming the build command; build locally with `laya-apple artifacts build` |
 
 A fetched artifact still pays Core ML's on-device compile at first load: 273.5 s cold against

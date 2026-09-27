@@ -133,14 +133,26 @@ uv run python scripts/publish_prebuilt.py --out "$STAGE" --repo <owner>/<repo>
 hf upload <owner>/<repo> "$STAGE" . --repo-type model --commit-message "Add prebuilt ANE artifacts for <profile>"
 ```
 
-**Afterwards:** on a *second* machine of the same profile, run `laya-apple artifacts fetch
-MODEL --repo <owner>/<repo>` into an empty `LAYA_APPLE_CACHE`, then `laya-apple artifacts
-verify MODEL`. The fetch must pass the parity gate and the placement probe there before the
-repository is announced.
+**Afterwards, required before a release uses the upload:** into a new, empty
+`LAYA_APPLE_CACHE`, run `laya-apple artifacts fetch MODEL --repo <owner>/<repo> --revision
+<commit>` and then `laya-apple artifacts verify MODEL` for every published model. Each bucket
+must pass the fetch (SHA-256 against the index), verify, the parity gate and the placement
+probe. Record the result under `benchmarks/`. The build machine may run this check.
+
+**Recommended, not required:** the same check on a second machine of the same platform
+profile. Independent validation on a second machine of the same platform profile is
+recommended before broadening support, but is not required for publishing the first prebuilt
+profile. A release may ship after a clean-cache fetch, verify, parity and placement validation
+on the build machine, because every receiving machine independently re-validates the artifact
+before registration: integrity against the index, the platform profile, the parity gate and
+the placement probe. When a second machine of the profile becomes available, from a
+maintainer or a contributor, add its record next to the first one. It does not block a
+release. Until then, the release notes and the README list the missing independent check as
+a limitation.
 
 **Pin the release to the upload.** `fetch` reads the default repository at
 `DEFAULT_PREBUILT_REVISION` in `laya_apple/prebuilt.py`, never at `main`. After an upload has
-passed the check above, the next release PR sets that constant to the upload's Hugging Face
+passed the required check above, the next release PR sets that constant to the upload's Hugging Face
 commit SHA (the `commit/<sha>` in `hf upload`'s output). Until then, released versions keep
 reading the commit they were qualified against. A pinned model revision change needs new archives. Old archives
 stay under their old revision's directory and are never selected for the new pin.

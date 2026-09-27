@@ -57,7 +57,7 @@ the published v1.0 measurements are unchanged.
 - **The published prebuilt artifacts were checked by a clean-cache download** on the profile
   they were built for: fetch, verify, parity and placement for all 10 model/bucket pairs
   ([`benchmarks/prebuilt-artifacts-1.6.0.md`](benchmarks/prebuilt-artifacts-1.6.0.md)). That
-  check ran on the build machine with an empty cache, not on a second machine.
+  check ran on the build machine with an empty cache; no independent second-machine check yet.
 - **The MLX fast path** (`laya_apple/backends/mlx.py`, `laya_apple/prompt.py`, #128). It
   applies to all three checkpoints:
   - **a token-id cache, on by default:** `Tokenizer.encode` keeps exact text → token ids,
@@ -96,8 +96,11 @@ the published v1.0 measurements are unchanged.
 - **Prebuilt artifacts exist for one platform profile:** Apple M4 Max, macOS 26,
   coremltools 9.0. On any other Mac, `artifacts fetch` raises `ArtifactMissingError` naming
   the build command, and artifacts are built locally as before.
-- **The prebuilt artifacts have not been fetched on a second machine.** The clean-cache check
-  above ran on the machine that built them.
+- **The prebuilt artifacts have no independent check on a second machine yet.** The
+  clean-cache fetch, verify, parity and placement check above ran on the machine that built them.
+  A second machine of the same profile is recommended, not required, for publishing
+  (`docs/publishing.md`); every receiving machine re-validates each artifact before
+  registering it.
 
 ### Research (not shipped)
 

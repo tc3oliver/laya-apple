@@ -470,7 +470,9 @@ the artifact is first loaded at its registered location.
 downloaded into an empty cache and passed fetch, verify, parity and placement for all 10
 model/bucket pairs
 ([`benchmarks/prebuilt-artifacts-1.6.0.md`](../benchmarks/prebuilt-artifacts-1.6.0.md)). That
-check ran on the build machine with an empty cache, not on a second machine.
+check ran on the build machine with an empty cache. An independent check on a second machine
+of the same profile has not been done yet; it is recommended, not required
+([`publishing.md`](publishing.md)).
 
 **Fetching does not give a fast cold start.** On one M4 Max (macOS 26.6.2), the first start of
 laya-typed-decisions (buckets 64, 96, 128) at a new location took 273.5 s with
