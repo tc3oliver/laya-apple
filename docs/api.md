@@ -13,13 +13,17 @@ Import these from the top-level `laya_apple` package:
 | Name | Contract |
 |---|---|
 | `Laya.from_pretrained(model_id, device="auto", *, dtype="float16", local_files_only=False, batch_size=16, execution="inline", ane_placement="auto", ane_startup="wait", trace=None, ane_handoff=None)` | Loads a pinned checkpoint. Invalid arguments raise `ValueError`. Every other failure raises a `LayaAppleError` subclass |
+| `Laya.from_pretrained("auto", ...) -> LayaRouter` (since 1.6) | Language routing between `laya` and `laya-multilingual`, the decision `laya-apple serve --model auto` and upstream's Router make. Both checkpoints load with the given arguments. `LayaRouter` has `predict`, `predict_shortlist`, `submit`, `apredict`, `close`, `wait_for_ane`, `info` and the context manager, with the same contracts as `Laya`. The chosen checkpoint is `RuntimeInfo.model`, why is `RuntimeInfo.model_routing`, and upstream's routing block (`model`, `repo`, `reason`, `detection`, `workflow`) is `Result.extra["routing"]` and the `routing` key of `to_dict()`. The `reason` text is not stable |
 | `Laya.predict(context=None, questions=None, *, state=None) -> Result` | Blocking and thread-safe |
+| `Laya.predict_shortlist(context=None, questions=None, *, state=None, embed_fn, k=20) -> Result` (since 1.6) | Opt-in, never used by `predict`. Upstream's `predict_shortlist`: each `choice` question with more than `k` labels is cut to the `k` labels whose `embed_fn` vectors are most cosine-similar to the state's, then one `predict` runs on the reduced questions. `Result.extra["shortlist"][qid]` (and the `shortlist` key of `to_dict()`) holds `labels`, `scores`, `k`, `n`, `passthrough`. Probabilities on a shortlisted choice are over the kept labels only. An invalid `k` or `embed_fn` raises `ValueError`, a malformed question `InvalidRequestError` |
+| `shortlist_choice(state, criteria, embed_fn, k=20, *, instructions=None) -> list` (since 1.6) | The top-`k` labels of one choice question, in rank order; all labels in their order, without calling `embed_fn`, when `k` covers them |
+| `embed_fn_from_laya(laya, max_length=512, batch_size=32)` (since 1.6) | An `embed_fn` that mean-pools the checkpoint's own MLX encoder. Needs `execution="inline"` and device `gpu` or `auto`; otherwise raises `BackendUnavailableError` |
 | `Laya.submit(...) -> concurrent.futures.Future[Result]` | Same arguments as `predict` |
 | `await Laya.apredict(...) -> Result` | Same arguments as `predict` |
 | `Laya.close()`, `with Laya.from_pretrained(...) as laya:` | Idempotent. Queued work fails with `BackendUnavailableError` |
 | `Laya.wait_for_ane(timeout=None) -> bool` | Only meaningful with `ane_startup="background"` |
 | `Laya.info() -> dict` | The keys below are stable. New keys may be added |
-| `Result` | Fields `answers`, `usage`, `runtime`, `model`, `extra`, and `to_dict()` |
+| `Result` | Fields `answers`, `usage`, `runtime`, `model`, `extra`, and `to_dict()`. `to_dict()` adds each `extra` entry as a top-level key (since 1.6), never replacing `model`, `answers`, `usage` or `runtime` |
 | `RuntimeInfo` | Every field listed in `laya_apple/result.py` at 1.0.0. New optional fields may be added |
 | `RequestTrace`, `QueueSnapshot` | The fields and duration properties in `laya_apple/trace.py`. `trace=` (workers only) calls the callback once per completed request, before its Future resolves; a callback exception is warned once and never fails the request. New fields may be added |
 | The exception classes in `laya_apple.errors`, re-exported at top level | Their hierarchy: every one derives from `LayaAppleError`, and the artifact errors from `ArtifactError` |
@@ -53,6 +57,11 @@ The strings in `RuntimeInfo.routing_reason` are stable:
 
 New reasons may be added in a minor release. Code that switches on the reason must accept
 unknown values.
+
+`RuntimeInfo.model_routing` (since 1.6) says why the language router chose the checkpoint,
+and is `None` when the caller named one. Its values are stable:
+- `language_english`, `language_non_latin_script`, `language_not_english`;
+- `language_undecided_default`, `no_text_default` (both choose `laya`, upstream's default).
 
 **Which device serves a request is not part of the API.** Routing thresholds, auto
 buckets and service-time estimates are measured data. They can change in any release,
@@ -107,8 +116,9 @@ These are not covered by SemVer:
   attributes;
 - every submodule other than `laya_apple.errors`: `laya_apple.routing`, `scheduling`,
   `executor`, `artifacts`, `lifecycle`, `profiles`, `derivation`, `backends`,
-  `conversion`, `parity`, `schema`, `workload`, `benchmark`, `serve`, `lang` (use the
-  CLI and the HTTP API);
+  `conversion`, `parity`, `schema`, `workload`, `benchmark`, `serve`, `lang`, `router`
+  other than `LayaRouter`, and `shortlist` other than the names above (use the CLI and the
+  HTTP API);
 - the bundled data files, except the manifest schema;
 - everything under `scripts/`.
 
