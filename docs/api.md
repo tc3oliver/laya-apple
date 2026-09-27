@@ -122,6 +122,11 @@ These are not covered by SemVer:
   other than `LayaRouter`, and `shortlist` other than the names above (use the CLI and the
   HTTP API);
 - the bundled data files, except the manifest schema;
+- the MLX fast-path switches (since 1.6): `LAYA_APPLE_MLX_COMPILE`,
+  `LAYA_APPLE_MLX_LENGTH_BUCKETS`, `MLXBackend(compile_forward=..., length_buckets=...)` and
+  `Tokenizer.cache`, and the `:compiled` suffix of `RuntimeInfo.artifact_revision`. They are
+  documented in the [guide](guide.md#the-mlx-fast-path-since-16), and may change or be
+  removed in any release;
 - everything under `scripts/`.
 
 ## Deprecation policy

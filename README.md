@@ -10,6 +10,60 @@
 **Correctness-validated, adaptive [Laya](https://github.com/NandhaKishorM/laya) inference on
 Apple silicon:** the MLX GPU and the Apple Neural Engine, serving at the same time.
 
+## From one call to the Neural Engine, without a local build (1.6)
+
+`from_pretrained("auto")` → verified artifact fetch → `predict` / `predict_shortlist`.
+
+```bash
+pip install -U 'laya-apple[ane]'
+laya-apple artifacts fetch laya                  # prebuilt ANE artifacts, validated here
+laya-apple artifacts fetch laya-multilingual
+```
+
+```python
+from laya_apple import Laya
+
+with Laya.from_pretrained("auto") as model:       # laya or laya-multilingual, per request
+    result = model.predict(context=context, questions=questions)
+    rt = result.runtime
+    print(rt.model, rt.model_routing, rt.device, rt.routing_reason)
+```
+
+- **Language routing.** `Laya.from_pretrained("auto")` returns a `LayaRouter` that loads
+  `laya` and `laya-multilingual` and picks one per request by the language of the context,
+  with the same function `laya-apple serve --model auto` uses. Why is in
+  `RuntimeInfo.model_routing` ([`docs/api.md`](docs/api.md)).
+- **Prebuilt ANE artifacts, checked on your Mac.** `laya-apple artifacts fetch MODEL`
+  downloads a prebuilt artifact from
+  [`tc3oliver/laya-apple-artifacts`](https://huggingface.co/tc3oliver/laya-apple-artifacts)
+  and registers it through the validating `artifacts import`: SHA-256 against the index,
+  manifest and platform profile, compute plan, the full FP16 parity gate and the placement
+  probe, all on the receiving machine. A download is trusted no more than a local build. It
+  replaces the local build and its PyTorch dependency: the `convert` extra is not needed.
+- **`predict` as before; `predict_shortlist` opt-in.** For `choice` questions with many
+  labels, `predict_shortlist(..., embed_fn, k=20)` keeps the `k` labels most similar to the
+  request, then runs one `predict`. `predict` itself is unchanged
+  ([`examples/auto_fetch_shortlist.py`](examples/auto_fetch_shortlist.py)).
+
+Limits:
+- **Prebuilt artifacts exist for exactly one platform profile: Apple M4 Max, macOS 26,
+  coremltools 9.0.** Every other Mac gets `ArtifactMissingError` naming the build command,
+  and builds locally as before (`laya-apple artifacts build MODEL`, `convert` extra).
+- **The published artifacts were checked by a clean-cache download** on that profile: fetch,
+  verify, parity and placement passed for all 10 model/bucket pairs
+  ([`benchmarks/prebuilt-artifacts-1.6.0.md`](benchmarks/prebuilt-artifacts-1.6.0.md)). That
+  check ran on the build machine with an empty cache, not on a second machine.
+- **The first Core ML load still compiles on the device:** about 4.5 minutes. In one run,
+  laya-typed-decisions (buckets 64/96/128) took 273.5 s cold at a new location against 2.7 s
+  warm ([`research/coreml-compile-cache/screen.md`](research/coreml-compile-cache/screen.md)).
+  Fetching does not remove it. `ane_startup="background"` serves on MLX in the meantime.
+
+Also in 1.6, not headlines: an MLX fast path (a token-id cache on by default; `mx.compile`
+and length-bucketed batching opt-in) measured at about 1–4% in a screen only
+([`benchmarks/mlx-fast-path-screen/README.md`](benchmarks/mlx-fast-path-screen/README.md)),
+and W8 ANE research that ships nothing ([Limitations](#limitations)). Release notes:
+[`docs/releases/v1.6.0.md`](docs/releases/v1.6.0.md).
+
 ## Adaptive GPU + Neural Engine serving (1.5)
 
 laya-apple sends short, single-question decisions to the Apple Neural Engine (ANE) and keeps
@@ -64,7 +118,7 @@ pip install 'laya-apple[ane]'   # MLX GPU + the Neural Engine runtime
 |---|---|
 | (none) | The MLX GPU runtime only |
 | `ane` | The Neural Engine runtime (coremltools 9.0, pyobjc-framework-CoreML) |
-| `convert` | Building ANE artifacts on this Mac (torch 2.7.0) |
+| `convert` | Building ANE artifacts on this Mac (torch 2.7.0); not needed for `artifacts fetch` |
 | `serve` | `laya-apple serve`, the local Jev-compatible server |
 
 Without the `ane` extra, or without a built ANE artifact, everything runs on the MLX GPU. To
@@ -101,8 +155,10 @@ ane validated_short_single_question_path 11.2 ms
 
 - The first call downloads the pinned checkpoint. After that it works offline
   (`local_files_only=True`).
-- Without an ANE artifact the same request runs on MLX, and `routing_reason` says why. To
-  build and parity-validate one on this Mac (with the `convert` extra):
+- Without an ANE artifact the same request runs on MLX, and `routing_reason` says why. On
+  Apple M4 Max, macOS 26, coremltools 9.0, fetch a prebuilt one, validated on this Mac:
+  `laya-apple artifacts fetch laya-typed-decisions`. On any other Mac, build and
+  parity-validate one (with the `convert` extra):
   `laya-apple artifacts build laya-typed-decisions`.
 - Probabilities, other question types and the full API: [`examples/`](examples/), the
   [user guide](docs/guide.md) and [`docs/api.md`](docs/api.md).
@@ -257,8 +313,9 @@ comes from running both engines at once, not from raw ANE speed. Method and raw 
 | [`convaiinnovations/laya-typed-decisions`](https://huggingface.co/convaiinnovations/laya-typed-decisions) | 1024 | FP16 / FP32, any length | 64, 96, 128 | 64, 96, 128 | Yes |
 
 Adaptive ANE execution applies with `execution="workers"` and `device="auto"`. Validated on one Apple M4 Max with macOS 26.6.2. On other Macs, `auto` stays on MLX until
-ANE artifacts are built and calibrated there (`laya-apple calibrate`). Details:
-[`docs/compatibility.md`](docs/compatibility.md).
+ANE artifacts are built and calibrated there (`laya-apple calibrate`). Prebuilt artifacts
+(`laya-apple artifacts fetch`) exist for Apple M4 Max, macOS 26, coremltools 9.0 only.
+Details: [`docs/compatibility.md`](docs/compatibility.md).
 
 ## Community benchmarks
 
@@ -276,7 +333,8 @@ The full steps, from `git clone` to the pull request, are in the
 ## Reproduction
 
 Each headline number above traces to a report, raw data, a command and an environment in
-[`docs/reproducibility.md`](docs/reproducibility.md). The 1.5 evidence is in
+[`docs/reproducibility.md`](docs/reproducibility.md). The 1.6 prebuilt-artifact check is in
+[`benchmarks/prebuilt-artifacts-1.6.0.md`](benchmarks/prebuilt-artifacts-1.6.0.md). The 1.5 evidence is in
 [`research/coreml-adaptive-breaker/`](research/coreml-adaptive-breaker/README.md). The research
 line that led to it, failed routes included, is mapped in [`research/README.md`](research/README.md).
 
@@ -295,6 +353,22 @@ line that led to it, failed routes included, is mapped in [`research/README.md`]
 - **Isolation is partial.** Under concurrency, each stream's P99 is above its solo value.
 - **Cold start** on a fresh artifact location costs 3–5 minutes of Core ML compile per
   model. `ane_startup="background"` serves on MLX in the meantime.
+- **Prebuilt artifacts do not remove the cold start.** A fetched artifact still compiles on
+  the device at first load: 273.5 s for laya-typed-decisions (buckets 64/96/128) in one run,
+  against 2.7 s warm
+  ([`research/coreml-compile-cache/screen.md`](research/coreml-compile-cache/screen.md)).
+- **Core ML's compile cache grows without eviction:** 0.7–1.4 GB per bucket for every new
+  artifact location (a fetch, an import, a moved cache). laya-apple never evicts it
+  ([guide](docs/guide.md#artifact-lifecycle)).
+- **Prebuilt artifacts exist for one platform profile only** (Apple M4 Max, macOS 26,
+  coremltools 9.0), and have been fetched only on the machine that built them, with an empty
+  cache ([`benchmarks/prebuilt-artifacts-1.6.0.md`](benchmarks/prebuilt-artifacts-1.6.0.md)),
+  not on a second machine.
+- **No quantized artifact ships.** In the W8 research only the laya-typed-decisions L64
+  `w8-pt` result is reproduced (0.650 of FP16 latency); laya and laya-multilingual failed the
+  parity gate ([`research/ane-w8/README.md`](research/ane-w8/README.md)).
+- **The MLX fast-path gains (about 1–4%) come from a screen,** not a full benchmark
+  ([`benchmarks/mlx-fast-path-screen/README.md`](benchmarks/mlx-fast-path-screen/README.md)).
 - **Switchyard does not counterbalance round order:** with the standard seed, GPU + ANE ran
   first in all three runs.
 

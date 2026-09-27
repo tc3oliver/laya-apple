@@ -5,6 +5,17 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-09-27
+
+One path from a Python call to an answer on the Neural Engine, without a local artifact
+build on the one platform profile that has prebuilt artifacts: `Laya.from_pretrained("auto")` picks `laya` or
+`laya-multilingual` per request by language, `laya-apple artifacts fetch` downloads a prebuilt
+ANE artifact and validates it on the receiving machine like a local build, and
+`predict_shortlist` is available, opt-in, for high-cardinality `choice` questions. Prebuilt
+artifacts exist for one platform profile only (Apple M4 Max, macOS 26, coremltools 9.0), and
+the first Core ML load still compiles on the device. Routing thresholds, parity tolerances and
+the published v1.0 measurements are unchanged.
+
 ### Added
 
 - **`laya-apple serve` reports adaptive ANE execution in `/health`.** For a checkpoint that
@@ -40,6 +51,35 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `scripts/bench_coldstart.py` gains `--location` (`move`, `same-path-recopy`, `touch`),
   `--modes` and `--repeats` for `research/coreml-compile-cache/`. The default run is the
   v0.3 method.
+- **The published prebuilt artifacts were checked by a clean-cache download** on the profile
+  they were built for: fetch, verify, parity and placement for all 10 model/bucket pairs
+  ([`benchmarks/prebuilt-artifacts-1.6.0.md`](benchmarks/prebuilt-artifacts-1.6.0.md)). That
+  check ran on the build machine with an empty cache, not on a second machine.
+- **The MLX fast path** (`laya_apple/backends/mlx.py`, `laya_apple/prompt.py`, #128). It
+  applies to all three checkpoints:
+  - **a token-id cache, on by default:** `Tokenizer.encode` keeps exact text → token ids,
+    per tokenizer, thread-safe and least-recently-used, bounded to 4096 entries and about
+    16 MB. A hit returns the ids that tokenizer computes, so it is exact by construction.
+    `laya.tokenizer.cache = None` turns it off;
+  - **a compiled forward (`mx.compile`), off by default:** `LAYA_APPLE_MLX_COMPILE=1` or
+    `MLXBackend(compile_forward=True)`. `RuntimeInfo.artifact_revision` gains `:compiled`
+    when it runs. Bitwise identical to the eager forward on every golden row of all three
+    models, in FP16 and FP32;
+  - **length-bucketed batching, off by default:** `LAYA_APPLE_MLX_LENGTH_BUCKETS=1` or
+    `MLXBackend(length_buckets=True)`. It only affects requests with more than
+    `batch_size` (16) questions. Bitwise identical to in-order batching except
+    laya-multilingual FP32 (max |Δlogit| 9.5e-7, same decisions);
+  - the environment variables also reach the `execution="workers"` GPU worker;
+  - **speed: a screen only,** about 1–4% on laya-typed-decisions
+    ([`benchmarks/mlx-fast-path-screen/README.md`](benchmarks/mlx-fast-path-screen/README.md)).
+    No full `release_bench` comparison was run, and no other speed claim is made.
+  - Research note on fused-kernel candidates, no code:
+    [`research/mlx-fused-kernels/README.md`](research/mlx-fused-kernels/README.md).
+- **CI runs the MLX-only integration tests** on a GitHub-hosted Apple silicon runner
+  (`.github/workflows/integration.yml`, #115). It is not part of the required check, installs
+  no `ane` extra and never runs `ane`, `parity` or `stress` tests.
+- `examples/auto_fetch_shortlist.py`: `from_pretrained("auto")`, then `predict` and
+  `predict_shortlist`, with the fetch commands in its docstring.
 
 ### Known limitations
 
@@ -50,6 +90,25 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **Core ML's compile cache grows without eviction.** It lives under
   `~/Library/Caches/<process name>/com.apple.e5rt.e5bundlecache/` and gains 0.7–1.4 GB per
   bucket for every new artifact location. laya-apple never evicts it.
+- **Prebuilt artifacts exist for one platform profile:** Apple M4 Max, macOS 26,
+  coremltools 9.0. On any other Mac, `artifacts fetch` raises `ArtifactMissingError` naming
+  the build command, and artifacts are built locally as before.
+- **The prebuilt artifacts have not been fetched on a second machine.** The clean-cache check
+  above ran on the machine that built them.
+
+### Research (not shipped)
+
+- **W8-palettized ANE artifacts** ([`research/ane-w8/README.md`](research/ane-w8/README.md),
+  #118, #129). Only the laya-typed-decisions L64 `w8-pt` latency result is reproduced: W8 at
+  0.650 of FP16 predict P50 over three runs
+  ([`raw/replication-l64/replication.json`](research/ane-w8/raw/replication-l64/replication.json)).
+  Every laya and laya-multilingual cell failed the parity gate. Nothing W8 ships in 1.6.0;
+  promotion would take its own production PR.
+- **Splitting one multi-question request across the ANE and the GPU**
+  ([`research/intra-request-split/`](research/intra-request-split/README.md), #124): stopped,
+  G1–G3 PASS, G4a INVALID, the serve mix not run
+  ([`results/verdict.md`](research/intra-request-split/results/verdict.md)). No promotion to
+  the product.
 
 ## [1.5.0] - 2026-09-26
 

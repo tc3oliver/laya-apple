@@ -3,6 +3,8 @@
 The README covers what laya-apple is and why. This page covers how to use it:
 - the question schema;
 - devices and routing;
+- language routing between checkpoints, and shortlisting large `choice` questions;
+- the MLX fast path;
 - concurrent serving;
 - building, managing and moving ANE artifacts;
 - calibrating another machine;
@@ -108,6 +110,89 @@ either explicit `device="ane"` or `auto`. Multi-question requests are never
 auto-routed to the ANE: MLX batching wins at every measured length for 4 and
 8 questions, and 2–3 questions were not measured, so they route to MLX
 conservatively.
+
+## Language routing: `from_pretrained("auto")` (since 1.6)
+
+`Laya.from_pretrained("auto", ...)` returns a `LayaRouter`. It loads `laya` and
+`laya-multilingual` with the same arguments and picks one per request by the language of the
+state, with the function `laya-apple serve --model auto` and upstream's Router use:
+
+```python
+from laya_apple import Laya
+
+with Laya.from_pretrained("auto") as model:
+    result = model.predict(context="Der Kunde wurde zweimal belastet.", questions=questions)
+    print(result.runtime.model, result.runtime.model_routing)   # laya-multilingual language_not_english
+```
+
+- `LayaRouter` has `predict`, `predict_shortlist`, `submit`, `apredict`, `close`,
+  `wait_for_ane`, `info` and the context manager, with the same contracts as `Laya`.
+- The chosen checkpoint is `RuntimeInfo.model`, and why is `RuntimeInfo.model_routing`:
+  `language_english`, `language_non_latin_script`, `language_not_english`,
+  `language_undecided_default` or `no_text_default` (the last two choose `laya`, upstream's
+  default). Upstream's routing block is `Result.extra["routing"]`, and the `routing` key of
+  `to_dict()`.
+- Device routing inside each checkpoint is unchanged: each loaded `Laya` routes between the
+  GPU and the ANE as described above.
+- Both checkpoints stay loaded, so the router uses the memory of both.
+- Only English against multilingual is decided. Upstream's `LAYA_AUTO_TASK` routing and caller
+  language hints are not implemented.
+
+## Shortlisting large `choice` questions (since 1.6)
+
+`predict` always scores every label of a `choice` question. For questions with many labels,
+`predict_shortlist` is opt-in and never used by `predict`:
+
+```python
+from laya_apple import Laya, embed_fn_from_laya
+
+with Laya.from_pretrained("laya", device="gpu") as model:
+    embed_fn = embed_fn_from_laya(model)     # or any callable: list[str] -> (n, d) array
+    result = model.predict_shortlist(context=context, questions=questions, embed_fn=embed_fn, k=20)
+    print(result.extra["shortlist"])
+```
+
+- Each `choice` question with more than `k` labels is cut to the `k` labels whose `embed_fn`
+  vectors are most cosine-similar to the state's, then one `predict` runs on the reduced
+  questions. Other questions pass through unchanged.
+- Probabilities on a shortlisted question are over the kept labels only.
+- `result.extra["shortlist"][name]` (and the `shortlist` key of `to_dict()`) holds `labels`,
+  `scores`, `k`, `n` and `passthrough`.
+- `embed_fn_from_laya` mean-pools the checkpoint's own MLX encoder. It needs
+  `execution="inline"` and device `gpu` or `auto`. A dedicated embedding model passed as
+  `embed_fn` will usually shortlist better.
+- On a `LayaRouter`, `predict_shortlist` runs on the checkpoint the language router chooses.
+- It is adapted from upstream laya v0.3.20. No accuracy claim is made: upstream's reported
+  figures are not remeasured here.
+
+## The MLX fast path (since 1.6)
+
+Three changes to the MLX forward, for all three checkpoints. Only the first is on by default.
+
+| Item | Default | Switch |
+|---|---|---|
+| Token-id cache for prompt texts | **on** | `model.tokenizer.cache = None` turns it off |
+| Compiled forward (`mx.compile`) | off | `LAYA_APPLE_MLX_COMPILE=1` |
+| Length-bucketed batching | off | `LAYA_APPLE_MLX_LENGTH_BUCKETS=1` |
+
+- **Token-id cache.** The tokenizer keeps exact text → token ids, per tokenizer, thread-safe
+  and least-recently-used, bounded to 4096 entries and about 16 MB. The key is the full text,
+  so a hit returns the ids the tokenizer computes: it is exact by construction.
+- **Compiled forward.** The same model runs through `mx.compile`, with batch length padded to a
+  multiple of 32 and the option count to a power of two (masked like the eager padding) so
+  the number of traced graphs stays bounded. `RuntimeInfo.artifact_revision` gains
+  `:compiled` when it runs. It was bitwise identical to the eager forward on every golden row
+  of all three models, in FP16 and FP32.
+- **Length-bucketed batching.** A request with more rows than `batch_size` (16) is sorted by
+  length before batching and restored to request order afterwards; smaller requests run as
+  before. Outputs were bitwise identical to in-order batching except laya-multilingual FP32
+  (max |Δlogit| 9.5e-7, same decisions).
+- The environment variables also reach the `execution="workers"` GPU worker, which inherits
+  the parent's environment.
+- **Speed:** about 1–4% on laya-typed-decisions, in a screen only, not a full benchmark
+  ([`benchmarks/mlx-fast-path-screen/README.md`](../benchmarks/mlx-fast-path-screen/README.md),
+  which also records the correctness checks above). The switches are not part of the stable
+  API ([`api.md`](api.md#internal-no-compatibility-promise)).
 
 ## Concurrent GPU + ANE execution
 
@@ -376,6 +461,12 @@ profile gets `ArtifactMissingError` and builds locally. Fetching removes the bui
 dependency. It does not remove Core ML's on-device ANE compile, which still runs once when
 the artifact is first loaded at its registered location.
 
+**How the published artifacts were checked.** On the profile they were built for, they were
+downloaded into an empty cache and passed fetch, verify, parity and placement for all 10
+model/bucket pairs
+([`benchmarks/prebuilt-artifacts-1.6.0.md`](../benchmarks/prebuilt-artifacts-1.6.0.md)). That
+check ran on the build machine with an empty cache, not on a second machine.
+
 **Fetching does not give a fast cold start.** On one M4 Max (macOS 26.6.2), the first start of
 laya-typed-decisions (buckets 64, 96, 128) at a new location took 273.5 s with
 `ane_startup="wait"`, against 2.7 s warm
@@ -581,7 +672,9 @@ Every `Result.runtime` (a `RuntimeInfo`) records:
 - `model` and `model_revision`;
 - `sequence_length` (longest prompt row, in tokens) and `question_count`;
 - `routing_reason`;
-- `artifact_revision` (the ANE artifact hash, or `mlx:<weights sha256 prefix>`);
+- `artifact_revision` (the ANE artifact hash, or `mlx:<weights sha256 prefix>:<dtype>`, with
+  `:compiled` appended when the compiled MLX forward ran);
+- `model_routing` (since 1.6): why a `LayaRouter` chose the checkpoint, `None` otherwise;
 - `compute_units` and `buckets` (Core ML only);
 - `dtype`;
 - `latency_ms`, from the call to the result (queueing included);

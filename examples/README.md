@@ -27,6 +27,19 @@ run: requests go to the GPU and `routing_reason` says why.
   uv run --extra ane python examples/heterogeneous_serving.py
   ```
 
+- `auto_fetch_shortlist.py` (since 1.6) loads `Laya.from_pretrained("auto")`, which picks
+  `laya` or `laya-multilingual` per request by language, sends an English and a German
+  request through `predict` and one 16-label `choice` question through `predict_shortlist`,
+  and prints the checkpoint, device and routing reasons for each. It never downloads ANE
+  artifacts itself; its docstring gives the `laya-apple artifacts fetch` commands, which
+  work on Apple M4 Max, macOS 26, coremltools 9.0 only. Without artifacts it runs on the GPU.
+
+  ```bash
+  uv run --extra ane laya-apple artifacts fetch laya                # optional, see above
+  uv run --extra ane laya-apple artifacts fetch laya-multilingual   # optional, see above
+  uv run --extra ane python examples/auto_fetch_shortlist.py
+  ```
+
 - `serve_client.py` sends one Jev-style decision request to a running `laya-apple serve`
   over HTTP (standard library only) and prints the answer, the checkpoint the server
   routed to, and the device that answered.

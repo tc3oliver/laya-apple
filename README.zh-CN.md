@@ -12,6 +12,56 @@
 **在 Apple 芯片上运行、经过正确性验证的自适应 [Laya](https://github.com/NandhaKishorM/laya)
 推理：MLX GPU 和 Apple Neural Engine 同时提供服务。**
 
+## 一次调用直达 Neural Engine，无需本地构建（1.6）
+
+`from_pretrained("auto")` → 下载并验证 artifact → `predict` / `predict_shortlist`。
+
+```bash
+pip install -U 'laya-apple[ane]'
+laya-apple artifacts fetch laya                  # prebuilt ANE artifacts, validated here
+laya-apple artifacts fetch laya-multilingual
+```
+
+```python
+from laya_apple import Laya
+
+with Laya.from_pretrained("auto") as model:       # laya or laya-multilingual, per request
+    result = model.predict(context=context, questions=questions)
+    rt = result.runtime
+    print(rt.model, rt.model_routing, rt.device, rt.routing_reason)
+```
+
+- **按语言路由。** `Laya.from_pretrained("auto")` 返回一个 `LayaRouter`，它同时加载 `laya` 和
+  `laya-multilingual`，按每个请求 context 的语言选择其中一个，判断方式与 `laya-apple serve --model auto`
+  使用的是同一个函数。选择的理由记录在 `RuntimeInfo.model_routing`（[`docs/api.md`](docs/api.md)）。
+- **预构建的 ANE artifact，在你的 Mac 上验证。** `laya-apple artifacts fetch MODEL` 从
+  [`tc3oliver/laya-apple-artifacts`](https://huggingface.co/tc3oliver/laya-apple-artifacts)
+  下载预构建的 artifact，再交给会做验证的 `artifacts import` 注册：核对索引中的 SHA-256、manifest
+  和平台 profile、compute plan、完整的 FP16 parity 关卡以及 placement probe，全部在接收端机器上执行。
+  下载来的 artifact 不会比本地构建的更受信任。它省去了本地构建及其 PyTorch 依赖，不需要 `convert` extra。
+- **`predict` 不变；`predict_shortlist` 需手动启用。** 标签很多的 `choice` 问题可以用
+  `predict_shortlist(..., embed_fn, k=20)`：先保留与请求最相近的 `k` 个标签，再运行一次 `predict`。
+  `predict` 本身没有变化（[`examples/auto_fetch_shortlist.py`](examples/auto_fetch_shortlist.py)）。
+
+局限：
+- **预构建的 artifact 目前只有一个平台 profile：Apple M4 Max、macOS 26、coremltools 9.0。**
+  其他 Mac 都会得到 `ArtifactMissingError`，错误信息会给出构建命令，照旧在本地构建
+  （`laya-apple artifacts build MODEL`，需要 `convert` extra）。
+- **已发布的 artifact 经过一次空缓存下载检查：** 在该 profile 上，全部 10 组 model/bucket 的
+  fetch、verify、parity 和 placement 都通过
+  （[`benchmarks/prebuilt-artifacts-1.6.0.md`](benchmarks/prebuilt-artifacts-1.6.0.md)）。
+  这项检查是在构建 artifact 的同一台机器上、用空缓存执行的，不是在第二台机器上。
+- **第一次加载 Core ML 仍然要在设备上编译：** 约 4.5 分钟。在一次实测中，laya-typed-decisions
+  （bucket 64/96/128）在新位置冷启动用了 273.5 s，热启动只要 2.7 s
+  （[`research/coreml-compile-cache/screen.md`](research/coreml-compile-cache/screen.md)）。
+  下载 artifact 无法省掉这段时间。设置 `ane_startup="background"` 时，这段时间会先用 MLX 提供服务。
+
+1.6 另外还有这些，但不是重点：MLX 快速路径（token-id 缓存默认开启；`mx.compile` 和按长度分组的
+batching 需手动启用），在一次筛选测试中约快 1–4%
+（[`benchmarks/mlx-fast-path-screen/README.md`](benchmarks/mlx-fast-path-screen/README.md)）；
+以及没有任何成果发布的 W8 ANE 研究（见[局限](#局限)）。Release notes：
+[`docs/releases/v1.6.0.md`](docs/releases/v1.6.0.md)。
+
 ## 自适应 GPU + Neural Engine 服务（1.5）
 
 laya-apple 把简短的单问题决策交给 Apple Neural Engine（ANE），较长或包含多个问题的任务留在
@@ -60,7 +110,7 @@ pip install 'laya-apple[ane]'   # MLX GPU + the Neural Engine runtime
 |---|---|
 | （无） | 仅 MLX GPU 运行时 |
 | `ane` | Neural Engine 运行时（coremltools 9.0、pyobjc-framework-CoreML） |
-| `convert` | 在这台 Mac 上构建 ANE artifact（torch 2.7.0） |
+| `convert` | 在这台 Mac 上构建 ANE artifact（torch 2.7.0）；`artifacts fetch` 不需要 |
 | `serve` | `laya-apple serve`，本地 Jev 兼容服务器 |
 
 没有安装 `ane` extra，或还没构建 ANE artifact 时，所有计算都在 MLX GPU 上运行。
@@ -96,8 +146,10 @@ ane validated_short_single_question_path 11.2 ms
 ```
 
 - 第一次调用会下载固定版本的 checkpoint，之后即可离线使用（`local_files_only=True`）。
-- 没有 ANE artifact 时，同一个请求会改在 MLX 上运行，`routing_reason` 会说明原因。要在这台 Mac
-  上构建并通过 parity 验证（需要 `convert` extra）：`laya-apple artifacts build laya-typed-decisions`。
+- 没有 ANE artifact 时，同一个请求会改在 MLX 上运行，`routing_reason` 会说明原因。在 Apple M4 Max、
+  macOS 26、coremltools 9.0 上，可以下载预构建、并在这台 Mac 上验证的 artifact：
+  `laya-apple artifacts fetch laya-typed-decisions`。其他 Mac 则在本地构建并通过 parity 验证
+  （需要 `convert` extra）：`laya-apple artifacts build laya-typed-decisions`。
 - 概率、其他问题类型和完整 API：[`examples/`](examples/)、[用户指南](docs/guide.md) 和
   [`docs/api.md`](docs/api.md)。
 
@@ -238,7 +290,8 @@ P99 在 open-loop 突发负载下从请求到达时开始计时，因此包含�
 | [`convaiinnovations/laya-typed-decisions`](https://huggingface.co/convaiinnovations/laya-typed-decisions) | 1024 | FP16 / FP32，任意长度 | 64, 96, 128 | 64, 96, 128 | 是 |
 
 自适应 ANE 执行仅在 `execution="workers"`、`device="auto"` 下启用。仅在一台运行 macOS 26.6.2 的 Apple M4 Max 上验证过。在其他 Mac 上，需要先在该机器上构建并校准
-ANE artifact（`laya-apple calibrate`），`auto` 才会使用 ANE，在此之前一直走 MLX。参见
+ANE artifact（`laya-apple calibrate`），`auto` 才会使用 ANE，在此之前一直走 MLX。预构建的 artifact
+（`laya-apple artifacts fetch`）只提供 Apple M4 Max、macOS 26、coremltools 9.0。参见
 [`docs/compatibility.md`](docs/compatibility.md)。
 
 <a id="community-benchmarks"></a>
@@ -257,7 +310,8 @@ uv run python scripts/hardware_report.py --quick
 ## 复现
 
 上面每个主要数字，都能在 [`docs/reproducibility.md`](docs/reproducibility.md) 中找到对应的
-报告、原始数据、命令和环境。1.5 的相关证据见
+报告、原始数据、命令和环境。1.6 预构建 artifact 的检查记录在
+[`benchmarks/prebuilt-artifacts-1.6.0.md`](benchmarks/prebuilt-artifacts-1.6.0.md)。1.5 的相关证据见
 [`research/coreml-adaptive-breaker/`](research/coreml-adaptive-breaker/README.md)。
 走到 1.5 的整条研究脉络，包括失败的路线，整理在 [`research/README.md`](research/README.md)。
 
@@ -274,6 +328,20 @@ uv run python scripts/hardware_report.py --quick
 - **无法完全隔离。** 并发运行时，每条请求流的 P99 都高于单独运行时。
 - **冷启动：** 如果 artifact 目录是全新的，每个模型需要 3–5 分钟编译 Core ML。
   设置 `ane_startup="background"` 时，这段时间会先用 MLX 提供服务。
+- **预构建的 artifact 省不掉冷启动。** 下载来的 artifact 第一次加载时仍要在设备上编译：一次实测中
+  laya-typed-decisions（bucket 64/96/128）用了 273.5 s，热启动为 2.7 s
+  （[`research/coreml-compile-cache/screen.md`](research/coreml-compile-cache/screen.md)）。
+- **Core ML 的编译缓存只增不减：** 每个新的 artifact 位置（一次 fetch、一次 import、移动过的缓存）
+  每个 bucket 会多出 0.7–1.4 GB。laya-apple 从不清理它（[用户指南](docs/guide.md#artifact-lifecycle)）。
+- **预构建的 artifact 只有一个平台 profile**（Apple M4 Max、macOS 26、coremltools 9.0），而且
+  只在构建它们的那台机器上用空缓存下载验证过
+  （[`benchmarks/prebuilt-artifacts-1.6.0.md`](benchmarks/prebuilt-artifacts-1.6.0.md)），
+  没有在第二台机器上验证。
+- **没有任何量化 artifact 发布。** W8 研究中只有 laya-typed-decisions L64 `w8-pt` 的结果得到复现
+  （延迟为 FP16 的 0.650）；laya 和 laya-multilingual 没有通过 parity 关卡
+  （[`research/ane-w8/README.md`](research/ane-w8/README.md)）。
+- **MLX 快速路径的提升（约 1–4%）来自筛选测试，** 不是完整的 benchmark
+  （[`benchmarks/mlx-fast-path-screen/README.md`](benchmarks/mlx-fast-path-screen/README.md)）。
 - **Switchyard 没有平衡轮次顺序：** 使用标准 seed 时，三次运行都是 GPU + ANE 先跑。
 
 各个 benchmark 自身的局限记录在对应的实验文档中，例如选项顺序见

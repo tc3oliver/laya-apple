@@ -20,6 +20,21 @@ On an unvalidated hardware/OS profile, `device="auto"` uses MLX only
 (`platform_not_validated`). `device="ane"` there requires building and
 parity-validating artifacts on that machine yourself.
 
+## Prebuilt ANE artifacts (since 1.6)
+
+`laya-apple artifacts fetch` selects only archives built on the running machine's platform
+profile (SoC, macOS major, coremltools), and each one passes the full import validation and
+the placement probe on the receiving machine ([guide](guide.md#artifact-lifecycle)).
+
+| Platform profile | Models and buckets | Status |
+|---|---|---|
+| Apple M4 Max, macOS 26, coremltools 9.0 | `laya` 64/96/128, `laya-multilingual` 64/96/128/256, `laya-typed-decisions` 64/96/128 | **Published** in [`tc3oliver/laya-apple-artifacts`](https://huggingface.co/tc3oliver/laya-apple-artifacts). Downloaded into an empty cache on the build machine: fetch, verify, parity and placement passed for all 10 model/bucket pairs ([`benchmarks/prebuilt-artifacts-1.6.0.md`](../benchmarks/prebuilt-artifacts-1.6.0.md)). **Not yet fetched on a second machine** |
+| Any other profile | — | **None published.** `artifacts fetch` raises `ArtifactMissingError` naming the build command; build locally with `laya-apple artifacts build` |
+
+A fetched artifact still pays Core ML's on-device compile at first load: 273.5 s cold against
+2.7 s warm for laya-typed-decisions (buckets 64/96/128) in one run
+([`research/coreml-compile-cache/screen.md`](../research/coreml-compile-cache/screen.md)).
+
 ## Models
 
 | Model | Repo | Pinned revision | `model.safetensors` SHA-256 (prefix) | Encoder | max_len | MLX dtypes | Explicit ANE buckets (`device="ane"`) | Auto ANE buckets (`device="auto"`) |
