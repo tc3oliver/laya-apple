@@ -18,6 +18,7 @@ Import these from the top-level `laya_apple` package:
 | `Laya.predict_shortlist(context=None, questions=None, *, state=None, embed_fn, k=20) -> Result` (since 1.6) | Opt-in, never used by `predict`. Upstream's `predict_shortlist`: each `choice` question with more than `k` labels is cut to the `k` labels whose `embed_fn` vectors are most cosine-similar to the state's, then one `predict` runs on the reduced questions. `Result.extra["shortlist"][qid]` (and the `shortlist` key of `to_dict()`) holds `labels`, `scores`, `k`, `n`, `passthrough`. Probabilities on a shortlisted choice are over the kept labels only. An invalid `k` or `embed_fn` raises `ValueError`, a malformed question `InvalidRequestError` |
 | `shortlist_choice(state, criteria, embed_fn, k=20, *, instructions=None) -> list` (since 1.6) | The top-`k` labels of one choice question, in rank order; all labels in their order, without calling `embed_fn`, when `k` covers them |
 | `embed_fn_from_laya(laya, max_length=512, batch_size=32)` (since 1.6) | An `embed_fn` that mean-pools the checkpoint's own MLX encoder. Needs `execution="inline"` and device `gpu` or `auto`; otherwise raises `BackendUnavailableError` |
+| `Laya.tokenizer.cache = None` (since 1.6) | Turns off the token-id cache, which is on by default and exact by construction; texts are then tokenized on every request, as in 1.5. It applies to that instance in both execution modes. On a `LayaRouter`, set it on each of `router.instances.values()` |
 | `Laya.submit(...) -> concurrent.futures.Future[Result]` | Same arguments as `predict` |
 | `await Laya.apredict(...) -> Result` | Same arguments as `predict` |
 | `Laya.close()`, `with Laya.from_pretrained(...) as laya:` | Idempotent. Queued work fails with `BackendUnavailableError` |
@@ -123,8 +124,8 @@ These are not covered by SemVer:
   HTTP API);
 - the bundled data files, except the manifest schema;
 - the MLX fast-path switches (since 1.6): `LAYA_APPLE_MLX_COMPILE`,
-  `LAYA_APPLE_MLX_LENGTH_BUCKETS`, `MLXBackend(compile_forward=..., length_buckets=...)` and
-  `Tokenizer.cache`, and the `:compiled` suffix of `RuntimeInfo.artifact_revision`. They are
+  `LAYA_APPLE_MLX_LENGTH_BUCKETS` and `MLXBackend(compile_forward=..., length_buckets=...)`,
+  and the `:compiled` suffix of `RuntimeInfo.artifact_revision`. They are
   documented in the [guide](guide.md#the-mlx-fast-path-since-16), and may change or be
   removed in any release;
 - everything under `scripts/`.

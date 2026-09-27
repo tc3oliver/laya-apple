@@ -57,8 +57,7 @@ with Laya.from_pretrained("auto") as model:       # laya or laya-multilingual, p
   下载 artifact 无法省掉这段时间。设置 `ane_startup="background"` 时，这段时间会先用 MLX 提供服务。
 
 1.6 另外还有这些，但不是重点：MLX 快速路径（token-id 缓存默认开启；`mx.compile` 和按长度分组的
-batching 需手动启用），在一次筛选测试中约快 1–4%
-（[`benchmarks/mlx-fast-path-screen/README.md`](benchmarks/mlx-fast-path-screen/README.md)）；
+batching 需手动启用；测量范围见[局限](#局限)）；
 以及没有任何成果发布的 W8 ANE 研究（见[局限](#局限)）。Release notes：
 [`docs/releases/v1.6.0.md`](docs/releases/v1.6.0.md)。
 
@@ -245,7 +244,10 @@ API key、模型、安全性和客户端注意事项：[`docs/serve.md`](docs/se
 
 在 1.3 路径上测量，同一台 Mac 上有一个满载生成的 27B 本地 LLM 时，简短决策的 P99 在异构 `auto`
 服务下为 **47.2 ms**，仅用 GPU 时为 **122.3 ms**（一台 M4 Max、一次运行，`--model laya`）。
-这一结果尚未在 1.5 自适应执行下重新测量。对 LLM 吞吐量的影响、方法和局限：
+第 3 次运行使用 laya-apple 1.5.0 的默认设置，`auto` 为 **41.7 ms**，`--device gpu` 为
+**79.5 ms**，所有预先登记的标准都通过。自适应执行已开启，但在 3,222 次 Neural Engine forward 中
+异步路径一次都没有触发，因此第 3 次运行测到的是 1.5 serve 发布时的行为，而不是异步路径
+（[`benchmarks/serve/m4-max-r3/tables.md`](benchmarks/serve/m4-max-r3/tables.md)）。各次运行是不同的测量，只做描述性比较。对 LLM 吞吐量的影响、方法和局限：
 [`docs/serve.md`](docs/serve.md#beside-a-local-llm)。
 
 ## 正确性
@@ -322,8 +324,9 @@ uv run python scripts/hardware_report.py --quick
 - **自适应执行的 handoff 很保守：** GPU 与 ANE 每次同时繁忙时，最先的一批 ANE 请求会先走
   1.4 路径。
   laya-multilingual 的 ANE 在 worker 进程中运行，不使用这项功能。
-- **`laya-apple serve` 默认会使用 1.5 的自适应执行，但还没有在这条路径上做过 benchmark；**
-  上面的 serve benchmark 是在 1.3 路径上测量的。
+- **`laya-apple serve` 中还没有测到 1.5 自适应执行的异步路径。** serve 默认使用自适应执行；
+  第 3 次在本地 LLM 旁的 benchmark 开启了它，但 3,222 次 Neural Engine forward 全都走 1.4 的
+  Core ML 路径（[`benchmarks/serve/m4-max-r3/tables.md`](benchmarks/serve/m4-max-r3/tables.md)）。
 - **长请求和多问题请求留在 GPU 上，** 因为 GPU 处理它们更快。ANE 路径仅支持 batch 1。
 - **无法完全隔离。** 并发运行时，每条请求流的 P99 都高于单独运行时。
 - **冷启动：** 如果 artifact 目录是全新的，每个模型需要 3–5 分钟编译 Core ML。

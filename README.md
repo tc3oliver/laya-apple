@@ -59,8 +59,7 @@ Limits:
   Fetching does not remove it. `ane_startup="background"` serves on MLX in the meantime.
 
 Also in 1.6, not headlines: an MLX fast path (a token-id cache on by default; `mx.compile`
-and length-bucketed batching opt-in) measured at about 1–4% in a screen only
-([`benchmarks/mlx-fast-path-screen/README.md`](benchmarks/mlx-fast-path-screen/README.md)),
+and length-bucketed batching opt-in; see [Limitations](#limitations) for what was measured),
 and W8 ANE research that ships nothing ([Limitations](#limitations)). Release notes:
 [`docs/releases/v1.6.0.md`](docs/releases/v1.6.0.md).
 
@@ -262,8 +261,11 @@ API keys, models, security and client caveats: [`docs/serve.md`](docs/serve.md).
 
 Measured on the 1.3 path with a 27B local LLM generating at saturation on the same Mac,
 short-decision P99 was **47.2 ms** with heterogeneous `auto` serving against **122.3 ms**
-GPU-only (one run on one M4 Max, `--model laya`). It has not been remeasured with 1.5
-adaptive execution.
+GPU-only (one run on one M4 Max, `--model laya`). Run 3, on laya-apple 1.5.0 with its
+defaults, measured **41.7 ms** (`auto`) against **79.5 ms** (`--device gpu`), and every
+preregistered criterion passed. Adaptive execution was enabled, but its asynchronous path
+engaged in 0 of 3,222 Neural Engine forwards, so run 3 measures 1.5 serve as shipped, not the
+asynchronous path ([`benchmarks/serve/m4-max-r3/tables.md`](benchmarks/serve/m4-max-r3/tables.md)). The runs are separate campaigns, compared descriptively only.
 LLM throughput cost, method and limits:
 [`docs/serve.md`](docs/serve.md#beside-a-local-llm).
 
@@ -346,8 +348,10 @@ line that led to it, failed routes included, is mapped in [`research/README.md`]
 - **Adaptive execution hands off conservatively:** the first ANE requests of every GPU + ANE
   overlap run the 1.4 path. laya-multilingual, whose ANE runs in a worker process, does not
   use it.
-- **`laya-apple serve` has not been benchmarked with 1.5 adaptive execution,** although it
-  uses it by default. Its benchmark above was measured on the 1.3 path.
+- **The asynchronous path of 1.5 adaptive execution is not measured in `laya-apple serve`.**
+  Serve uses adaptive execution by default. Its run-3 benchmark beside a local LLM ran with it
+  enabled, but every one of 3,222 Neural Engine forwards ran on the 1.4 Core ML path
+  ([`benchmarks/serve/m4-max-r3/tables.md`](benchmarks/serve/m4-max-r3/tables.md)).
 - **Long and multi-question requests stay on the GPU,** which is faster for them. The ANE
   path is batch 1 only.
 - **Isolation is partial.** Under concurrency, each stream's P99 is above its solo value.

@@ -60,7 +60,7 @@ the published v1.0 measurements are unchanged.
   - **a token-id cache, on by default:** `Tokenizer.encode` keeps exact text → token ids,
     per tokenizer, thread-safe and least-recently-used, bounded to 4096 entries and about
     16 MB. A hit returns the ids that tokenizer computes, so it is exact by construction.
-    `laya.tokenizer.cache = None` turns it off;
+    `laya.tokenizer.cache = None` turns it off (on a `LayaRouter` from `from_pretrained("auto")`, set it on each of `router.instances.values()`);
   - **a compiled forward (`mx.compile`), off by default:** `LAYA_APPLE_MLX_COMPILE=1` or
     `MLXBackend(compile_forward=True)`. `RuntimeInfo.artifact_revision` gains `:compiled`
     when it runs. Bitwise identical to the eager forward on every golden row of all three
