@@ -151,7 +151,9 @@ def main() -> None:
     ap.add_argument("--model", choices=sorted(CELLS), action="append")
     ap.add_argument("--length", type=int, action="append")
     ap.add_argument("--root")
+    ap.add_argument("--raw", help="output root for latency.json (default raw/); never overwrites an existing file")
     args = ap.parse_args()
+    out_root = Path(args.raw).resolve() if args.raw else RAW
     root = research_root(args.root)
     for model in args.model or list(CELLS):
         spec = resolve(model)
@@ -162,9 +164,12 @@ def main() -> None:
             if not build.exists() or json.loads(build.read_text()).get("step") != "done":
                 log(f"{model} L{length} {args.config}: build not done; latency skipped")
                 continue
+            out = out_root / model / cell_name(length, args.config) / "latency.json"
+            if out.exists():
+                sys.exit(f"{out} exists; refusing to overwrite raw data")
             log(f"{model} L{length} {args.config}: latency")
             rec = run_cell(spec, length, args.config, root)
-            write_json(RAW / model / cell_name(length, args.config) / "latency.json", rec)
+            write_json(out, rec)
 
 
 if __name__ == "__main__":
