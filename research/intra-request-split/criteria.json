@@ -1,0 +1,150 @@
+{
+ "track": "research/intra-request-split",
+ "revision": "r1",
+ "written": "before any measurement of this track; never edited after a run. A change is a new revision file with its reason, and the verdict stays under the revision it was run with.",
+ "question": "Does splitting one multi-question request (N questions sharing one context) across the Neural Engine (B=1 fixed-shape Core ML artifacts, rows one after another) and the MLX GPU (one batch), both at once, answer it faster than today's GPU-only path and than laya-fast on this machine, without changing any decision and without making the single-question P99 of the product mixes worse?",
+ "policy": {
+  "name": "makespan split",
+  "implementation": "research/intra-request-split/scripts/split.py (plan_split, SplitSubmitter)",
+  "applies_to": "requests with 2 or more questions, Laya(device=\"auto\", execution=\"workers\"); 1-question requests are never touched",
+  "eligible_row": "some loaded ANE bucket fits it (length <= bucket, options <= 32)",
+  "ane_rows": "the k longest eligible rows, run one after another at B=1 as one ANE job",
+  "gpu_rows": "the rest, as one MLX batch job",
+  "choice_of_k": "argmin over k = 0..eligible of max(ane_backlog + sum ane_ms(bucket), gpu_backlog + gpu_ms(longest GPU row, GPU rows)); a side with no rows costs 0; ties go to the smaller k",
+  "service_model": "laya_apple.scheduling.ServiceModel of the instance (the shipped routing.json forward P50s on this profile); backlogs read once from the product's device queues",
+  "ane_bucket_ladder": [64, 96, 128, 256, 512],
+  "buckets_loaded": "the model's auto buckets plus the bucket each workload's longest row needs (64, 128, 512); the auto tie band pinned to laya-apple 1.5.0's",
+  "fallback": "none: a device error fails the request"
+ },
+ "workloads": {
+  "definition": "laya_apple.workload.make_request(tokenizer, config, tokens, n_questions, seed): the longest prompt row is exactly `tokens` long; questions cycle through QUESTION_POOL",
+  "shapes": {"8x128": [8, 128], "8x512": [8, 512], "1x512": [1, 512], "32x64": [32, 64]},
+  "seeds": [0, 1, 2, 3]
+ },
+ "arms": {
+  "split": "the policy above",
+  "gpu": "Laya.submit, unchanged (laya-apple 1.5 routes every one of these requests to the GPU)",
+  "ane": "every row as one ANE job on the product's ANE worker (report only)",
+  "laya_fast": "laya-fast at the pinned commit, unmodified, through LayaFast(model_dir).system_one (8x512 on laya only)"
+ },
+ "protocol": {
+  "latency": {
+   "cycles": 5,
+   "window_requests": 30,
+   "window_warmup_requests": 2,
+   "idle_before_window_s": 1.0,
+   "run_warmup_requests": 3,
+   "arm_order": "within a workload, ARMS rotated by (cycle + workload index) mod 3; workloads in the fixed order 8x128, 8x512, 1x512, 32x64",
+   "boundary": "caller-observed: from the call that submits the request (before tokenisation) until its answers are in the calling thread; the same for laya-fast (system_one call to return)",
+   "window_statistic": "P50 of the window's measured requests"
+  },
+  "laya_fast": {
+   "repo": "https://github.com/DJLougen/laya-fast",
+   "commit": "3a9d534642cadb54c4cdb531f9abfa694acbefc8",
+   "license": "Apache-2.0",
+   "location": "a throwaway checkout and venv under ~/Developer/scratch/v16/laya-fast, removed after the campaign",
+   "install": "uv venv --python 3.12; uv pip install -r requirements-lock.txt, then -r requirements-export.txt (its README's two steps); the installed versions are recorded",
+   "checkpoint": "convaiinnovations/laya at 1c5edc17a7acd8701df6fc341c0d179f1c62c982 (its README's revision), converted with its convert.py --dtype float16; model.safetensors must hash to laya-apple's pinned 891102d372688fc2a094dac56a384bc537b87c63f21f9f3dac0be2b7cbc8d86c",
+   "ane_bodies": [512],
+   "ane_export": "ane/export.py --model converted-fp16 --length 512 --output ane/body512 (its README)",
+   "workloads": ["8x512"],
+   "outputs": "not evaluated"
+  },
+  "blocks": {
+   "labels": {"ours": "latency.py run on laya", "lf": "laya_fast_driver.py run"},
+   "order": [["ours", "lf", "lf", "ours"], ["lf", "ours", "ours", "lf"]],
+   "pairing": "each ours run with the adjacent lf run of its block (design.adjacent_pairs); window pairs are the two runs' 8x512 windows of the same cycle"
+  },
+  "machine": "Apple M4 Max, the release profile; exclusive; AC power; the local LLM server and every other GPU/ANE consumer stopped; Core ML E5 cache not cleared; LAYA_APPLE_CACHE and HF_HUB_OFFLINE=1 set",
+  "mix": {
+   "blocks": [["base", "split", "split", "base"], ["split", "base", "base", "split"], ["base", "split", "split", "base"]],
+   "idle_before_round_s": 2.0,
+   "futility_ratio": 1.2,
+   "switchyard": {
+    "model": "laya-typed-decisions",
+    "workload": "switchyard-v1 timetable and payloads (laya_apple.demos.switchyard.world.schedule / warmup_schedule, driver.payloads), standard seed and duration",
+    "measured_class": "train"
+   },
+   "serve": {
+    "model": "laya",
+    "clients": 8,
+    "rate_per_client": 1.0,
+    "short_share": 0.8,
+    "short_len": 96,
+    "mixed_len": 128,
+    "short_variants": 7,
+    "mixed_variants": 4,
+    "seed": 11,
+    "window_s": 60.0,
+    "warmup_s": 3.0,
+    "measured_class": "short_1q",
+    "note": "benchmarks/serve's decision timetable and requests (scripts/bench_serve.client_schedule, build_requests), in process, no HTTP, no LLM"
+   }
+  }
+ },
+ "gates": {
+  "statistic": "per pair, the ratio candidate / reference of the pair's window statistic; the geometric mean of the ratios with a Student-t interval on the log ratios (df = n - 1), back-transformed (research/coreml-prebind-predict/scripts/gate.py, t_interval); a seeded percentile bootstrap is reported as sensitivity only",
+  "G1_split_below_laya_fast": {
+   "model": "laya",
+   "workload": "8x512",
+   "metric": "window P50, split / laya_fast",
+   "pairs_final": 20,
+   "PASS": "95% upper bound < 1.00",
+   "FAIL": "95% lower bound >= 1.00",
+   "otherwise": "INCONCLUSIVE"
+  },
+  "G2_against_todays_gpu_path": {
+   "model": "laya",
+   "metric": "window P50, split / gpu, pairs = the same run and cycle",
+   "pairs_final_per_workload": 20,
+   "no_regression": {"workloads": ["8x128", "8x512", "1x512", "32x64"], "PASS": "95% upper bound <= 1.05", "FAIL": "95% lower bound > 1.05"},
+   "gain": {"workloads": ["8x512"], "PASS": "95% upper bound < 1.00", "FAIL": "95% lower bound >= 1.00"},
+   "combine": "PASS if every part passes, FAIL if any fails, otherwise INCONCLUSIVE"
+  },
+  "G3_correctness": {
+   "reference": "PyTorch CPU FP32 (laya_apple.conversion.torch_reference) per fixture request, raw/reference-<model>.json; for the mixes, the same instance's idle Laya.submit answer of each multi-question payload",
+   "scope": "every split answer: the correctness pass and every measured request of every latency run, and every multi-question answer of every split round of both mixes",
+   "hard_mismatches": 0,
+   "prob_err_max": 0.02,
+   "act_err_max": 0.02,
+   "near_tie_flips": "listed, never failed (reference top-1/top-2 margin < 0.04)",
+   "shared_exceedance": "a probability or action error above 0.02 on a fixture request where today's gpu arm also exceeds 0.02 makes G3 INCONCLUSIVE (not FAIL) and is reported as a finding about the product; any other exceedance or any hard mismatch is FAIL",
+   "report_only": "the gpu and ane arms' checks against the same reference"
+  },
+  "G4a_switchyard_mix": {
+   "metric": "per round, P99 of train latency (completion - scheduled arrival); pairs = adjacent split/base rounds of a block",
+   "pairs_final": 6,
+   "PASS": "95% upper bound of split/base <= 1.05, and split late trains (> 100 ms) in total <= base late trains in total, and split oracle-wrong trains in total <= base's",
+   "FAIL": "95% lower bound > 1.05, or more late or oracle-wrong trains than base",
+   "otherwise": "INCONCLUSIVE"
+  },
+  "G4b_serve_mix": {
+   "metric": "per round, P99 of short_1q latency (completion - scheduled arrival); pairs as G4a",
+   "pairs_final": 6,
+   "PASS": "95% upper bound of split/base <= 1.05",
+   "FAIL": "95% lower bound > 1.05",
+   "otherwise": "INCONCLUSIVE"
+  },
+  "validity": {
+   "gpu_arm_on_gpu": "every gpu-arm request answered on the GPU with reason multiple_questions (1x512: sequence_exceeds_ane_auto_range)",
+   "ane_ready": "each run's instance has the ANE ready and the needed buckets loaded; otherwise the run aborts (no fallback is measured)",
+   "laya_fast_bodies": "each laya-fast run loaded its 512 body; laya-fast's Python sources unmodified at the pinned commit",
+   "mix_lag": "open-loop client lag P99 <= 5 ms in every measured round (benchmarks/serve V1); a round above it is invalid",
+   "crashes": "a crashed run is re-run once in the same position; a second crash stops the campaign"
+  }
+ },
+ "sequence_and_fast_fail": {
+  "F0": "Before any timed run: fixtures, references, then the first latency run's correctness pass. Any split hard mismatch, or a non-shared error above 0.02: STOP, FAIL.",
+  "F1": "After block 1 (10 pairs per gate): 99% t-intervals. STOP with FAIL if G1's lower bound >= 1.00, or G2 no-regression's lower bound > 1.05 on any workload, or G2 gain's lower bound >= 1.00, or any G3 failure. Otherwise continue. Never PASS here.",
+  "F2": "After block 2 (20 pairs): the gates at 95%. G1, G2 and G3 must all PASS for the mixes to run. INCONCLUSIVE stops the campaign; there is no automatic extension.",
+  "F3": "Mixes: switchyard first, then serve. Each stops itself after its block 1 if both pairs' ratios exceed 1.20 (FAIL). A FAIL in switchyard skips serve.",
+  "verdict": "PASS if G1, G2, G3, G4a and G4b all PASS; FAIL if any FAILs; otherwise INCONCLUSIVE. Throughput, latency and correctness are reported separately; no dimension is hidden in the verdict."
+ },
+ "phase_b": {
+  "runs_only_if": "the verdict above is PASS",
+  "models": ["laya-typed-decisions", "laya-multilingual"],
+  "design": "4 latency.py runs per model (no laya-fast), gates G2 and G3 per model, 20 pairs; F0 and F1 apply per model",
+  "meaning": "a model whose Phase B verdict is not PASS keeps today's GPU-only path for multi-question requests in any production change"
+ },
+ "promotion": "A PASS is not a product change. The split is rebuilt with tests in laya_apple/scheduling.py in its own pull request, gated again by the real Switchyard campaign (benchmarks/switchyard/run.sh) and the serve campaign beside a local LLM (benchmarks/serve/run.sh, criteria-r2.json unchanged), each compared with the laya-apple 1.5 campaign re-run on the same machine."
+}

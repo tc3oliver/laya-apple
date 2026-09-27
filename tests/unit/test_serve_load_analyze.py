@@ -250,3 +250,98 @@ def test_run1_record_reproduces_with_its_own_criteria():
     assert json.dumps(res, indent=1, sort_keys=True) + "\n" == (campaign / "results.json").read_text()
     assert analyze.tables(res) == (campaign / "tables.md").read_text()
     assert not res["valid"]
+
+
+def test_run2_record_reproduces_with_its_own_criteria():
+    campaign = PATH.parent / "m4-max-r2"
+    res = analyze.summarise(campaign)
+    assert json.dumps(res, indent=1, sort_keys=True) + "\n" == (campaign / "results.json").read_text()
+    assert analyze.tables(res) == (campaign / "tables.md").read_text()
+    assert res["valid"]
+
+
+R3 = PATH.parent / "criteria-r3.json"
+
+
+def with_handoff(disable_index=None):
+    """Adaptive-execution records around every auto decision window, as bench_serve writes them."""
+
+    def fn(w):
+        if w.get("config") != "auto" or "decisions" not in w:
+            return
+        on = w["index"] != disable_index
+        w["handoff"] = {
+            "present": True,
+            "enabled_before": True,
+            "enabled_after": on,
+            "consistent_before": True,
+            "consistent_after": True,
+            "state_before": "armed",
+            "state_after": "async_healthy" if on else "disabled",
+            "episodes": 1,
+            "trips": int(w["kind"] == "decisions_llm"),
+            "forwards_sync": 64,
+            "forwards_async": 36,
+            "async_share": 0.36,
+            "disabled_reason": None if on else "handoff state corrupted: x",
+        }
+
+    return fn
+
+
+def auto_window(campaign: Path, kind: str) -> int:
+    for p in sorted((campaign / "raw").glob(f"*-{kind}.json")):
+        w = json.loads(p.read_text())
+        if w["config"] == "auto":
+            return w["index"]
+    raise AssertionError(kind)
+
+
+def test_run3_gates_exactly_as_run2_and_records_adaptive_execution(tmp_path):
+    campaign = make_campaign(tmp_path)
+    edit_windows(campaign, with_start_ns)
+    edit_windows(campaign, spill(0.04))
+    edit_windows(campaign, with_handoff())
+    r2, r3 = analyze.summarise(campaign, R2), analyze.summarise(campaign, R3)
+    for key in ("valid", "validity", "results", "cells", "llm_tok_s_drop"):
+        assert r2[key] == r3[key]
+    assert "adaptive_execution" not in r2 and r3["criteria_revision"] == "r3"
+    ae = r3["adaptive_execution"]
+    assert ae["A1_adaptive_execution_in_use"] == {"ok": True, "windows_failed": []}
+    assert ae["cells"]["auto/decisions_llm"] == {
+        "episodes": 1,
+        "trips": 1,
+        "forwards_sync": 64,
+        "forwards_async": 36,
+        "async_share": pytest.approx(0.36),
+        "windows": 1,
+    }
+    assert ae["gpu_windows_with_handoff"] == []
+    assert "Adaptive ANE execution (recorded, not gated)" in analyze.tables(r3)
+
+
+def test_run3_a1_failure_changes_no_verdict(tmp_path):
+    campaign = make_campaign(tmp_path)
+    edit_windows(campaign, with_start_ns)
+    idx = auto_window(campaign, "decisions_llm")
+    edit_windows(campaign, with_handoff(disable_index=idx))
+    r2, r3 = analyze.summarise(campaign, R2), analyze.summarise(campaign, R3)
+    assert r3["results"] == r2["results"] and r3["valid"] == r2["valid"]
+    a1 = r3["adaptive_execution"]["A1_adaptive_execution_in_use"]
+    assert not a1["ok"]
+    assert a1["windows_failed"] == [{"index": idx, "disabled_reason": "handoff state corrupted: x"}]
+
+
+def test_run3_windows_without_a_handoff_record_fail_a1(tmp_path):
+    campaign = make_campaign(tmp_path)  # a serve without the /health field: nothing recorded
+    a1 = analyze.summarise(campaign, R3)["adaptive_execution"]["A1_adaptive_execution_in_use"]
+    assert not a1["ok"] and len(a1["windows_failed"]) == 2
+
+
+def test_run3_record_reproduces_with_its_own_criteria():
+    campaign = PATH.parent / "m4-max-r3"
+    res = analyze.summarise(campaign)
+    assert json.dumps(res, indent=1, sort_keys=True) + "\n" == (campaign / "results.json").read_text()
+    assert analyze.tables(res) == (campaign / "tables.md").read_text()
+    assert res["valid"] and res["criteria_revision"] == "r3"
+    assert res["adaptive_execution"]["A1_adaptive_execution_in_use"]["ok"]

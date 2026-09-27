@@ -1,0 +1,33 @@
+{
+ "track": "research/intra-request-split",
+ "addendum": 1,
+ "applies_to": "criteria.json r1",
+ "written": "before any measurement of this track (the only files in raw/ are the fixtures and the FP32 references, which hold no timing); never edited after a run",
+ "reason": "Maintainer policy: a short screen first, stop early, report immediately. The full campaign costs about 70 minutes of exclusive machine time; the screen spends about 5 minutes to decide whether it is worth starting.",
+ "effect": "Stop-only. The screen can end the campaign before block 1; it can never pass anything. Every gate, look, pair count and threshold of criteria.json r1 is unchanged, and no screen data enters any gate.",
+ "screen": {
+  "model": "laya",
+  "workloads": ["8x512"],
+  "arms": ["split", "gpu"],
+  "cycles": 6,
+  "arm_order": "per cycle, split then gpu on even cycles and gpu then split on odd cycles (ABBA over consecutive cycles)",
+  "window": "criteria.json protocol.latency unchanged: 1 s idle, 2 discarded, 30 measured closed-loop requests, window P50; caller-observed latency",
+  "laya_fast": "one laya_fast_driver.py run right after, 3 cycles of the same 8x512 window (report and stop rule S3 only)",
+  "correctness": "the run's correctness pass (every 8x512 fixture request once per arm) against the FP32 reference, as in latency.py",
+  "files": "raw/screen/screen-laya.json and raw/screen/screen-laya-fast.json",
+  "commands": [
+   "uv run --no-sync python research/intra-request-split/scripts/latency.py --model laya --run-id screen-laya --screen",
+   "<laya-fast venv python> research/intra-request-split/scripts/laya_fast_driver.py --screen ... --run-id screen-laya-fast",
+   "uv run --no-sync python research/intra-request-split/scripts/analyze.py --look screen"
+  ],
+  "machine": "as criteria.json protocol.machine: exclusive, AC power, the local LLM server and every other GPU/ANE consumer stopped"
+ },
+ "stop_rule": {
+  "pairs": "split window and gpu window of the same cycle: 6 ratios split / gpu of the window P50",
+  "S1_split_not_clearly_faster_than_mlx": "SCREEN STOP unless every one of the 6 ratios is < 1.00 and their geometric mean is < 0.95",
+  "S2_correctness": "SCREEN STOP if any split answer of the correctness pass or of a measured window has a hard mismatch against the FP32 reference",
+  "S3_clearly_slower_than_laya_fast": "SCREEN STOP if the median of the 6 split window P50s is >= 1.10 x the median of the 3 laya-fast window P50s",
+  "otherwise": "SCREEN CONTINUE: the campaign proceeds to the probe step and block 1 exactly as criteria.json r1 describes",
+  "reporting": "A screen stop is reported as a screen stop with its numbers, not as a verdict on any gate. It says only that the preregistered campaign was not started."
+ }
+}
