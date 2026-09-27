@@ -27,8 +27,8 @@
   },
   "compute_plan": null,
   "imported": {
-   "at": "2026-09-27T08:12:13.226239+00:00",
-   "from": "hf://tc3oliver/laya-apple-artifacts@main/laya/c5d78730f349/apple-m4-max-macos26-coremltools9.0/laya-L128.tar.gz#sha256=7e7e1ef3459b02efc5fffc9c153187fd60fb6409e1744354aafb62e84e4e9410",
+   "at": "2026-09-27T11:58:32.332369+00:00",
+   "from": "hf://tc3oliver/laya-apple-artifacts@93181067cfee9c6117a7919321eb303ec36fcbd4/laya/c5d78730f349/apple-m4-max-macos26-coremltools9.0/laya-L128.tar.gz#sha256=7e7e1ef3459b02efc5fffc9c153187fd60fb6409e1744354aafb62e84e4e9410",
    "platform": {
     "soc": "Apple M4 Max",
     "macos": "26.6.2",
@@ -102,8 +102,8 @@
   },
   "compute_plan": null,
   "imported": {
-   "at": "2026-09-27T08:06:05.228611+00:00",
-   "from": "hf://tc3oliver/laya-apple-artifacts@main/laya/c5d78730f349/apple-m4-max-macos26-coremltools9.0/laya-L64.tar.gz#sha256=bb4b3a35f88ae2af9dd19d39a62b0c8e2a39aea63e12cbae9416c55d47a36f03",
+   "at": "2026-09-27T11:52:24.820425+00:00",
+   "from": "hf://tc3oliver/laya-apple-artifacts@93181067cfee9c6117a7919321eb303ec36fcbd4/laya/c5d78730f349/apple-m4-max-macos26-coremltools9.0/laya-L64.tar.gz#sha256=bb4b3a35f88ae2af9dd19d39a62b0c8e2a39aea63e12cbae9416c55d47a36f03",
    "platform": {
     "soc": "Apple M4 Max",
     "macos": "26.6.2",
@@ -177,8 +177,8 @@
   },
   "compute_plan": null,
   "imported": {
-   "at": "2026-09-27T08:09:07.471468+00:00",
-   "from": "hf://tc3oliver/laya-apple-artifacts@main/laya/c5d78730f349/apple-m4-max-macos26-coremltools9.0/laya-L96.tar.gz#sha256=779395ff629c24f602c89e180d06de60815c137a1759c097df293238e3dcb109",
+   "at": "2026-09-27T11:55:27.071620+00:00",
+   "from": "hf://tc3oliver/laya-apple-artifacts@93181067cfee9c6117a7919321eb303ec36fcbd4/laya/c5d78730f349/apple-m4-max-macos26-coremltools9.0/laya-L96.tar.gz#sha256=779395ff629c24f602c89e180d06de60815c137a1759c097df293238e3dcb109",
    "platform": {
     "soc": "Apple M4 Max",
     "macos": "26.6.2",
@@ -252,8 +252,8 @@
   },
   "compute_plan": null,
   "imported": {
-   "at": "2026-09-27T08:17:41.857013+00:00",
-   "from": "hf://tc3oliver/laya-apple-artifacts@main/laya-multilingual/052592a15d19/apple-m4-max-macos26-coremltools9.0/laya-multilingual-L128.tar.gz#sha256=cf508dc8126f789f4dc58ac8f1648df8a82eb80d11ed7ff18d2ba58638d98ee8",
+   "at": "2026-09-27T12:04:02.826988+00:00",
+   "from": "hf://tc3oliver/laya-apple-artifacts@93181067cfee9c6117a7919321eb303ec36fcbd4/laya-multilingual/052592a15d19/apple-m4-max-macos26-coremltools9.0/laya-multilingual-L128.tar.gz#sha256=cf508dc8126f789f4dc58ac8f1648df8a82eb80d11ed7ff18d2ba58638d98ee8",
    "platform": {
     "soc": "Apple M4 Max",
     "macos": "26.6.2",
@@ -320,8 +320,8 @@
   },
   "compute_plan": null,
   "imported": {
-   "at": "2026-09-27T08:19:17.449712+00:00",
-   "from": "hf://tc3oliver/laya-apple-artifacts@main/laya-multilingual/052592a15d19/apple-m4-max-macos26-coremltools9.0/laya-multilingual-L256.tar.gz#sha256=0c954dbd6ad6a4fa2f4816a50fba768cb2c205f6536385f2cdcb1034e0c8681e",
+   "at": "2026-09-27T12:05:38.326520+00:00",
+   "from": "hf://tc3oliver/laya-apple-artifacts@93181067cfee9c6117a7919321eb303ec36fcbd4/laya-multilingual/052592a15d19/apple-m4-max-macos26-coremltools9.0/laya-multilingual-L256.tar.gz#sha256=0c954dbd6ad6a4fa2f4816a50fba768cb2c205f6536385f2cdcb1034e0c8681e",
    "platform": {
     "soc": "Apple M4 Max",
     "macos": "26.6.2",
@@ -388,8 +388,8 @@
   },
   "compute_plan": null,
   "imported": {
-   "at": "2026-09-27T08:14:44.263770+00:00",
-   "from": "hf://tc3oliver/laya-apple-artifacts@main/laya-multilingual/052592a15d19/apple-m4-max-macos26-coremltools9.0/laya-multilingual-L64.tar.gz#sha256=488fa6b03b440a36d26e741e5c05789ecb45386e8a88a1251e91d508ec2d6c16",
+   "at": "2026-09-27T12:01:04.095690+00:00",
+   "from": "hf://tc3oliver/laya-apple-artifacts@93181067cfee9c6117a7919321eb303ec36fcbd4/laya-multilingual/052592a15d19/apple-m4-max-macos26-coremltools9.0/laya-multilingual-L64.tar.gz#sha256=488fa6b03b440a36d26e741e5c05789ecb45386e8a88a1251e91d508ec2d6c16",
    "platform": {
     "soc": "Apple M4 Max",
     "macos": "26.6.2",
@@ -456,8 +456,8 @@
   },
   "compute_plan": null,
   "imported": {
-   "at": "2026-09-27T08:16:12.281373+00:00",
-   "from": "hf://tc3oliver/laya-apple-artifacts@main/laya-multilingual/052592a15d19/apple-m4-max-macos26-coremltools9.0/laya-multilingual-L96.tar.gz#sha256=201f868b8769c8e5d86264ee67f0025ba6fbd18e2b4267102535c80899ef9e1b",
+   "at": "2026-09-27T12:02:32.308012+00:00",
+   "from": "hf://tc3oliver/laya-apple-artifacts@93181067cfee9c6117a7919321eb303ec36fcbd4/laya-multilingual/052592a15d19/apple-m4-max-macos26-coremltools9.0/laya-multilingual-L96.tar.gz#sha256=201f868b8769c8e5d86264ee67f0025ba6fbd18e2b4267102535c80899ef9e1b",
    "platform": {
     "soc": "Apple M4 Max",
     "macos": "26.6.2",
@@ -524,8 +524,8 @@
   },
   "compute_plan": null,
   "imported": {
-   "at": "2026-09-27T08:02:45.197095+00:00",
-   "from": "hf://tc3oliver/laya-apple-artifacts@main/laya-typed-decisions/f9ab0b228f0f/apple-m4-max-macos26-coremltools9.0/laya-typed-decisions-L128.tar.gz#sha256=8abd996f5019eda8eaeb50270401857577197b96cf101098029740e5a5f14f52",
+   "at": "2026-09-27T11:49:03.509792+00:00",
+   "from": "hf://tc3oliver/laya-apple-artifacts@93181067cfee9c6117a7919321eb303ec36fcbd4/laya-typed-decisions/f9ab0b228f0f/apple-m4-max-macos26-coremltools9.0/laya-typed-decisions-L128.tar.gz#sha256=8abd996f5019eda8eaeb50270401857577197b96cf101098029740e5a5f14f52",
    "platform": {
     "soc": "Apple M4 Max",
     "macos": "26.6.2",
@@ -592,8 +592,8 @@
   },
   "compute_plan": null,
   "imported": {
-   "at": "2026-09-27T07:56:33.784213+00:00",
-   "from": "hf://tc3oliver/laya-apple-artifacts@main/laya-typed-decisions/f9ab0b228f0f/apple-m4-max-macos26-coremltools9.0/laya-typed-decisions-L64.tar.gz#sha256=959e18c65f92a5143287765f982dd28cb4c511587a705e25384ed3f31f005b96",
+   "at": "2026-09-27T11:42:50.566329+00:00",
+   "from": "hf://tc3oliver/laya-apple-artifacts@93181067cfee9c6117a7919321eb303ec36fcbd4/laya-typed-decisions/f9ab0b228f0f/apple-m4-max-macos26-coremltools9.0/laya-typed-decisions-L64.tar.gz#sha256=959e18c65f92a5143287765f982dd28cb4c511587a705e25384ed3f31f005b96",
    "platform": {
     "soc": "Apple M4 Max",
     "macos": "26.6.2",
@@ -660,8 +660,8 @@
   },
   "compute_plan": null,
   "imported": {
-   "at": "2026-09-27T07:59:38.404118+00:00",
-   "from": "hf://tc3oliver/laya-apple-artifacts@main/laya-typed-decisions/f9ab0b228f0f/apple-m4-max-macos26-coremltools9.0/laya-typed-decisions-L96.tar.gz#sha256=9500017f7b329c95a93041bc33d2e5ba4a9f8d4cd4cd0b50b7b38e4042b42926",
+   "at": "2026-09-27T11:45:56.958945+00:00",
+   "from": "hf://tc3oliver/laya-apple-artifacts@93181067cfee9c6117a7919321eb303ec36fcbd4/laya-typed-decisions/f9ab0b228f0f/apple-m4-max-macos26-coremltools9.0/laya-typed-decisions-L96.tar.gz#sha256=9500017f7b329c95a93041bc33d2e5ba4a9f8d4cd4cd0b50b7b38e4042b42926",
    "platform": {
     "soc": "Apple M4 Max",
     "macos": "26.6.2",
