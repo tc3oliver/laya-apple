@@ -245,6 +245,17 @@ In chain order:
 | Staged handoff | [`coreml-staged-handoff/`](coreml-staged-handoff/README.md) | [#101] | [#102], [#103] |
 | Adaptive breaker | [`coreml-adaptive-breaker/`](coreml-adaptive-breaker/README.md) | [#104] | [#105] |
 
+Tracks from the 1.6 cycle, outside this line of research. Each status is copied from the
+track's own README:
+
+| Track | Directory | Issue | Status |
+|---|---|---|---|
+| W8 palettized ANE artifacts | [`ane-w8/`](ane-w8/README.md) | [#11] | Run. laya and laya-multilingual fail the FP16 parity gate. Three laya-typed-decisions cells pass. The L64 `w8-pt` latency result reproduced at 0.650× FP16 ([#129]). Nothing ships |
+| Windowed (local) attention graph | [`ane-windowed-attention/`](ane-windowed-attention/README.md) | [#15], [#14] | Stage-1 screen run, stage 2 not run. laya-typed-decisions L512 is 0.868× the masked graph, still 1.35× slower than MLX FP16. First load 220 s against 41 s |
+| Core ML compile reuse (cold start) | [`coreml-compile-cache/`](coreml-compile-cache/README.md) | [#8], [#121] | Screen done, screen-INCONCLUSIVE. The full Phase A/B did not run. Prebuilt artifacts do not remove the on-device compile |
+| Intra-request split (ANE + GPU) | [`intra-request-split/`](intra-request-split/README.md) | [#123] | Stopped. G1–G3 PASS, G4a INVALID. No promotion to the product |
+| MLX fused kernels | [`mlx-fused-kernels/`](mlx-fused-kernels/README.md) | — | Candidate list only. No code and no measurements |
+
 Other tracks in this directory, outside this line of research:
 - [`phase-0-feasibility/`](phase-0-feasibility/README.md);
 - [`v0.2-concurrency/`](v0.2-concurrency/README.md);
@@ -253,6 +264,10 @@ Other tracks in this directory, outside this line of research:
 - [`upstream-reference/`](upstream-reference/README.md);
 - [`agent-decision-offloading/`](agent-decision-offloading/README.md), which is paused.
 
+[#8]: https://github.com/tc3oliver/laya-apple/issues/8
+[#11]: https://github.com/tc3oliver/laya-apple/issues/11
+[#14]: https://github.com/tc3oliver/laya-apple/issues/14
+[#15]: https://github.com/tc3oliver/laya-apple/issues/15
 [#16]: https://github.com/tc3oliver/laya-apple/issues/16
 [#39]: https://github.com/tc3oliver/laya-apple/pull/39
 [#43]: https://github.com/tc3oliver/laya-apple/pull/43
@@ -292,4 +307,7 @@ Other tracks in this directory, outside this line of research:
 [#103]: https://github.com/tc3oliver/laya-apple/pull/103
 [#104]: https://github.com/tc3oliver/laya-apple/issues/104
 [#105]: https://github.com/tc3oliver/laya-apple/pull/105
+[#121]: https://github.com/tc3oliver/laya-apple/issues/121
+[#123]: https://github.com/tc3oliver/laya-apple/issues/123
+[#129]: https://github.com/tc3oliver/laya-apple/pull/129
 [apple/coremltools#2876]: https://github.com/apple/coremltools/pull/2876
