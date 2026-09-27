@@ -1,0 +1,181 @@
+{
+ "experiment": "ane-w8/build",
+ "model": "laya-typed-decisions",
+ "revision": "f9ab0b228f0fc0f14d873dbc99038f135c2da1b2",
+ "length": 64,
+ "config": "w8-pt",
+ "palettizer": {
+  "mode": "kmeans",
+  "nbits": 8,
+  "granularity": "per_tensor",
+  "weight_threshold": 65536,
+  "op_type": "conv"
+ },
+ "started_at": "2026-09-26T15:19:41.823202+00:00",
+ "environment": {
+  "laya_apple": "1.5.0",
+  "git_revision": "06391223cc0bbad3964ec427f62121c41f890c78",
+  "python": "3.12.14",
+  "packages": {
+   "coremltools": "9.0",
+   "torch": "2.7.0",
+   "numpy": "2.1.3",
+   "mlx": "0.32.2",
+   "tokenizers": "0.23.2",
+   "safetensors": "0.8.0"
+  },
+  "platform": {
+   "soc": "Apple M4 Max",
+   "macos": "26.6.2",
+   "macos_build": "25G83",
+   "coremltools": "9.0"
+  },
+  "loadavg": [
+   4.05078125,
+   13.14599609375,
+   25.81005859375
+  ]
+ },
+ "artifact_dir": "<research-root>/laya-typed-decisions/f9ab0b228f0f/bc1s-masked-w8-pt-L64-B1",
+ "timings": {
+  "convert_s": 32.61450266605243,
+  "palettize_s": 122.86501062498428,
+  "save_compile_s": 1.627615625038743,
+  "plan_s": 80.01913241692819,
+  "parity_s": 81.03086537495255
+ },
+ "step": "done",
+ "layout_check_max_abs_logit_fp32": 3.337860107421875e-06,
+ "inventory": {
+  "conv_palettized": 121,
+  "conv_dense": 1,
+  "dense": [
+   {
+    "conv": "op_17311_cast_fp16",
+    "shape": [
+     1,
+     1024,
+     1,
+     1
+    ],
+    "source_op": "const"
+   }
+  ],
+  "palettized_shapes": [
+   "[1024, 1024, 1, 1]",
+   "[1024, 2624, 1, 1]",
+   "[1024, 4096, 1, 1]",
+   "[3072, 1024, 1, 1]",
+   "[4096, 1024, 1, 1]",
+   "[5248, 1024, 1, 1]"
+  ]
+ },
+ "package_bytes": 372420993,
+ "compiled_bytes": 372335130,
+ "weight_bin_bytes": 369653888,
+ "placement": {
+  "compute_units": "CPU_AND_NE",
+  "ops": {
+   "ane": 10594,
+   "gpu": 0,
+   "cpu": 0
+  },
+  "cost_share": {
+   "ane": 1.0,
+   "gpu": 0.0,
+   "cpu": 0.0
+  },
+  "transitions": 0
+ },
+ "plan_by_op_type": {
+  "const": {
+   "none": 5820
+  },
+  "ios18.layer_norm": {
+   "MLNeuralEngineComputeDevice": 62
+  },
+  "ios18.mul": {
+   "MLNeuralEngineComputeDevice": 4149
+  },
+  "ios18.constexpr_lut_to_dense": {
+   "none": 121
+  },
+  "ios18.conv": {
+   "MLNeuralEngineComputeDevice": 122
+  },
+  "split": {
+   "MLNeuralEngineComputeDevice": 1044
+  },
+  "ios18.sub": {
+   "MLNeuralEngineComputeDevice": 896
+  },
+  "ios18.add": {
+   "MLNeuralEngineComputeDevice": 1437
+  },
+  "ios18.concat": {
+   "MLNeuralEngineComputeDevice": 926
+  },
+  "ios18.transpose": {
+   "MLNeuralEngineComputeDevice": 480
+  },
+  "ios16.einsum": {
+   "MLNeuralEngineComputeDevice": 961
+  },
+  "ios18.softmax": {
+   "MLNeuralEngineComputeDevice": 480
+  },
+  "ios18.gelu": {
+   "MLNeuralEngineComputeDevice": 29
+  },
+  "ios18.batch_norm": {
+   "MLNeuralEngineComputeDevice": 5
+  },
+  "ios18.relu": {
+   "MLNeuralEngineComputeDevice": 2
+  },
+  "ios18.slice_by_index": {
+   "MLNeuralEngineComputeDevice": 1
+  }
+ },
+ "placement_gate": "PASS",
+ "parity": {
+  "precision": "float16",
+  "tolerance": 0.02,
+  "rows": 41,
+  "skipped_rows": 159,
+  "token_mismatch_cases": 0,
+  "prob_max_abs": 0.01696363041261245,
+  "action_prob_max_abs": 0.0,
+  "logit_max_abs": 0.09044961631298065,
+  "hard_mismatches": 0,
+  "near_tie_flips": [
+   {
+    "case": "L64-s13",
+    "row": 5,
+    "tokens": 52,
+    "ref_margin": 0.009120173871519976
+   },
+   {
+    "case": "lang-es",
+    "row": 0,
+    "tokens": 64,
+    "ref_margin": 0.02229029502780716
+   }
+  ],
+  "all_finite": true,
+  "repeat_identical": true,
+  "passed": true,
+  "reference": "upstream laya 0.3.20 (NandhaKishorM/laya@23a1752), PyTorch CPU FP32",
+  "seconds": 81.03086537495255,
+  "recording_pass": {
+   "rows": 41,
+   "prob_max_abs": 0.01696363041261245,
+   "action_prob_max_abs": 0.0,
+   "hard_mismatches": 0,
+   "passed": true
+  },
+  "recording_pass_agrees": true
+ },
+ "parity_gate": "PASS",
+ "finished_at": "2026-09-26T15:25:02.759575+00:00"
+}
