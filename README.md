@@ -12,7 +12,8 @@ Apple silicon:** the MLX GPU and the Apple Neural Engine, serving at the same ti
 
 Laya answers typed questions about a context (`choice`, `score`, `noul`) in one forward pass.
 laya-apple runs upstream Laya on a Mac's two engines, picks one per request, and uses a
-Neural Engine (ANE) artifact only after it matches upstream on the machine that runs it.
+Neural Engine (ANE) artifact only after it matches upstream within the FP16 parity gate on
+the machine that runs it.
 
 ## Why use it
 
@@ -21,8 +22,10 @@ Neural Engine (ANE) artifact only after it matches upstream on the machine that 
   decisions. laya-apple uses an ANE artifact only after it passes a parity gate on the machine
   that uses it ([Correctness](#correctness)).
 - **Short decisions stop queueing behind long work.** Short, single-question decisions go to
-  the ANE; long or multi-question work stays on the MLX GPU; with `execution="workers"` both
-  engines serve at once ([GPU + ANE benchmarks](#gpu--ane-benchmarks)).
+  the ANE when a validated artifact is present (otherwise `auto` stays on MLX); long or
+  multi-question work stays on the MLX GPU; with `execution="workers"` both engines serve at
+  once. Measured on one Apple M4 Max; watch it with `uvx laya-apple switchyard`
+  ([Switchyard](#see-it-yourself-switchyard), [GPU + ANE benchmarks](#gpu--ane-benchmarks)).
 - **A local stand-in for the Jev API.** `laya-apple serve` answers existing Jev clients with
   upstream Laya on your Mac, without changes to the client
   ([Local Jev-compatible server](#local-jev-compatible-server)).
@@ -151,8 +154,8 @@ and W8 ANE research that ships nothing ([Limitations](#limitations)). Release no
 
 ## GPU + ANE benchmarks
 
-Every number in this section is from one Apple M4 Max. Results from other Macs are kept
-separate ([Community benchmarks](#community-benchmarks)).
+Every number in this section, apart from the community subsection, is from one Apple M4 Max;
+results from other Macs are kept separate there ([Community benchmarks](#community-benchmarks)).
 
 ### See it yourself: Switchyard
 
@@ -405,7 +408,7 @@ in [`docs/serve.md`](docs/serve.md#limits), and what has not been measured in
   check is in [`benchmarks/prebuilt-artifacts-1.6.0.md`](benchmarks/prebuilt-artifacts-1.6.0.md).
   The 1.5 evidence is in
   [`research/coreml-adaptive-breaker/`](research/coreml-adaptive-breaker/README.md).
-- **Research.** The research line behind each release, failed routes included, is mapped in
+- **Research.** The research behind the 1.5 and 1.6 releases, failed routes included, is mapped in
   [`research/README.md`](research/README.md).
 - **Releases.** Every change is in [`CHANGELOG.md`](CHANGELOG.md); release notes are in
   [`docs/releases/`](docs/releases/), most recently [1.6.0](docs/releases/v1.6.0.md) and

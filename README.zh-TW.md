@@ -14,15 +14,17 @@
 
 Laya 只要一次 forward pass，就能回答一段 context 中的 typed questions（`choice`、`score`、`noul`）。
 laya-apple 在 Mac 的兩個引擎上執行上游 Laya，為每個請求挑選其中一個，而且 Neural Engine（ANE）
-artifact 必須在實際執行它的機器上與上游一致，才會被使用。
+artifact 必須在實際執行它的機器上、在 FP16 parity 關卡內與上游一致，才會被使用。
 
 ## 為什麼要用
 
 - **ANE 的結果要正確，不只是快。** 在測試用的 Mac 上，一般的 Core ML 匯出在 Neural Engine 上執行時
   完全沒有報錯，卻有多達 85 個決策和上游不同。ANE artifact 必須在實際執行的那台 Mac 上通過 parity
   檢查才會使用（[正確性](#正確性)）。
-- **短決策不必再排在長工作後面。** 簡短的單一問題決策交給 ANE，較長或有多個問題的工作留在 MLX GPU；
-  使用 `execution="workers"` 時兩個引擎同時服務（[GPU + ANE benchmark](#gpu--ane-benchmark)）。
+- **短決策不必再排在長工作後面。** 有已驗證的 artifact 時，簡短的單一問題決策交給 ANE（否則 `auto`
+  會留在 MLX）；較長或有多個問題的工作留在 MLX GPU；使用 `execution="workers"` 時兩個引擎同時服務。
+  量測自同一台 Apple M4 Max；用 `uvx laya-apple switchyard` 就能親眼看到
+  （[Switchyard](#親眼看看switchyard)、[GPU + ANE benchmark](#gpu--ane-benchmark)）。
 - **在本機取代 Jev API。** `laya-apple serve` 在你的 Mac 上用上游 Laya 回答既有的 Jev 用戶端，
   用戶端完全不用改（[本機 Jev 相容伺服器](#本機-jev-相容伺服器)）。
 - **每個路由決策都有說明。** 每個結果都會記錄裝置與 `routing_reason`；明確指定 ANE 的請求，要嘛跑
@@ -143,7 +145,7 @@ batching 需自行開啟；量測範圍見[限制](#限制)）；
 
 ## GPU + ANE benchmark
 
-這一節的每個數字都來自同一台 Apple M4 Max。其他 Mac 的結果分開記錄
+除了社群 benchmark 小節，這一節的每個數字都來自同一台 Apple M4 Max；其他 Mac 的結果分開記錄在那裡
 （[社群 benchmark](#community-benchmarks)）。
 
 ### 親眼看看：Switchyard
@@ -371,7 +373,7 @@ artifact（`laya-apple calibrate`），`auto` 才會使用 ANE，在那之前都
   找到對應的報告、原始資料、指令與環境。1.6 預先建置 artifact 的檢查記錄在
   [`benchmarks/prebuilt-artifacts-1.6.0.md`](benchmarks/prebuilt-artifacts-1.6.0.md)。1.5 的相關證據收錄在
   [`research/coreml-adaptive-breaker/`](research/coreml-adaptive-breaker/README.md)。
-- **研究。** 每個版本背後的研究脈絡，包括失敗的路線，整理在 [`research/README.md`](research/README.md)。
+- **研究。** 1.5 與 1.6 版本背後的研究脈絡，包括失敗的路線，整理在 [`research/README.md`](research/README.md)。
 - **版本。** 所有變更都記錄在 [`CHANGELOG.md`](CHANGELOG.md)；release notes 放在
   [`docs/releases/`](docs/releases/)，最新的是 [1.6.0](docs/releases/v1.6.0.md) 與
   [1.5.0](docs/releases/v1.5.0.md)。
