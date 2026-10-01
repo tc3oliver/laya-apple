@@ -12,92 +12,21 @@
 **在 Apple silicon 上執行、經過正確性驗證的自適應 [Laya](https://github.com/NandhaKishorM/laya)
 推論：MLX GPU 與 Apple Neural Engine 同時提供服務。**
 
-## 先取得經過驗證的 ANE artifact，再路由與預測（1.6）
+Laya 只要一次 forward pass，就能回答一段 context 中的 typed questions（`choice`、`score`、`noul`）。
+laya-apple 在 Mac 的兩個引擎上執行上游 Laya，為每個請求挑選其中一個，而且 Neural Engine（ANE）
+artifact 必須在實際執行它的機器上與上游一致，才會被使用。
 
-`laya-apple artifacts fetch` → `from_pretrained("auto")` → `predict` / `predict_shortlist`。
+## 為什麼要用
 
-```bash
-pip install -U 'laya-apple[ane]'
-laya-apple artifacts fetch laya                  # prebuilt ANE artifacts, validated here
-laya-apple artifacts fetch laya-multilingual
-```
-
-```python
-from laya_apple import Laya
-
-with Laya.from_pretrained("auto") as model:       # laya or laya-multilingual, per request
-    result = model.predict(context=context, questions=questions)
-    rt = result.runtime
-    print(rt.model, rt.model_routing, rt.device, rt.routing_reason)
-```
-
-- **依語言路由。** `Laya.from_pretrained("auto")` 會回傳一個 `LayaRouter`，它同時載入 `laya` 與
-  `laya-multilingual`，依每個請求 context 的語言挑選其中一個，判斷方式與 `laya-apple serve --model auto`
-  用的是同一個函式。挑選的理由記錄在 `RuntimeInfo.model_routing`（[`docs/api.md`](docs/api.md)）。
-- **預先建置的 ANE artifact，在你的 Mac 上驗證。** `laya-apple artifacts fetch MODEL` 從
-  [`tc3oliver/laya-apple-artifacts`](https://huggingface.co/tc3oliver/laya-apple-artifacts)
-  下載預先建置的 artifact，再交給會做驗證的 `artifacts import` 註冊：比對索引中的 SHA-256、manifest
-  與平台 profile、compute plan、完整的 FP16 parity 關卡與 placement probe，全部在接收端的機器上執行。
-  下載來的 artifact 不會比本機建置的更受信任。laya-apple 1.6.0 固定讀取這個 repository 中經過驗證的那個
-  commit，不會讀取可變動的 `main`。它省掉了本機建置與其 PyTorch 相依，不需要 `convert` extra。
-- **`predict` 照舊；`predict_shortlist` 需自行開啟。** 標籤很多的 `choice` 問題可以用
-  `predict_shortlist(..., embed_fn, k=20)`：先留下與請求最相近的 `k` 個標籤，再跑一次 `predict`。
-  `predict` 本身沒有改變（[`examples/auto_fetch_shortlist.py`](examples/auto_fetch_shortlist.py)）。
-
-限制：
-- **預先建置的 artifact 目前只有一個平台 profile：Apple M4 Max、macOS 26、coremltools 9.0。**
-  其他 Mac 都會得到 `ArtifactMissingError`，錯誤訊息會附上建置指令，照舊在本機建置
-  （`laya-apple artifacts build MODEL`，需要 `convert` extra）。
-- **已發布的 artifact 經過一次空快取下載檢查：** 在該 profile 上，全部 10 組 model/bucket 的
-  fetch、verify、parity 與 placement 都通過
-  （[`benchmarks/prebuilt-artifacts-1.6.0.md`](benchmarks/prebuilt-artifacts-1.6.0.md)）。
-  這項檢查是在建置 artifact 的同一台機器上、以空的快取執行。每一台接收端機器在註冊 artifact 前，
-  都會再做一次完整性、平台、parity 與 placement 檢查。
-- **第一次載入 Core ML 仍然要在裝置上編譯：** 約 4.5 分鐘。在一次實測中，laya-typed-decisions
-  （bucket 64/96/128）在新位置冷啟動花了 273.5 s，暖啟動只要 2.7 s
-  （[`research/coreml-compile-cache/screen.md`](research/coreml-compile-cache/screen.md)）。
-  下載 artifact 無法省掉這段時間。設定 `ane_startup="background"` 時，這段期間會先用 MLX 服務。
-
-1.6 另外還有這些，但不是重點：MLX 快速路徑（token-id 快取預設開啟；`mx.compile` 與依長度分組的
-batching 需自行開啟；量測範圍見[限制](#限制)）；
-以及沒有任何成果出貨的 W8 ANE 研究（見[限制](#限制)）。Release notes：
-[`docs/releases/v1.6.0.md`](docs/releases/v1.6.0.md)。
-
-## 自適應 GPU + Neural Engine 服務（1.5）
-
-laya-apple 把簡短的單一問題決策交給 Apple Neural Engine（ANE），較長或有多個問題的工作留在
-MLX GPU，兩個引擎同時服務。從 v1.0 開始，這樣的分工就讓短請求不必排在長時間的 GPU 工作後面。
-
-**GPU 早就算完了，Python 還在等。** ANE 跑在同一個 process 的執行緒上時，同步的 Core ML 呼叫在
-每次預測中有很大一部分時間都握著 GIL。一個 GPU 已經算完的請求，要等那次呼叫結束才能把結果交回來
-（[`research/coreml-gil-completion-path/`](research/coreml-gil-completion-path/README.md)）。
-1.5 讓 laya 與 laya-typed-decisions 中符合條件的 ANE 請求改走非同步的 Core ML 執行，避開同步路徑
-長時間持有 GIL 的問題。Runtime 會監看這條較快的路徑，一旦持續變慢，就退回已知安全的 1.4 同步
-路徑。在 `execution="workers"`、`device="auto"` 下預設開啟，不需要再改程式。
-
-![GPU 已經算完，但結果卡在同步 Core ML predict 持有的 GIL 前面；改用非同步 Core ML 後結果直接通過，GPU 結果回傳從 8.60 降到 0.043 ms；接著是一段非同步路徑變慢的實測紀錄，以及受控恢復實驗中 1.5 偵測到變慢、退回 1.4 路徑並恢復：12 個 episode 全部在 164–414 ms 內恢復](https://raw.githubusercontent.com/tc3oliver/laya-apple/main/docs/media/release15-social.gif)
-
-前 10 秒是示意動畫。畫面上每個數字的來源：
-[`docs/media/release15-social.md`](docs/media/release15-social.md)。
-
-| 相較於 1.4 路徑（一台 Apple M4 Max） | laya | laya-typed-decisions |
-|---|---:|---:|
-| GPU 回傳（P50） | 4.28–4.29 → **0.035–0.037 ms** | 8.60 → **0.043 ms** |
-| 吞吐量 | **1.042×** | **1.038×** |
-
-*GPU 回傳*指的是從 GPU worker 算完一個請求，到結果交到呼叫端手上的時間，不是 GPU 的運算時間。
-在 1.4 路徑上，已經算完的結果要等 4.3–8.6 ms，幾乎全都是在等 GIL。
-
-- **驗證。** 154 個正式環境驗證 episode（76 個 laya、78 個 typed-decisions，包含突發負載與
-  soak 測試）。每個 episode 在 handoff 之後都留在非同步路徑，沒有 mismatch、路由失敗、遺失請求或當機。
-  這幾輪驗證都沒有出現變慢狀態，因此 fallback 從未觸發
-  （[`val_tables.md`](research/coreml-adaptive-breaker/val_tables.md)）。
-- **恢復（另一組獨立的受控實驗）。** 非同步路徑已經變慢的 12 個 episode，runtime 全都在 40 ms
-  內偵測到，並在 164–414 ms 內讓延遲回到 1.4 路徑的水準
-  （[`phase1_tables.md`](research/coreml-adaptive-breaker/phase1_tables.md)）。
-
-[試試 Switchyard](#親眼看看switchyard) ·
-[安裝](#安裝) · [本機 Jev 相容伺服器](#本機-jev-相容伺服器)
+- **ANE 的結果要正確，不只是快。** 在測試用的 Mac 上，一般的 Core ML 匯出在 Neural Engine 上執行時
+  完全沒有報錯，卻有多達 85 個決策和上游不同。ANE artifact 必須在實際執行的那台 Mac 上通過 parity
+  檢查才會使用（[正確性](#正確性)）。
+- **短決策不必再排在長工作後面。** 簡短的單一問題決策交給 ANE，較長或有多個問題的工作留在 MLX GPU；
+  使用 `execution="workers"` 時兩個引擎同時服務（[GPU + ANE benchmark](#gpu--ane-benchmark)）。
+- **在本機取代 Jev API。** `laya-apple serve` 在你的 Mac 上用上游 Laya 回答既有的 Jev 用戶端，
+  用戶端完全不用改（[本機 Jev 相容伺服器](#本機-jev-相容伺服器)）。
+- **每個路由決策都有說明。** 每個結果都會記錄裝置與 `routing_reason`；明確指定 ANE 的請求，要嘛跑
+  已驗證的 artifact，要嘛直接拋出例外，不會悄悄 fallback（[運作方式](#運作方式)）。
 
 ## 安裝
 
@@ -161,40 +90,63 @@ with Laya.from_pretrained("convaiinnovations/laya-typed-decisions", execution="w
     futures = [model.submit(context=c, questions=q) for c, q in requests]   # thread-safe
 ```
 
-## 運作方式
+### 先取得經過驗證的 ANE artifact，再依語言路由（1.6）
 
-Laya 只要一次 forward pass，就能回答一段 context 中的 typed questions（`choice`、`score`、`noul`）。
-Mac 上有兩個引擎可以跑它，各自擅長不同的請求。
+`laya-apple artifacts fetch` → `from_pretrained("auto")` → `predict` / `predict_shortlist`。
 
-![不超過 128 個 token、只有一個問題且有已驗證 artifact 的請求送往 Apple Neural Engine；較長、包含多個問題或未經驗證的請求送往 MLX GPU；使用 execution="workers" 時，兩個引擎同時處理彼此獨立的請求](https://raw.githubusercontent.com/tc3oliver/laya-apple/main/docs/readme/architecture.svg)
+```bash
+pip install -U 'laya-apple[ane]'
+laya-apple artifacts fetch laya                  # prebuilt ANE artifacts, validated here
+laya-apple artifacts fetch laya-multilingual
+```
 
-1. **ANE 執行正確性。** Core ML 匯出跑得快，不代表結果正確。在測試用的 Mac 上，一般的 Core ML
-   匯出在 ANE 上執行時完全沒有報錯，卻有多達 85 個決策和上游不同。ANE artifact 必須在實際執行的
-   那台 Mac 上通過 parity 檢查才會使用（[正確性](#正確性)）。
-2. **自動路由。** Router 在請求執行前就決定去向，並把原因記在 `routing_reason`。有負載時，
-   它也會比較兩個佇列的 backlog。
-3. **GPU + ANE 同時服務。** 使用 `execution="workers"` 時，GPU 在 worker process 裡執行，ANE 則有
-   自己的 dispatcher，短請求不必再排在長請求後面。
-4. **自適應 ANE 執行（1.5）。** GPU 與 ANE 同時忙碌的每一段期間（overlap）開始時，會先保守地
-   走同步路徑，之後符合條件的 ANE 請求改用非同步 Core ML，已經算完的 GPU 結果就不會被同步路徑長時間持有的 GIL 卡住。
-   Runtime 靠每個請求的時間資料判斷這條路徑有沒有變慢；持續變慢時，這段期間剩下的請求會退回
-   已知安全的同步路徑。設定 `ane_handoff=False` 即可關閉
-   （[指南](docs/guide.md#adaptive-ane-execution-in-process-ane-the-default-since-15)）。
+```python
+from laya_apple import Laya
 
-| 請求 | 送往 | 原因（在測試用的 Mac 上量測） |
-|---|---|---|
-| 一個問題、≤ 128 個 token、有已驗證的 artifact | **ANE** | 比較快：laya-typed-decisions 在 L128 時，ANE 要 9.9 ms，MLX 要 12.2 ms（forward P50） |
-| Context 較長 | **MLX GPU** | 這時 MLX 比較快：L256 為 19.2 ms，L1024 為 71.0 ms |
-| 多個問題 | **MLX GPU** | MLX 會把問題批次處理；ANE 只能一個一個跑 |
-| 未經驗證的 Mac、缺少 artifact，或沒有 Core ML | **MLX GPU** | 記錄為 `platform_not_validated`、`ane_artifact_unavailable` 或 `ane_runtime_unavailable` |
+with Laya.from_pretrained("auto") as model:       # laya or laya-multilingual, per request
+    result = model.predict(context=context, questions=questions)
+    rt = result.runtime
+    print(rt.model, rt.model_routing, rt.device, rt.routing_reason)
+```
 
-完整的路由門檻與校準依據：[`docs/support-matrix.md`](docs/support-matrix.md)。
+- **依語言路由。** `Laya.from_pretrained("auto")` 會回傳一個 `LayaRouter`，它同時載入 `laya` 與
+  `laya-multilingual`，依每個請求 context 的語言挑選其中一個，判斷方式與 `laya-apple serve --model auto`
+  用的是同一個函式。挑選的理由記錄在 `RuntimeInfo.model_routing`（[`docs/api.md`](docs/api.md)）。
+- **預先建置的 ANE artifact，在你的 Mac 上驗證。** `laya-apple artifacts fetch MODEL` 從
+  [`tc3oliver/laya-apple-artifacts`](https://huggingface.co/tc3oliver/laya-apple-artifacts)
+  下載預先建置的 artifact，再交給會做驗證的 `artifacts import` 註冊：比對索引中的 SHA-256、manifest
+  與平台 profile、compute plan、完整的 FP16 parity 關卡與 placement probe，全部在接收端的機器上執行。
+  下載來的 artifact 不會比本機建置的更受信任。laya-apple 1.6.0 固定讀取這個 repository 中經過驗證的那個
+  commit，不會讀取可變動的 `main`。它省掉了本機建置與其 PyTorch 相依，不需要 `convert` extra。
+- **`predict` 照舊；`predict_shortlist` 需自行開啟。** 標籤很多的 `choice` 問題可以用
+  `predict_shortlist(..., embed_fn, k=20)`：先留下與請求最相近的 `k` 個標籤，再跑一次 `predict`。
+  `predict` 本身沒有改變（[`examples/auto_fetch_shortlist.py`](examples/auto_fetch_shortlist.py)）。
 
-完成的請求可以透過 `trace=` 回報 `RequestTrace`（路由決策，以及排隊、執行與回應的時間）
-（[`docs/api.md`](docs/api.md)）。自適應執行看的也是這些每個請求的計時資料，不必另外傳入 `trace=`。
-架構：[`docs/architecture.md`](docs/architecture.md)。
+限制：
+- **預先建置的 artifact 目前只有一個平台 profile：Apple M4 Max、macOS 26、coremltools 9.0。**
+  其他 Mac 都會得到 `ArtifactMissingError`，錯誤訊息會附上建置指令，照舊在本機建置
+  （`laya-apple artifacts build MODEL`，需要 `convert` extra）。
+- **已發布的 artifact 經過一次空快取下載檢查：** 在該 profile 上，全部 10 組 model/bucket 的
+  fetch、verify、parity 與 placement 都通過
+  （[`benchmarks/prebuilt-artifacts-1.6.0.md`](benchmarks/prebuilt-artifacts-1.6.0.md)）。
+  這項檢查是在建置 artifact 的同一台機器上、以空的快取執行。每一台接收端機器在註冊 artifact 前，
+  都會再做一次完整性、平台、parity 與 placement 檢查。
+- **第一次載入 Core ML 仍然要在裝置上編譯：** 約 4.5 分鐘。在一次實測中，laya-typed-decisions
+  （bucket 64/96/128）在新位置冷啟動花了 273.5 s，暖啟動只要 2.7 s
+  （[`research/coreml-compile-cache/screen.md`](research/coreml-compile-cache/screen.md)）。
+  下載 artifact 無法省掉這段時間。設定 `ane_startup="background"` 時，這段期間會先用 MLX 服務。
 
-## 親眼看看：Switchyard
+1.6 另外還有這些，但不是重點：MLX 快速路徑（token-id 快取預設開啟；`mx.compile` 與依長度分組的
+batching 需自行開啟；量測範圍見[限制](#限制)）；
+以及沒有任何成果出貨的 W8 ANE 研究（見[限制](#限制)）。Release notes：
+[`docs/releases/v1.6.0.md`](docs/releases/v1.6.0.md)。
+
+## GPU + ANE benchmark
+
+這一節的每個數字都來自同一台 Apple M4 Max。其他 Mac 的結果分開記錄
+（[社群 benchmark](#community-benchmarks)）。
+
+### 親眼看看：Switchyard
 
 ```bash
 uvx laya-apple switchyard
@@ -219,6 +171,68 @@ uvx laya-apple switchyard
 
 第一次下載、設定、方法與原始資料：[`docs/switchyard.md`](docs/switchyard.md) 與
 [`benchmarks/switchyard/README.md`](benchmarks/switchyard/README.md)。
+
+### 最初的異質服務 benchmark（v1.0）
+
+這些結果證明了 GPU + ANE 服務的價值，是在 1.5 推出自適應執行之前量測的。
+
+| 模型 | 與僅 GPU 相比的吞吐量 | 短請求 P99，僅 GPU | 短請求 P99，GPU + ANE |
+|---|---:|---:|---:|
+| laya | **2.92×** | 1538.0 ms | **108.5 ms** |
+| laya-multilingual | **4.34×** | 2052.3 ms | **29.6 ms** |
+| laya-typed-decisions | **4.57×** | 1592.9 ms | **79.5 ms** |
+
+一台 Apple M4 Max，一條短請求與一條長請求串流送進同一個 `Laya(execution="workers")`。短請求
+P99 在 open-loop 突發負載下從請求到達開始計時，所以包含排隊時間。效能提升來自同時使用兩個引擎，
+而不是 ANE 本身比較快。方法與原始資料：[`benchmarks/v1.0.md`](benchmarks/v1.0.md)。
+
+### 自適應 ANE 執行（1.5）
+
+ANE 跑在同一個 process 的執行緒上時，同步的 Core ML 呼叫在每次預測中有很大一部分時間都握著 GIL，
+所以一個 GPU 已經算完的請求，要等那次呼叫結束才能把結果交回來
+（[`research/coreml-gil-completion-path/`](research/coreml-gil-completion-path/README.md)）。
+1.5 讓 laya 與 laya-typed-decisions 中符合條件的 ANE 請求改走非同步的 Core ML 執行；一旦持續變慢，
+runtime 就退回已知安全的 1.4 同步路徑。在 `execution="workers"`、`device="auto"` 下預設開啟，
+不需要再改程式。
+
+![GPU 已經算完，但結果卡在同步 Core ML predict 持有的 GIL 前面；改用非同步 Core ML 後結果直接通過，GPU 結果回傳從 8.60 降到 0.043 ms；接著是一段非同步路徑變慢的實測紀錄，以及受控恢復實驗中 1.5 偵測到變慢、退回 1.4 路徑並恢復：12 個 episode 全部在 164–414 ms 內恢復](https://raw.githubusercontent.com/tc3oliver/laya-apple/main/docs/media/release15-social.gif)
+
+前 10 秒是示意動畫。畫面上每個數字的來源：
+[`docs/media/release15-social.md`](docs/media/release15-social.md)。
+
+| 相較於 1.4 路徑（一台 Apple M4 Max） | laya | laya-typed-decisions |
+|---|---:|---:|
+| GPU 回傳（P50） | 4.28–4.29 → **0.035–0.037 ms** | 8.60 → **0.043 ms** |
+| 吞吐量 | **1.042×** | **1.038×** |
+
+*GPU 回傳*指的是從 GPU worker 算完一個請求，到結果交到呼叫端手上的時間，不是 GPU 的運算時間。
+在 1.4 路徑上，已經算完的結果要等 4.3–8.6 ms，幾乎全都是在等 GIL。
+
+- **驗證。** 154 個正式環境驗證 episode（76 個 laya、78 個 typed-decisions，包含突發負載與
+  soak 測試）。每個 episode 在 handoff 之後都留在非同步路徑，沒有 mismatch、路由失敗、遺失請求或當機。
+  這幾輪驗證都沒有出現變慢狀態，因此 fallback 從未觸發
+  （[`val_tables.md`](research/coreml-adaptive-breaker/val_tables.md)）。
+- **恢復（另一組獨立的受控實驗）。** 非同步路徑已經變慢的 12 個 episode，runtime 全都在 40 ms
+  內偵測到，並在 164–414 ms 內讓延遲回到 1.4 路徑的水準
+  （[`phase1_tables.md`](research/coreml-adaptive-breaker/phase1_tables.md)）。
+
+完整脈絡，從 GIL 的診斷到 adaptive breaker：
+[`research/coreml-gil-completion-path/`](research/coreml-gil-completion-path/README.md)、
+[`research/coreml-adaptive-breaker/`](research/coreml-adaptive-breaker/README.md) 與
+[1.5 release notes](docs/releases/v1.5.0.md)。
+
+<a id="community-benchmarks"></a>
+
+### 社群 benchmark
+
+本 README 中所有 benchmark 都是在 M4 Max 上跑的。[社群矩陣](docs/community-benchmarks.md)分開記錄
+其他 Mac 的結果，目前已有 M4 Pro、M4 與 M2 Pro（僅 MLX）。一個指令就能加入你的 Mac：
+
+```bash
+uv run python scripts/hardware_report.py --quick
+```
+
+從 `git clone` 到開 pull request 的完整步驟，請見[指南](docs/community-benchmarks.md#add-your-mac)。
 
 ## 本機 Jev 相容伺服器
 
@@ -252,6 +266,50 @@ API key、模型、安全性與用戶端注意事項：[`docs/serve.md`](docs/se
 （[`benchmarks/serve/m4-max-r3/tables.md`](benchmarks/serve/m4-max-r3/tables.md)）。各次執行是不同的量測，只做描述性比較。LLM 吞吐量的影響、方法與限制：
 [`docs/serve.md`](docs/serve.md#beside-a-local-llm)。
 
+## 運作方式
+
+Mac 上有兩個引擎可以跑 Laya，各自擅長不同的請求。
+
+![不超過 128 個 token、只有一個問題且有已驗證 artifact 的請求送往 Apple Neural Engine；較長、包含多個問題或未經驗證的請求送往 MLX GPU；使用 execution="workers" 時，兩個引擎同時處理彼此獨立的請求](https://raw.githubusercontent.com/tc3oliver/laya-apple/main/docs/readme/architecture.svg)
+
+1. **ANE 執行正確性。** Core ML 匯出跑得快，不代表結果正確。ANE artifact 必須在實際執行的
+   那台 Mac 上通過 parity 檢查才會使用（[正確性](#正確性)）。
+2. **自動路由。** Router 在請求執行前就決定去向，並把原因記在 `routing_reason`。有負載時，
+   它也會比較兩個佇列的 backlog。
+3. **GPU + ANE 同時服務。** 使用 `execution="workers"` 時，GPU 在 worker process 裡執行，ANE 則有
+   自己的 dispatcher，短請求不必再排在長請求後面。
+4. **自適應 ANE 執行（1.5）。** GPU 與 ANE 同時忙碌的每一段期間（overlap）開始時，會先保守地
+   走同步路徑，之後符合條件的 ANE 請求改用非同步 Core ML，已經算完的 GPU 結果就不會被同步路徑長時間持有的 GIL 卡住。
+   Runtime 靠每個請求的時間資料判斷這條路徑有沒有變慢；持續變慢時，這段期間剩下的請求會退回
+   已知安全的同步路徑。設定 `ane_handoff=False` 即可關閉
+   （[指南](docs/guide.md#adaptive-ane-execution-in-process-ane-the-default-since-15)）。
+
+| 請求 | 送往 | 原因（在測試用的 Mac 上量測） |
+|---|---|---|
+| 一個問題、≤ 128 個 token、有已驗證的 artifact | **ANE** | 比較快：laya-typed-decisions 在 L128 時，ANE 要 9.9 ms，MLX 要 12.2 ms（forward P50） |
+| Context 較長 | **MLX GPU** | 這時 MLX 比較快：L256 為 19.2 ms，L1024 為 71.0 ms |
+| 多個問題 | **MLX GPU** | MLX 會把問題批次處理；ANE 只能一個一個跑 |
+| 未經驗證的 Mac、缺少 artifact，或沒有 Core ML | **MLX GPU** | 記錄為 `platform_not_validated`、`ane_artifact_unavailable` 或 `ane_runtime_unavailable` |
+
+完整的路由門檻與校準依據：[`docs/support-matrix.md`](docs/support-matrix.md)。
+
+完成的請求可以透過 `trace=` 回報 `RequestTrace`（路由決策，以及排隊、執行與回應的時間）
+（[`docs/api.md`](docs/api.md)）。自適應執行看的也是這些每個請求的計時資料，不必另外傳入 `trace=`。
+架構：[`docs/architecture.md`](docs/architecture.md)。
+
+### 支援的模型與平台
+
+| 模型 | max_len | MLX GPU | ANE bucket（明確指定） | `auto` 使用的 ANE bucket | 自適應 ANE 執行 |
+|---|---:|---|---|---|---|
+| [`convaiinnovations/laya`](https://huggingface.co/convaiinnovations/laya) | 512 | FP16 / FP32，任意長度 | 64, 96, 128 | 64, 96, 128 | 是 |
+| [`convaiinnovations/laya-multilingual`](https://huggingface.co/convaiinnovations/laya-multilingual) | 1024 | FP16 / FP32，任意長度 | 64, 96, 128, 256 | 64, 96, 128 | 否（ANE 在 worker process 中執行） |
+| [`convaiinnovations/laya-typed-decisions`](https://huggingface.co/convaiinnovations/laya-typed-decisions) | 1024 | FP16 / FP32，任意長度 | 64, 96, 128 | 64, 96, 128 | 是 |
+
+自適應 ANE 執行只在 `execution="workers"`、`device="auto"` 下啟用。只在一台 macOS 26.6.2 的 Apple M4 Max 上驗證過。在其他 Mac 上，要先在那台機器建置並校準 ANE
+artifact（`laya-apple calibrate`），`auto` 才會使用 ANE，在那之前都走 MLX。預先建置的 artifact
+（`laya-apple artifacts fetch`）只提供 Apple M4 Max、macOS 26、coremltools 9.0。詳見
+[`docs/compatibility.md`](docs/compatibility.md)。
+
 ## 正確性
 
 以 PyTorch CPU FP32 上的上游 Laya 為基準，用隨附的 golden rows 比對 parity（v1.0）。
@@ -270,54 +328,6 @@ API key、模型、安全性與用戶端注意事項：[`docs/serve.md`](docs/se
 
 定義、所有測過的設定與 fallback 稽核：[`docs/correctness.md`](docs/correctness.md) 與
 [`docs/no-silent-fallback.md`](docs/no-silent-fallback.md)。
-
-## 最初的異質服務 benchmark（v1.0）
-
-這些結果證明了 GPU + ANE 服務的價值，是在 1.5 推出自適應執行之前量測的。
-
-| 模型 | 與僅 GPU 相比的吞吐量 | 短請求 P99，僅 GPU | 短請求 P99，GPU + ANE |
-|---|---:|---:|---:|
-| laya | **2.92×** | 1538.0 ms | **108.5 ms** |
-| laya-multilingual | **4.34×** | 2052.3 ms | **29.6 ms** |
-| laya-typed-decisions | **4.57×** | 1592.9 ms | **79.5 ms** |
-
-一台 Apple M4 Max，一條短請求與一條長請求串流送進同一個 `Laya(execution="workers")`。短請求
-P99 在 open-loop 突發負載下從請求到達開始計時，所以包含排隊時間。效能提升來自同時使用兩個引擎，
-而不是 ANE 本身比較快。方法與原始資料：[`benchmarks/v1.0.md`](benchmarks/v1.0.md)。
-
-## 支援的模型與平台
-
-| 模型 | max_len | MLX GPU | ANE bucket（明確指定） | `auto` 使用的 ANE bucket | 自適應 ANE 執行 |
-|---|---:|---|---|---|---|
-| [`convaiinnovations/laya`](https://huggingface.co/convaiinnovations/laya) | 512 | FP16 / FP32，任意長度 | 64, 96, 128 | 64, 96, 128 | 是 |
-| [`convaiinnovations/laya-multilingual`](https://huggingface.co/convaiinnovations/laya-multilingual) | 1024 | FP16 / FP32，任意長度 | 64, 96, 128, 256 | 64, 96, 128 | 否（ANE 在 worker process 中執行） |
-| [`convaiinnovations/laya-typed-decisions`](https://huggingface.co/convaiinnovations/laya-typed-decisions) | 1024 | FP16 / FP32，任意長度 | 64, 96, 128 | 64, 96, 128 | 是 |
-
-自適應 ANE 執行只在 `execution="workers"`、`device="auto"` 下啟用。只在一台 macOS 26.6.2 的 Apple M4 Max 上驗證過。在其他 Mac 上，要先在那台機器建置並校準 ANE
-artifact（`laya-apple calibrate`），`auto` 才會使用 ANE，在那之前都走 MLX。預先建置的 artifact
-（`laya-apple artifacts fetch`）只提供 Apple M4 Max、macOS 26、coremltools 9.0。詳見
-[`docs/compatibility.md`](docs/compatibility.md)。
-
-<a id="community-benchmarks"></a>
-
-## 社群 benchmark
-
-上面所有 benchmark 都是在 M4 Max 上跑的。[社群矩陣](docs/community-benchmarks.md)分開記錄
-其他 Mac 的結果，目前已有 M4 Pro、M4 與 M2 Pro（僅 MLX）。一個指令就能加入你的 Mac：
-
-```bash
-uv run python scripts/hardware_report.py --quick
-```
-
-從 `git clone` 到開 pull request 的完整步驟，請見[指南](docs/community-benchmarks.md#add-your-mac)。
-
-## 重現結果
-
-上面每個主要數字，都能在 [`docs/reproducibility.md`](docs/reproducibility.md) 找到對應的
-報告、原始資料、指令與環境。1.6 預先建置 artifact 的檢查記錄在
-[`benchmarks/prebuilt-artifacts-1.6.0.md`](benchmarks/prebuilt-artifacts-1.6.0.md)。1.5 的相關證據收錄在
-[`research/coreml-adaptive-breaker/`](research/coreml-adaptive-breaker/README.md)。
-走到 1.5 的整條研究脈絡，包括失敗的路線，整理在 [`research/README.md`](research/README.md)。
 
 ## 限制
 
@@ -354,6 +364,17 @@ uv run python scripts/hardware_report.py --quick
 [`docs/correctness.md`](docs/correctness.md#option-order)，serve 與用戶端的注意事項見
 [`docs/serve.md`](docs/serve.md#limits)，尚未量測的項目見
 [`docs/compatibility.md`](docs/compatibility.md#not-measured)。
+
+## 研究、版本與重現
+
+- **重現結果。** 上面每個主要數字，都能在 [`docs/reproducibility.md`](docs/reproducibility.md)
+  找到對應的報告、原始資料、指令與環境。1.6 預先建置 artifact 的檢查記錄在
+  [`benchmarks/prebuilt-artifacts-1.6.0.md`](benchmarks/prebuilt-artifacts-1.6.0.md)。1.5 的相關證據收錄在
+  [`research/coreml-adaptive-breaker/`](research/coreml-adaptive-breaker/README.md)。
+- **研究。** 每個版本背後的研究脈絡，包括失敗的路線，整理在 [`research/README.md`](research/README.md)。
+- **版本。** 所有變更都記錄在 [`CHANGELOG.md`](CHANGELOG.md)；release notes 放在
+  [`docs/releases/`](docs/releases/)，最新的是 [1.6.0](docs/releases/v1.6.0.md) 與
+  [1.5.0](docs/releases/v1.5.0.md)。
 
 ## 參與貢獻
 
