@@ -58,6 +58,38 @@ def cmd_predict(a):
     _json(laya.predict(context=context, questions=questions).to_dict())
 
 
+def _environment(offline: bool) -> dict:
+    """Facts about this process that `info` does not already report in `platform`.
+
+    Offline: laya-apple reads no environment variable for it. It passes local_files_only
+    (False unless --offline or the keyword argument) to huggingface_hub, whose own offline
+    mode (HF_HUB_OFFLINE, or the legacy TRANSFORMERS_OFFLINE, set to 1/ON/YES/TRUE when it was
+    imported) also stops every request. Checkpoint resolution is offline when either holds."""
+    import platform
+
+    try:
+        import mlx.core as mx
+
+        mlx = {"available": True, "version": getattr(mx, "__version__", None)}
+    except Exception:  # not installed, or not importable on this platform: report, do not fail
+        mlx = {"available": False, "version": None}
+    try:
+        from huggingface_hub import constants
+
+        hf_hub_offline = bool(constants.HF_HUB_OFFLINE)
+    except ImportError:
+        hf_hub_offline = None
+    return {
+        "python": platform.python_version(),
+        "mlx": mlx,
+        "offline": {
+            "local_files_only": offline,
+            "hf_hub_offline": hf_hub_offline,
+            "effective": offline or bool(hf_hub_offline),
+        },
+    }
+
+
 def cmd_info(a):
     from . import __version__
     from .artifacts import list_artifacts, platform_profile
@@ -79,6 +111,7 @@ def cmd_info(a):
             "platform": platform_profile(),
             "platform_validated_for_auto_ane": platform_validated(),
             "coremltools_available": _coremltools_available(),
+            "environment": _environment(a.offline),
             "models": {
                 s.name: {
                     "repo": s.repo,

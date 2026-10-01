@@ -688,3 +688,34 @@ Every `Result.runtime` (a `RuntimeInfo`) records:
 - `execution` (`inline` / `workers`); with workers, `queue_wait_ms` and the
   `gpu_backlog_ms` / `ane_backlog_ms` estimates the router used.
 
+### `laya-apple info`
+
+`laya-apple info [MODEL]` prints one JSON object, the first thing to paste into a bug report:
+`laya_apple` (the version), `platform` (SoC, macOS version and build, coremltools version),
+`platform_validated_for_auto_ane`, `coremltools_available` and `models` (each checkpoint's pin,
+dtypes, ANE buckets and the status of its artifacts). `environment` adds what `platform` does
+not carry:
+
+```json
+"environment": {
+ "python": "3.12.14",
+ "mlx": {"available": true, "version": "0.32.2"},
+ "offline": {"local_files_only": false, "hf_hub_offline": false, "effective": false}
+}
+```
+
+- `python`: the interpreter's version.
+- `mlx.available`: whether `import mlx.core` works here. `mlx.version` is `null` when it does
+  not.
+- `offline`: whether resolving a pinned checkpoint stays off the network (see
+  [Offline use](#offline-use)). laya-apple itself reads no environment variable for this. It
+  passes `local_files_only` to `huggingface_hub`, `False` unless the caller gives
+  `local_files_only=True` or the CLI gets `--offline`, and `huggingface_hub` has its own
+  offline mode, on when `HF_HUB_OFFLINE` (or the legacy `TRANSFORMERS_OFFLINE`) is `1`, `ON`,
+  `YES` or `TRUE` when it is imported.
+  - `local_files_only`: what laya-apple passes for this invocation, that is, whether `--offline`
+    was given.
+  - `hf_hub_offline`: `huggingface_hub`'s offline mode. `null` if `huggingface_hub` cannot be
+    imported.
+  - `effective`: `local_files_only` or `hf_hub_offline`. When true, an uncached checkpoint raises
+    `BackendUnavailableError` instead of downloading.
