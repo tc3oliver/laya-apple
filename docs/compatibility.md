@@ -1,4 +1,4 @@
-# Compatibility statement (v1.0)
+# Compatibility statement
 
 This page states, for each dimension of the runtime, what is **tested** (the
 release-validation profile below), what is **expected** (a hypothesis, not measured), and

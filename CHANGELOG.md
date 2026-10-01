@@ -5,6 +5,26 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **`laya-apple serve` uses one loopback test for the bind address and the `Host` header.**
+  `--host 127.0.0.2` (any address in `127.0.0.0/8`) was accepted as a loopback bind, but
+  requests to it were refused with 421 because the `Host` check accepted only `127.0.0.1`,
+  `localhost` and `::1`. Both checks now use `serve.is_loopback`; a non-loopback IP or any
+  other hostname still gets 421 (DNS-rebinding protection is unchanged), and so does a
+  malformed `Host` such as `[::1` or `127.0.0.1:abc`. IPv4-mapped IPv6 (`::ffff:127.0.0.1`)
+  and IPv6 with a zone id (`::1%lo0`) are no longer loopback, whatever the Python patch
+  version's `ipaddress` says, for the bind and the `Host` check alike. Remote binding still needs `--allow-remote`
+  and `LAYA_API_KEY`.
+- **`SECURITY.md` describes the current product.** Supported versions name the 1.6 line
+  (fixes go to the latest minor line), the scope covers the `laya-apple serve` HTTP surface
+  (loopback default, `Host` validation, request limits, bearer auth, the unauthenticated
+  endpoints, remote binding) and `laya-apple artifacts fetch`, and artifact import names the
+  real command, `laya-apple artifacts import`. `docs/compatibility.md` no longer heads
+  itself "v1.0".
+- **CI declares least-privilege token permissions.** `.github/workflows/ci.yml` now sets
+  `permissions: contents: read`, like the integration workflow.
+
 ## [1.6.0] - 2026-09-27
 
 The 1.6 flow is `laya-apple artifacts fetch` → `from_pretrained("auto")` → `predict` / `predict_shortlist`: `laya-apple artifacts fetch` downloads a prebuilt ANE
