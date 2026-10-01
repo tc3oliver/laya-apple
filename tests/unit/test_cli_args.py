@@ -16,7 +16,7 @@ from laya_apple.registry import models
 def test_cmd_artifacts_prune_prints_the_actual_removed_count(monkeypatch, capsys):
     plan = [{"path": "/x/a", "reason": "r", "bytes": 10}, {"path": "/x/b", "reason": "r", "bytes": 20}]
     monkeypatch.setattr("laya_apple.lifecycle.plan_prune", lambda: plan)
-    monkeypatch.setattr("laya_apple.lifecycle.stranded_artifacts", lambda: [])
+    monkeypatch.setattr("laya_apple.lifecycle.kept_previous_artifacts", lambda: [])
     # prune() removes fewer than planned (e.g. another process raced it); the printed count
     # must reflect what prune() actually reports, not len(plan).
     monkeypatch.setattr("laya_apple.lifecycle.prune", lambda p: p[:1])
@@ -26,14 +26,19 @@ def test_cmd_artifacts_prune_prints_the_actual_removed_count(monkeypatch, capsys
     assert "removed 1 entries" in out
 
 
-def test_cmd_artifacts_prune_reports_a_stranded_previous_artifact(monkeypatch, capsys):
-    report = {"path": "/x/a.old-1", "registered": "/x/a", "message": "previous artifact left after a failed restore"}
-    monkeypatch.setattr("laya_apple.lifecycle.stranded_artifacts", lambda: [report])
+def test_cmd_artifacts_prune_reports_a_kept_previous_artifact(monkeypatch, capsys):
+    report = {
+        "path": "/x/a.old-1",
+        "registered": "/x/a",
+        "registered_missing": True,
+        "message": "previous artifact kept from an interrupted or failed replace",
+    }
+    monkeypatch.setattr("laya_apple.lifecycle.kept_previous_artifacts", lambda: [report])
     monkeypatch.setattr("laya_apple.lifecycle.plan_prune", lambda: [])
     a = cli.build_parser().parse_args(["artifacts", "prune", "--yes"])
     assert cli.cmd_artifacts(a) == 0
     out = capsys.readouterr().out
-    assert "keep  previous artifact left after a failed restore" in out and "nothing to prune" in out
+    assert "keep  previous artifact kept from an interrupted or failed replace" in out and "nothing to prune" in out
 
 
 def test_cmd_artifacts_import_without_path_raises_clear_system_exit():

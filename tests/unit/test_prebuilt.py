@@ -410,6 +410,47 @@ def test_a_failed_restore_says_where_the_previous_artifact_is(real_import, manif
     assert any(f"could not restore the previous artifact; it was left at {left[0]}" in m for m in logs)
 
 
+def test_a_failed_move_aside_keeps_the_previous_artifact_out_of_prune(
+    real_import, manifest_factory, monkeypatch, capsys
+):
+    """The registered-path probe fails and the failed artifact cannot be moved aside: the
+    failed artifact (with its manifest) stays registered and the previous one at .old-<pid>.
+    prune must never delete that .old-<pid>, and `artifacts prune` reports it."""
+    from laya_apple import cli
+
+    files, calls = real_import
+    old = registered(manifest_factory, 64)
+    before = snapshot(old)
+    payload = export_archive(manifest_factory, 64)
+    put(files, entry(64, payload=payload), payloads={entry(64)["path"]: payload})
+    calls["registered_fails"].add(64)
+    real_rename = os.rename
+
+    def rename(src, dst):
+        if ".failed-" in Path(dst).name:  # moving the failed artifact aside
+            raise OSError("simulated move-aside failure")
+        return real_rename(src, dst)
+
+    monkeypatch.setattr(lifecycle.os, "rename", rename)
+    logs = []
+    with pytest.raises(ComputeUnitMismatchError):
+        prebuilt.fetch(SPEC, [64], repo="o/r", force=True, log=logs.append)
+    monkeypatch.setattr(lifecycle.os, "rename", real_rename)
+    (kept,) = [p for p in old.parent.iterdir() if ".old-" in p.name]
+    assert snapshot(kept) == before and (old / "manifest.json").exists()  # the failed one is still registered
+    assert any(f"the previous artifact is at {kept}" in m for m in logs)
+    monkeypatch.setattr(lifecycle, "_pid_alive", lambda pid: False)  # as after this process exits
+    assert all(item["path"] != str(kept) for item in lifecycle.plan_prune(dict(HERE)))
+    a = cli.build_parser().parse_args(["artifacts", "prune", "--yes"])
+    assert cli.cmd_artifacts(a) == 0
+    out = capsys.readouterr().out
+    assert (
+        f"keep  previous artifact kept from an interrupted or failed replace (an artifact is registered at {old})"
+        in out
+    )
+    assert snapshot(kept) == before
+
+
 def test_a_partly_removed_failed_artifact_does_not_strand_the_previous_one(real_import, manifest_factory, monkeypatch):
     files, calls = real_import
     old = registered(manifest_factory, 64)

@@ -14,8 +14,12 @@
   - artifacts that are not validated;
   - quarantined and rejected entries;
   - abandoned staging directories;
-  - replaced or failed copies an import left beside an artifact (`.old-<pid>`, `.failed-<pid>`);
+  - copies an import left beside an artifact, once that import has exited: `.failed-<pid>`,
+    and `.old-<pid>` without a manifest;
   - orphaned verification stamps.
+  A `.old-<pid>` with a manifest is a previous artifact an interrupted or failed replace
+  kept, possibly the only good copy: prune never deletes one, even from a hand-written plan,
+  and `kept_previous_artifacts()` reports it.
 - **Warm.** `warm()` loads each registered artifact once. Core ML's on-device ANE compile
   is cached per location and can be evicted by the system; warming pays that cost ahead of
   the first request.
@@ -56,7 +60,7 @@ def _pid_alive(pid) -> bool:
         os.kill(pid, 0)
     except ProcessLookupError:
         return False
-    except (OSError, OverflowError, ValueError):
+    except (OSError, OverflowError, ValueError, TypeError):
         return True  # e.g. exists but owned by another user; an impossible pid is never assumed dead
     return True
 
@@ -70,31 +74,35 @@ def _leftover(d: Path):
     return m.group(1), d.with_name(d.name[: m.start()]), _pid_alive(int(m.group(2)))
 
 
-def _stranded(d: Path) -> bool:
-    """A dead import's `.old-<pid>` with nothing registered beside it: the previous artifact,
-    left there by a failed restore, and the only good copy."""
+def _kept_previous(d: Path) -> bool:
+    """A `.old-<pid>` that still has its manifest: a previous artifact an interrupted or failed
+    replace left behind, which may be the only good copy. prune never deletes one."""
     info = _leftover(d)
-    return bool(info) and info[0] == "old" and not info[2] and not (info[1] / "manifest.json").exists()
+    return bool(info) and info[0] == "old" and (d / "manifest.json").exists()
 
 
-def stranded_artifacts() -> list[dict]:
-    """Previous artifacts a failed restore left at `.old-<pid>`. prune never deletes them;
-    renaming one back to its registered path recovers it."""
+def kept_previous_artifacts() -> list[dict]:
+    """Every `.old-<pid>` with a manifest whose import has exited. prune never deletes them;
+    the user verifies and removes one by hand, or renames it back to its registered path."""
     root = artifacts_root()
     out = []
     for d in sorted(root.glob("*/*/*")) if root.exists() else []:
-        if _stranded(d):
-            registered = _leftover(d)[1]
-            out.append(
-                {
-                    "path": str(d),
-                    "registered": str(registered),
-                    "message": (
-                        f"previous artifact left after a failed restore; nothing is registered at {registered}; "
-                        f"rename it back to recover: mv {d} {registered}"
-                    ),
-                }
-            )
+        if not _kept_previous(d) or _leftover(d)[2]:
+            continue
+        registered = _leftover(d)[1]
+        missing = not (registered / "manifest.json").exists()
+        state = "nothing is registered at" if missing else "an artifact is registered at"
+        out.append(
+            {
+                "path": str(d),
+                "registered": str(registered),
+                "registered_missing": missing,
+                "message": (
+                    f"previous artifact kept from an interrupted or failed replace ({state} {registered}); "
+                    f"verify and remove it by hand, or rename it back: mv {d} {registered}"
+                ),
+            }
+        )
     return out
 
 
@@ -178,10 +186,10 @@ def plan_prune(profile: dict | None = None) -> list[dict]:
 
     for d in sorted(root.glob("*/*/*")):
         # `.old-<pid>` / `.failed-<pid>`: a replaced or failed copy an import left beside an
-        # artifact, possibly partly removed (no manifest). Kept while that import still runs,
-        # and never listed when it is the only copy left (stranded_artifacts reports those).
+        # artifact, possibly partly removed (no manifest). Kept while that import still runs.
+        # A `.old-<pid>` with a manifest is never listed (kept_previous_artifacts reports it).
         info = _leftover(d)
-        if info and not info[2] and not _stranded(d):
+        if info and not info[2] and not _kept_previous(d):
             add(d, f"leftover {info[0]} copy from an earlier import")
     for mf in sorted(root.glob("*/*/*/manifest.json")):
         d = mf.parent
@@ -243,8 +251,8 @@ def prune(plan: list[dict] | None = None) -> list[dict]:
     for item in plan:
         p = Path(item["path"])
         info = _leftover(p)
-        if info and (info[2] or _stranded(p)):
-            continue  # its import is running again, or it became the only copy since the plan
+        if info and (info[2] or _kept_previous(p)):
+            continue  # its import is running, or it is a kept previous artifact (never deleted here)
         if p.is_file() and p.resolve().parent == stamps_root:
             p.unlink()
         elif _inside_root(p):
