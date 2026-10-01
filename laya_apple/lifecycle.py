@@ -14,6 +14,7 @@
   - artifacts that are not validated;
   - quarantined and rejected entries;
   - abandoned staging directories;
+  - replaced or failed copies an import left beside an artifact (`.old-<pid>`, `.failed-<pid>`);
   - orphaned verification stamps.
 - **Warm.** `warm()` loads each registered artifact once. Core ML's on-device ANE compile
   is cached per location and can be evicted by the system; warming pays that cost ahead of
@@ -26,6 +27,7 @@ import contextlib
 import fcntl
 import json
 import os
+import re
 import shutil
 import time
 from datetime import datetime, timezone
@@ -46,6 +48,7 @@ from .registry import ANE_GRAPH, ModelSpec, models
 STAGING_MAX_AGE_S = 3600
 MAX_IMPORT_BYTES = 4 * 1024**3
 BUILDING = "BUILDING.json"
+_LEFTOVER = re.compile(r"\.(old|failed)-(\d+)$")
 
 
 def _pid_alive(pid) -> bool:
@@ -136,8 +139,16 @@ def plan_prune(profile: dict | None = None) -> list[dict]:
     def add(path: Path, reason: str):
         out.append({"path": str(path), "reason": reason, "bytes": _dir_bytes(path)})
 
+    for d in sorted(root.glob("*/*/*")):
+        # `.old-<pid>` / `.failed-<pid>`: a replaced or failed copy an import left beside an
+        # artifact, possibly partly removed (no manifest). Kept while that import still runs.
+        m = _LEFTOVER.search(d.name)
+        if m and d.is_dir() and not _pid_alive(int(m.group(2))):
+            add(d, f"leftover {m.group(1)} copy from an earlier import")
     for mf in sorted(root.glob("*/*/*/manifest.json")):
         d = mf.parent
+        if _LEFTOVER.search(d.name):
+            continue  # handled above
         try:
             data = json.loads(mf.read_text())
         except ValueError:
@@ -272,8 +283,10 @@ def import_artifact(
     under the build lock, the artifact is loaded at its registered path (load_verified,
     full) and registered_probe(spec, bucket, registered_compiled_path) is called
     (`artifacts fetch` runs the placement probe again there, since Core ML compiles per
-    path). If either raises, the new artifact is removed, the previous one is put back, and
-    the error is raised. Without it, the pre-warm load runs after registration, and its
+    path). If either raises (or the import is interrupted), the new artifact is moved aside
+    with one rename and removed, the previous one is put back, and the error is raised. The
+    guarantee is about what is left on disk, not isolation from concurrent readers: a runtime
+    loading the bucket meanwhile can see the new artifact, and verifies it on each load. Without it, the pre-warm load runs after registration, and its
     failure raises with the new artifact already registered (the runtime checks it again on
     every load). Either way, a failure to remove the replaced copy is only logged.
     """
@@ -382,8 +395,18 @@ def import_artifact(
                     load_verified(spec, bucket, full=True)  # pre-warm the ANE compile at the registered path
                     registered_probe(spec, bucket, final / COMPILED)
                 except BaseException:
-                    shutil.rmtree(final, ignore_errors=True)  # unregister the new artifact
-                    restore()
+                    # Unregister the new artifact with one rename, so the path is free for the
+                    # previous one whatever happens to the removal; prune removes any leftover.
+                    failed = final.with_name(final.name + f".failed-{os.getpid()}")
+                    if final.exists():  # load_verified may already have quarantined it
+                        try:
+                            os.rename(final, failed)
+                        except OSError as e:
+                            kept = f"; the previous artifact is at {old}" if old is not None else ""
+                            log(f"{spec.name} L{bucket}: could not move the failed artifact out of {final}: {e}{kept}")
+                    if not final.exists():
+                        restore()
+                    shutil.rmtree(failed, ignore_errors=True)
                     raise
                 log(f"{spec.name} L{bucket}: registered, loaded and probed in {time.perf_counter() - t:.1f} s")
             if old is not None:

@@ -61,7 +61,9 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   all-or-nothing: if anything fails, including the move into place, the new artifact is not
   kept and the previous one is kept or put back. `lifecycle.import_artifact` gains optional
   `probe` and `registered_probe` hooks and an optional `expect` (model, bucket) check for
-  this; without them it behaves as before.
+  this; without them it behaves as before. `artifacts prune` now also lists the
+  `.old-<pid>` and `.failed-<pid>` copies an interrupted or failed import can leave beside
+  an artifact, once that process has exited.
 - **`--offline` now covers `artifacts fetch`**
   ([#143](https://github.com/tc3oliver/laya-apple/issues/143)). The flag reached only the
   checkpoint resolution, so the index and archives were still downloaded. Offline (`--offline`

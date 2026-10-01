@@ -410,6 +410,84 @@ def test_a_failed_restore_says_where_the_previous_artifact_is(real_import, manif
     assert any(f"could not restore the previous artifact; it was left at {left[0]}" in m for m in logs)
 
 
+def test_a_partly_removed_failed_artifact_does_not_strand_the_previous_one(real_import, manifest_factory, monkeypatch):
+    files, calls = real_import
+    old = registered(manifest_factory, 64)
+    before = snapshot(old)
+    payload = export_archive(manifest_factory, 64)
+    put(files, entry(64, payload=payload), payloads={entry(64)["path"]: payload})
+    calls["registered_fails"].add(64)
+    real_rmtree = lifecycle.shutil.rmtree
+
+    def rmtree(path, *a, **k):
+        if ".failed-" in Path(path).name:  # removes the manifest, then gives up
+            (Path(path) / "manifest.json").unlink()
+            return None
+        return real_rmtree(path, *a, **k)
+
+    monkeypatch.setattr(lifecycle.shutil, "rmtree", rmtree)
+    with pytest.raises(ComputeUnitMismatchError):
+        prebuilt.fetch(SPEC, [64], repo="o/r", force=True, log=lambda m: None)
+    monkeypatch.setattr(lifecycle.shutil, "rmtree", real_rmtree)
+    assert snapshot(old) == before  # the previous artifact is back where the runtime looks
+    A.load_verified(SPEC, 64, full=True)
+    (leftover,) = [p for p in old.parent.iterdir() if p != old]
+    assert ".failed-" in leftover.name and not (leftover / "manifest.json").exists()
+    assert lifecycle.plan_prune(dict(HERE)) == []  # kept while the process that left it is alive
+    monkeypatch.setattr(lifecycle, "_pid_alive", lambda pid: False)  # as after this process exits
+    plan = lifecycle.plan_prune(dict(HERE))
+    assert [(item["path"], item["reason"]) for item in plan] == [
+        (str(leftover), "leftover failed copy from an earlier import")
+    ]
+    lifecycle.prune(plan)
+    assert [p.name for p in old.parent.iterdir()] == [old.name]
+
+
+def test_a_load_failure_at_the_registered_path_restores_the_previous_artifact(
+    real_import, manifest_factory, monkeypatch
+):
+    files, calls = real_import
+    old = registered(manifest_factory, 64)
+    before = snapshot(old)
+    payload = export_archive(manifest_factory, 64)
+    put(files, entry(64, payload=payload), payloads={entry(64)["path"]: payload})
+    real_load = A.load_verified
+
+    def load_verified(spec, bucket, *, full=False, **k):
+        if full:  # the import's load at the registered path
+            raise RuntimeError("Core ML could not load the registered model")
+        return real_load(spec, bucket, full=full, **k)
+
+    monkeypatch.setattr(A, "load_verified", load_verified)
+    with pytest.raises(RuntimeError, match="could not load the registered model"):
+        prebuilt.fetch(SPEC, [64], repo="o/r", force=True, log=lambda m: None)
+    monkeypatch.setattr(A, "load_verified", real_load)
+    assert_probed(calls, registered=False)  # it never got to the registered-path probe
+    assert snapshot(old) == before
+    assert [p.name for p in old.parent.iterdir()] == [old.name]
+
+
+def test_an_interrupt_at_the_registered_path_restores_the_previous_artifact(real_import, manifest_factory, monkeypatch):
+    files, calls = real_import
+    old = registered(manifest_factory, 64)
+    before = snapshot(old)
+    payload = export_archive(manifest_factory, 64)
+    put(files, entry(64, payload=payload), payloads={entry(64)["path"]: payload})
+    staged_probe = prebuilt._probe
+
+    def probe(spec, bucket, compiled, *, local_files_only):
+        if ".staging" not in Path(compiled).parts:
+            raise KeyboardInterrupt
+        return staged_probe(spec, bucket, compiled, local_files_only=local_files_only)
+
+    monkeypatch.setattr(prebuilt, "_probe", probe)
+    with pytest.raises(KeyboardInterrupt):
+        prebuilt.fetch(SPEC, [64], repo="o/r", force=True, log=lambda m: None)
+    assert snapshot(old) == before
+    assert [p.name for p in old.parent.iterdir()] == [old.name]
+    assert not any((artifacts_root() / ".staging").iterdir())
+
+
 def test_a_failed_forced_replacement_keeps_the_previous_artifact(real_import, manifest_factory):
     files, calls = real_import
     old = registered(manifest_factory, 64)
