@@ -652,7 +652,7 @@ def test_a_failed_cleanup_of_the_replaced_copy_is_only_logged(real_import, manif
     out = prebuilt.fetch(SPEC, [64], repo="o/r", force=True, log=logs.append)
     monkeypatch.setattr(lifecycle.shutil, "rmtree", real_rmtree)
     assert out[64]["path"] == old and (old / COMPILED / "weights.bin").read_bytes() == b"new weights"
-    assert any("could not remove the replaced copy" in m and "artifacts prune" in m for m in logs)
+    assert any("could not remove the replaced copy" in m and "Remove it by hand" in m for m in logs)
 
 
 def test_a_registered_artifact_that_fails_to_load_is_replaced(repo, manifest_factory, monkeypatch):

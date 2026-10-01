@@ -465,7 +465,7 @@ def import_artifact(
                 except OSError as e:  # the new artifact is registered; only cleanup failed
                     log(
                         f"{spec.name} L{bucket}: registered, but could not remove the replaced copy {old}: {e}. "
-                        "`laya-apple artifacts prune` removes it."
+                        "Remove it by hand once the new one works; `laya-apple artifacts prune` lists it but keeps it."
                     )
         if registered_probe is None:
             t = time.perf_counter()
