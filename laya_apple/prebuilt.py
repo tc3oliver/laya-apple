@@ -11,9 +11,17 @@ trusted because it was downloaded; before an artifact is registered this machine
 - the build platform profile against this one (same SoC, macOS major and coremltools);
 - the archive's SHA-256 against the repository index, and every file against the manifest;
 - the compute plan (100% Neural Engine, no transitions);
-- the full parity gate against the shipped goldens.
-After registration, each fetched bucket is loaded once and passes the runtime placement probe
-(`backends.coreml_ane.probe_placement`); the runtime repeats the probe on every load.
+- the full parity gate against the shipped goldens;
+- the runtime placement probe (`backends.coreml_ane.probe_placement`) on the staged model.
+Only then is the artifact moved to the path the runtime loads from, where it is loaded and
+probed again, because Core ML's on-device compile is tied to the model's path; the reported
+probe result is this one. A bucket that fails any check is not registered, and with `force`
+the artifact it would replace is kept or put back. The runtime repeats the probe on every
+load.
+
+A bucket counts as already registered only if its artifact passes `artifacts.load_verified`,
+the runtime's own checks. One that does not is fetched again and replaced (a corrupt one is
+quarantined first, by `load_verified`); it is never reported as registered.
 
 The Core ML on-device ANE compile still happens on this machine, when the imported artifact is
 first loaded at its registered location (`import_artifact` pre-warms it). Prebuilt artifacts
@@ -39,7 +47,7 @@ import shutil
 import tempfile
 from pathlib import Path
 
-from .artifacts import artifact_dir, artifacts_root, platform_profile, profile_matches
+from .artifacts import artifact_dir, artifacts_root, load_verified, platform_profile, profile_matches
 from .errors import ArtifactError, ArtifactIntegrityError, ArtifactMissingError, BackendUnavailableError
 from .hub import sha256_file
 from .registry import ANE_GRAPH, ModelSpec
@@ -191,28 +199,45 @@ def select(index: dict, spec: ModelSpec, buckets, profile: dict) -> tuple[dict, 
 # ----------------------------------------------------------------------------- fetch
 
 
-def _download(repo: str, filename: str, revision: str, local_dir: Path) -> Path:
-    """One file from the model repository (a seam for tests)."""
+def _download(repo: str, filename: str, revision: str, local_dir: Path, *, local_files_only: bool = False) -> Path:
+    """One file from the model repository. Online it is downloaded into `local_dir` (staging,
+    not kept). Offline (`local_files_only` or HF_HUB_OFFLINE) it is read from the Hugging Face
+    cache only, never the network, and is returned in place."""
     from huggingface_hub import hf_hub_download
 
+    from .hub import offline_mode
+
+    mode = offline_mode(local_files_only)
     try:
+        if mode:
+            return Path(hf_hub_download(repo, filename, revision=revision, local_files_only=True))
         return Path(hf_hub_download(repo, filename, revision=revision, local_dir=str(local_dir)))
     except Exception as e:
+        if mode:
+            raise BackendUnavailableError(
+                f"cannot read {filename} from {repo}@{revision} {mode}: it is not in the Hugging Face cache ({e}). "
+                f"Fetch without --offline, or cache it first: hf download {repo} {filename} --revision {revision}"
+            ) from e
         raise BackendUnavailableError(f"cannot download {filename} from {repo}@{revision}: {e}") from e
 
 
-def _probe(spec: ModelSpec, buckets, *, local_files_only: bool) -> dict:
-    """Load the fetched buckets as the runtime does (strict): the runtime placement probe
-    runs on each, and a failure raises ComputeUnitMismatchError."""
-    from .backends.coreml_ane import ANEBackend
+def _probe(spec: ModelSpec, bucket: int, compiled: Path, *, local_files_only: bool) -> dict:
+    """The runtime placement probe on one compiled model (the staged copy, or the registered
+    one before its registration is kept): loaded on CPU_AND_NE as the runtime loads it, with
+    the runtime's probe input. A failure raises ComputeUnitMismatchError."""
+    import coremltools as ct
+
+    from .backends.coreml_ane import HostWeights, probe_features, probe_placement
     from .hub import checkpoint_path
     from .prompt import Tokenizer
+    from .registry import ANE_COMPUTE_UNITS
 
     ckpt = checkpoint_path(spec, local_files_only=local_files_only)
     local_attention = int(json.loads((ckpt / "encoder/config.json").read_text())["local_attention"])
     pad_id = Tokenizer(ckpt / "tokenizer").pad_token_id
-    backend = ANEBackend(spec, ckpt, pad_id, local_attention, sorted(buckets), strict=True)
-    return {b: backend.probes[b] for b in sorted(buckets)}
+    feats = probe_features(HostWeights(ckpt, local_attention), pad_id, bucket)
+    model = ct.models.CompiledMLModel(str(compiled), compute_units=getattr(ct.ComputeUnit, ANE_COMPUTE_UNITS))
+    return probe_placement(spec, bucket, model, compiled, feats)
 
 
 def fetch(
@@ -227,12 +252,19 @@ def fetch(
 ) -> dict:
     """Download, validate here and register prebuilt artifacts for `spec`.
 
-    Returns {bucket: {"path", "source", "probe"}} for the fetched buckets. A bucket already
-    registered is skipped unless `force`. Raises ArtifactMissingError when a requested bucket
-    has no archive for this checkpoint and platform profile (nothing is imported then),
+    Returns {bucket: {"path", "source", "probe"}} for the fetched buckets. A bucket whose
+    registered artifact passes `load_verified` is skipped unless `force`; one that does not is
+    fetched again and replaced. Raises ArtifactMissingError when a requested bucket has no
+    archive for this checkpoint and platform profile (nothing is imported then),
     ArtifactIntegrityError on a hash mismatch, and whatever the import checks or the placement
-    probe raise; a failed bucket is never registered by the import, and the runtime probe
-    refuses it on every later load."""
+    probe raise. The probe runs on the staged copy before it is moved into place, then again
+    at the registered path (Core ML compiles per path); "probe" in the result is the second.
+    If anything fails, the new artifact is not kept and an artifact it would replace is put
+    back, so registration is all-or-nothing.
+
+    Offline (`local_files_only`, or HF_HUB_OFFLINE) the index and archives are read from the
+    Hugging Face cache only, and BackendUnavailableError is raised when they are not there;
+    the network is never used. Every check above still runs."""
     from .lifecycle import BUILDING, import_artifact
 
     repo = resolve_repo(repo)
@@ -241,10 +273,23 @@ def fetch(
     unoffered = [b for b in buckets if b not in spec.ane_buckets]
     if unoffered:
         raise ArtifactError(f"{spec.name} does not offer ANE buckets {unoffered}; offered: {list(spec.ane_buckets)}")
-    todo = [b for b in buckets if force or not (artifact_dir(spec, b) / "manifest.json").exists()]
+    todo, replace = [], set()
     for b in buckets:
-        if b not in todo:
-            log(f"{spec.name} L{b}: already registered, skipped (--force replaces it)")
+        if not force:
+            try:
+                load_verified(spec, b)
+            except Exception as e:  # any failure to load it here, not only ArtifactError, means not usable
+                if not isinstance(e, ArtifactMissingError) or artifact_dir(spec, b).exists():
+                    log(
+                        f"{spec.name} L{b}: the registered artifact is not usable "
+                        f"({type(e).__name__}: {e}); fetching a replacement"
+                    )
+            else:
+                log(f"{spec.name} L{b}: already registered and verified, skipped (--force replaces it)")
+                continue
+        todo.append(b)
+        if artifact_dir(spec, b).exists():  # replaced only after its replacement passes every check
+            replace.add(b)
     if not todo:
         return {}
     profile = platform_profile()
@@ -253,8 +298,19 @@ def fetch(
     tmp = Path(tempfile.mkdtemp(prefix="fetch-", dir=staging_root))
     (tmp / BUILDING).write_text(json.dumps({"pid": os.getpid()}))  # `artifacts prune` leaves it alone
     out: dict = {}
+    probes: dict = {}
+
+    def probe(spec_: ModelSpec, bucket: int, compiled: Path) -> None:
+        """Run inside import_artifact on the staged copy, before it is moved into place."""
+        _probe(spec_, bucket, compiled, local_files_only=local_files_only)
+
+    def registered_probe(spec_: ModelSpec, bucket: int, compiled: Path) -> None:
+        """Run inside import_artifact at the registered path, before the move is kept; its
+        result is the one fetch reports."""
+        probes[bucket] = _probe(spec_, bucket, compiled, local_files_only=local_files_only)
+
     try:
-        index_file = _download(repo, INDEX, revision, tmp)
+        index_file = _download(repo, INDEX, revision, tmp, local_files_only=local_files_only)
         try:
             index = json.loads(Path(index_file).read_text())
         except ValueError as e:
@@ -269,7 +325,7 @@ def fetch(
         for b in todo:
             entry = found[b]
             log(f"{spec.name} L{b}: downloading {entry['path']} ({entry['bytes'] / 1e6:.0f} MB) from {repo}")
-            archive = _download(repo, entry["path"], revision, tmp)
+            archive = _download(repo, entry["path"], revision, tmp, local_files_only=local_files_only)
             digest = sha256_file(archive)
             if digest != entry["archive_sha256"]:
                 raise ArtifactIntegrityError(
@@ -277,15 +333,21 @@ def fetch(
                     f"({entry['archive_sha256'][:16]}…)"
                 )
             source = f"hf://{repo}@{revision}/{entry['path']}#sha256={digest}"
-            path = import_artifact(archive, local_files_only=local_files_only, force=force, log=log, source=source)
-            archive.unlink()  # the registered copy is the only one kept
-            out[b] = {"path": path, "source": source}
+            path = import_artifact(
+                archive,
+                local_files_only=local_files_only,
+                force=force or b in replace,
+                log=log,
+                source=source,
+                probe=probe,
+                registered_probe=registered_probe,
+                expect=(spec.name, b),
+            )
+            if archive.is_relative_to(tmp):  # an offline read from the Hugging Face cache stays there
+                archive.unlink()  # the registered copy is the only one kept
+            p = probes[b]
+            out[b] = {"path": path, "source": source, "probe": p}
+            log(f"{spec.name} L{b}: placement probe ratio {p['ratio']} (ANE {p['ane_ms']} ms, CPU {p['cpu_ms']} ms)")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
-    probes = _probe(spec, list(out), local_files_only=local_files_only)
-    for b, probe in probes.items():
-        out[b]["probe"] = probe
-        log(
-            f"{spec.name} L{b}: placement probe ratio {probe['ratio']} (ANE {probe['ane_ms']} ms, CPU {probe['cpu_ms']} ms)"
-        )
     return out

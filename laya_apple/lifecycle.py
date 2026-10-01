@@ -14,7 +14,12 @@
   - artifacts that are not validated;
   - quarantined and rejected entries;
   - abandoned staging directories;
+  - copies an import left beside an artifact, once that import has exited: `.failed-<pid>`,
+    and `.old-<pid>` without a manifest;
   - orphaned verification stamps.
+  A `.old-<pid>` with a manifest is a previous artifact an interrupted or failed replace
+  kept, possibly the only good copy: prune never deletes one, even from a hand-written plan,
+  and `kept_previous_artifacts()` reports it.
 - **Warm.** `warm()` loads each registered artifact once. Core ML's on-device ANE compile
   is cached per location and can be evicted by the system; warming pays that cost ahead of
   the first request.
@@ -26,6 +31,7 @@ import contextlib
 import fcntl
 import json
 import os
+import re
 import shutil
 import time
 from datetime import datetime, timezone
@@ -46,6 +52,7 @@ from .registry import ANE_GRAPH, ModelSpec, models
 STAGING_MAX_AGE_S = 3600
 MAX_IMPORT_BYTES = 4 * 1024**3
 BUILDING = "BUILDING.json"
+_LEFTOVER = re.compile(r"\.(old|failed)-(\d+)$")
 
 
 def _pid_alive(pid) -> bool:
@@ -53,9 +60,50 @@ def _pid_alive(pid) -> bool:
         os.kill(pid, 0)
     except ProcessLookupError:
         return False
-    except OSError:
-        return True  # e.g. exists but owned by another user
+    except (OSError, OverflowError, ValueError, TypeError):
+        return True  # e.g. exists but owned by another user; an impossible pid is never assumed dead
     return True
+
+
+def _leftover(d: Path):
+    """For a `.old-<pid>` / `.failed-<pid>` directory an import left beside an artifact:
+    (kind, the registered path it sits beside, pid alive); else None."""
+    m = _LEFTOVER.search(d.name)
+    if not m or not d.is_dir():
+        return None
+    return m.group(1), d.with_name(d.name[: m.start()]), _pid_alive(int(m.group(2)))
+
+
+def _kept_previous(d: Path) -> bool:
+    """A `.old-<pid>` that still has its manifest: a previous artifact an interrupted or failed
+    replace left behind, which may be the only good copy. prune never deletes one."""
+    info = _leftover(d)
+    return bool(info) and info[0] == "old" and (d / "manifest.json").exists()
+
+
+def kept_previous_artifacts() -> list[dict]:
+    """Every `.old-<pid>` with a manifest whose import has exited. prune never deletes them;
+    the user verifies and removes one by hand, or renames it back to its registered path."""
+    root = artifacts_root()
+    out = []
+    for d in sorted(root.glob("*/*/*")) if root.exists() else []:
+        if not _kept_previous(d) or _leftover(d)[2]:
+            continue
+        registered = _leftover(d)[1]
+        missing = not (registered / "manifest.json").exists()
+        state = "nothing is registered at" if missing else "an artifact is registered at"
+        out.append(
+            {
+                "path": str(d),
+                "registered": str(registered),
+                "registered_missing": missing,
+                "message": (
+                    f"previous artifact kept from an interrupted or failed replace ({state} {registered}); "
+                    f"verify and remove it by hand, or rename it back: mv {d} {registered}"
+                ),
+            }
+        )
+    return out
 
 
 def _lock_path(spec: ModelSpec, bucket: int) -> Path:
@@ -136,8 +184,17 @@ def plan_prune(profile: dict | None = None) -> list[dict]:
     def add(path: Path, reason: str):
         out.append({"path": str(path), "reason": reason, "bytes": _dir_bytes(path)})
 
+    for d in sorted(root.glob("*/*/*")):
+        # `.old-<pid>` / `.failed-<pid>`: a replaced or failed copy an import left beside an
+        # artifact, possibly partly removed (no manifest). Kept while that import still runs.
+        # A `.old-<pid>` with a manifest is never listed (kept_previous_artifacts reports it).
+        info = _leftover(d)
+        if info and not info[2] and not _kept_previous(d):
+            add(d, f"leftover {info[0]} copy from an earlier import")
     for mf in sorted(root.glob("*/*/*/manifest.json")):
         d = mf.parent
+        if _LEFTOVER.search(d.name):
+            continue  # handled above
         try:
             data = json.loads(mf.read_text())
         except ValueError:
@@ -193,6 +250,9 @@ def prune(plan: list[dict] | None = None) -> list[dict]:
     removed = []
     for item in plan:
         p = Path(item["path"])
+        info = _leftover(p)
+        if info and (info[2] or _kept_previous(p)):
+            continue  # its import is running, or it is a kept previous artifact (never deleted here)
         if p.is_file() and p.resolve().parent == stamps_root:
             p.unlink()
         elif _inside_root(p):
@@ -236,7 +296,15 @@ def export_artifact(spec: ModelSpec, bucket: int, dest: Path) -> Path:
 
 
 def import_artifact(
-    archive: Path, *, local_files_only: bool = False, force: bool = False, log=print, source: str | None = None
+    archive: Path,
+    *,
+    local_files_only: bool = False,
+    force: bool = False,
+    log=print,
+    source: str | None = None,
+    probe=None,
+    registered_probe=None,
+    expect: tuple[str, int] | None = None,
 ) -> Path:
     """Register an artifact built elsewhere, only after validating it here.
 
@@ -249,6 +317,28 @@ def import_artifact(
     The original build provenance is kept, and the local results are recorded under
     `imported` (`from` is `source` when given, such as the repository an archive was fetched
     from, else the archive's path).
+
+    `expect`, when given, is the (model name, bucket) the archive must hold. It is checked
+    right after the manifest is verified, before any other check; anything else is refused
+    with ArtifactIntegrityError (`artifacts fetch` passes the index entry's).
+
+    `probe`, when given, is called as probe(spec, bucket, staged_compiled_path) after every
+    check above and before registration (`artifacts fetch` runs the runtime placement probe
+    there). If any check or the probe raises, nothing is registered and an artifact already
+    at the registered path, which `force` would replace, is left as it was; so is it if moving
+    the new artifact into place fails.
+
+    `registered_probe`, when given, makes registration all-or-nothing: after the move, still
+    under the build lock, the artifact is loaded at its registered path (load_verified,
+    full) and registered_probe(spec, bucket, registered_compiled_path) is called
+    (`artifacts fetch` runs the placement probe again there, since Core ML compiles per
+    path). If either raises (or the import is interrupted), the new artifact is moved aside
+    with one rename and removed, the previous one is put back, and the error is raised. The
+    guarantee is about what is left on disk, not isolation from concurrent readers: a
+    runtime loading the bucket meanwhile can see the new artifact, and verifies it on each
+    load. Without the hook, the pre-warm load runs after registration, and its failure
+    raises with the new artifact already registered (the runtime checks it again on every
+    load). Either way, a failure to remove the replaced copy is only logged.
     """
     import tarfile
     import tempfile
@@ -300,6 +390,8 @@ def import_artifact(
         except (TypeError, ValueError) as e:
             raise ArtifactIntegrityError(f"manifest has a malformed artifact.length: {art.get('length')!r}") from e
         manifest = verify_manifest(spec, bucket, data)
+        if expect is not None and (spec.name, bucket) != tuple(expect):
+            raise ArtifactIntegrityError(f"{archive} holds {spec.name} L{bucket}, not {expect[0]} L{expect[1]}")
         verify_profile(data)
         verify_files(manifest, stage)
         final = artifact_dir(spec, bucket)
@@ -316,6 +408,8 @@ def import_artifact(
             log(f"{spec.name} L{bucket}: parity gate ran in {time.perf_counter() - t:.1f} s (includes the staged load)")
             if not parity["passed"]:
                 raise ArtifactParityError(f"imported {spec.name} L{bucket} failed the parity gate here: {parity}")
+            if probe is not None:
+                probe(spec, bucket, stage / COMPILED)
             data["imported"] = {
                 "at": datetime.now(timezone.utc).isoformat(),
                 "from": source or str(archive),
@@ -326,16 +420,57 @@ def import_artifact(
             }
             (stage / "manifest.json").write_text(json.dumps(data, indent=1) + "\n")
             final.parent.mkdir(parents=True, exist_ok=True)
+            old = None
             if final.exists():
                 old = final.with_name(final.name + f".old-{os.getpid()}")
                 os.rename(final, old)
+
+            def restore():
+                """Put the previous artifact back, if there was one; the caller re-raises."""
+                if old is None:
+                    return
+                try:
+                    os.rename(old, final)
+                except OSError as e:
+                    log(f"{spec.name} L{bucket}: could not restore the previous artifact; it was left at {old}: {e}")
+
+            try:
                 os.rename(stage, final)
-                shutil.rmtree(old)
-            else:
-                os.rename(stage, final)
-        t = time.perf_counter()
-        load_verified(spec, bucket, full=True)  # pre-warm the ANE compile at the registered path
-        log(f"{spec.name} L{bucket}: registered and loaded in {time.perf_counter() - t:.1f} s")
+            except BaseException:
+                restore()
+                raise
+            if registered_probe is not None:
+                t = time.perf_counter()
+                try:
+                    load_verified(spec, bucket, full=True)  # pre-warm the ANE compile at the registered path
+                    registered_probe(spec, bucket, final / COMPILED)
+                except BaseException:
+                    # Unregister the new artifact with one rename, so the path is free for the
+                    # previous one whatever happens to the removal; prune removes any leftover.
+                    failed = final.with_name(final.name + f".failed-{os.getpid()}")
+                    if final.exists():  # load_verified may already have quarantined it
+                        try:
+                            os.rename(final, failed)
+                        except OSError as e:
+                            kept = f"; the previous artifact is at {old}" if old is not None else ""
+                            log(f"{spec.name} L{bucket}: could not move the failed artifact out of {final}: {e}{kept}")
+                    if not final.exists():
+                        restore()
+                    shutil.rmtree(failed, ignore_errors=True)
+                    raise
+                log(f"{spec.name} L{bucket}: registered, loaded and probed in {time.perf_counter() - t:.1f} s")
+            if old is not None:
+                try:
+                    shutil.rmtree(old)
+                except OSError as e:  # the new artifact is registered; only cleanup failed
+                    log(
+                        f"{spec.name} L{bucket}: registered, but could not remove the replaced copy {old}: {e}. "
+                        "Remove it by hand once the new one works; `laya-apple artifacts prune` lists it but keeps it."
+                    )
+        if registered_probe is None:
+            t = time.perf_counter()
+            load_verified(spec, bucket, full=True)  # pre-warm the ANE compile at the registered path
+            log(f"{spec.name} L{bucket}: registered and loaded in {time.perf_counter() - t:.1f} s")
         return final
     finally:
         if stage.exists():

@@ -355,3 +355,88 @@ def test_build_lock_times_out(cache):
         t.start()
         t.join()
     assert err and "another process" in str(err[0])
+
+
+def _beside(spec, bucket, suffix, manifest_factory=None):
+    """A leftover directory an import could leave beside artifact_dir(spec, bucket)."""
+    d = artifact_dir(spec, bucket)
+    left = d.with_name(d.name + suffix)
+    if manifest_factory:
+        _artifact(spec, bucket, manifest_factory, where=left)
+    else:
+        (left / COMPILED).mkdir(parents=True)
+    return left
+
+
+@pytest.mark.parametrize("registered", [False, True], ids=["nothing-registered", "artifact-registered"])
+def test_a_previous_artifact_with_a_manifest_is_reported_and_never_pruned(
+    cache, manifest_factory, monkeypatch, registered
+):
+    spec = models()["laya-typed-decisions"]
+    monkeypatch.setattr(lifecycle, "_pid_alive", lambda pid: False)
+    old = _beside(spec, 64, ".old-123", manifest_factory)
+    if registered:
+        _artifact(spec, 64, manifest_factory)
+    assert all(item["path"] != str(old) for item in lifecycle.plan_prune(PROFILE))
+    (report,) = lifecycle.kept_previous_artifacts()
+    assert report["path"] == str(old) and report["registered"] == str(artifact_dir(spec, 64))
+    assert report["registered_missing"] is not registered
+    state = "an artifact is registered at" if registered else "nothing is registered at"
+    assert state in report["message"]
+    assert f"verify and remove it by hand, or rename it back: mv {old} {artifact_dir(spec, 64)}" in report["message"]
+    lifecycle.prune()
+    forged = [{"path": str(old), "reason": "forged", "bytes": 0}]  # a stale or hand-written plan
+    assert lifecycle.prune(forged) == [] and (old / "manifest.json").exists()
+
+
+def test_a_plan_listing_the_previous_artifact_and_its_sibling_never_deletes_the_previous_one(
+    cache, manifest_factory, monkeypatch
+):
+    spec = models()["laya-typed-decisions"]
+    monkeypatch.setattr(lifecycle, "_pid_alive", lambda pid: False)
+    registered = _artifact(spec, 64, manifest_factory)
+    old = _beside(spec, 64, ".old-123", manifest_factory)
+    plan = [{"path": str(p), "reason": "forged", "bytes": 0} for p in (registered, old)]
+    assert [x["path"] for x in lifecycle.prune(plan)] == [str(registered)]
+    assert (old / "manifest.json").exists()
+    assert lifecycle.kept_previous_artifacts()[0]["registered_missing"] is True
+
+
+def test_partly_removed_and_failed_leftovers_are_pruned_once_their_import_exits(cache, manifest_factory, monkeypatch):
+    spec = models()["laya-typed-decisions"]
+    _artifact(spec, 64, manifest_factory)
+    old = _beside(spec, 64, ".old-123")  # partly removed: no manifest
+    failed = _beside(spec, 64, ".failed-123", manifest_factory)
+    alive = {"value": True}
+    monkeypatch.setattr(lifecycle, "_pid_alive", lambda pid: alive["value"])
+    assert lifecycle.plan_prune(PROFILE) == [] and lifecycle.kept_previous_artifacts() == []
+    alive["value"] = False
+    plan = lifecycle.plan_prune(PROFILE)
+    assert sorted((x["path"], x["reason"]) for x in plan) == [
+        (str(failed), "leftover failed copy from an earlier import"),
+        (str(old), "leftover old copy from an earlier import"),
+    ]
+    assert lifecycle.kept_previous_artifacts() == []
+    alive["value"] = True  # the pid is in use again before prune runs
+    assert lifecycle.prune(plan) == [] and old.exists() and failed.exists()
+    alive["value"] = False
+    assert len(lifecycle.prune(plan)) == 2 and not old.exists() and not failed.exists()
+
+
+def test_an_impossible_pid_is_never_assumed_dead(cache):
+    spec = models()["laya-typed-decisions"]
+    huge = _beside(spec, 64, ".failed-" + "9" * 30)
+    assert lifecycle._pid_alive(int("9" * 30)) is True
+    assert lifecycle._pid_alive("123") is True  # e.g. a non-int pid read from BUILDING.json (TypeError)
+    assert lifecycle._pid_alive(None) is True
+    assert lifecycle.plan_prune(PROFILE) == [] and lifecycle.kept_previous_artifacts() == []
+    assert huge.exists()
+
+
+def test_an_abandoned_staging_directory_with_a_non_int_pid_is_kept(cache):
+    staging = artifacts_root() / ".staging" / "fetch-x"
+    staging.mkdir(parents=True)
+    (staging / lifecycle.BUILDING).write_text(json.dumps({"pid": "not-a-pid"}))
+    old = time.time() - 2 * lifecycle.STAGING_MAX_AGE_S
+    os.utime(staging, (old, old))
+    assert lifecycle.plan_prune(PROFILE) == []

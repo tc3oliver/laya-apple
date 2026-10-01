@@ -30,6 +30,18 @@ def sha256_file(path) -> str:
     return h.hexdigest()
 
 
+def offline_mode(local_files_only: bool = False) -> str | None:
+    """Why Hugging Face downloads are off, or None when they are on: `local_files_only`
+    (--offline), else HF_HUB_OFFLINE as huggingface_hub read it at import."""
+    from huggingface_hub import constants
+
+    if local_files_only:
+        return "offline (local_files_only)"
+    if constants.HF_HUB_OFFLINE:
+        return "offline (HF_HUB_OFFLINE)"
+    return None
+
+
 def checkpoint_path(spec: ModelSpec, *, local_files_only: bool = False) -> Path:
     """Local directory of the pinned checkpoint revision (downloads unless offline)."""
     from huggingface_hub import snapshot_download
@@ -42,7 +54,7 @@ def checkpoint_path(spec: ModelSpec, *, local_files_only: bool = False) -> Path:
             local_files_only=local_files_only,
         )
     except Exception as e:  # offline and not cached, network errors
-        mode = "offline (local_files_only)" if local_files_only else "online"
+        mode = offline_mode(local_files_only) or "online"
         raise BackendUnavailableError(
             f"cannot resolve {spec.repo}@{spec.revision[:12]} {mode}: {e}. "
             f"Run once online, or `laya-apple download {spec.name}`."

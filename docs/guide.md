@@ -451,7 +451,14 @@ this machine. In addition:
 - only archives built on this machine's platform profile (same SoC, macOS major and
   coremltools) are selected. Any other profile gets `ArtifactMissingError`, which names the
   build command;
-- each fetched bucket is loaded once and must pass the runtime placement probe.
+- each fetched bucket must pass the runtime placement probe twice: on the staged copy before
+  it is moved into place, and again at the registered path after a full load there, because
+  Core ML's on-device compile is tied to the model's path. The fetch result reports the
+  second probe. Registration is all-or-nothing: a bucket that fails any check is not kept,
+  and with `--force` the artifact it would replace is kept or put back;
+- a bucket is skipped as already registered only if its artifact passes the runtime's load
+  checks (manifest, platform profile, file hash, compute plan). One that does not is fetched
+  again; a corrupt one is quarantined first.
 
 Without `--revision`, the default repository is read at the commit this release was
 validated against (`93181067cfee9c6117a7919321eb303ec36fcbd4` for 1.6.0), never at its mutable `main`, so one
@@ -670,6 +677,12 @@ is needed. Three equivalent ways to force this:
 Running offline against an uncached checkpoint raises
 `BackendUnavailableError` with download instructions instead of hanging or
 silently going online.
+
+This covers `artifacts fetch` too: offline, it reads the repository's `index.json` and the
+archives from the Hugging Face cache only (for example after `hf download OWNER/NAME FILE
+--revision REV`), runs the same validating import, and raises `BackendUnavailableError` when
+a file is not cached. An online fetch does not keep its downloads, so it does not fill that
+cache.
 
 ## Runtime diagnostics
 

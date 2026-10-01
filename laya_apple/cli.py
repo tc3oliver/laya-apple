@@ -172,8 +172,10 @@ def cmd_artifacts(a):
         print(import_artifact(Path(a.model), local_files_only=a.offline, force=a.force))
         return 0
     if a.action == "prune":
-        from .lifecycle import plan_prune, prune
+        from .lifecycle import kept_previous_artifacts, plan_prune, prune
 
+        for x in kept_previous_artifacts():  # never pruned
+            print(f"keep  {x['message']}")
         plan = plan_prune()
         total = sum(x["bytes"] for x in plan)
         for x in plan:

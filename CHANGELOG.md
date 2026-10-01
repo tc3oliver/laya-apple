@@ -46,6 +46,34 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   itself "v1.0".
 - **CI declares least-privilege token permissions.** `.github/workflows/ci.yml` now sets
   `permissions: contents: read`, like the integration workflow.
+- **`artifacts fetch` no longer reports an unusable artifact as already registered**
+  ([#132](https://github.com/tc3oliver/laya-apple/issues/132)). A bucket was skipped when its
+  `manifest.json` existed, even an empty or corrupt one. It is now skipped only if the artifact
+  passes `load_verified`, the runtime's own checks; otherwise it is fetched again and replaced
+  (a corrupt one is quarantined first).
+- **`artifacts fetch` registers a bucket only after the runtime placement probe passes**
+  ([#133](https://github.com/tc3oliver/laya-apple/issues/133)). The probe ran after the import
+  had already moved the artifact into place, so a failed probe left it registered, and with
+  `--force` the previous artifact was already gone. The probe now runs on the staged copy
+  inside the import, before the move into place, and again at the registered path after a
+  full load there ([#147](https://github.com/tc3oliver/laya-apple/issues/147)), since Core ML
+  compiles per path; the fetch result reports the registered-path probe. Registration is
+  all-or-nothing: if anything fails, including the move into place, the new artifact is not
+  kept and the previous one is kept or put back. `lifecycle.import_artifact` gains optional
+  `probe` and `registered_probe` hooks and an optional `expect` (model, bucket) check for
+  this; without them it behaves as before. An interrupted or failed import can leave copies
+  beside an artifact. `artifacts prune` never deletes a `.old-<pid>` copy that has a
+  manifest, even from a hand-written plan: once its process has exited, it is reported as
+  a previous artifact to verify and remove by hand, or to rename back to the registered
+  path. A `.old-<pid>` copy without a manifest (partly removed) and a `.failed-<pid>` copy
+  are pruned once their process has exited.
+- **`--offline` now covers `artifacts fetch`**
+  ([#143](https://github.com/tc3oliver/laya-apple/issues/143)). The flag reached only the
+  checkpoint resolution, so the index and archives were still downloaded. Offline (`--offline`
+  or `HF_HUB_OFFLINE=1`), fetch reads them from the Hugging Face cache only, still runs the
+  full validating import, and raises `BackendUnavailableError` when they are not cached. The
+  checkpoint error now names the effective offline mode, including `HF_HUB_OFFLINE`, instead of
+  saying "online".
 
 ## [1.6.0] - 2026-09-27
 
