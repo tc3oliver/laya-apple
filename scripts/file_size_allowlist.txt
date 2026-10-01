@@ -1,0 +1,75 @@
+# Files that were already over the 1 MiB cap when the cap was introduced (main at 25c4bb3).
+# Format: <max bytes> <repo-relative path>. Read by scripts/check_file_sizes.py; policy in docs/evidence.md.
+#
+# Never add research or benchmark data to this list: publish it as external evidence instead.
+# Any other addition needs explicit maintainer agreement in the pull request. The list never
+# grows for evidence data. A file may not grow past its recorded size, and a line whose file is
+# gone or now under the cap must be removed (the check fails on it). Renaming a listed file means
+# updating its line in the same pull request, with the same maintainer agreement.
+
+1416056 benchmarks/ane-equal-load-cpu/raw/laya-process-gpu30.json.gz
+1356280 benchmarks/ane-equal-load-cpu/raw/laya-thread-gpu30.json.gz
+1408890 benchmarks/ane-equal-load-cpu/raw/laya-typed-decisions-process-gpu30.json.gz
+1360052 benchmarks/ane-equal-load-cpu/raw/laya-typed-decisions-thread-gpu30.json.gz
+3309719 benchmarks/switchyard/v1-m4-max/raw/run-001/trace.jsonl
+3310728 benchmarks/switchyard/v1-m4-max/raw/run-002/trace.jsonl
+3311184 benchmarks/switchyard/v1-m4-max/raw/run-003/trace.jsonl
+1692901 docs/media/heterogeneous-serving.gif
+5233508 docs/media/heterogeneous-serving.mp4
+1106899 docs/media/jev-local.gif
+1258507 docs/media/jev-local.mp4
+1549882 docs/media/release15-social.mp4
+1823270 docs/media/switchyard-launch.mp4
+2906234 research/coreml-adaptive-breaker/raw-val/productsoak-laya-P-r1.json.gz
+2839505 research/coreml-adaptive-breaker/raw-val/soak55-laya-typed-decisions-P-r3.json.gz
+1070482 research/coreml-adaptive-breaker/raw/laya-R-r1.json.gz
+1069141 research/coreml-adaptive-breaker/raw/laya-R-r2.json.gz
+1070614 research/coreml-adaptive-breaker/raw/laya-R-r3.json.gz
+1071625 research/coreml-adaptive-breaker/raw/laya-R-r4.json.gz
+1075011 research/coreml-adaptive-breaker/raw/laya-R-r5.json.gz
+1071225 research/coreml-adaptive-breaker/raw/laya-R-r6.json.gz
+1103920 research/coreml-async-predict/raw/laya-PB-ASYNC-r1.json.gz
+1052083 research/coreml-async-transient/raw/laya-PB-ASYNC-r1.json.gz
+1210056 research/coreml-dependency-qos/raw/laya-O-r1.json.gz
+1706226 research/coreml-gil-completion-path/raw/A-thread.json.gz
+1804065 research/coreml-gil-completion-path/raw/B-process.json.gz
+1773166 research/coreml-gil-completion-path/raw/C-thread-nogil.json.gz
+1543130 research/coreml-placement-deconfounding/raw/A-thread-gpu45.json.gz
+1539428 research/coreml-placement-deconfounding/raw/B-process-gpu45.json.gz
+1539178 research/coreml-placement-deconfounding/raw/C-thread-nogil-gpu45.json.gz
+1148699 research/coreml-prebind-predict/raw/laya-multilingual-B-r1.json.gz
+1069625 research/coreml-prebind-predict/raw/laya-multilingual-B-r2.json.gz
+1360043 research/coreml-prebind-predict/raw/laya-multilingual-C-r1.json.gz
+1216316 research/coreml-prebind-predict/raw/laya-multilingual-C-r2.json.gz
+1619898 research/coreml-prebind-predict/raw/laya-multilingual-PB-r1.json.gz
+1717144 research/coreml-prebind-predict/raw/laya-multilingual-PB-r2.json.gz
+1924679 research/gpu-ane-interference/ledger/raw/device-laya-typed-decisions-process.json.gz
+1900170 research/gpu-ane-interference/ledger/raw/device-laya-typed-decisions-thread.json.gz
+2459572 research/gpu-ane-interference/raw/device-laya-multilingual-process.json.gz
+2272446 research/gpu-ane-interference/raw/device-laya-multilingual-thread.json.gz
+1700908 research/gpu-ane-interference/raw/device-laya-typed-decisions-process.json.gz
+1477425 research/gpu-ane-interference/raw/device-laya-typed-decisions-thread.json.gz
+2946903 research/gpu-ane-interference/raw/sched-laya-multilingual-process.json.gz
+1120657 research/gpu-ane-interference/raw/sched-laya-typed-decisions-thread.json.gz
+1939802 research/gpu-ane-interference/results.json
+1200547 research/intra-request-split/raw/latency/laya-b1-p1.json
+1200577 research/intra-request-split/raw/latency/laya-b1-p4.json
+1200569 research/intra-request-split/raw/latency/laya-b2-p2.json
+1200474 research/intra-request-split/raw/latency/laya-b2-p3.json
+1990471 research/intra-request-split/raw/mix/switchyard.json
+1995006 research/phase-0-feasibility/raw/bench/latency.jsonl
+2518422 research/phase-0-feasibility/raw/concurrency/laya-multilingual-96-1024.json
+1130712 research/phase-0-feasibility/raw/concurrency/laya-typed-decisions-128-1024.json
+12251382 research/phase-0-feasibility/raw/profile/plan-laya-typed-decisions-L1024-windowed.json
+1878437 research/phase-0-feasibility/raw/profile/plan-laya-typed-decisions-L128-masked.json
+2436225 research/phase-0-feasibility/raw/profile/plan-laya-typed-decisions-L128-windowed.json
+1882492 research/phase-0-feasibility/raw/profile/plan-laya-typed-decisions-L256-masked.json
+4272179 research/phase-0-feasibility/raw/profile/plan-laya-typed-decisions-L256-windowed.json
+1882669 research/phase-0-feasibility/raw/profile/plan-laya-typed-decisions-L512-masked.json
+6929468 research/phase-0-feasibility/raw/profile/plan-laya-typed-decisions-L512-windowed.json
+1876295 research/phase-0-feasibility/raw/profile/plan-laya-typed-decisions-L64-masked.json
+1879798 research/phase-0-feasibility/raw/profile/plan-laya-typed-decisions-L96-masked.json
+8047737 research/phase-0-feasibility/raw/profile/probes-laya-typed-decisions.jsonl
+1668675 research/v0.2-concurrency/raw/inproc-laya-multilingual-S96-L1024.json
+1408991 tests/fixtures/switchyard/replay-synthetic-ane-unverified.json
+1409833 tests/fixtures/switchyard/replay-synthetic.json

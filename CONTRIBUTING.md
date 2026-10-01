@@ -87,6 +87,9 @@ By what a PR touches:
 - **Artifacts** (`laya_apple/artifacts.py`, `laya_apple/conversion/`,
   `laya_apple/lifecycle.py`): fast suite + ANE validation; a new or changed artifact
   configuration needs the full gate in "Artifact release policy" below.
+- **Research and benchmark data** (`research/`, `benchmarks/`): fast suite +
+  `uv run python scripts/check_file_sizes.py`; a raw file over 1 MiB is published as
+  external evidence, not committed ([`docs/evidence.md`](docs/evidence.md)).
 
 Do not run the full benchmark suite or a release soak for a change unrelated to
 performance or reliability — it is expensive and its purpose is to validate a release,
@@ -205,6 +208,13 @@ These are enforced by tests and reviewed as blocking, not stylistic:
 - **Benchmarks record raw data and are reproducible.** A new or changed benchmark follows
   [`docs/benchmarks.md`](docs/benchmarks.md): it writes raw per-request data, not only
   summary statistics, and states exactly how to reproduce it.
+- **Large raw evidence stays out of Git.** No tracked file may be larger than 1 MiB;
+  `scripts/check_file_sizes.py` fails CI on one, except for the grandfathered files in
+  `scripts/file_size_allowlist.txt`. Never add research or benchmark data to that list; any
+  other addition needs explicit maintainer agreement in the pull request. Compress a raw
+  trace; if it is still over the cap, publish it as external evidence and commit a manifest
+  with its URL, SHA-256 and size instead. See [`docs/evidence.md`](docs/evidence.md) for the
+  threshold, where to publish and the manifest format.
 - **Public API changes follow `docs/api.md`.** The public API, the CLI, the stable
   `info()` keys, the routing-reason strings, and the artifact manifest format are covered
   by Semantic Versioning as of 1.0. Read the deprecation policy in

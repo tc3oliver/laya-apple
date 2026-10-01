@@ -95,6 +95,12 @@ gives the exact commands.
   A tolerance or threshold change needs its own PR with measurements behind it.
 - **Never edit historical raw benchmark data** (`benchmarks/*/`, `research/*/`) to change
   a result. A new measurement goes in a new file or directory, with its methodology.
+- **Raw data over 1 MiB does not go in Git.** `scripts/check_file_sizes.py` (a CI step)
+  fails any tracked file over 1 MiB that is not on its grandfathered allowlist. Run it
+  before committing new files under `research/` or `benchmarks/`. Publish larger raw data
+  as external evidence with an in-repo manifest (URL, SHA-256, size)
+  ([`docs/evidence.md`](docs/evidence.md)). Never add research or benchmark data to the
+  allowlist. Any other addition needs explicit maintainer agreement in the pull request.
 - **Every performance or correctness claim in `README.md` or `docs/` must trace to
   recorded measurement data.** Name the file it comes from.
 - **Keep the Chinese READMEs in sync.** A change to `README.md` updates `README.zh-TW.md`

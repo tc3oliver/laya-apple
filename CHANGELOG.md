@@ -12,6 +12,12 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   `--offline` was given), `hf_hub_offline` (`huggingface_hub`'s own offline mode, from
   `HF_HUB_OFFLINE`, or the legacy `TRANSFORMERS_OFFLINE` when that is unset or empty) and
   `effective` (either). Every existing key is unchanged.
+- **A 1 MiB cap on tracked file size, checked in CI.** `scripts/check_file_sizes.py` fails any
+  tracked file over 1 MiB that is not in `scripts/file_size_allowlist.txt`, which lists the 66
+  files that were already over the cap (none moved, edited or removed from history). Raw
+  research and benchmark data above the cap is published as external evidence and listed in an
+  in-repo manifest with its URL, SHA-256 and size. The policy, why 1 MiB, and the manifest
+  format are in `docs/evidence.md`.
 
 ### Fixed
 
