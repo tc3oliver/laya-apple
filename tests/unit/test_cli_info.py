@@ -38,8 +38,19 @@ def test_info_keeps_every_existing_key(capsys):
     assert isinstance(out["platform_validated_for_auto_ane"], bool)
     assert isinstance(out["coremltools_available"], bool)
     assert set(out["models"]) == set(models())
-    for entry in out["models"].values():
+    for name, entry in out["models"].items():
+        spec = models()[name]
         assert set(entry) == MODEL_KEYS
+        assert entry == {
+            "repo": spec.repo,
+            "revision": spec.revision,
+            "encoder": spec.encoder,
+            "max_len": spec.max_len,
+            "mlx_dtypes": list(spec.mlx_dtypes),
+            "ane_buckets": list(spec.ane_buckets),
+            "auto_ane_buckets": list(spec.auto_ane_buckets),
+            "artifacts": {str(b): "missing" for b in spec.ane_buckets},  # nothing built in the empty cache
+        }
 
 
 def test_info_adds_only_the_environment_block(capsys):
@@ -70,6 +81,25 @@ def test_environment_reports_an_importable_mlx(capsys):
 def test_environment_reports_a_missing_mlx_without_failing(capsys, monkeypatch):
     monkeypatch.setitem(sys.modules, "mlx.core", None)  # `import mlx.core` raises ImportError
     out = run_info(capsys)
+    assert out["environment"]["mlx"] == {"available": False, "version": None}
+    assert TOP_LEVEL_KEYS <= set(out)
+
+
+class _FailingMlxFinder:
+    """Meta-path finder that makes `import mlx.core` raise something other than ImportError."""
+
+    @staticmethod
+    def find_spec(name, path=None, target=None):
+        if name == "mlx.core":
+            raise RuntimeError("mlx.core failed to initialise")
+        return None
+
+
+def test_environment_reports_an_mlx_that_fails_to_import_with_another_error(capsys, monkeypatch):
+    pytest.importorskip("mlx.core")  # installed, so the finder below is what fails the import
+    monkeypatch.delitem(sys.modules, "mlx.core")
+    monkeypatch.setattr(sys, "meta_path", [_FailingMlxFinder, *sys.meta_path])
+    out = run_info(capsys)  # run_info asserts the exit code is 0
     assert out["environment"]["mlx"] == {"available": False, "version": None}
     assert TOP_LEVEL_KEYS <= set(out)
 

@@ -63,8 +63,9 @@ def _environment(offline: bool) -> dict:
 
     Offline: laya-apple reads no environment variable for it. It passes local_files_only
     (False unless --offline or the keyword argument) to huggingface_hub, whose own offline
-    mode (HF_HUB_OFFLINE, or the legacy TRANSFORMERS_OFFLINE, set to 1/ON/YES/TRUE when it was
-    imported) also stops every request. Checkpoint resolution is offline when either holds."""
+    mode (HF_HUB_OFFLINE set to 1/ON/YES/TRUE when it was imported; the legacy
+    TRANSFORMERS_OFFLINE is consulted only when HF_HUB_OFFLINE is unset or empty) also stops
+    every request. Checkpoint resolution is offline when either holds."""
     import platform
 
     try:

@@ -711,8 +711,8 @@ not carry:
   [Offline use](#offline-use)). laya-apple itself reads no environment variable for this. It
   passes `local_files_only` to `huggingface_hub`, `False` unless the caller gives
   `local_files_only=True` or the CLI gets `--offline`, and `huggingface_hub` has its own
-  offline mode, on when `HF_HUB_OFFLINE` (or the legacy `TRANSFORMERS_OFFLINE`) is `1`, `ON`,
-  `YES` or `TRUE` when it is imported.
+  offline mode, on when `HF_HUB_OFFLINE` is `1`, `ON`, `YES` or `TRUE` when it is imported. The
+  legacy `TRANSFORMERS_OFFLINE` is consulted only when `HF_HUB_OFFLINE` is unset or empty.
   - `local_files_only`: what laya-apple passes for this invocation, that is, whether `--offline`
     was given.
   - `hf_hub_offline`: `huggingface_hub`'s offline mode. `null` if `huggingface_hub` cannot be
