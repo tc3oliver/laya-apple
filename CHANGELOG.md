@@ -58,6 +58,13 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   inside the import, before registration; a failure leaves nothing new registered and keeps
   the previous artifact. `artifacts import` gains an optional pre-registration `probe` hook
   for this; its behaviour without one is unchanged.
+- **`--offline` now covers `artifacts fetch`**
+  ([#143](https://github.com/tc3oliver/laya-apple/issues/143)). The flag reached only the
+  checkpoint resolution, so the index and archives were still downloaded. Offline (`--offline`
+  or `HF_HUB_OFFLINE=1`), fetch reads them from the Hugging Face cache only, still runs the
+  full validating import, and raises `BackendUnavailableError` when they are not cached. The
+  checkpoint error now names the effective offline mode, including `HF_HUB_OFFLINE`, instead of
+  saying "online".
 
 ## [1.6.0] - 2026-09-27
 

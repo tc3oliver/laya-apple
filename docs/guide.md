@@ -676,6 +676,12 @@ Running offline against an uncached checkpoint raises
 `BackendUnavailableError` with download instructions instead of hanging or
 silently going online.
 
+This covers `artifacts fetch` too: offline, it reads the repository's `index.json` and the
+archives from the Hugging Face cache only (for example after `hf download OWNER/NAME FILE
+--revision REV`), runs the same validating import, and raises `BackendUnavailableError` when
+a file is not cached. An online fetch does not keep its downloads, so it does not fill that
+cache.
+
 ## Runtime diagnostics
 
 Every `Result.runtime` (a `RuntimeInfo`) records:

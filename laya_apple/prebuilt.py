@@ -198,13 +198,25 @@ def select(index: dict, spec: ModelSpec, buckets, profile: dict) -> tuple[dict, 
 # ----------------------------------------------------------------------------- fetch
 
 
-def _download(repo: str, filename: str, revision: str, local_dir: Path) -> Path:
-    """One file from the model repository (a seam for tests)."""
+def _download(repo: str, filename: str, revision: str, local_dir: Path, *, local_files_only: bool = False) -> Path:
+    """One file from the model repository. Online it is downloaded into `local_dir` (staging,
+    not kept). Offline (`local_files_only` or HF_HUB_OFFLINE) it is read from the Hugging Face
+    cache only, never the network, and is returned in place."""
     from huggingface_hub import hf_hub_download
 
+    from .hub import offline_mode
+
+    mode = offline_mode(local_files_only)
     try:
+        if mode:
+            return Path(hf_hub_download(repo, filename, revision=revision, local_files_only=True))
         return Path(hf_hub_download(repo, filename, revision=revision, local_dir=str(local_dir)))
     except Exception as e:
+        if mode:
+            raise BackendUnavailableError(
+                f"cannot read {filename} from {repo}@{revision} {mode}: it is not in the Hugging Face cache ({e}). "
+                f"Fetch without --offline, or cache it first: hf download {repo} {filename} --revision {revision}"
+            ) from e
         raise BackendUnavailableError(f"cannot download {filename} from {repo}@{revision}: {e}") from e
 
 
@@ -245,7 +257,11 @@ def fetch(
     archive for this checkpoint and platform profile (nothing is imported then),
     ArtifactIntegrityError on a hash mismatch, and whatever the import checks or the placement
     probe raise. A bucket is registered only after all of them pass on its staged copy, so a
-    failed bucket is never registered and an artifact it would replace is left in place."""
+    failed bucket is never registered and an artifact it would replace is left in place.
+
+    Offline (`local_files_only`, or HF_HUB_OFFLINE) the index and archives are read from the
+    Hugging Face cache only, and BackendUnavailableError is raised when they are not there;
+    the network is never used. Every check above still runs."""
     from .lifecycle import BUILDING, import_artifact
 
     repo = resolve_repo(repo)
@@ -285,7 +301,7 @@ def fetch(
         probes[want] = _probe(spec_, bucket, compiled, local_files_only=local_files_only)
 
     try:
-        index_file = _download(repo, INDEX, revision, tmp)
+        index_file = _download(repo, INDEX, revision, tmp, local_files_only=local_files_only)
         try:
             index = json.loads(Path(index_file).read_text())
         except ValueError as e:
@@ -300,7 +316,7 @@ def fetch(
         for b in todo:
             entry = found[b]
             log(f"{spec.name} L{b}: downloading {entry['path']} ({entry['bytes'] / 1e6:.0f} MB) from {repo}")
-            archive = _download(repo, entry["path"], revision, tmp)
+            archive = _download(repo, entry["path"], revision, tmp, local_files_only=local_files_only)
             digest = sha256_file(archive)
             if digest != entry["archive_sha256"]:
                 raise ArtifactIntegrityError(
@@ -316,7 +332,8 @@ def fetch(
                 source=source,
                 probe=functools.partial(probe, want=b, path=entry["path"]),
             )
-            archive.unlink()  # the registered copy is the only one kept
+            if archive.is_relative_to(tmp):  # an offline read from the Hugging Face cache stays there
+                archive.unlink()  # the registered copy is the only one kept
             p = probes[b]
             out[b] = {"path": path, "source": source, "probe": p}
             log(f"{spec.name} L{b}: placement probe ratio {p['ratio']} (ANE {p['ane_ms']} ms, CPU {p['cpu_ms']} ms)")

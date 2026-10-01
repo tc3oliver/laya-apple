@@ -37,6 +37,7 @@ SPEC = models()["laya"]
 HERE = {"soc": "Apple M4 Max", "macos": "26.0.1", "macos_build": "25A1", "coremltools": "9.0"}
 OTHER = {"soc": "Apple M1", "macos": "15.6", "macos_build": "24G1", "coremltools": "9.0"}
 REAL_IMPORT = lifecycle.import_artifact
+REAL_DOWNLOAD = prebuilt._download
 CLEAN_PLAN = {"compute_units": "CPU_AND_NE", "ops": {"ane": 1, "cpu": 0, "gpu": 0}, "transitions": 0}
 
 
@@ -76,8 +77,8 @@ def repo(tmp_path, monkeypatch):
     files: dict = {}
     calls = {"download": [], "import": [], "probe": [], "probe_fails": set()}
 
-    def download(repo_id, filename, revision, local_dir):
-        calls["download"].append((repo_id, filename, revision))
+    def download(repo_id, filename, revision, local_dir, *, local_files_only=False):
+        calls["download"].append((repo_id, filename, revision, local_files_only))
         if filename not in files:
             raise BackendUnavailableError(f"404 {filename}")
         path = Path(local_dir) / filename
@@ -403,6 +404,121 @@ def test_fetch_from_another_repository_defaults_to_main(repo, monkeypatch):
 def test_unoffered_bucket_is_refused(repo):
     with pytest.raises(ArtifactError, match="does not offer"):
         prebuilt.fetch(SPEC, [999], repo="o/r", log=lambda m: None)
+
+
+# ----------------------------------------------------------------------------- offline
+
+
+@pytest.fixture
+def hf_cache(tmp_path, monkeypatch):
+    """huggingface_hub.hf_hub_download over a fake cache {filename: bytes}; any call that is
+    not local_files_only counts as a network request."""
+    import huggingface_hub
+    from huggingface_hub import constants
+
+    monkeypatch.setattr(constants, "HF_HUB_OFFLINE", False)
+    cached: dict = {}
+    calls: list = []
+    root = tmp_path / "hf-cache"
+
+    def hf_hub_download(repo_id, filename, *, revision, local_dir=None, local_files_only=False):
+        calls.append({"filename": filename, "local_dir": local_dir, "local_files_only": local_files_only})
+        if not local_files_only:
+            raise AssertionError(f"network request for {filename}")
+        if filename not in cached:
+            raise FileNotFoundError(f"{filename} is not in the cache")
+        path = root / filename
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(cached[filename])
+        return str(path)
+
+    monkeypatch.setattr(huggingface_hub, "hf_hub_download", hf_hub_download)
+    return cached, calls, root
+
+
+def test_fetch_passes_offline_to_every_download(repo):
+    files, calls = repo
+    put(files, entry(64))
+    prebuilt.fetch(SPEC, [64], repo="o/r", local_files_only=True, log=lambda m: None)
+    assert [d[1] for d in calls["download"]] == [prebuilt.INDEX, entry(64)["path"]]
+    assert all(d[3] is True for d in calls["download"])
+
+
+def test_download_offline_reads_only_the_hugging_face_cache(hf_cache, tmp_path):
+    cached, calls, root = hf_cache
+    cached[prebuilt.INDEX] = b"{}"
+    path = REAL_DOWNLOAD("o/r", prebuilt.INDEX, "abc", tmp_path / "staging", local_files_only=True)
+    assert path == root / prebuilt.INDEX
+    assert calls == [{"filename": prebuilt.INDEX, "local_dir": None, "local_files_only": True}]
+
+
+@pytest.mark.parametrize("flag, env, mode", [(True, False, "local_files_only"), (False, True, "HF_HUB_OFFLINE")])
+def test_download_offline_and_not_cached_fails_without_the_network(hf_cache, tmp_path, monkeypatch, flag, env, mode):
+    from huggingface_hub import constants
+
+    _, calls, _ = hf_cache
+    monkeypatch.setattr(constants, "HF_HUB_OFFLINE", env)
+    with pytest.raises(BackendUnavailableError, match=rf"offline \({mode}\): it is not in the Hugging Face cache"):
+        REAL_DOWNLOAD("o/r", prebuilt.INDEX, "abc", tmp_path / "staging", local_files_only=flag)
+    assert [c["local_files_only"] for c in calls] == [True]
+
+
+def test_download_online_stages_the_file(tmp_path, monkeypatch):
+    import huggingface_hub
+    from huggingface_hub import constants
+
+    monkeypatch.setattr(constants, "HF_HUB_OFFLINE", False)
+    seen = {}
+
+    def hf_hub_download(repo_id, filename, *, revision, local_dir=None, local_files_only=False):
+        seen.update(local_dir=local_dir, local_files_only=local_files_only)
+        return str(Path(local_dir) / filename)
+
+    monkeypatch.setattr(huggingface_hub, "hf_hub_download", hf_hub_download)
+    REAL_DOWNLOAD("o/r", prebuilt.INDEX, "abc", tmp_path / "staging")
+    assert seen == {"local_dir": str(tmp_path / "staging"), "local_files_only": False}
+
+
+def test_offline_fetch_from_an_empty_cache_fails_and_registers_nothing(real_import, hf_cache, monkeypatch):
+    _, calls, _ = hf_cache
+    monkeypatch.setattr(prebuilt, "_download", REAL_DOWNLOAD)
+    with pytest.raises(BackendUnavailableError, match="not in the Hugging Face cache"):
+        prebuilt.fetch(SPEC, [64], repo="o/r", local_files_only=True, log=lambda m: None)
+    assert all(c["local_files_only"] for c in calls)
+    assert not artifact_dir(SPEC, 64).exists()
+
+
+def test_offline_fetch_from_the_cache_runs_the_full_import(real_import, hf_cache, monkeypatch, manifest_factory):
+    cached, calls, root = hf_cache
+    _, repo_calls = real_import
+    monkeypatch.setattr(prebuilt, "_download", REAL_DOWNLOAD)
+    payload = export_archive(manifest_factory, 64)
+    cached[prebuilt.INDEX] = json.dumps(index(entry(64, payload=payload))).encode()
+    cached[entry(64)["path"]] = payload
+    out = prebuilt.fetch(SPEC, [64], repo="o/r", local_files_only=True, log=lambda m: None)
+    assert all(c["local_files_only"] for c in calls) and len(calls) == 2
+    assert out[64]["path"] == artifact_dir(SPEC, 64) and repo_calls["probe"] == [64]
+    data = json.loads((artifact_dir(SPEC, 64) / "manifest.json").read_text())
+    assert data["imported"]["parity"]["passed"] is True and data["imported"]["from"] == out[64]["source"]
+    assert (root / entry(64)["path"]).exists()  # the cached archive is left in the cache
+
+
+def test_checkpoint_error_names_the_effective_offline_mode(monkeypatch):
+    import huggingface_hub
+    from huggingface_hub import constants
+
+    def snapshot_download(*a, **k):
+        raise FileNotFoundError("not cached")
+
+    monkeypatch.setattr(huggingface_hub, "snapshot_download", snapshot_download)
+    monkeypatch.setattr(constants, "HF_HUB_OFFLINE", True)
+    with pytest.raises(BackendUnavailableError, match=r"offline \(HF_HUB_OFFLINE\)"):
+        hub.checkpoint_path(SPEC)
+    with pytest.raises(BackendUnavailableError, match=r"offline \(local_files_only\)"):
+        hub.checkpoint_path(SPEC, local_files_only=True)
+    monkeypatch.setattr(constants, "HF_HUB_OFFLINE", False)
+    with pytest.raises(BackendUnavailableError, match=r" online: "):
+        hub.checkpoint_path(SPEC)
 
 
 def test_cli_parses_fetch():
