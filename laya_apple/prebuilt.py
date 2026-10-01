@@ -13,9 +13,11 @@ trusted because it was downloaded; before an artifact is registered this machine
 - the compute plan (100% Neural Engine, no transitions);
 - the full parity gate against the shipped goldens;
 - the runtime placement probe (`backends.coreml_ane.probe_placement`) on the staged model.
-Only then is the artifact moved to the path the runtime loads from: a bucket that fails any
-check is not registered, and with `force` the artifact it would replace stays in place. The
-runtime repeats the probe on every load.
+Only then is the artifact moved to the path the runtime loads from, where it is loaded and
+probed again, because Core ML's on-device compile is tied to the model's path; the reported
+probe result is this one. A bucket that fails any check is not registered, and with `force`
+the artifact it would replace is kept or put back. The runtime repeats the probe on every
+load.
 
 A bucket counts as already registered only if its artifact passes `artifacts.load_verified`,
 the runtime's own checks. One that does not is fetched again and replaced (a corrupt one is
@@ -220,9 +222,9 @@ def _download(repo: str, filename: str, revision: str, local_dir: Path, *, local
 
 
 def _probe(spec: ModelSpec, bucket: int, compiled: Path, *, local_files_only: bool) -> dict:
-    """The runtime placement probe on a staged, not yet registered, compiled model: loaded on
-    CPU_AND_NE as the runtime loads it, with the runtime's probe input. A failure raises
-    ComputeUnitMismatchError."""
+    """The runtime placement probe on one compiled model (the staged copy, or the registered
+    one before its registration is kept): loaded on CPU_AND_NE as the runtime loads it, with
+    the runtime's probe input. A failure raises ComputeUnitMismatchError."""
     import coremltools as ct
 
     from .backends.coreml_ane import HostWeights, probe_features, probe_placement
@@ -255,8 +257,10 @@ def fetch(
     fetched again and replaced. Raises ArtifactMissingError when a requested bucket has no
     archive for this checkpoint and platform profile (nothing is imported then),
     ArtifactIntegrityError on a hash mismatch, and whatever the import checks or the placement
-    probe raise. A bucket is registered only after all of them pass on its staged copy, so a
-    failed bucket is never registered and an artifact it would replace is left in place.
+    probe raise. The probe runs on the staged copy before it is moved into place, then again
+    at the registered path (Core ML compiles per path); "probe" in the result is the second.
+    If anything fails, the new artifact is not kept and an artifact it would replace is put
+    back, so registration is all-or-nothing.
 
     Offline (`local_files_only`, or HF_HUB_OFFLINE) the index and archives are read from the
     Hugging Face cache only, and BackendUnavailableError is raised when they are not there;
@@ -297,7 +301,12 @@ def fetch(
     probes: dict = {}
 
     def probe(spec_: ModelSpec, bucket: int, compiled: Path) -> None:
-        """Run inside import_artifact on the staged copy, before it is registered."""
+        """Run inside import_artifact on the staged copy, before it is moved into place."""
+        _probe(spec_, bucket, compiled, local_files_only=local_files_only)
+
+    def registered_probe(spec_: ModelSpec, bucket: int, compiled: Path) -> None:
+        """Run inside import_artifact at the registered path, before the move is kept; its
+        result is the one fetch reports."""
         probes[bucket] = _probe(spec_, bucket, compiled, local_files_only=local_files_only)
 
     try:
@@ -331,6 +340,7 @@ def fetch(
                 log=log,
                 source=source,
                 probe=probe,
+                registered_probe=registered_probe,
                 expect=(spec.name, b),
             )
             if archive.is_relative_to(tmp):  # an offline read from the Hugging Face cache stays there

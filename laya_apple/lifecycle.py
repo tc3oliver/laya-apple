@@ -243,6 +243,7 @@ def import_artifact(
     log=print,
     source: str | None = None,
     probe=None,
+    registered_probe=None,
     expect: tuple[str, int] | None = None,
 ) -> Path:
     """Register an artifact built elsewhere, only after validating it here.
@@ -257,18 +258,24 @@ def import_artifact(
     `imported` (`from` is `source` when given, such as the repository an archive was fetched
     from, else the archive's path).
 
-    `expect`, when given, is the (model name, bucket) the archive must hold; anything else is
-    refused with ArtifactIntegrityError before any other check (`artifacts fetch` passes the
-    index entry's).
+    `expect`, when given, is the (model name, bucket) the archive must hold. It is checked
+    right after the manifest is verified, before any other check; anything else is refused
+    with ArtifactIntegrityError (`artifacts fetch` passes the index entry's).
 
     `probe`, when given, is called as probe(spec, bucket, staged_compiled_path) after every
     check above and before registration (`artifacts fetch` runs the runtime placement probe
     there). If any check or the probe raises, nothing is registered and an artifact already
     at the registered path, which `force` would replace, is left as it was; so is it if moving
-    the new artifact into place fails. After that move the new artifact is registered: a
-    failure to remove the replaced copy is only logged, and a failure of the final pre-warm
-    load raises with the new artifact already registered (the runtime checks it again on
-    every load).
+    the new artifact into place fails.
+
+    `registered_probe`, when given, makes registration all-or-nothing: after the move, still
+    under the build lock, the artifact is loaded at its registered path (load_verified,
+    full) and registered_probe(spec, bucket, registered_compiled_path) is called
+    (`artifacts fetch` runs the placement probe again there, since Core ML compiles per
+    path). If either raises, the new artifact is removed, the previous one is put back, and
+    the error is raised. Without it, the pre-warm load runs after registration, and its
+    failure raises with the new artifact already registered (the runtime checks it again on
+    every load). Either way, a failure to remove the replaced copy is only logged.
     """
     import tarfile
     import tempfile
@@ -350,23 +357,47 @@ def import_artifact(
             }
             (stage / "manifest.json").write_text(json.dumps(data, indent=1) + "\n")
             final.parent.mkdir(parents=True, exist_ok=True)
+            old = None
             if final.exists():
                 old = final.with_name(final.name + f".old-{os.getpid()}")
                 os.rename(final, old)
+
+            def restore():
+                """Put the previous artifact back, if there was one; the caller re-raises."""
+                if old is None:
+                    return
                 try:
-                    os.rename(stage, final)
+                    os.rename(old, final)
+                except OSError as e:
+                    log(f"{spec.name} L{bucket}: could not restore the previous artifact; it was left at {old}: {e}")
+
+            try:
+                os.rename(stage, final)
+            except BaseException:
+                restore()
+                raise
+            if registered_probe is not None:
+                t = time.perf_counter()
+                try:
+                    load_verified(spec, bucket, full=True)  # pre-warm the ANE compile at the registered path
+                    registered_probe(spec, bucket, final / COMPILED)
                 except BaseException:
-                    os.rename(old, final)  # put the previous artifact back
+                    shutil.rmtree(final, ignore_errors=True)  # unregister the new artifact
+                    restore()
                     raise
+                log(f"{spec.name} L{bucket}: registered, loaded and probed in {time.perf_counter() - t:.1f} s")
+            if old is not None:
                 try:
                     shutil.rmtree(old)
                 except OSError as e:  # the new artifact is registered; only cleanup failed
-                    log(f"{spec.name} L{bucket}: registered, but could not remove the replaced copy {old}: {e}")
-            else:
-                os.rename(stage, final)
-        t = time.perf_counter()
-        load_verified(spec, bucket, full=True)  # pre-warm the ANE compile at the registered path
-        log(f"{spec.name} L{bucket}: registered and loaded in {time.perf_counter() - t:.1f} s")
+                    log(
+                        f"{spec.name} L{bucket}: registered, but could not remove the replaced copy {old}: {e}. "
+                        "`laya-apple artifacts prune` removes it."
+                    )
+        if registered_probe is None:
+            t = time.perf_counter()
+            load_verified(spec, bucket, full=True)  # pre-warm the ANE compile at the registered path
+            log(f"{spec.name} L{bucket}: registered and loaded in {time.perf_counter() - t:.1f} s")
         return final
     finally:
         if stage.exists():

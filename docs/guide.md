@@ -451,9 +451,11 @@ this machine. In addition:
 - only archives built on this machine's platform profile (same SoC, macOS major and
   coremltools) are selected. Any other profile gets `ArtifactMissingError`, which names the
   build command;
-- each fetched bucket is loaded once and must pass the runtime placement probe before it is
-  registered. A bucket that fails any check is not registered; with `--force`, the artifact
-  it would replace stays in place;
+- each fetched bucket must pass the runtime placement probe twice: on the staged copy before
+  it is moved into place, and again at the registered path after a full load there, because
+  Core ML's on-device compile is tied to the model's path. The fetch result reports the
+  second probe. Registration is all-or-nothing: a bucket that fails any check is not kept,
+  and with `--force` the artifact it would replace is kept or put back;
 - a bucket is skipped as already registered only if its artifact passes the runtime's load
   checks (manifest, platform profile, file hash, compute plan). One that does not is fetched
   again; a corrupt one is quarantined first.

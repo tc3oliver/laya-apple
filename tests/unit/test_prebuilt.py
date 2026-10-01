@@ -40,6 +40,7 @@ OTHER = {"soc": "Apple M1", "macos": "15.6", "macos_build": "24G1", "coremltools
 REAL_IMPORT = lifecycle.import_artifact
 REAL_DOWNLOAD = prebuilt._download
 REAL_PROBE = prebuilt._probe
+STAGED_RATIO, REGISTERED_RATIO = 0.333, 0.25
 CLEAN_PLAN = {"compute_units": "CPU_AND_NE", "ops": {"ane": 1, "cpu": 0, "gpu": 0}, "transitions": 0}
 
 
@@ -67,7 +68,8 @@ def index(*entries):
 @pytest.fixture
 def repo(tmp_path, monkeypatch):
     """A fake repository: {filename: bytes}; records downloads, imports and probes. The probe
-    raises ComputeUnitMismatchError for the buckets in calls["probe_fails"]."""
+    raises ComputeUnitMismatchError for the buckets in calls["probe_fails"] on the staged copy
+    and in calls["registered_fails"] at the registered path; its ratio says which it probed."""
     monkeypatch.setenv("LAYA_APPLE_CACHE", str(tmp_path / "cache"))
     monkeypatch.setattr(prebuilt, "platform_profile", lambda: dict(HERE))
     monkeypatch.setattr(A, "platform_profile", lambda: dict(HERE))
@@ -77,7 +79,7 @@ def repo(tmp_path, monkeypatch):
     monkeypatch.setitem(sys.modules, "coremltools", ct)
     monkeypatch.setattr(A, "compute_plan_summary", lambda *a, **k: dict(CLEAN_PLAN))
     files: dict = {}
-    calls = {"download": [], "import": [], "probe": [], "probe_fails": set()}
+    calls = {"download": [], "import": [], "probe": [], "probe_fails": set(), "registered_fails": set()}
 
     def download(repo_id, filename, revision, local_dir, *, local_files_only=False):
         calls["download"].append((repo_id, filename, revision, local_files_only))
@@ -88,19 +90,23 @@ def repo(tmp_path, monkeypatch):
         path.write_bytes(files[filename])
         return path
 
-    def import_artifact(archive, *, local_files_only, force, log, source, probe, expect):
+    def import_artifact(archive, *, local_files_only, force, log, source, probe, registered_probe, expect):
         assert Path(archive).exists()
         calls["import"].append({"archive": Path(archive).name, "source": source, "force": force, "expect": expect})
         bucket = int(re.search(r"-L(\d+)\.tar\.gz$", Path(archive).name).group(1))
         probe(SPEC, bucket, Path("/staged") / COMPILED)
+        registered_probe(SPEC, bucket, Path("/registered") / COMPILED)
         return Path("/registered") / Path(archive).name
 
     def probe(spec, bucket, compiled, *, local_files_only):
+        compiled = Path(compiled)
+        staged = compiled.parts[1] == "staged" or ".staging" in compiled.parts
         calls["probe"].append(bucket)
-        calls.setdefault("probe_paths", []).append(Path(compiled))
-        if bucket in calls["probe_fails"]:
-            raise ComputeUnitMismatchError(f"{spec.name} L{bucket}: simulated probe failure")
-        return {"ane_ms": 1.0, "cpu_ms": 3.0, "ratio": 0.333}
+        calls.setdefault("probe_paths", []).append(compiled)
+        if bucket in (calls["probe_fails"] if staged else calls["registered_fails"]):
+            where = "staged" if staged else "registered"
+            raise ComputeUnitMismatchError(f"{spec.name} L{bucket}: simulated {where} probe failure")
+        return {"ane_ms": 1.0, "cpu_ms": 3.0, "ratio": STAGED_RATIO if staged else REGISTERED_RATIO}
 
     monkeypatch.setattr(prebuilt, "_download", download)
     monkeypatch.setattr(lifecycle, "import_artifact", import_artifact)
@@ -262,8 +268,8 @@ def test_fetch_validates_each_archive_through_import_then_probes(repo):
     assert [c["archive"] for c in calls["import"]] == ["laya-L64.tar.gz", "laya-L96.tar.gz"]
     digest = hashlib.sha256(b"archive").hexdigest()
     assert calls["import"][0]["source"] == f"hf://o/r@abc/{entry(64)['path']}#sha256={digest}"
-    assert calls["probe"] == [64, 96]
-    assert out[64]["probe"]["ratio"] == 0.333 and out[96]["probe"]["ratio"] == 0.333
+    assert calls["probe"] == [64, 64, 96, 96]  # staged, then registered, per bucket
+    assert out[64]["probe"]["ratio"] == REGISTERED_RATIO and out[96]["probe"]["ratio"] == REGISTERED_RATIO
     assert all(d[0] == "o/r" and d[2] == "abc" for d in calls["download"])
     staging = artifacts_root() / ".staging"
     assert not any(staging.iterdir())  # downloads are not kept beside the registered copy
@@ -332,12 +338,12 @@ def test_a_file_integrity_failure_is_not_accepted_as_registered(repo, manifest_f
     assert len(moved) == 1 and (moved[0] / "QUARANTINED.json").exists()
 
 
-def assert_probed_staged(calls):
-    """The probe ran on the staged copy, never at the registered path."""
-    assert calls["probe_paths"]
-    for p in calls["probe_paths"]:
-        assert p.is_relative_to(artifacts_root() / ".staging") and p.name == COMPILED
-        assert not p.is_relative_to(artifact_dir(SPEC, 64))
+def assert_probed(calls, *, registered: bool):
+    """The first probe ran on the staged copy; the second, if any, at the registered path."""
+    staged, *rest = calls["probe_paths"]
+    assert staged.is_relative_to(artifacts_root() / ".staging") and staged.name == COMPILED
+    assert not staged.is_relative_to(artifact_dir(SPEC, 64))
+    assert rest == ([artifact_dir(SPEC, 64) / COMPILED] if registered else [])
 
 
 def test_a_failed_placement_probe_registers_nothing(real_import, manifest_factory):
@@ -345,12 +351,63 @@ def test_a_failed_placement_probe_registers_nothing(real_import, manifest_factor
     payload = export_archive(manifest_factory, 64)
     put(files, entry(64, payload=payload), payloads={entry(64)["path"]: payload})
     calls["probe_fails"].add(64)
-    with pytest.raises(ComputeUnitMismatchError, match="simulated probe failure"):
+    with pytest.raises(ComputeUnitMismatchError, match="simulated staged probe failure"):
         prebuilt.fetch(SPEC, [64], repo="o/r", log=lambda m: None)
     assert calls["probe"] == [64]
-    assert_probed_staged(calls)
+    assert_probed(calls, registered=False)
     assert not artifact_dir(SPEC, 64).exists()
     assert not any((artifacts_root() / ".staging").iterdir())
+
+
+def test_a_failed_registered_path_probe_unregisters_the_new_artifact(real_import, manifest_factory):
+    files, calls = real_import
+    payload = export_archive(manifest_factory, 64)
+    put(files, entry(64, payload=payload), payloads={entry(64)["path"]: payload})
+    calls["registered_fails"].add(64)
+    with pytest.raises(ComputeUnitMismatchError, match="simulated registered probe failure"):
+        prebuilt.fetch(SPEC, [64], repo="o/r", log=lambda m: None)
+    assert_probed(calls, registered=True)
+    assert not artifact_dir(SPEC, 64).exists()
+    assert not any(artifact_dir(SPEC, 64).parent.iterdir())  # no .old-* or partial copy either
+    assert not any((artifacts_root() / ".staging").iterdir())
+
+
+def test_a_failed_registered_path_probe_restores_the_previous_artifact(real_import, manifest_factory):
+    files, calls = real_import
+    old = registered(manifest_factory, 64)
+    before = snapshot(old)
+    payload = export_archive(manifest_factory, 64)
+    put(files, entry(64, payload=payload), payloads={entry(64)["path"]: payload})
+    calls["registered_fails"].add(64)
+    with pytest.raises(ComputeUnitMismatchError, match="simulated registered probe failure"):
+        prebuilt.fetch(SPEC, [64], repo="o/r", force=True, log=lambda m: None)
+    assert_probed(calls, registered=True)
+    assert snapshot(old) == before
+    assert [p.name for p in old.parent.iterdir()] == [old.name]
+    A.load_verified(SPEC, 64, full=True)
+
+
+def test_a_failed_restore_says_where_the_previous_artifact_is(real_import, manifest_factory, monkeypatch):
+    files, calls = real_import
+    old = registered(manifest_factory, 64)
+    payload = export_archive(manifest_factory, 64)
+    put(files, entry(64, payload=payload), payloads={entry(64)["path"]: payload})
+    calls["registered_fails"].add(64)
+    real_rename = os.rename
+
+    def rename(src, dst):
+        if ".old-" in Path(src).name:  # putting the previous artifact back
+            raise OSError("simulated restore failure")
+        return real_rename(src, dst)
+
+    monkeypatch.setattr(lifecycle.os, "rename", rename)
+    logs = []
+    with pytest.raises(ComputeUnitMismatchError):  # the original error, not the restore's
+        prebuilt.fetch(SPEC, [64], repo="o/r", force=True, log=logs.append)
+    monkeypatch.setattr(lifecycle.os, "rename", real_rename)
+    left = [p for p in old.parent.iterdir() if ".old-" in p.name]
+    assert len(left) == 1 and not old.exists()
+    assert any(f"could not restore the previous artifact; it was left at {left[0]}" in m for m in logs)
 
 
 def test_a_failed_forced_replacement_keeps_the_previous_artifact(real_import, manifest_factory):
@@ -362,7 +419,7 @@ def test_a_failed_forced_replacement_keeps_the_previous_artifact(real_import, ma
     calls["probe_fails"].add(64)
     with pytest.raises(ComputeUnitMismatchError):
         prebuilt.fetch(SPEC, [64], repo="o/r", force=True, log=lambda m: None)
-    assert_probed_staged(calls)
+    assert_probed(calls, registered=False)
     assert snapshot(old) == before
     A.load_verified(SPEC, 64, full=True)  # still a valid registered artifact
     assert [p.name for p in old.parent.iterdir()] == [old.name]  # no leftover .old-* directory
@@ -374,8 +431,8 @@ def test_a_successful_fetch_registers_with_provenance_and_probe(real_import, man
     payload = export_archive(manifest_factory, 64)
     put(files, entry(64, payload=payload), payloads={entry(64)["path"]: payload})
     out = prebuilt.fetch(SPEC, [64], repo="o/r", revision="abc", force=True, log=lambda m: None)
-    assert out[64]["path"] == old and out[64]["probe"]["ratio"] == 0.333
-    assert_probed_staged(calls)
+    assert out[64]["path"] == old and out[64]["probe"]["ratio"] == REGISTERED_RATIO  # the registered-path probe
+    assert_probed(calls, registered=True)
     assert (old / COMPILED / "weights.bin").read_bytes() == b"new weights"
     data = json.loads((old / "manifest.json").read_text())
     assert data["imported"]["from"] == out[64]["source"]
@@ -415,20 +472,26 @@ def test_the_real_probe_loads_the_staged_model_on_the_ane_compute_units(real_imp
 
     def probe_placement(spec, bucket, model, compiled, feats):
         probed.append((model, Path(compiled), feats))
-        return {"ane_ms": 1.0, "cpu_ms": 3.0, "ratio": 0.333}
+        return {
+            "ane_ms": 1.0,
+            "cpu_ms": 3.0,
+            "ratio": STAGED_RATIO if ".staging" in Path(compiled).parts else REGISTERED_RATIO,
+        }
 
     monkeypatch.setattr(sys.modules["coremltools"].models, "CompiledMLModel", compiled_model)
     monkeypatch.setattr(coreml_ane, "probe_placement", probe_placement)
     payload = export_archive(manifest_factory, 64)
     put(files, entry(64, payload=payload), payloads={entry(64)["path"]: payload})
     out = prebuilt.fetch(SPEC, [64], repo="o/r", log=lambda m: None)
-    staged, units = loaded[0]  # then the post-registration pre-warm load at the registered path
+    final = artifact_dir(SPEC, 64) / COMPILED
+    # the staged probe's load, the pre-warm load at the registered path, the registered probe's load
+    (staged, units), (prewarm, _), (registered_load, registered_units) = loaded
     assert staged.is_relative_to(artifacts_root() / ".staging") and staged.name == COMPILED
     assert not staged.is_relative_to(artifact_dir(SPEC, 64))
-    assert units == ANE_COMPUTE_UNITS
-    assert probed == [(("model", staged), staged, {"bucket": 64})]
-    assert out[64]["probe"]["ratio"] == 0.333
-    assert loaded[1][0] == artifact_dir(SPEC, 64) / COMPILED
+    assert prewarm == registered_load == final
+    assert units == registered_units == ANE_COMPUTE_UNITS
+    assert probed == [(("model", staged), staged, {"bucket": 64}), (("model", final), final, {"bucket": 64})]
+    assert out[64]["probe"]["ratio"] == REGISTERED_RATIO  # from the registered-path probe
 
 
 def test_a_failed_move_into_place_restores_the_previous_artifact(real_import, manifest_factory, monkeypatch):
@@ -470,7 +533,7 @@ def test_a_failed_cleanup_of_the_replaced_copy_is_only_logged(real_import, manif
     out = prebuilt.fetch(SPEC, [64], repo="o/r", force=True, log=logs.append)
     monkeypatch.setattr(lifecycle.shutil, "rmtree", real_rmtree)
     assert out[64]["path"] == old and (old / COMPILED / "weights.bin").read_bytes() == b"new weights"
-    assert any("could not remove the replaced copy" in m for m in logs)
+    assert any("could not remove the replaced copy" in m and "artifacts prune" in m for m in logs)
 
 
 def test_a_registered_artifact_that_fails_to_load_is_replaced(repo, manifest_factory, monkeypatch):
@@ -606,7 +669,7 @@ def test_offline_fetch_from_the_cache_runs_the_full_import(real_import, hf_cache
     cached[entry(64)["path"]] = payload
     out = prebuilt.fetch(SPEC, [64], repo="o/r", local_files_only=True, log=lambda m: None)
     assert all(c["local_files_only"] for c in calls) and len(calls) == 2
-    assert out[64]["path"] == artifact_dir(SPEC, 64) and repo_calls["probe"] == [64]
+    assert out[64]["path"] == artifact_dir(SPEC, 64) and repo_calls["probe"] == [64, 64]
     data = json.loads((artifact_dir(SPEC, 64) / "manifest.json").read_text())
     assert data["imported"]["parity"]["passed"] is True and data["imported"]["from"] == out[64]["source"]
     assert (root / entry(64)["path"]).exists()  # the cached archive is left in the cache

@@ -55,9 +55,12 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   ([#133](https://github.com/tc3oliver/laya-apple/issues/133)). The probe ran after the import
   had already moved the artifact into place, so a failed probe left it registered, and with
   `--force` the previous artifact was already gone. The probe now runs on the staged copy
-  inside the import, before registration; a failure leaves nothing new registered and keeps
-  the previous artifact, as does a failed move into place. `lifecycle.import_artifact` gains
-  an optional pre-registration `probe` hook and an optional `expect` (model, bucket) check for
+  inside the import, before the move into place, and again at the registered path after a
+  full load there ([#147](https://github.com/tc3oliver/laya-apple/issues/147)), since Core ML
+  compiles per path; the fetch result reports the registered-path probe. Registration is
+  all-or-nothing: if anything fails, including the move into place, the new artifact is not
+  kept and the previous one is kept or put back. `lifecycle.import_artifact` gains optional
+  `probe` and `registered_probe` hooks and an optional `expect` (model, bucket) check for
   this; without them it behaves as before.
 - **`--offline` now covers `artifacts fetch`**
   ([#143](https://github.com/tc3oliver/laya-apple/issues/143)). The flag reached only the
