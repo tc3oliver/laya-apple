@@ -56,9 +56,46 @@ def _pid_alive(pid) -> bool:
         os.kill(pid, 0)
     except ProcessLookupError:
         return False
-    except OSError:
-        return True  # e.g. exists but owned by another user
+    except (OSError, OverflowError, ValueError):
+        return True  # e.g. exists but owned by another user; an impossible pid is never assumed dead
     return True
+
+
+def _leftover(d: Path):
+    """For a `.old-<pid>` / `.failed-<pid>` directory an import left beside an artifact:
+    (kind, the registered path it sits beside, pid alive); else None."""
+    m = _LEFTOVER.search(d.name)
+    if not m or not d.is_dir():
+        return None
+    return m.group(1), d.with_name(d.name[: m.start()]), _pid_alive(int(m.group(2)))
+
+
+def _stranded(d: Path) -> bool:
+    """A dead import's `.old-<pid>` with nothing registered beside it: the previous artifact,
+    left there by a failed restore, and the only good copy."""
+    info = _leftover(d)
+    return bool(info) and info[0] == "old" and not info[2] and not (info[1] / "manifest.json").exists()
+
+
+def stranded_artifacts() -> list[dict]:
+    """Previous artifacts a failed restore left at `.old-<pid>`. prune never deletes them;
+    renaming one back to its registered path recovers it."""
+    root = artifacts_root()
+    out = []
+    for d in sorted(root.glob("*/*/*")) if root.exists() else []:
+        if _stranded(d):
+            registered = _leftover(d)[1]
+            out.append(
+                {
+                    "path": str(d),
+                    "registered": str(registered),
+                    "message": (
+                        f"previous artifact left after a failed restore; nothing is registered at {registered}; "
+                        f"rename it back to recover: mv {d} {registered}"
+                    ),
+                }
+            )
+    return out
 
 
 def _lock_path(spec: ModelSpec, bucket: int) -> Path:
@@ -141,10 +178,11 @@ def plan_prune(profile: dict | None = None) -> list[dict]:
 
     for d in sorted(root.glob("*/*/*")):
         # `.old-<pid>` / `.failed-<pid>`: a replaced or failed copy an import left beside an
-        # artifact, possibly partly removed (no manifest). Kept while that import still runs.
-        m = _LEFTOVER.search(d.name)
-        if m and d.is_dir() and not _pid_alive(int(m.group(2))):
-            add(d, f"leftover {m.group(1)} copy from an earlier import")
+        # artifact, possibly partly removed (no manifest). Kept while that import still runs,
+        # and never listed when it is the only copy left (stranded_artifacts reports those).
+        info = _leftover(d)
+        if info and not info[2] and not _stranded(d):
+            add(d, f"leftover {info[0]} copy from an earlier import")
     for mf in sorted(root.glob("*/*/*/manifest.json")):
         d = mf.parent
         if _LEFTOVER.search(d.name):
@@ -204,6 +242,9 @@ def prune(plan: list[dict] | None = None) -> list[dict]:
     removed = []
     for item in plan:
         p = Path(item["path"])
+        info = _leftover(p)
+        if info and (info[2] or _stranded(p)):
+            continue  # its import is running again, or it became the only copy since the plan
         if p.is_file() and p.resolve().parent == stamps_root:
             p.unlink()
         elif _inside_root(p):
@@ -285,10 +326,11 @@ def import_artifact(
     (`artifacts fetch` runs the placement probe again there, since Core ML compiles per
     path). If either raises (or the import is interrupted), the new artifact is moved aside
     with one rename and removed, the previous one is put back, and the error is raised. The
-    guarantee is about what is left on disk, not isolation from concurrent readers: a runtime
-    loading the bucket meanwhile can see the new artifact, and verifies it on each load. Without it, the pre-warm load runs after registration, and its
-    failure raises with the new artifact already registered (the runtime checks it again on
-    every load). Either way, a failure to remove the replaced copy is only logged.
+    guarantee is about what is left on disk, not isolation from concurrent readers: a
+    runtime loading the bucket meanwhile can see the new artifact, and verifies it on each
+    load. Without the hook, the pre-warm load runs after registration, and its failure
+    raises with the new artifact already registered (the runtime checks it again on every
+    load). Either way, a failure to remove the replaced copy is only logged.
     """
     import tarfile
     import tempfile

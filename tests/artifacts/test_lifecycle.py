@@ -355,3 +355,60 @@ def test_build_lock_times_out(cache):
         t.start()
         t.join()
     assert err and "another process" in str(err[0])
+
+
+def _beside(spec, bucket, suffix, manifest_factory=None):
+    """A leftover directory an import could leave beside artifact_dir(spec, bucket)."""
+    d = artifact_dir(spec, bucket)
+    left = d.with_name(d.name + suffix)
+    if manifest_factory:
+        _artifact(spec, bucket, manifest_factory, where=left)
+    else:
+        (left / COMPILED).mkdir(parents=True)
+    return left
+
+
+def test_a_stranded_previous_artifact_is_reported_and_never_pruned(cache, manifest_factory, monkeypatch):
+    spec = models()["laya-typed-decisions"]
+    monkeypatch.setattr(lifecycle, "_pid_alive", lambda pid: False)
+    stranded = _beside(spec, 64, ".old-123", manifest_factory)  # nothing registered beside it
+    assert all(item["path"] != str(stranded) for item in lifecycle.plan_prune(PROFILE))
+    (report,) = lifecycle.stranded_artifacts()
+    assert report["path"] == str(stranded) and report["registered"] == str(artifact_dir(spec, 64))
+    assert "nothing is registered at" in report["message"] and "rename it back to recover" in report["message"]
+    lifecycle.prune()
+    lifecycle.prune([{"path": str(stranded), "reason": "forged", "bytes": 0}])  # a stale or hand-made plan
+    assert (stranded / "manifest.json").exists()
+    # a registered directory without a manifest does not count as registered either
+    artifact_dir(spec, 64).mkdir(parents=True)
+    assert [x["path"] for x in lifecycle.stranded_artifacts()] == [str(stranded)]
+
+
+def test_leftovers_beside_a_registered_artifact_are_pruned_once_their_import_exits(
+    cache, manifest_factory, monkeypatch
+):
+    spec = models()["laya-typed-decisions"]
+    _artifact(spec, 64, manifest_factory)
+    old = _beside(spec, 64, ".old-123", manifest_factory)
+    failed = _beside(spec, 64, ".failed-123")  # partly removed: no manifest
+    alive = {"value": True}
+    monkeypatch.setattr(lifecycle, "_pid_alive", lambda pid: alive["value"])
+    assert lifecycle.plan_prune(PROFILE) == [] and lifecycle.stranded_artifacts() == []
+    alive["value"] = False
+    plan = lifecycle.plan_prune(PROFILE)
+    assert sorted((x["path"], x["reason"]) for x in plan) == [
+        (str(failed), "leftover failed copy from an earlier import"),
+        (str(old), "leftover old copy from an earlier import"),
+    ]
+    alive["value"] = True  # the pid is in use again before prune runs
+    assert lifecycle.prune(plan) == [] and old.exists() and failed.exists()
+    alive["value"] = False
+    assert len(lifecycle.prune(plan)) == 2 and not old.exists() and not failed.exists()
+
+
+def test_an_impossible_pid_in_a_leftover_name_does_not_crash_prune(cache):
+    spec = models()["laya-typed-decisions"]
+    huge = _beside(spec, 64, ".failed-" + "9" * 30)
+    assert lifecycle._pid_alive(int("9" * 30)) is True  # never assumed dead
+    assert lifecycle.plan_prune(PROFILE) == [] and lifecycle.stranded_artifacts() == []
+    assert huge.exists()
