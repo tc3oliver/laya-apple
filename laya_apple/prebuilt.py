@@ -38,7 +38,6 @@ are selected with the same profile rule the runtime uses (`artifacts.profile_mat
 
 from __future__ import annotations
 
-import functools
 import json
 import os
 import re
@@ -275,9 +274,12 @@ def fetch(
         if not force:
             try:
                 load_verified(spec, b)
-            except ArtifactError as e:
+            except Exception as e:  # any failure to load it here, not only ArtifactError, means not usable
                 if not isinstance(e, ArtifactMissingError) or artifact_dir(spec, b).exists():
-                    log(f"{spec.name} L{b}: the registered artifact is not usable ({e}); fetching a replacement")
+                    log(
+                        f"{spec.name} L{b}: the registered artifact is not usable "
+                        f"({type(e).__name__}: {e}); fetching a replacement"
+                    )
             else:
                 log(f"{spec.name} L{b}: already registered and verified, skipped (--force replaces it)")
                 continue
@@ -294,11 +296,9 @@ def fetch(
     out: dict = {}
     probes: dict = {}
 
-    def probe(spec_: ModelSpec, bucket: int, compiled: Path, *, want: int, path: str) -> None:
+    def probe(spec_: ModelSpec, bucket: int, compiled: Path) -> None:
         """Run inside import_artifact on the staged copy, before it is registered."""
-        if (spec_.name, bucket) != (spec.name, want):
-            raise ArtifactIntegrityError(f"{path} holds {spec_.name} L{bucket}, not {spec.name} L{want}")
-        probes[want] = _probe(spec_, bucket, compiled, local_files_only=local_files_only)
+        probes[bucket] = _probe(spec_, bucket, compiled, local_files_only=local_files_only)
 
     try:
         index_file = _download(repo, INDEX, revision, tmp, local_files_only=local_files_only)
@@ -330,7 +330,8 @@ def fetch(
                 force=force or b in replace,
                 log=log,
                 source=source,
-                probe=functools.partial(probe, want=b, path=entry["path"]),
+                probe=probe,
+                expect=(spec.name, b),
             )
             if archive.is_relative_to(tmp):  # an offline read from the Hugging Face cache stays there
                 archive.unlink()  # the registered copy is the only one kept

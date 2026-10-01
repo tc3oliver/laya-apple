@@ -243,6 +243,7 @@ def import_artifact(
     log=print,
     source: str | None = None,
     probe=None,
+    expect: tuple[str, int] | None = None,
 ) -> Path:
     """Register an artifact built elsewhere, only after validating it here.
 
@@ -256,10 +257,18 @@ def import_artifact(
     `imported` (`from` is `source` when given, such as the repository an archive was fetched
     from, else the archive's path).
 
+    `expect`, when given, is the (model name, bucket) the archive must hold; anything else is
+    refused with ArtifactIntegrityError before any other check (`artifacts fetch` passes the
+    index entry's).
+
     `probe`, when given, is called as probe(spec, bucket, staged_compiled_path) after every
     check above and before registration (`artifacts fetch` runs the runtime placement probe
     there). If any check or the probe raises, nothing is registered and an artifact already
-    at the registered path, which `force` would replace, is left as it was.
+    at the registered path, which `force` would replace, is left as it was; so is it if moving
+    the new artifact into place fails. After that move the new artifact is registered: a
+    failure to remove the replaced copy is only logged, and a failure of the final pre-warm
+    load raises with the new artifact already registered (the runtime checks it again on
+    every load).
     """
     import tarfile
     import tempfile
@@ -311,6 +320,8 @@ def import_artifact(
         except (TypeError, ValueError) as e:
             raise ArtifactIntegrityError(f"manifest has a malformed artifact.length: {art.get('length')!r}") from e
         manifest = verify_manifest(spec, bucket, data)
+        if expect is not None and (spec.name, bucket) != tuple(expect):
+            raise ArtifactIntegrityError(f"{archive} holds {spec.name} L{bucket}, not {expect[0]} L{expect[1]}")
         verify_profile(data)
         verify_files(manifest, stage)
         final = artifact_dir(spec, bucket)
@@ -342,8 +353,15 @@ def import_artifact(
             if final.exists():
                 old = final.with_name(final.name + f".old-{os.getpid()}")
                 os.rename(final, old)
-                os.rename(stage, final)
-                shutil.rmtree(old)
+                try:
+                    os.rename(stage, final)
+                except BaseException:
+                    os.rename(old, final)  # put the previous artifact back
+                    raise
+                try:
+                    shutil.rmtree(old)
+                except OSError as e:  # the new artifact is registered; only cleanup failed
+                    log(f"{spec.name} L{bucket}: registered, but could not remove the replaced copy {old}: {e}")
             else:
                 os.rename(stage, final)
         t = time.perf_counter()

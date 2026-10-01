@@ -56,8 +56,9 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   had already moved the artifact into place, so a failed probe left it registered, and with
   `--force` the previous artifact was already gone. The probe now runs on the staged copy
   inside the import, before registration; a failure leaves nothing new registered and keeps
-  the previous artifact. `artifacts import` gains an optional pre-registration `probe` hook
-  for this; its behaviour without one is unchanged.
+  the previous artifact, as does a failed move into place. `lifecycle.import_artifact` gains
+  an optional pre-registration `probe` hook and an optional `expect` (model, bucket) check for
+  this; without them it behaves as before.
 - **`--offline` now covers `artifacts fetch`**
   ([#143](https://github.com/tc3oliver/laya-apple/issues/143)). The flag reached only the
   checkpoint resolution, so the index and archives were still downloaded. Offline (`--offline`

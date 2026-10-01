@@ -11,6 +11,7 @@ from __future__ import annotations
 import hashlib
 import io
 import json
+import os
 import re
 import sys
 import tarfile
@@ -38,6 +39,7 @@ HERE = {"soc": "Apple M4 Max", "macos": "26.0.1", "macos_build": "25A1", "coreml
 OTHER = {"soc": "Apple M1", "macos": "15.6", "macos_build": "24G1", "coremltools": "9.0"}
 REAL_IMPORT = lifecycle.import_artifact
 REAL_DOWNLOAD = prebuilt._download
+REAL_PROBE = prebuilt._probe
 CLEAN_PLAN = {"compute_units": "CPU_AND_NE", "ops": {"ane": 1, "cpu": 0, "gpu": 0}, "transitions": 0}
 
 
@@ -86,15 +88,16 @@ def repo(tmp_path, monkeypatch):
         path.write_bytes(files[filename])
         return path
 
-    def import_artifact(archive, *, local_files_only, force, log, source, probe):
+    def import_artifact(archive, *, local_files_only, force, log, source, probe, expect):
         assert Path(archive).exists()
-        calls["import"].append({"archive": Path(archive).name, "source": source, "force": force})
+        calls["import"].append({"archive": Path(archive).name, "source": source, "force": force, "expect": expect})
         bucket = int(re.search(r"-L(\d+)\.tar\.gz$", Path(archive).name).group(1))
         probe(SPEC, bucket, Path("/staged") / COMPILED)
         return Path("/registered") / Path(archive).name
 
     def probe(spec, bucket, compiled, *, local_files_only):
         calls["probe"].append(bucket)
+        calls.setdefault("probe_paths", []).append(Path(compiled))
         if bucket in calls["probe_fails"]:
             raise ComputeUnitMismatchError(f"{spec.name} L{bucket}: simulated probe failure")
         return {"ane_ms": 1.0, "cpu_ms": 3.0, "ratio": 0.333}
@@ -329,6 +332,14 @@ def test_a_file_integrity_failure_is_not_accepted_as_registered(repo, manifest_f
     assert len(moved) == 1 and (moved[0] / "QUARANTINED.json").exists()
 
 
+def assert_probed_staged(calls):
+    """The probe ran on the staged copy, never at the registered path."""
+    assert calls["probe_paths"]
+    for p in calls["probe_paths"]:
+        assert p.is_relative_to(artifacts_root() / ".staging") and p.name == COMPILED
+        assert not p.is_relative_to(artifact_dir(SPEC, 64))
+
+
 def test_a_failed_placement_probe_registers_nothing(real_import, manifest_factory):
     files, calls = real_import
     payload = export_archive(manifest_factory, 64)
@@ -337,6 +348,7 @@ def test_a_failed_placement_probe_registers_nothing(real_import, manifest_factor
     with pytest.raises(ComputeUnitMismatchError, match="simulated probe failure"):
         prebuilt.fetch(SPEC, [64], repo="o/r", log=lambda m: None)
     assert calls["probe"] == [64]
+    assert_probed_staged(calls)
     assert not artifact_dir(SPEC, 64).exists()
     assert not any((artifacts_root() / ".staging").iterdir())
 
@@ -350,6 +362,7 @@ def test_a_failed_forced_replacement_keeps_the_previous_artifact(real_import, ma
     calls["probe_fails"].add(64)
     with pytest.raises(ComputeUnitMismatchError):
         prebuilt.fetch(SPEC, [64], repo="o/r", force=True, log=lambda m: None)
+    assert_probed_staged(calls)
     assert snapshot(old) == before
     A.load_verified(SPEC, 64, full=True)  # still a valid registered artifact
     assert [p.name for p in old.parent.iterdir()] == [old.name]  # no leftover .old-* directory
@@ -362,6 +375,7 @@ def test_a_successful_fetch_registers_with_provenance_and_probe(real_import, man
     put(files, entry(64, payload=payload), payloads={entry(64)["path"]: payload})
     out = prebuilt.fetch(SPEC, [64], repo="o/r", revision="abc", force=True, log=lambda m: None)
     assert out[64]["path"] == old and out[64]["probe"]["ratio"] == 0.333
+    assert_probed_staged(calls)
     assert (old / COMPILED / "weights.bin").read_bytes() == b"new weights"
     data = json.loads((old / "manifest.json").read_text())
     assert data["imported"]["from"] == out[64]["source"]
@@ -378,6 +392,101 @@ def test_an_archive_for_another_bucket_is_not_registered(real_import, manifest_f
         prebuilt.fetch(SPEC, [64], repo="o/r", log=lambda m: None)
     assert not artifact_dir(SPEC, 64).exists() and not artifact_dir(SPEC, 96).exists()
     assert calls["probe"] == []
+
+
+def test_the_real_probe_loads_the_staged_model_on_the_ane_compute_units(real_import, manifest_factory, monkeypatch):
+    import laya_apple.backends.coreml_ane as coreml_ane
+    import laya_apple.prompt as prompt
+    from laya_apple.registry import ANE_COMPUTE_UNITS
+
+    files, calls = real_import
+    monkeypatch.setattr(prebuilt, "_probe", REAL_PROBE)
+    ckpt = hub.checkpoint_path(SPEC)  # the real_import stand-in
+    (ckpt / "encoder").mkdir()
+    (ckpt / "encoder/config.json").write_text(json.dumps({"local_attention": 128}))
+    monkeypatch.setattr(prompt, "Tokenizer", lambda path: types.SimpleNamespace(pad_token_id=0))
+    monkeypatch.setattr(coreml_ane, "HostWeights", lambda ckpt, local_attention: "host")
+    monkeypatch.setattr(coreml_ane, "probe_features", lambda host, pad_id, bucket: {"bucket": bucket})
+    loaded, probed = [], []
+
+    def compiled_model(path, compute_units):
+        loaded.append((Path(path), compute_units))
+        return ("model", Path(path))
+
+    def probe_placement(spec, bucket, model, compiled, feats):
+        probed.append((model, Path(compiled), feats))
+        return {"ane_ms": 1.0, "cpu_ms": 3.0, "ratio": 0.333}
+
+    monkeypatch.setattr(sys.modules["coremltools"].models, "CompiledMLModel", compiled_model)
+    monkeypatch.setattr(coreml_ane, "probe_placement", probe_placement)
+    payload = export_archive(manifest_factory, 64)
+    put(files, entry(64, payload=payload), payloads={entry(64)["path"]: payload})
+    out = prebuilt.fetch(SPEC, [64], repo="o/r", log=lambda m: None)
+    staged, units = loaded[0]  # then the post-registration pre-warm load at the registered path
+    assert staged.is_relative_to(artifacts_root() / ".staging") and staged.name == COMPILED
+    assert not staged.is_relative_to(artifact_dir(SPEC, 64))
+    assert units == ANE_COMPUTE_UNITS
+    assert probed == [(("model", staged), staged, {"bucket": 64})]
+    assert out[64]["probe"]["ratio"] == 0.333
+    assert loaded[1][0] == artifact_dir(SPEC, 64) / COMPILED
+
+
+def test_a_failed_move_into_place_restores_the_previous_artifact(real_import, manifest_factory, monkeypatch):
+    files, _ = real_import
+    old = registered(manifest_factory, 64)
+    before = snapshot(old)
+    payload = export_archive(manifest_factory, 64)
+    put(files, entry(64, payload=payload), payloads={entry(64)["path"]: payload})
+    real_rename = os.rename
+
+    def rename(src, dst):
+        if Path(src).name.startswith("import-"):  # the staged artifact moving into place
+            raise OSError("simulated rename failure")
+        return real_rename(src, dst)
+
+    monkeypatch.setattr(lifecycle.os, "rename", rename)
+    with pytest.raises(OSError, match="simulated rename failure"):
+        prebuilt.fetch(SPEC, [64], repo="o/r", force=True, log=lambda m: None)
+    monkeypatch.setattr(lifecycle.os, "rename", real_rename)
+    assert snapshot(old) == before
+    assert [p.name for p in old.parent.iterdir()] == [old.name]
+    A.load_verified(SPEC, 64, full=True)
+
+
+def test_a_failed_cleanup_of_the_replaced_copy_is_only_logged(real_import, manifest_factory, monkeypatch):
+    files, _ = real_import
+    old = registered(manifest_factory, 64)
+    payload = export_archive(manifest_factory, 64)
+    put(files, entry(64, payload=payload), payloads={entry(64)["path"]: payload})
+    real_rmtree = lifecycle.shutil.rmtree
+
+    def rmtree(path, *a, **k):
+        if ".old-" in Path(path).name:
+            raise OSError("simulated rmtree failure")
+        return real_rmtree(path, *a, **k)
+
+    monkeypatch.setattr(lifecycle.shutil, "rmtree", rmtree)
+    logs = []
+    out = prebuilt.fetch(SPEC, [64], repo="o/r", force=True, log=logs.append)
+    monkeypatch.setattr(lifecycle.shutil, "rmtree", real_rmtree)
+    assert out[64]["path"] == old and (old / COMPILED / "weights.bin").read_bytes() == b"new weights"
+    assert any("could not remove the replaced copy" in m for m in logs)
+
+
+def test_a_registered_artifact_that_fails_to_load_is_replaced(repo, manifest_factory, monkeypatch):
+    files, calls = repo
+    put(files, entry(64))
+    registered(manifest_factory, 64)
+
+    def load_verified(spec, bucket):
+        raise RuntimeError("Core ML could not load the model")
+
+    monkeypatch.setattr(prebuilt, "load_verified", load_verified)
+    logs = []
+    out = prebuilt.fetch(SPEC, [64], repo="o/r", log=logs.append)
+    assert list(out) == [64] and calls["import"][0]["force"] is True
+    assert calls["import"][0]["expect"] == (SPEC.name, 64)
+    assert any("not usable (RuntimeError: Core ML could not load the model)" in m for m in logs)
 
 
 def test_fetch_from_the_default_repository_reads_the_pinned_commit(repo, monkeypatch):

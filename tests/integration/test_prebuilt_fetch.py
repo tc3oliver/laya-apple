@@ -38,7 +38,7 @@ def staged_repo(tmp_path_factory):
 
 
 def test_fetch_registers_only_after_local_validation_and_probe(staged_repo, tmp_path, monkeypatch):
-    def download(repo, filename, revision, local_dir):
+    def download(repo, filename, revision, local_dir, *, local_files_only=False):
         dest = Path(local_dir) / filename
         dest.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(staged_repo / filename, dest)
