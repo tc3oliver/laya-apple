@@ -19,6 +19,14 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   in-repo manifest with its URL, SHA-256 and size. The policy, why 1 MiB, and the manifest
   format are in `docs/evidence.md`.
 
+### Changed
+
+- **README leads with install and a runnable quickstart.** `README.md`, `README.zh-TW.md` and
+  `README.zh-CN.md` now go: what it is, why use it, install, quickstart, GPU + ANE benchmarks,
+  `laya-apple serve`, how it works, correctness, limitations, then research and release
+  history. The 1.5 adaptive-execution story is shorter and links to its research and release
+  notes. No number, source or limitation changed (#138).
+
 ### Fixed
 
 - **`laya-apple serve` uses one loopback test for the bind address and the `Host` header.**
