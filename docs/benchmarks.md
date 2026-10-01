@@ -119,7 +119,9 @@ uv run python scripts/release_bench.py benchmarks/v0.1/raw.jsonl
     answer formatting);
   - **predict** — end to end: prompt build, routing, forward, answer formatting.
 - Raw output: one JSON record per configuration per pass, with every timed sample kept,
-  appended as JSON Lines to the path you give it (`benchmarks/v0.1/raw.jsonl`).
+  appended as JSON Lines to the path you give it (`benchmarks/v0.1/raw.jsonl`). A raw
+  file over 1 MiB is not committed; it is published as external evidence and listed in a
+  manifest ([`evidence.md`](evidence.md)).
 
 Regenerate the markdown tables from the raw data with
 [`scripts/bench_report.py`](../scripts/bench_report.py):
