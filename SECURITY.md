@@ -32,12 +32,14 @@ Jev-compatible API. Its full behaviour is in [`docs/serve.md`](docs/serve.md); t
 `laya_apple/serve.py`.
 
 - **Loopback by default.** It binds `127.0.0.1:8642`. A bind address is loopback when it is
-  `localhost` or a loopback IP address (all of `127.0.0.0/8`, and `::1`).
+  `localhost` or a loopback IP address (all of `127.0.0.0/8`, and `::1`). IPv4-mapped IPv6
+  (`::ffff:127.0.0.1`) and IPv6 with a zone id (`::1%lo0`) are not treated as loopback.
 - **Host validation (DNS rebinding).** On a loopback bind, every request, on every endpoint,
   must carry a `Host` header that passes the same loopback test, with or without a port
   (`127.0.0.1:8642`, `localhost:8642`, `[::1]:8642`). Any other `Host`, such as the
-  hostname of a web page that rebinds its DNS to `127.0.0.1`, or a malformed bracketed
-  value, gets **421**.
+  hostname of a web page that rebinds its DNS to `127.0.0.1`, a numeric shorthand such as
+  `127.1`, a trailing-dot `localhost.`, a non-numeric port, or a malformed bracketed value,
+  gets **421**.
 - **JSON only.** `POST /v1/systemone` requires `Content-Type: application/json` (otherwise
   **415**). A browser cannot send that cross-site without a CORS preflight, and the server
   grants none.

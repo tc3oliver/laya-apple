@@ -296,9 +296,15 @@ def test_two_slow_requests_overlap():
     assert loader.loaded["laya"].max_active == 2  # both were inside the model at once
 
 
-@pytest.mark.parametrize("host", ["127.0.0.1", "localhost", "::1", "127.0.0.2"])
+@pytest.mark.parametrize("host", ["127.0.0.1", "localhost", "::1", "127.0.0.2", "127.255.255.254", "0:0:0:0:0:0:0:1"])
 def test_loopback_hosts(host):
     assert serve.is_loopback(host)
+
+
+@pytest.mark.parametrize("host", ["::ffff:127.0.0.1", "::1%lo0", "127.1", "2130706433", "localhost.", ""])
+def test_ipv4_mapped_zone_ids_and_shorthand_are_not_loopback(host):
+    """Fail closed on forms whose `is_loopback` answer varies across Python patch versions."""
+    assert not serve.is_loopback(host)
 
 
 @pytest.mark.parametrize("host", ["0.0.0.0", "192.168.1.5", "::", "example.com"])
@@ -426,6 +432,9 @@ def test_non_loopback_host_header_is_refused():
         ("[::1", ""),
         ("[::1]evil.example", ""),
         ("[::1]:http", ""),
+        ("127.0.0.1:abc", ""),
+        ("localhost:", ""),
+        ("localhost:\u00b2", ""),
     ],
 )
 def test_host_name(header, host):
@@ -457,6 +466,15 @@ def test_loopback_host_headers_are_served(header):
         "127.0.0.1.evil.example",
         "[::1",
         "",
+        "2130706433",
+        "0x7f000001",
+        "127.1",
+        "localhost.",
+        "user@localhost",
+        "127.0.0.1.nip.io",
+        "127.0.0.1:abc",
+        "[::ffff:127.0.0.1]",
+        "[::1%lo0]",
     ],
 )
 def test_non_loopback_host_headers_are_421(header):

@@ -171,7 +171,8 @@ as oMLX already use it.
 **Security.**
 - **Loopback only.** The server binds loopback, and it answers only requests whose `Host`
   header is `localhost` or a loopback IP address (`127.0.0.0/8`, `[::1]`), with or without
-  a port. It is the same test that decides whether `--host` is loopback, so any loopback
+  a numeric port. IPv4-mapped (`[::ffff:127.0.0.1]`) and zone-id (`[::1%lo0]`) forms are
+  refused. It is the same test that decides whether `--host` is loopback, so any loopback
   address the server binds also passes the `Host` check. A web page in your browser
   therefore cannot reach it through DNS rebinding.
 - **JSON only.** `POST /v1/systemone` requires `Content-Type: application/json`. A browser
