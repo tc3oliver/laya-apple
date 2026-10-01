@@ -5,6 +5,14 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- **`laya-apple info` reports the runtime environment.** A new `environment` block holds
+  the Python version, `mlx` (`available`, `version`) and `offline`: `local_files_only` (whether
+  `--offline` was given), `hf_hub_offline` (`huggingface_hub`'s own offline mode, from
+  `HF_HUB_OFFLINE`, or the legacy `TRANSFORMERS_OFFLINE` when that is unset or empty) and
+  `effective` (either). Every existing key is unchanged.
+
 ### Fixed
 
 - **`laya-apple serve` uses one loopback test for the bind address and the `Host` header.**
