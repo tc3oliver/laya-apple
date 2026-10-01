@@ -46,6 +46,18 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   itself "v1.0".
 - **CI declares least-privilege token permissions.** `.github/workflows/ci.yml` now sets
   `permissions: contents: read`, like the integration workflow.
+- **`artifacts fetch` no longer reports an unusable artifact as already registered**
+  ([#132](https://github.com/tc3oliver/laya-apple/issues/132)). A bucket was skipped when its
+  `manifest.json` existed, even an empty or corrupt one. It is now skipped only if the artifact
+  passes `load_verified`, the runtime's own checks; otherwise it is fetched again and replaced
+  (a corrupt one is quarantined first).
+- **`artifacts fetch` registers a bucket only after the runtime placement probe passes**
+  ([#133](https://github.com/tc3oliver/laya-apple/issues/133)). The probe ran after the import
+  had already moved the artifact into place, so a failed probe left it registered, and with
+  `--force` the previous artifact was already gone. The probe now runs on the staged copy
+  inside the import, before registration; a failure leaves nothing new registered and keeps
+  the previous artifact. `artifacts import` gains an optional pre-registration `probe` hook
+  for this; its behaviour without one is unchanged.
 
 ## [1.6.0] - 2026-09-27
 

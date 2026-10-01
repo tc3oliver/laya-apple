@@ -93,6 +93,12 @@ def probe_placement(spec: ModelSpec, bucket: int, model, compiled_path: Path, fe
     return {"ane_ms": round(ane_ms, 3), "cpu_ms": round(cpu_ms, 3), "ratio": round(ratio, 3)}
 
 
+def probe_features(host, pad_id: int, bucket: int) -> dict:
+    """The placement probe's input for one bucket: a single all-pad row."""
+    row = {"ids": [pad_id] * bucket, "markers": [1, 2], "qtype": 0}
+    return ane_features([row], bucket, 1, host.embedding, host.type_embedding, host.window(bucket), pad_id)
+
+
 class HostWeights:
     """Embedding table, type embedding and action head, read from the original checkpoint."""
 
@@ -290,10 +296,7 @@ class ANEBackend(ANEShapes):
         self.async_models, self.async_probes = models, probes
 
     def _probe_features(self, b: int) -> dict:
-        row = {"ids": [self.pad_id] * b, "markers": [1, 2], "qtype": 0}
-        return ane_features(
-            [row], b, 1, self.host.embedding, self.host.type_embedding, self.host.window(b), self.pad_id
-        )
+        return probe_features(self.host, self.pad_id, b)
 
     def _check_features(self, b: int) -> list[dict]:
         """The async load check's inputs for bucket b: the pad probe, and one row of

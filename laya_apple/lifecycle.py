@@ -236,7 +236,13 @@ def export_artifact(spec: ModelSpec, bucket: int, dest: Path) -> Path:
 
 
 def import_artifact(
-    archive: Path, *, local_files_only: bool = False, force: bool = False, log=print, source: str | None = None
+    archive: Path,
+    *,
+    local_files_only: bool = False,
+    force: bool = False,
+    log=print,
+    source: str | None = None,
+    probe=None,
 ) -> Path:
     """Register an artifact built elsewhere, only after validating it here.
 
@@ -249,6 +255,11 @@ def import_artifact(
     The original build provenance is kept, and the local results are recorded under
     `imported` (`from` is `source` when given, such as the repository an archive was fetched
     from, else the archive's path).
+
+    `probe`, when given, is called as probe(spec, bucket, staged_compiled_path) after every
+    check above and before registration (`artifacts fetch` runs the runtime placement probe
+    there). If any check or the probe raises, nothing is registered and an artifact already
+    at the registered path, which `force` would replace, is left as it was.
     """
     import tarfile
     import tempfile
@@ -316,6 +327,8 @@ def import_artifact(
             log(f"{spec.name} L{bucket}: parity gate ran in {time.perf_counter() - t:.1f} s (includes the staged load)")
             if not parity["passed"]:
                 raise ArtifactParityError(f"imported {spec.name} L{bucket} failed the parity gate here: {parity}")
+            if probe is not None:
+                probe(spec, bucket, stage / COMPILED)
             data["imported"] = {
                 "at": datetime.now(timezone.utc).isoformat(),
                 "from": source or str(archive),

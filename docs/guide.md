@@ -451,7 +451,12 @@ this machine. In addition:
 - only archives built on this machine's platform profile (same SoC, macOS major and
   coremltools) are selected. Any other profile gets `ArtifactMissingError`, which names the
   build command;
-- each fetched bucket is loaded once and must pass the runtime placement probe.
+- each fetched bucket is loaded once and must pass the runtime placement probe before it is
+  registered. A bucket that fails any check is not registered; with `--force`, the artifact
+  it would replace stays in place;
+- a bucket is skipped as already registered only if its artifact passes the runtime's load
+  checks (manifest, platform profile, file hash, compute plan). One that does not is fetched
+  again; a corrupt one is quarantined first.
 
 Without `--revision`, the default repository is read at the commit this release was
 validated against (`93181067cfee9c6117a7919321eb303ec36fcbd4` for 1.6.0), never at its mutable `main`, so one

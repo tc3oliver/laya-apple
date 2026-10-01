@@ -11,9 +11,15 @@ trusted because it was downloaded; before an artifact is registered this machine
 - the build platform profile against this one (same SoC, macOS major and coremltools);
 - the archive's SHA-256 against the repository index, and every file against the manifest;
 - the compute plan (100% Neural Engine, no transitions);
-- the full parity gate against the shipped goldens.
-After registration, each fetched bucket is loaded once and passes the runtime placement probe
-(`backends.coreml_ane.probe_placement`); the runtime repeats the probe on every load.
+- the full parity gate against the shipped goldens;
+- the runtime placement probe (`backends.coreml_ane.probe_placement`) on the staged model.
+Only then is the artifact moved to the path the runtime loads from: a bucket that fails any
+check is not registered, and with `force` the artifact it would replace stays in place. The
+runtime repeats the probe on every load.
+
+A bucket counts as already registered only if its artifact passes `artifacts.load_verified`,
+the runtime's own checks. One that does not is fetched again and replaced (a corrupt one is
+quarantined first, by `load_verified`); it is never reported as registered.
 
 The Core ML on-device ANE compile still happens on this machine, when the imported artifact is
 first loaded at its registered location (`import_artifact` pre-warms it). Prebuilt artifacts
@@ -32,6 +38,7 @@ are selected with the same profile rule the runtime uses (`artifacts.profile_mat
 
 from __future__ import annotations
 
+import functools
 import json
 import os
 import re
@@ -39,7 +46,7 @@ import shutil
 import tempfile
 from pathlib import Path
 
-from .artifacts import artifact_dir, artifacts_root, platform_profile, profile_matches
+from .artifacts import artifact_dir, artifacts_root, load_verified, platform_profile, profile_matches
 from .errors import ArtifactError, ArtifactIntegrityError, ArtifactMissingError, BackendUnavailableError
 from .hub import sha256_file
 from .registry import ANE_GRAPH, ModelSpec
@@ -201,18 +208,23 @@ def _download(repo: str, filename: str, revision: str, local_dir: Path) -> Path:
         raise BackendUnavailableError(f"cannot download {filename} from {repo}@{revision}: {e}") from e
 
 
-def _probe(spec: ModelSpec, buckets, *, local_files_only: bool) -> dict:
-    """Load the fetched buckets as the runtime does (strict): the runtime placement probe
-    runs on each, and a failure raises ComputeUnitMismatchError."""
-    from .backends.coreml_ane import ANEBackend
+def _probe(spec: ModelSpec, bucket: int, compiled: Path, *, local_files_only: bool) -> dict:
+    """The runtime placement probe on a staged, not yet registered, compiled model: loaded on
+    CPU_AND_NE as the runtime loads it, with the runtime's probe input. A failure raises
+    ComputeUnitMismatchError."""
+    import coremltools as ct
+
+    from .backends.coreml_ane import HostWeights, probe_features, probe_placement
     from .hub import checkpoint_path
     from .prompt import Tokenizer
+    from .registry import ANE_COMPUTE_UNITS
 
     ckpt = checkpoint_path(spec, local_files_only=local_files_only)
     local_attention = int(json.loads((ckpt / "encoder/config.json").read_text())["local_attention"])
     pad_id = Tokenizer(ckpt / "tokenizer").pad_token_id
-    backend = ANEBackend(spec, ckpt, pad_id, local_attention, sorted(buckets), strict=True)
-    return {b: backend.probes[b] for b in sorted(buckets)}
+    feats = probe_features(HostWeights(ckpt, local_attention), pad_id, bucket)
+    model = ct.models.CompiledMLModel(str(compiled), compute_units=getattr(ct.ComputeUnit, ANE_COMPUTE_UNITS))
+    return probe_placement(spec, bucket, model, compiled, feats)
 
 
 def fetch(
@@ -227,12 +239,13 @@ def fetch(
 ) -> dict:
     """Download, validate here and register prebuilt artifacts for `spec`.
 
-    Returns {bucket: {"path", "source", "probe"}} for the fetched buckets. A bucket already
-    registered is skipped unless `force`. Raises ArtifactMissingError when a requested bucket
-    has no archive for this checkpoint and platform profile (nothing is imported then),
+    Returns {bucket: {"path", "source", "probe"}} for the fetched buckets. A bucket whose
+    registered artifact passes `load_verified` is skipped unless `force`; one that does not is
+    fetched again and replaced. Raises ArtifactMissingError when a requested bucket has no
+    archive for this checkpoint and platform profile (nothing is imported then),
     ArtifactIntegrityError on a hash mismatch, and whatever the import checks or the placement
-    probe raise; a failed bucket is never registered by the import, and the runtime probe
-    refuses it on every later load."""
+    probe raise. A bucket is registered only after all of them pass on its staged copy, so a
+    failed bucket is never registered and an artifact it would replace is left in place."""
     from .lifecycle import BUILDING, import_artifact
 
     repo = resolve_repo(repo)
@@ -241,10 +254,20 @@ def fetch(
     unoffered = [b for b in buckets if b not in spec.ane_buckets]
     if unoffered:
         raise ArtifactError(f"{spec.name} does not offer ANE buckets {unoffered}; offered: {list(spec.ane_buckets)}")
-    todo = [b for b in buckets if force or not (artifact_dir(spec, b) / "manifest.json").exists()]
+    todo, replace = [], set()
     for b in buckets:
-        if b not in todo:
-            log(f"{spec.name} L{b}: already registered, skipped (--force replaces it)")
+        if not force:
+            try:
+                load_verified(spec, b)
+            except ArtifactError as e:
+                if not isinstance(e, ArtifactMissingError) or artifact_dir(spec, b).exists():
+                    log(f"{spec.name} L{b}: the registered artifact is not usable ({e}); fetching a replacement")
+            else:
+                log(f"{spec.name} L{b}: already registered and verified, skipped (--force replaces it)")
+                continue
+        todo.append(b)
+        if artifact_dir(spec, b).exists():  # replaced only after its replacement passes every check
+            replace.add(b)
     if not todo:
         return {}
     profile = platform_profile()
@@ -253,6 +276,14 @@ def fetch(
     tmp = Path(tempfile.mkdtemp(prefix="fetch-", dir=staging_root))
     (tmp / BUILDING).write_text(json.dumps({"pid": os.getpid()}))  # `artifacts prune` leaves it alone
     out: dict = {}
+    probes: dict = {}
+
+    def probe(spec_: ModelSpec, bucket: int, compiled: Path, *, want: int, path: str) -> None:
+        """Run inside import_artifact on the staged copy, before it is registered."""
+        if (spec_.name, bucket) != (spec.name, want):
+            raise ArtifactIntegrityError(f"{path} holds {spec_.name} L{bucket}, not {spec.name} L{want}")
+        probes[want] = _probe(spec_, bucket, compiled, local_files_only=local_files_only)
+
     try:
         index_file = _download(repo, INDEX, revision, tmp)
         try:
@@ -277,15 +308,18 @@ def fetch(
                     f"({entry['archive_sha256'][:16]}…)"
                 )
             source = f"hf://{repo}@{revision}/{entry['path']}#sha256={digest}"
-            path = import_artifact(archive, local_files_only=local_files_only, force=force, log=log, source=source)
+            path = import_artifact(
+                archive,
+                local_files_only=local_files_only,
+                force=force or b in replace,
+                log=log,
+                source=source,
+                probe=functools.partial(probe, want=b, path=entry["path"]),
+            )
             archive.unlink()  # the registered copy is the only one kept
-            out[b] = {"path": path, "source": source}
+            p = probes[b]
+            out[b] = {"path": path, "source": source, "probe": p}
+            log(f"{spec.name} L{b}: placement probe ratio {p['ratio']} (ANE {p['ane_ms']} ms, CPU {p['cpu_ms']} ms)")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
-    probes = _probe(spec, list(out), local_files_only=local_files_only)
-    for b, probe in probes.items():
-        out[b]["probe"] = probe
-        log(
-            f"{spec.name} L{b}: placement probe ratio {probe['ratio']} (ANE {probe['ane_ms']} ms, CPU {probe['cpu_ms']} ms)"
-        )
     return out
