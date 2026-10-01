@@ -170,8 +170,10 @@ as oMLX already use it.
 
 **Security.**
 - **Loopback only.** The server binds loopback, and it answers only requests whose `Host`
-  header is `127.0.0.1`, `localhost` or `[::1]`. A web page in your browser therefore
-  cannot reach it through DNS rebinding.
+  header is `localhost` or a loopback IP address (`127.0.0.0/8`, `[::1]`), with or without
+  a port. It is the same test that decides whether `--host` is loopback, so any loopback
+  address the server binds also passes the `Host` check. A web page in your browser
+  therefore cannot reach it through DNS rebinding.
 - **JSON only.** `POST /v1/systemone` requires `Content-Type: application/json`. A browser
   cannot send that cross-site without a CORS preflight, and this server grants none.
 - **Remote access.** `--host` with a non-loopback address is refused unless you pass

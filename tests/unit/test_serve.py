@@ -421,10 +421,59 @@ def test_non_loopback_host_header_is_refused():
         ("localhost", "localhost"),
         ("[::1]:8642", "::1"),
         ("Evil.Example", "evil.example"),
+        ("[::1]", "::1"),
+        ("127.0.0.2:8642", "127.0.0.2"),
+        ("[::1", ""),
+        ("[::1]evil.example", ""),
+        ("[::1]:http", ""),
     ],
 )
 def test_host_name(header, host):
     assert serve.host_name(header) == host
+
+
+@pytest.mark.parametrize(
+    "header",
+    ["127.0.0.1:8642", "127.0.0.2:8642", "127.0.0.1", "[::1]:8642", "[::1]", "localhost:8642", "LOCALHOST"],
+)
+def test_loopback_host_headers_are_served(header):
+    """The Host check uses the same loopback test as the bind check: 127.0.0.2 binds, so it
+    must be served too."""
+    c, _ = client()
+    with c:
+        assert c.get("/health", headers={"Host": header}).status_code == 200
+        assert post(c, {"state": "s", "questions": QUESTIONS}, headers={"Host": header}).status_code == 200
+
+
+@pytest.mark.parametrize(
+    "header",
+    [
+        "192.168.1.5:8642",
+        "10.0.0.1",
+        "[fe80::1]:8642",
+        "0.0.0.0:8642",
+        "evil.example",
+        "localhost.evil.example:8642",
+        "127.0.0.1.evil.example",
+        "[::1",
+        "",
+    ],
+)
+def test_non_loopback_host_headers_are_421(header):
+    c, _ = client()
+    with c:
+        assert c.get("/health", headers={"Host": header}).status_code == 421
+        assert post(c, {"state": "s", "questions": QUESTIONS}, headers={"Host": header}).status_code == 421
+
+
+@pytest.mark.parametrize("host", ["127.0.0.1", "127.0.0.2", "::1", "localhost"])
+def test_loopback_bind_needs_no_flag_and_checks_the_host_header(host, monkeypatch):
+    seen = {}
+    monkeypatch.delenv("LAYA_API_KEY", raising=False)
+    monkeypatch.setattr(serve, "create_app", lambda **kw: seen.update(kw))
+    monkeypatch.setattr("uvicorn.run", lambda *a, **k: None)
+    assert serve.run(host=host) == 0
+    assert seen["loopback_only"] is True
 
 
 def test_remote_bind_serves_any_host_header():

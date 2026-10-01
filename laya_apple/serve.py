@@ -93,7 +93,6 @@ _ALIASES = {
 }
 # Upstream reads the root repo id as "let the router choose", not "pin English".
 _ROUTER_CHOICE = {"convaiinnovations/laya"}
-LOOPBACK_HOSTS = {"127.0.0.1", "localhost", "::1"}
 
 Loader = Callable[[str], Any]
 
@@ -128,14 +127,21 @@ def resolve_model(requested: Any, default: str) -> str:
 
 
 def host_name(header: str) -> str:
-    """The host part of a Host header: "[::1]:8642" -> "::1", "localhost:8642" -> "localhost"."""
+    """The host part of a Host header: "[::1]:8642" -> "::1", "localhost:8642" -> "localhost".
+    A malformed bracketed value ("[::1", "[::1]x") gives "", which is not loopback."""
     header = header.strip().lower()
     if header.startswith("["):
-        return header[1:].split("]", 1)[0]
+        inside, bracket, rest = header[1:].partition("]")
+        if not bracket or (rest and not (rest.startswith(":") and rest[1:].isdigit())):
+            return ""
+        return inside
     return header.rsplit(":", 1)[0] if header.count(":") == 1 else header
 
 
 def is_loopback(host: str) -> bool:
+    """The one loopback test, for the bind address and for the Host header: "localhost" or a
+    loopback IP literal (all of 127.0.0.0/8, and ::1). Any other name is not loopback, so a
+    DNS-rebinding page's own hostname is refused."""
     if host == "localhost":
         return True
     try:
@@ -294,7 +300,7 @@ def create_app(
 
     @app.middleware("http")
     async def loopback_host_only(request: Request, call_next):
-        if loopback_only and host_name(request.headers.get("host", "")) not in LOOPBACK_HOSTS:
+        if loopback_only and not is_loopback(host_name(request.headers.get("host", ""))):
             return JSONResponse(status_code=421, content={"detail": "this server answers loopback requests only"})
         return await call_next(request)
 
