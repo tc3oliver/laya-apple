@@ -1,0 +1,50 @@
+{
+ "laya_apple": "1.6.0",
+ "platform": {
+  "soc": "Apple M4 Max",
+  "macos": "27.0",
+  "macos_build": "26A428",
+  "coremltools": "9.0"
+ },
+ "platform_validated_for_auto_ane": false,
+ "coremltools_available": true,
+ "environment": {
+  "python": "3.12.14",
+  "mlx": {
+   "available": true,
+   "version": "0.32.2"
+  },
+  "offline": {
+   "local_files_only": false,
+   "hf_hub_offline": true,
+   "effective": true
+  }
+ },
+ "models": {
+  "laya-typed-decisions": {
+   "repo": "convaiinnovations/laya-typed-decisions",
+   "revision": "f9ab0b228f0fc0f14d873dbc99038f135c2da1b2",
+   "encoder": "ModernBERT-large",
+   "max_len": 1024,
+   "mlx_dtypes": [
+    "float16",
+    "float32"
+   ],
+   "ane_buckets": [
+    64,
+    96,
+    128
+   ],
+   "auto_ane_buckets": [
+    64,
+    96,
+    128
+   ],
+   "artifacts": {
+    "64": "validated",
+    "96": "validated",
+    "128": "validated"
+   }
+  }
+ }
+}

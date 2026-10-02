@@ -1,0 +1,30 @@
+[build] laya-typed-decisions L64: loading PyTorch FP32 reference
+[build] layout check (FP32 BC1S vs FP32 reference): max |dlogit| = 3.34e-06
+[build] converted in 26.6 s; compiling
+[build] placement: {'ane': 10594, 'gpu': 0, 'cpu': 0} transitions=0
+[build] parity gate against the PyTorch FP32 goldens
+<checkout>/laya_apple/parity/ane.py:45: RuntimeWarning: laya-apple: checkpoint temperatures that are invalid or outside [0.5, 5.0] are replaced (choice:11+=0.10058280825614929 -> 0.5), as upstream does; treat confidence from those entries as uncalibrated
+[build] parity rows=41 prob=0.0046 act=0.0000 hard=0 passed=True
+[build] registered <cache>/artifacts/laya-typed-decisions/f9ab0b228f0f/bc1s-masked-L64-B1 (98 s)
+[build] pre-warmed the ANE compile at the registered path in 66.3 s
+<cache>/artifacts/laya-typed-decisions/f9ab0b228f0f/bc1s-masked-L64-B1
+[build] laya-typed-decisions L96: loading PyTorch FP32 reference
+[build] layout check (FP32 BC1S vs FP32 reference): max |dlogit| = 5.25e-06
+[build] converted in 26.8 s; compiling
+[build] placement: {'ane': 10594, 'gpu': 0, 'cpu': 0} transitions=0
+[build] parity gate against the PyTorch FP32 goldens
+<checkout>/laya_apple/parity/ane.py:45: RuntimeWarning: laya-apple: checkpoint temperatures that are invalid or outside [0.5, 5.0] are replaced (choice:11+=0.10058280825614929 -> 0.5), as upstream does; treat confidence from those entries as uncalibrated
+[build] parity rows=93 prob=0.0046 act=0.0000 hard=0 passed=True
+[build] registered <cache>/artifacts/laya-typed-decisions/f9ab0b228f0f/bc1s-masked-L96-B1 (101 s)
+[build] pre-warmed the ANE compile at the registered path in 69.5 s
+<cache>/artifacts/laya-typed-decisions/f9ab0b228f0f/bc1s-masked-L96-B1
+[build] laya-typed-decisions L128: loading PyTorch FP32 reference
+[build] layout check (FP32 BC1S vs FP32 reference): max |dlogit| = 1.43e-06
+[build] converted in 27.3 s; compiling
+[build] placement: {'ane': 10594, 'gpu': 0, 'cpu': 0} transitions=0
+[build] parity gate against the PyTorch FP32 goldens
+<checkout>/laya_apple/parity/ane.py:45: RuntimeWarning: laya-apple: checkpoint temperatures that are invalid or outside [0.5, 5.0] are replaced (choice:11+=0.10058280825614929 -> 0.5), as upstream does; treat confidence from those entries as uncalibrated
+[build] parity rows=122 prob=0.0077 act=0.0000 hard=0 passed=True
+[build] registered <cache>/artifacts/laya-typed-decisions/f9ab0b228f0f/bc1s-masked-L128-B1 (101 s)
+[build] pre-warmed the ANE compile at the registered path in 68.9 s
+<cache>/artifacts/laya-typed-decisions/f9ab0b228f0f/bc1s-masked-L128-B1

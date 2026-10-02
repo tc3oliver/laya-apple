@@ -44,6 +44,14 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   `predict()` call on MLX with its real printed `result.answers[...]`, and a note on how to read
   the numbers: `score` is the expected level, `noul` is P(true), and `confidence` and
   `answer_confidence` differ on `score`. Documentation only (#148).
+- **macOS 27.0 build and parity validation on the release M4 Max** (#17), in
+  `research/macos27-validation/`. Only macOS changed (26.6.2 to 27.0 26A428; coremltools
+  still 9.0). All three models and every explicit ANE bucket (10 pairs) built, placed 100% on
+  the Neural Engine with 0 transitions, and passed the unchanged FP16 parity gate with 0 hard
+  mismatches, with the same op counts and parity error as on 26.6.2. `docs/support-matrix.md`
+  and `docs/compatibility.md` cite it. macOS 27 is still not a shipped routing profile, so
+  `auto` stays on MLX there; no routing, latency or throughput was measured, and no runtime,
+  routing, parity or benchmark code changed.
 
 ### Fixed
 

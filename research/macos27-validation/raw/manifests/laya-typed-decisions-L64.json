@@ -1,0 +1,98 @@
+{
+ "format": "laya-apple-artifact",
+ "format_version": 1,
+ "status": "validated",
+ "created_at": "2026-10-02T10:22:51.957514+00:00",
+ "source": {
+  "model": "laya-typed-decisions",
+  "repo": "convaiinnovations/laya-typed-decisions",
+  "revision": "f9ab0b228f0fc0f14d873dbc99038f135c2da1b2",
+  "weights_sha256": "4fa56de72383a9d3efa9cfa78955733c81b9fc8067a587ca4beb82c78107a24e"
+ },
+ "conversion": {
+  "laya_apple_version": "1.6.0",
+  "git_revision": "adf28da92d6fcee09d05343ddef9db5a70e37f45",
+  "code_sha256": {
+   "bc1s.py": "c4561ca1b82b8bf6e13d13a24ceafc377ccc4feb42995da3fcbd7c08bd2c1a15",
+   "torch_reference.py": "1fefe912f44fb7f63357b7235262996dca4422bd6b49cbc30cf6c090ada6063d",
+   "build.py": "d9dd02f1a72321bc6ea1616fdcf1a258e92aef89bad1ec88e7ae6247a9a188d5",
+   "coreml_ane.py": "6bf50ce1289997861adbf857d1b67ec9b1f34c3c2153b663804b9b6df6d56b95"
+  },
+  "packages": {
+   "coremltools": "9.0",
+   "torch": "2.7.0",
+   "numpy": "2.1.3",
+   "mlx": "0.32.2",
+   "tokenizers": "0.23.2",
+   "safetensors": "0.8.0"
+  },
+  "minimum_deployment_target": "macOS15",
+  "compute_precision": "FLOAT16",
+  "io_dtype": "float16",
+  "layout_check_max_abs_logit_fp32": 3.337860107421875e-06
+ },
+ "artifact": {
+  "graph": "bc1s-masked",
+  "length": 64,
+  "batch": 1,
+  "precision": "float16",
+  "max_options": 32,
+  "inputs": [
+   "embeddings",
+   "full_mask",
+   "local_mask",
+   "type_vectors",
+   "marker_map"
+  ],
+  "outputs": [
+   "logits",
+   "cls"
+  ]
+ },
+ "placement": {
+  "compute_units": "CPU_AND_NE",
+  "ops": {
+   "ane": 10594,
+   "gpu": 0,
+   "cpu": 0
+  },
+  "cost_share": {
+   "ane": 1.0,
+   "gpu": 0.0,
+   "cpu": 0.0
+  },
+  "transitions": 0
+ },
+ "platform": {
+  "soc": "Apple M4 Max",
+  "macos": "27.0",
+  "macos_build": "26A428",
+  "coremltools": "9.0"
+ },
+ "parity": {
+  "precision": "float16",
+  "tolerance": 0.02,
+  "rows": 41,
+  "skipped_rows": 159,
+  "token_mismatch_cases": 0,
+  "prob_max_abs": 0.004626551731036654,
+  "action_prob_max_abs": 0.0,
+  "logit_max_abs": 0.03325338661670685,
+  "hard_mismatches": 0,
+  "near_tie_flips": [],
+  "all_finite": true,
+  "repeat_identical": true,
+  "passed": true,
+  "reference": "upstream laya 0.3.20 (NandhaKishorM/laya@23a1752), PyTorch CPU FP32"
+ },
+ "integrity": {
+  "artifact_sha256": "b078691b4df9b1bec80370885fdb67397de9e83486b2e1c20bd2cc03923172d4",
+  "tree_hash": "laya-apple tree v1"
+ },
+ "timings": {
+  "convert_s": 26.58702874998562,
+  "compile_s": 1.6238582090009004,
+  "parity_s": 25.623758792004082,
+  "total_s": 98.26148408296285
+ }
+}
