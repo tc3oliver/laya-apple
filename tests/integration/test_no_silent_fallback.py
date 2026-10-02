@@ -6,6 +6,7 @@ from __future__ import annotations
 import json
 import os
 import signal
+import time
 import warnings
 
 import pytest
@@ -266,14 +267,24 @@ def test_offline_with_an_uncached_checkpoint_raises_and_never_downloads(tmp_path
 # ----------------------------------------------------------------------------- runtime placement probe (audit V1)
 
 
+class _FakeClock:
+    """Stands in for `time.perf_counter`. The fake models advance it by exactly their duration, so the
+    probe sees the intended timings whatever `time.sleep` precision the OS has (macOS 27 often sleeps
+    10 ms for 15 ms, which made a sleep-based fake accept a model that ran like the CPU)."""
+
+    def __init__(self):
+        self.now = 0.0
+
+    def __call__(self):
+        return self.now
+
+
 class _TimedModel:
-    def __init__(self, ms):
-        self.ms = ms
+    def __init__(self, clock, ms):
+        self.clock, self.ms = clock, ms
 
     def predict(self, feats):
-        import time
-
-        time.sleep(self.ms / 1e3)
+        self.clock.now += self.ms / 1e3
 
 
 @pytest.mark.parametrize("loaded_ms, cpu_ms, ok", [(4, 10, True), (10, 10, False), (12, 10, False)])
@@ -282,14 +293,17 @@ def test_placement_probe_refuses_a_model_that_runs_like_the_cpu(monkeypatch, loa
     from laya_apple.errors import ComputeUnitMismatchError
     from laya_apple.registry import models
 
-    monkeypatch.setattr(ct.models, "CompiledMLModel", lambda *a, **k: _TimedModel(cpu_ms))
+    clock = _FakeClock()
+    monkeypatch.setattr(time, "perf_counter", clock)  # the clock coreml_ane._fastest_ms times each predict with
+    monkeypatch.setattr(ct.models, "CompiledMLModel", lambda *a, **k: _TimedModel(clock, cpu_ms))
     spec = models()[MODEL]
     if ok:
-        r = coreml_ane.probe_placement(spec, 64, _TimedModel(loaded_ms), tmp_path, {})
+        r = coreml_ane.probe_placement(spec, 64, _TimedModel(clock, loaded_ms), tmp_path, {})
+        assert r["ratio"] == pytest.approx(loaded_ms / cpu_ms)
         assert r["ratio"] < coreml_ane.PROBE_MAX_RATIO
     else:
         with pytest.raises(ComputeUnitMismatchError, match="not running on the Neural Engine"):
-            coreml_ane.probe_placement(spec, 64, _TimedModel(loaded_ms), tmp_path, {})
+            coreml_ane.probe_placement(spec, 64, _TimedModel(clock, loaded_ms), tmp_path, {})
 
 
 def test_placement_probe_failure_drops_the_bucket_under_auto_and_raises_under_ane(monkeypatch, gpu):
