@@ -13,9 +13,9 @@
 Neural Engine 只在结果与上游一致时才启用。**
 
 给 Laya 一段 context，一次 forward pass 就能答完多个带类型的问题（`choice`、`score`、`noul`）。
-laya-apple 在 Mac 的两个引擎上运行上游 Laya，每个请求自动选一个来跑。
+laya-apple 在 Mac 的两个引擎上运行上游 Laya，每个请求自动选一个引擎。
 
-1.6.1 新变化：`artifacts fetch` 更稳妥；M4 Max 升级到 macOS 27 后，`auto` 同样会用上 ANE
+1.6.1 新变化：`artifacts fetch` 更稳妥；M4 Max 在 macOS 27 上构建好 artifact 后，`auto` 同样会用上 ANE
 （[release notes](docs/releases/v1.6.1.md)）。
 
 ## 为什么要用
@@ -309,7 +309,8 @@ Mac 上有两个引擎可以运行 Laya，分别擅长不同的请求。
 
 自适应 ANE 执行仅在 `execution="workers"`、`device="auto"` 下启用，目前只在一台运行 macOS 26.6.2
 的 Apple M4 Max 上验证过。内置路由 profile 支持 Apple M4 Max + coremltools 9.0，macOS 26.6.2 和 27.0
-都在内：只要构建好 artifact，`auto` 就会使用 ANE。macOS 27 上只测量了构建、parity 和路由；自适应执行、`serve`
+都在内：只要构建好 artifact，`auto` 就会使用 ANE。macOS 27 的 profile 对所有 27.x 生效，不过只实测过 27.0。
+macOS 27 上只测量了构建、parity 和路由；自适应执行、`serve`
 和发布 benchmark 都没有测量（[`benchmarks/routing-macos27/`](benchmarks/routing-macos27/README.md)）。
 在其他 Mac 上，需要先在该机器上构建并校准 ANE artifact（`laya-apple calibrate`），`auto` 才会使用 ANE，
 在此之前一直走 MLX。预构建的 artifact

@@ -334,7 +334,8 @@ per-request timing; you do not need to pass `trace=` for it. Architecture:
 
 Adaptive ANE execution applies with `execution="workers"` and `device="auto"`. Validated on one Apple M4 Max with macOS 26.6.2.
 Shipped routing profiles cover the Apple M4 Max with coremltools 9.0 on macOS 26.6.2 and
-macOS 27.0, so `auto` uses the ANE there once the artifacts are built. On macOS 27 only build,
+macOS 27.0, so `auto` uses the ANE there once the artifacts are built. The macOS 27 profile
+matches every 27.x, but only 27.0 was measured. On macOS 27 only build,
 parity and routing were measured; adaptive execution, `serve` and the release benchmarks were
 not ([`benchmarks/routing-macos27/`](benchmarks/routing-macos27/README.md)). On other Macs,
 `auto` stays on MLX until ANE artifacts are built and calibrated there (`laya-apple

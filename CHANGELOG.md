@@ -139,7 +139,7 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   ([`research/coreml-compile-cache/results.md`](research/coreml-compile-cache/results.md)).
 - **Core ML's compile cache still grows without eviction** (4.36 GB per 3-bucket cold load on
   macOS 27), and **no second machine has checked the prebuilt artifacts yet.** The other 1.6.0
-  limitations still apply ([`docs/releases/v1.6.1.md`](docs/releases/v1.6.1.md#limitations)).
+  limitations still apply ([`docs/releases/v1.6.0.md`](docs/releases/v1.6.0.md#limitations)).
 
 ### Research (not shipped)
 

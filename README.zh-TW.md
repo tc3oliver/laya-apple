@@ -13,15 +13,15 @@
 Neural Engine 只在結果跟上游一致時才上場。**
 
 Laya 讀一段 context，一次 forward pass 就能回答多個有型別的問題（`choice`、`score`、`noul`）。
-laya-apple 在 Mac 的兩個引擎上跑上游 Laya，每個請求自動挑一個來跑。
+laya-apple 在 Mac 的兩個引擎上跑上游 Laya，每個請求自動挑一個引擎。
 
-1.6.1 更新：`artifacts fetch` 更可靠了；M4 Max 升到 macOS 27 後，`auto` 也會用 ANE
+1.6.1 更新：`artifacts fetch` 更可靠了；M4 Max 在 macOS 27 上建好 artifact 後，`auto` 也會用 ANE
 （[release notes](docs/releases/v1.6.1.md)）。
 
 ## 為什麼要用
 
-- **ANE 的結果要對，不只是快。** 直接用 Core ML 匯出的模型在 Neural Engine（ANE）上跑，一個錯誤都
-  沒報，卻有多達 85 個決策跟上游不一樣。所以 ANE artifact 一定要先在你的 Mac 上通過 parity 檢查才會
+- **ANE 的結果要對，不只是快。** 在測試機上，直接用 Core ML 匯出的模型在 Neural Engine（ANE）上跑，
+  一個錯誤都沒報，卻有多達 85 個決策跟上游不一樣。所以 ANE artifact 一定要先在你的 Mac 上通過 parity 檢查才會
   啟用（[正確性](#正確性)）。
 - **短決策不用再排在長任務後面。** 有驗證過的 artifact 時，單一問題的請求交給 ANE；較長或多個問題的
   請求留在 GPU。開啟 `execution="workers"` 後，兩個引擎同時接請求。數據都來自同一台 Apple M4 Max；
@@ -310,7 +310,8 @@ Mac 上有兩個引擎可以跑 Laya，各自擅長不同的請求。
 
 自適應 ANE 執行只在 `execution="workers"`、`device="auto"` 下啟用，目前只在一台 macOS 26.6.2 的
 Apple M4 Max 上驗證過。內建路由 profile 支援 Apple M4 Max + coremltools 9.0，macOS 26.6.2 和 27.0
-都有：只要建置好 artifact，`auto` 就會用 ANE。macOS 27 上只量測了建置、parity 與路由；自適應執行、`serve`
+都有：只要建置好 artifact，`auto` 就會用 ANE。macOS 27 的 profile 適用所有 27.x，但實際只測過 27.0。
+macOS 27 上只量測了建置、parity 與路由；自適應執行、`serve`
 與發行 benchmark 都沒有量測（[`benchmarks/routing-macos27/`](benchmarks/routing-macos27/README.md)）。
 在其他 Mac 上，要先在那台機器建置並校準 ANE artifact（`laya-apple calibrate`），`auto` 才會使用 ANE，
 在那之前都走 MLX。預先建置的 artifact
