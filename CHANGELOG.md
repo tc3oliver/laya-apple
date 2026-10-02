@@ -66,9 +66,9 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   still 9.0). All three models and every explicit ANE bucket (10 pairs) built, placed 100% on
   the Neural Engine with 0 transitions, and passed the unchanged FP16 parity gate with 0 hard
   mismatches, with the same op counts and parity error as on 26.6.2. `docs/support-matrix.md`
-  and `docs/compatibility.md` cite it. macOS 27 is still not a shipped routing profile, so
-  `auto` stays on MLX there; no routing, latency or throughput was measured, and no runtime,
-  routing, parity or benchmark code changed.
+  and `docs/compatibility.md` cite it. This validation measured no routing, latency or
+  throughput and changed no runtime, routing, parity or benchmark code; the routing profile
+  that makes `auto` use the ANE on macOS 27 came afterwards (#152, under Added).
 
 ### Fixed
 
@@ -117,6 +117,42 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   full validating import, and raises `BackendUnavailableError` when they are not cached. The
   checkpoint error now names the effective offline mode, including `HF_HUB_OFFLINE`, instead of
   saying "online".
+- **The placement-probe refusal test no longer depends on `time.sleep` precision** (#156).
+  Its fake models slept 10 ms, and on macOS 27 a 10 ms sleep often lasts about 15 ms, so the
+  probe sometimes accepted the model the test expects it to refuse; this failed run 1 of the
+  1.6.1 release gate (`benchmarks/release-gate-1.6.1-macos27-notes.md`). The fakes now advance
+  a fake clock that the test installs as `time.perf_counter`. Every case keeps its expected
+  outcome; no `laya_apple/` code and no threshold changed.
+
+### Known limitations
+
+- **No prebuilt artifacts for macOS 27.** They still exist for Apple M4 Max, macOS 26,
+  coremltools 9.0 only; on macOS 27, `artifacts fetch` raises `ArtifactMissingError` and the
+  artifacts are built locally.
+- **On macOS 27 only build, parity and routing were measured.** The release benchmarks,
+  `serve` beside a local LLM and adaptive ANE execution were not re-measured there.
+- **The macOS 27 routing profile matches every macOS 27.x** on an M4 Max with coremltools 9.0,
+  but only 27.0 (26A428) was measured. The compute-plan check and the placement probe still run
+  on every machine ([`docs/support-matrix.md`](docs/support-matrix.md)).
+- **Cold start on macOS 27 is about 210 s** for laya-typed-decisions (buckets 64/96/128) at a
+  new artifact location, against about 2 s warm
+  ([`research/coreml-compile-cache/results.md`](research/coreml-compile-cache/results.md)).
+- **Core ML's compile cache still grows without eviction** (4.36 GB per 3-bucket cold load on
+  macOS 27), and **no second machine has checked the prebuilt artifacts yet.** The other 1.6.0
+  limitations still apply ([`docs/releases/v1.6.0.md`](docs/releases/v1.6.0.md#limitations)).
+
+### Research (not shipped)
+
+- **Where Core ML's on-device ANE compile is reused** (#121, #153), on macOS 27.0: touching
+  the artifact files keeps the compile, re-copying them to the same path loses it, a move is
+  inconclusive, and an import pays the compile twice (parity gate, then registered load). No
+  code change
+  ([`research/coreml-compile-cache/results.md`](research/coreml-compile-cache/results.md)).
+- **What triggers the host-side slow state of the no-GIL ANE thread** (#89, #154), on macOS
+  27.0 with 1.4's synchronous path: holding the GIL, a fixed warm-up and a 1 ms probe thread
+  each removed it. No single cause is attributed: the GIL contrast also changed the GPU reply
+  wait, and background load was a possible confound
+  ([`research/coreml-slow-state-trigger/results.md`](research/coreml-slow-state-trigger/results.md)).
 
 ## [1.6.0] - 2026-09-27
 
