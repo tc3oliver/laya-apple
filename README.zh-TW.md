@@ -379,8 +379,8 @@ Mac 上有兩個引擎可以跑 Laya，各自擅長不同的請求。
   [`research/coreml-adaptive-breaker/`](research/coreml-adaptive-breaker/README.md)。
 - **研究。** 1.5 與 1.6 版本背後的研究脈絡，包括失敗的路線，整理在 [`research/README.md`](research/README.md)。
 - **版本。** 所有變更都記錄在 [`CHANGELOG.md`](CHANGELOG.md)；release notes 放在
-  [`docs/releases/`](docs/releases/)，最新的是 [1.6.0](docs/releases/v1.6.0.md) 與
-  [1.5.0](docs/releases/v1.5.0.md)。
+  [`docs/releases/`](docs/releases/)，最新的是 [1.6.1](docs/releases/v1.6.1.md)、
+  [1.6.0](docs/releases/v1.6.0.md) 與 [1.5.0](docs/releases/v1.5.0.md)。
 
 ## 參與貢獻
 
