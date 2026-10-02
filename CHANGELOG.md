@@ -26,6 +26,10 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   `laya-apple serve`, how it works, correctness, limitations, then research and release
   history. The 1.5 adaptive-execution story is shorter and links to its research and release
   notes. No number, source or limitation changed (#138).
+- **`docs/guide.md` has worked `score` and `noul` examples.** Each question type gets a runnable
+  `predict()` call on MLX with its real printed `result.answers[...]`, and a note on how to read
+  the numbers: `score` is the expected level, `noul` is P(true), and `confidence` and
+  `answer_confidence` differ on `score`. Documentation only (#148).
 
 ### Fixed
 

@@ -1,7 +1,7 @@
 # User guide
 
 The README covers what laya-apple is and why. This page covers how to use it:
-- the question schema;
+- the question schema, with `score` and `noul` examples;
 - devices and routing;
 - language routing between checkpoints, and shortlisting large `choice` questions;
 - the MLX fast path;
@@ -62,6 +62,126 @@ the order of the `criteria` dict. This is a property of the upstream Laya model,
 laya-apple defect: laya-apple's MLX FP32 backend reproduces upstream's decision for every
 permutation exactly (see `research/option-order/README.md`). Keep option order fixed
 across calls for a given question if you need repeatable decisions.
+
+### Worked examples: `score` and `noul`
+
+Each example below follows the [question schema](#question-schema) above and runs as written
+on the pinned `laya-typed-decisions` checkpoint, on the MLX GPU (`device="gpu"`, see
+[Devices](#devices)). The first run downloads the checkpoint, and later runs work
+[offline](#offline-use). Each prints the whole answer for one question. The output is from
+one Apple M4 Max with float16 weights; another machine may differ in the last digits.
+
+Loading this checkpoint warns that the `choice:11+` temperature is replaced. That entry is
+for `choice` questions with 11 or more options, so it does not affect these two examples.
+
+**`score`.** `criteria` is a list of level descriptions. Level `i` is the `i`-th entry,
+counting from 0.
+
+```python
+import json
+
+from laya_apple import Laya
+
+with Laya.from_pretrained("laya-typed-decisions", device="gpu") as model:
+    result = model.predict(
+        context="The customer was charged twice for the same invoice and wants the second charge refunded.",
+        questions={
+            "severity": {
+                "type": "score",
+                "instructions": "How severe is this problem for the customer?",
+                "criteria": [
+                    "cosmetic, no real impact",
+                    "a minor inconvenience",
+                    "blocks the customer until it is fixed",
+                    "a financial loss for the customer",
+                ],
+            }
+        },
+    )
+
+print(json.dumps(result.answers["severity"], indent=1))
+```
+
+```text
+{
+ "type": "score",
+ "score": 2.1732,
+ "legend": {
+  "0": "cosmetic, no real impact",
+  "1": "a minor inconvenience",
+  "2": "blocks the customer until it is fixed",
+  "3": "a financial loss for the customer"
+ },
+ "probabilities": {
+  "0": 0.0154,
+  "1": 0.2438,
+  "2": 0.2931,
+  "3": 0.4477
+ },
+ "confidence": 0.1865,
+ "answer_confidence": 0.4477,
+ "action": {
+  "act_probability": 1.0
+ }
+}
+```
+
+- `score` is the expected level, the sum of each level times its probability. It is not the
+  most likely level: here level `3` is the most likely (0.4477), and `score` is 2.1732.
+- `legend` maps each level, as a string, back to its description, and `probabilities` is
+  keyed the same way.
+- `answer_confidence` is the probability of the most likely level (`3` here), not a
+  confidence in `score`.
+- `confidence` is the normalised entropy 1 − H(p)/log(k), a different quantity (see
+  [the answer fields](#question-schema) above). It is low, 0.1865, because the probability is
+  spread over levels 1 to 3 rather than concentrated on one.
+- `score` and `confidence` are computed from the unrounded probabilities, and every value is
+  rounded to 4 decimals. Recomputing them from the printed `probabilities` can therefore
+  differ in the last digit: it gives 2.1731 and 0.1864 here.
+
+**`noul`.** `criteria` is optional. When given, it describes each side as
+`{"false": ..., "true": ...}`.
+
+```python
+import json
+
+from laya_apple import Laya
+
+with Laya.from_pretrained("laya-typed-decisions", device="gpu") as model:
+    result = model.predict(
+        context="The customer was charged twice for the same invoice and wants the second charge refunded.",
+        questions={
+            "refund": {
+                "type": "noul",
+                "instructions": "Does the customer ask for a refund?",
+                "criteria": {
+                    "false": "the customer does not ask for money back",
+                    "true": "the customer asks for money back",
+                },
+            }
+        },
+    )
+
+print(json.dumps(result.answers["refund"], indent=1))
+```
+
+```text
+{
+ "type": "noul",
+ "noul": 0.7457,
+ "confidence": 0.7457,
+ "answer_confidence": 0.7457,
+ "action": {
+  "act_probability": 1.0
+ }
+}
+```
+
+- `noul` is P(true), the probability that the answer is yes: 0.7457 leans yes, and a value
+  below 0.5 would lean no.
+- `confidence` and `answer_confidence` are both max(`noul`, 1 − `noul`), the probability of
+  whichever side is more likely. To gate on how sure the model is, use `answer_confidence`,
+  not `noul`.
 
 ## Devices
 
