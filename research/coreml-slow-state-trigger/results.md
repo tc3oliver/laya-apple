@@ -205,8 +205,9 @@ or range of values listed there.
     highest of all hetero windows are PB-R's (2.07 before round 2 cycle 0, 1.77 before cycle 1). The
     load average includes the benchmark's own threads, so it does not isolate a background cause.
     The largest rise between consecutive samples of any run, 1.29 to 2.63, is in PB-R round 2, during
-    cycle 0's solo_short window. The next window of that run is its first hetero window, slow at
-    16.52 ms with 2.07 before it. No process in either of those samples is above 8.8%.
+    cycle 0's solo_short window (the 2.63 sample is taken before cycle 0's solo_long window). The
+    window after that, cycle 0's first hetero window, is slow at 16.52 ms; its sample reads 2.07,
+    down from 2.63. No process in the samples before either of those two windows is above 8.8%.
   - **Spikes.** A process at or above 50% appears in the sample before 4 of the 24 hetero windows of
     the cells with no slow window (A round 2 cycle 0: mobileassetd 98.5%; PB-P round 1 cycle 2:
     Google Chrome Helper (Renderer) 95.0%; PB-P round 2 cycles 0 and 2: OrbStack Helper 92.7% and
