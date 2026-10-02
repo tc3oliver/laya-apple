@@ -3,7 +3,9 @@
 Issue: [#8](https://github.com/tc3oliver/laya-apple/issues/8) (cold start). Preregistration:
 [#121](https://github.com/tc3oliver/laya-apple/issues/121), which holds the "Preregistered
 criteria" below verbatim, opened before any data. They are not edited after a run. Status:
-**screen done ([`screen.md`](screen.md): screen-INCONCLUSIVE; the full Phase A/B did not run)**.
+**run on macOS 27.0 ([`results.md`](results.md)): `move` INCONCLUSIVE, `same-path-recopy` RECOMPILED, `touch`
+REUSED, Phase B pays twice, decision 1 undecided (no code change), the < 30 s target not met.** The earlier
+screen ([`screen.md`](screen.md), macOS 26.6.2: screen-INCONCLUSIVE) is a separate result and is not pooled.
 
 ## Question
 
@@ -218,9 +220,25 @@ uv run python scripts/bench_coldstart.py laya-typed-decisions --modes wait --rep
 
 Decisions 3 and 4 above (no shipped compile cache; the < 30 s target is met only if `C < 30 s`) are unaffected and can be read from the screen's `C`.
 
+## Addenda after the screen
+
+Both were posted on [#121](https://github.com/tc3oliver/laya-apple/issues/121) before the data they cover.
+The criteria, the validity guard, the classification, the decisions and the method above are unchanged by them.
+- **Platform and cache:** the preregistered Phase A, B and C run on macOS 27.0 (26A428), not on macOS 26.6.2
+  where the screen ran, with a cache of artifacts validated on macOS 27. The screen's rows do not count toward
+  `C`, `W` or any arm.
+- **Re-run:** the first Phase A attempt (laya-apple 9be5382) is INVALID: all rows served on the GPU because the
+  platform was not yet validated. It is kept as recorded and counts toward nothing. Phase A re-ran in full on
+  57caed2, which ships the macOS 27 M4 Max routing profile.
+
 ## Files
 
-- `raw/`: the bench JSON and import logs above, unedited. A re-run goes in a new directory
+- `raw/`: the screen's bench JSON and logs (macOS 26.6.2), unedited. A re-run goes in a new directory
   with its own date.
-- `results.md`: the classification table and the decisions, written from `raw/` after the
-  run.
+- `raw-2026-10-02-macos27/`: the preregistered run (Phase A, B and C) on macOS 27.0, including the INVALID first
+  attempt in `attempt1-invalid-9be5382/`. Local absolute paths are replaced by placeholders; no measured value
+  is changed.
+- `run-slot1b.sh`, `run-slot2.sh`: the runners of that run (Phase A; Phases B and C), as redacted copies.
+- `screen.md`: the screen's result.
+- `results.md`: the classification table and the decisions of the preregistered run, written from
+  `raw-2026-10-02-macos27/`.

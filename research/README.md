@@ -252,7 +252,7 @@ track's own README:
 |---|---|---|---|
 | W8 palettized ANE artifacts | [`ane-w8/`](ane-w8/README.md) | [#11] | Run. laya and laya-multilingual fail the FP16 parity gate. Three laya-typed-decisions cells pass. The L64 `w8-pt` latency result reproduced at 0.650× FP16 ([#129]). Nothing ships |
 | Windowed (local) attention graph | [`ane-windowed-attention/`](ane-windowed-attention/README.md) | [#15], [#14] | Stage-1 screen run, stage 2 not run. laya-typed-decisions L512 is 0.868× the masked graph, still 1.35× slower than MLX FP16. First load 220 s against 41 s |
-| Core ML compile reuse (cold start) | [`coreml-compile-cache/`](coreml-compile-cache/README.md) | [#8], [#121] | Screen done, screen-INCONCLUSIVE. The full Phase A/B did not run. Prebuilt artifacts do not remove the on-device compile |
+| Core ML compile reuse (cold start) | [`coreml-compile-cache/`](coreml-compile-cache/README.md) | [#8], [#121] | Run on macOS 27.0 (screen on 26.6.2, screen-INCONCLUSIVE, kept separate). `move` INCONCLUSIVE (88 s of 210 s cold), `same-path-recopy` RECOMPILED, `touch` REUSED; an import pays its compile twice (66 s after a 27 s parity gate). Decision 1 undecided, no code change. Cold start 210 s, so prebuilt artifacts do not remove the on-device compile |
 | Intra-request split (ANE + GPU) | [`intra-request-split/`](intra-request-split/README.md) | [#123] | Stopped. G1–G3 PASS, G4a INVALID. No promotion to the product |
 | MLX fused kernels | [`mlx-fused-kernels/`](mlx-fused-kernels/README.md) | — | Candidate list only. No code and no measurements |
 

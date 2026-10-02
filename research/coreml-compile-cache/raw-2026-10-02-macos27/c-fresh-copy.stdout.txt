@@ -1,0 +1,2 @@
+{"location": "fresh-copy", "repeat": 0, "model": "laya-typed-decisions", "mode": "wait", "ready_s": 211.169, "first_request_s": 0.0091, "first_request_device": "ane", "first_request_reason": "validated_short_single_question_path", "ane_ready_s": 211.18, "after_ready_device": "ane", "same_answers": true, "warm_ready_s": 2.088, "ane_probes": {"64": {"ane_ms": 7.934, "cpu_ms": 15.873, "ratio": 0.5}, "96": {"ane_ms": 8.691, "cpu_ms": 24.415, "ratio": 0.356}, "128": {"ane_ms": 9.443, "cpu_ms": 25.871, "ratio": 0.365}}}
+wrote <r121-raw>/c-fresh-copy.json

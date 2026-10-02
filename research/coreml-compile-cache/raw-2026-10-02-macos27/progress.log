@@ -1,0 +1,21 @@
+13:16:00 start fresh-copy
+13:19:41 sanity OK first row
+13:26:50 end fresh-copy rc=0
+13:26:50 start move
+13:42:06 end move rc=0
+13:42:06 start same-path-recopy
+14:03:39 end same-path-recopy rc=0
+14:03:39 start touch
+14:14:48 end touch rc=0
+14:14:48 DONE
+14:16:28 start phase-b export
+14:16:46 start b-import-1
+14:19:04 end b-import-1 rc=0
+14:19:04 start b-import-2
+14:21:23 end b-import-2 rc=0
+14:21:23 start b-import-3
+14:23:42 end b-import-3 rc=0
+14:23:42 end phase-b
+14:23:42 start phase-c
+14:27:21 end phase-c rc=0
+14:27:21 DONE slot2
