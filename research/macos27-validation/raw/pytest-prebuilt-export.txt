@@ -1,0 +1,3 @@
+$ LAYA_APPLE_CACHE=<cache> HF_HUB_OFFLINE=1 uv run pytest -q -m "integration or parity or ane" tests/integration/test_prebuilt_fetch.py tests/integration/test_export_import.py
+....                                                                     [100%]
+4 passed in 161.10s (0:02:41)

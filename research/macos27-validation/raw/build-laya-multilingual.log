@@ -1,0 +1,36 @@
+[build] laya-multilingual L64: loading PyTorch FP32 reference
+[build] layout check (FP32 BC1S vs FP32 reference): max |dlogit| = 2.62e-06
+[build] converted in 14.6 s; compiling
+[build] placement: {'ane': 6390, 'gpu': 0, 'cpu': 0} transitions=0
+[build] parity gate against the PyTorch FP32 goldens
+[build] parity rows=47 prob=0.0079 act=0.0000 hard=0 passed=True
+[build] registered <cache>/artifacts/laya-multilingual/052592a15d19/bc1s-masked-L64-B1 (53 s)
+[build] pre-warmed the ANE compile at the registered path in 33.4 s
+<cache>/artifacts/laya-multilingual/052592a15d19/bc1s-masked-L64-B1
+[build] laya-multilingual L96: loading PyTorch FP32 reference
+[build] layout check (FP32 BC1S vs FP32 reference): max |dlogit| = 4.53e-06
+[build] converted in 14.4 s; compiling
+[build] placement: {'ane': 6390, 'gpu': 0, 'cpu': 0} transitions=0
+[build] parity gate against the PyTorch FP32 goldens
+[build] parity rows=97 prob=0.0128 act=0.0000 hard=0 passed=True
+[build] registered <cache>/artifacts/laya-multilingual/052592a15d19/bc1s-masked-L96-B1 (57 s)
+[build] pre-warmed the ANE compile at the registered path in 34.6 s
+<cache>/artifacts/laya-multilingual/052592a15d19/bc1s-masked-L96-B1
+[build] laya-multilingual L128: loading PyTorch FP32 reference
+[build] layout check (FP32 BC1S vs FP32 reference): max |dlogit| = 4.77e-06
+[build] converted in 14.6 s; compiling
+[build] placement: {'ane': 6390, 'gpu': 0, 'cpu': 0} transitions=0
+[build] parity gate against the PyTorch FP32 goldens
+[build] parity rows=121 prob=0.0128 act=0.0000 hard=0 passed=True
+[build] registered <cache>/artifacts/laya-multilingual/052592a15d19/bc1s-masked-L128-B1 (54 s)
+[build] pre-warmed the ANE compile at the registered path in 34.6 s
+<cache>/artifacts/laya-multilingual/052592a15d19/bc1s-masked-L128-B1
+[build] laya-multilingual L256: loading PyTorch FP32 reference
+[build] layout check (FP32 BC1S vs FP32 reference): max |dlogit| = 5.96e-06
+[build] converted in 14.8 s; compiling
+[build] placement: {'ane': 6390, 'gpu': 0, 'cpu': 0} transitions=0
+[build] parity gate against the PyTorch FP32 goldens
+[build] parity rows=146 prob=0.0128 act=0.0000 hard=0 passed=True
+[build] registered <cache>/artifacts/laya-multilingual/052592a15d19/bc1s-masked-L256-B1 (59 s)
+[build] pre-warmed the ANE compile at the registered path in 40.0 s
+<cache>/artifacts/laya-multilingual/052592a15d19/bc1s-masked-L256-B1

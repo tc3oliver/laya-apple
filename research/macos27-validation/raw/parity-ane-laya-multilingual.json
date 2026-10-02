@@ -1,0 +1,23 @@
+{
+ "precision": "float16",
+ "tolerance": 0.02,
+ "rows": 146,
+ "skipped_rows": 54,
+ "token_mismatch_cases": 0,
+ "prob_max_abs": 0.012800862258820267,
+ "action_prob_max_abs": 0.0,
+ "logit_max_abs": 0.10682868957519531,
+ "hard_mismatches": 0,
+ "near_tie_flips": [],
+ "all_finite": true,
+ "repeat_identical": true,
+ "passed": true,
+ "model": "laya-multilingual",
+ "device": "ane",
+ "artifact_revision": {
+  "64": "318726186f4242491cec4f11d586619d31a3feb42a01ee8690f0ad4c170cd7c1",
+  "96": "afec4677072df621a48c49d9cecacfc4771d54d21ce5155592ce4a42e9f0272a",
+  "128": "7d06f1db9ea86262d6a71e89efba5b822cf94331454ab7a26eb376459d44ccf1",
+  "256": "77440a63e1228ed2ec9f955dd19532ccd0e9b360329ab58aa50a90de2bf9010e"
+ }
+}

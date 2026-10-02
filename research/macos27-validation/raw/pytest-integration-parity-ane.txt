@@ -1,0 +1,1140 @@
+$ LAYA_APPLE_CACHE=<cache> HF_HUB_OFFLINE=1 uv run pytest -rA -m "(integration or parity or ane) and not stress" -p no:cacheprovider --ignore=tests/integration/test_benchmark.py --deselect tests/integration/test_switchyard.py::test_smoke_gpu_only --deselect tests/integration/test_switchyard.py::test_smoke_hybrid tests
+============================= test session starts ==============================
+platform darwin -- Python 3.12.14, pytest-9.1.1, pluggy-1.6.0
+rootdir: <checkout>
+configfile: pyproject.toml
+plugins: anyio-4.15.1
+collected 1571 items / 1312 deselected / 259 selected
+
+tests/integration/test_cli.py ...                                        [  1%]
+tests/integration/test_gpu_ane_agreement.py .                            [  1%]
+tests/integration/test_mlx_compile_checkpoints.py ..                     [  2%]
+tests/integration/test_mlx_length_buckets_checkpoints.py ..              [  3%]
+tests/integration/test_option_order.py ss                                [  3%]
+tests/integration/test_predict.py ........                               [  6%]
+tests/integration/test_routing_e2e.py ..Fs.                              [  8%]
+tests/integration/test_shortlist_mlx.py ..                               [  9%]
+tests/integration/test_token_cache_goldens.py .                          [ 10%]
+tests/parity/test_ane_async_parity.py .                                  [ 10%]
+tests/parity/test_ane_parity.py .                                        [ 10%]
+tests/parity/test_mlx_parity.py ..                                       [ 11%]
+tests/unit/test_prompt.py ..............................                 [ 23%]
+tests/unit/test_workload.py .....                                        [ 25%]
+tests/integration/test_cli.py ..                                         [ 25%]
+tests/integration/test_gpu_ane_agreement.py .                            [ 26%]
+tests/integration/test_mlx_compile_checkpoints.py ..                     [ 27%]
+tests/integration/test_mlx_length_buckets_checkpoints.py ..              [ 27%]
+tests/integration/test_option_order.py ss                                [ 28%]
+tests/integration/test_predict.py ........                               [ 31%]
+tests/integration/test_routing_e2e.py ..FsF                              [ 33%]
+tests/integration/test_shortlist_mlx.py ..                               [ 34%]
+tests/integration/test_token_cache_goldens.py .                          [ 34%]
+tests/parity/test_ane_async_parity.py s                                  [ 35%]
+tests/parity/test_ane_parity.py .                                        [ 35%]
+tests/parity/test_mlx_parity.py ..                                       [ 36%]
+tests/unit/test_prompt.py ..............................                 [ 47%]
+tests/unit/test_workload.py .....                                        [ 49%]
+tests/integration/test_cli.py ..                                         [ 50%]
+tests/integration/test_gpu_ane_agreement.py .                            [ 50%]
+tests/integration/test_mlx_compile_checkpoints.py ..                     [ 51%]
+tests/integration/test_mlx_length_buckets_checkpoints.py ..              [ 52%]
+tests/integration/test_option_order.py ..                                [ 53%]
+tests/integration/test_predict.py ........                               [ 56%]
+tests/integration/test_routing_e2e.py ..Fs.                              [ 58%]
+tests/integration/test_shortlist_mlx.py ..                               [ 59%]
+tests/integration/test_token_cache_goldens.py .                          [ 59%]
+tests/parity/test_ane_async_parity.py .                                  [ 59%]
+tests/parity/test_ane_parity.py .                                        [ 60%]
+tests/parity/test_mlx_parity.py ..                                       [ 61%]
+tests/unit/test_prompt.py ..............................                 [ 72%]
+tests/unit/test_workload.py .....                                        [ 74%]
+tests/integration/test_cli.py ..                                         [ 75%]
+tests/integration/test_export_import.py ...                              [ 76%]
+tests/integration/test_no_silent_fallback.py .....F.F.F.......F.         [ 83%]
+tests/integration/test_prebuilt_fetch.py .                               [ 84%]
+tests/integration/test_predict.py .                                      [ 84%]
+tests/integration/test_profiles.py ..F......                             [ 88%]
+tests/integration/test_request_trace_workers.py ssssssss                 [ 91%]
+tests/integration/test_serve_http.py ...                                 [ 92%]
+tests/integration/test_switchyard.py ...                                 [ 93%]
+tests/integration/test_workers.py sss.F......F.....                      [100%]
+
+=================================== FAILURES ===================================
+_ test_auto_with_empty_artifact_cache_routes_to_gpu_with_artifact_unavailable[laya] _
+
+model_name = 'laya'
+tmp_path = PosixPath('<tmp>/test_auto_with_empty_artifact_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x11644d9a0>
+
+    def test_auto_with_empty_artifact_cache_routes_to_gpu_with_artifact_unavailable(model_name, tmp_path, monkeypatch):
+        spec = models()[model_name]
+        if not spec.auto_ane_buckets:
+            pytest.skip(f"{model_name} has no auto ANE buckets")
+        monkeypatch.setenv("LAYA_APPLE_CACHE", str(tmp_path))
+        laya = Laya.from_pretrained(model_name, device="auto", local_files_only=True)
+        state, qs = make_request(laya.tokenizer, laya.config, spec.auto_ane_buckets[0], n_questions=1)
+        result = laya.predict(context=state, questions=qs)
+        assert result.runtime.device == "gpu"
+>       assert result.runtime.routing_reason == routing.ARTIFACT_UNAVAILABLE
+E       AssertionError: assert 'platform_not_validated' == 'ane_artifact_unavailable'
+E         
+E         - ane_artifact_unavailable
+E         + platform_not_validated
+
+tests/integration/test_routing_e2e.py:58: AssertionError
+_ test_auto_with_empty_artifact_cache_routes_to_gpu_with_artifact_unavailable[laya-multilingual] _
+
+model_name = 'laya-multilingual'
+tmp_path = PosixPath('<tmp>/test_auto_with_empty_artifact_1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fb39a8320>
+
+    def test_auto_with_empty_artifact_cache_routes_to_gpu_with_artifact_unavailable(model_name, tmp_path, monkeypatch):
+        spec = models()[model_name]
+        if not spec.auto_ane_buckets:
+            pytest.skip(f"{model_name} has no auto ANE buckets")
+        monkeypatch.setenv("LAYA_APPLE_CACHE", str(tmp_path))
+        laya = Laya.from_pretrained(model_name, device="auto", local_files_only=True)
+        state, qs = make_request(laya.tokenizer, laya.config, spec.auto_ane_buckets[0], n_questions=1)
+        result = laya.predict(context=state, questions=qs)
+        assert result.runtime.device == "gpu"
+>       assert result.runtime.routing_reason == routing.ARTIFACT_UNAVAILABLE
+E       AssertionError: assert 'platform_not_validated' == 'ane_artifact_unavailable'
+E         
+E         - ane_artifact_unavailable
+E         + platform_not_validated
+
+tests/integration/test_routing_e2e.py:58: AssertionError
+_ test_artifact_revision_mismatch_under_explicit_ane_raises[laya-multilingual] _
+
+model_name = 'laya-multilingual'
+tmp_path = PosixPath('<tmp>/test_artifact_revision_mismatc1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fb39aa840>
+
+    def test_artifact_revision_mismatch_under_explicit_ane_raises(model_name, tmp_path, monkeypatch):
+        """Copy a real, currently-present artifact into a tmp cache and corrupt its manifest revision."""
+        spec = models()[model_name]
+        if not spec.ane_buckets:
+            pytest.skip(f"{model_name} has no ANE buckets")
+        import json
+        import shutil
+    
+        from laya_apple.artifacts import artifact_dir, artifacts_root
+    
+        bucket = spec.ane_buckets[0]
+        real_root = artifacts_root()  # uses current LAYA_APPLE_CACHE env, set by the harness
+        src = artifact_dir(spec, bucket)
+        if not src.exists():
+            pytest.skip(f"{model_name} L{bucket}: no real artifact present in {real_root} to copy")
+        monkeypatch.setenv("LAYA_APPLE_CACHE", str(tmp_path))
+        dst = artifact_dir(spec, bucket)
+        # The manifest is rejected before any model file is read, so the compiled model itself
+        # (~0.7 GB) need not be copied; an empty model.mlmodelc keeps read_manifest satisfied.
+        (dst / "model.mlmodelc").mkdir(parents=True)
+        shutil.copy2(src / "manifest.json", dst / "manifest.json")
+        manifest_path = dst / "manifest.json"
+        data = json.loads(manifest_path.read_text())
+        data["source"]["revision"] = "0" * 40
+        manifest_path.write_text(json.dumps(data))
+    
+        with pytest.raises(ArtifactRevisionError):
+            Laya.from_pretrained(model_name, device="ane", local_files_only=True)
+    
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            laya = Laya.from_pretrained(model_name, device="auto", local_files_only=True)
+>       assert any(issubclass(w.category, RuntimeWarning) for w in caught)
+E       assert False
+E        +  where False = any(<generator object test_artifact_revision_mismatch_under_explicit_ane_raises.<locals>.<genexpr> at 0x7fb4301ee0>)
+
+tests/integration/test_routing_e2e.py:107: AssertionError
+_ test_auto_with_empty_artifact_cache_routes_to_gpu_with_artifact_unavailable[laya-typed-decisions] _
+
+model_name = 'laya-typed-decisions'
+tmp_path = PosixPath('<tmp>/test_auto_with_empty_artifact_2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fb40ba630>
+
+    def test_auto_with_empty_artifact_cache_routes_to_gpu_with_artifact_unavailable(model_name, tmp_path, monkeypatch):
+        spec = models()[model_name]
+        if not spec.auto_ane_buckets:
+            pytest.skip(f"{model_name} has no auto ANE buckets")
+        monkeypatch.setenv("LAYA_APPLE_CACHE", str(tmp_path))
+        laya = Laya.from_pretrained(model_name, device="auto", local_files_only=True)
+        state, qs = make_request(laya.tokenizer, laya.config, spec.auto_ane_buckets[0], n_questions=1)
+        result = laya.predict(context=state, questions=qs)
+        assert result.runtime.device == "gpu"
+>       assert result.runtime.routing_reason == routing.ARTIFACT_UNAVAILABLE
+E       AssertionError: assert 'platform_not_validated' == 'ane_artifact_unavailable'
+E         
+E         - ane_artifact_unavailable
+E         + platform_not_validated
+
+tests/integration/test_routing_e2e.py:58: AssertionError
+________ test_auto_with_a_rejected_bucket_warns_and_records_the_reason _________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x75d80f7650>
+gpu = <laya_apple.model.Laya object at 0x7fb44d8aa0>
+
+    def test_auto_with_a_rejected_bucket_warns_and_records_the_reason(monkeypatch, gpu):
+        _fail_bucket(monkeypatch, 64, ArtifactIntegrityError)
+>       with pytest.warns(RuntimeWarning, match="L64 rejected"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: Regex pattern did not match any of the 1 warnings emitted.
+E        Regex: 'L64 rejected'
+E        Emitted warnings: [ RuntimeWarning('laya-apple: checkpoint temperatures that are invalid or outside [0.5, 5.0] are replaced (choice:11+=0.10058280825614929 -> 0.5), as upstream does; treat confidence from those entries as uncalibrated')].
+
+tests/integration/test_no_silent_fallback.py:84: Failed
+_________ test_dead_ane_worker_under_auto_is_recorded_and_warned_once __________
+
+gpu = <laya_apple.model.Laya object at 0x7fb44d8aa0>
+
+    def test_dead_ane_worker_under_auto_is_recorded_and_warned_once(gpu):
+        with Laya.from_pretrained(MODEL, execution="workers", ane_placement="process", local_files_only=True) as laya:
+            state, qs = _request(gpu, 64)
+>           assert laya.predict(context=state, questions=qs).runtime.device == "ane"
+E           AssertionError: assert 'gpu' == 'ane'
+E             
+E             - ane
+E             + gpu
+
+tests/integration/test_no_silent_fallback.py:118: AssertionError
+____________ test_background_startup_failure_is_warned_and_recorded ____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x75d80f58b0>
+gpu = <laya_apple.model.Laya object at 0x7fb44d8aa0>
+
+    def test_background_startup_failure_is_warned_and_recorded(monkeypatch, gpu):
+        from laya_apple import executor
+    
+        real_warm = executor.warm
+    
+        def failing_warm(kind, backend, pad_id):
+            if kind == "ane":
+                raise RuntimeError("test: ANE compile failed")
+            return real_warm(kind, backend, pad_id)
+    
+        monkeypatch.setattr(executor, "warm", failing_warm)
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            with Laya.from_pretrained(
+                MODEL, execution="workers", ane_placement="thread", ane_startup="background", local_files_only=True
+            ) as laya:
+                assert laya.wait_for_ane(60) is False
+                state, qs = _request(gpu, 64)
+                r = laya.predict(context=state, questions=qs)
+>               assert (r.runtime.device, r.runtime.routing_reason) == ("gpu", routing.RUNTIME_UNAVAILABLE)
+E               AssertionError: assert ('gpu', 'plat...ot_validated') == ('gpu', 'ane_..._unavailable')
+E                 
+E                 At index 1 diff: 'platform_not_validated' != 'ane_runtime_unavailable'
+E                 Use -v to get more diff
+
+tests/integration/test_no_silent_fallback.py:160: AssertionError
+_ test_placement_probe_failure_drops_the_bucket_under_auto_and_raises_under_ane _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x75d80f4e30>
+gpu = <laya_apple.model.Laya object at 0x7fb44d8aa0>
+
+    def test_placement_probe_failure_drops_the_bucket_under_auto_and_raises_under_ane(monkeypatch, gpu):
+        from laya_apple.errors import ComputeUnitMismatchError
+    
+        real = coreml_ane.probe_placement
+    
+        def probe(spec, b, *a, **k):
+            if b == 96:
+                raise ComputeUnitMismatchError(f"test: L{b} is not running on the Neural Engine")
+            return real(spec, b, *a, **k)
+    
+        monkeypatch.setattr(coreml_ane, "probe_placement", probe)
+        with pytest.raises(ComputeUnitMismatchError):
+            Laya.from_pretrained(MODEL, device="ane", local_files_only=True)
+>       with pytest.warns(RuntimeWarning, match="L96 rejected"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: Regex pattern did not match any of the 1 warnings emitted.
+E        Regex: 'L96 rejected'
+E        Emitted warnings: [ RuntimeWarning('laya-apple: checkpoint temperatures that are invalid or outside [0.5, 5.0] are replaced (choice:11+=0.10058280825614929 -> 0.5), as upstream does; treat confidence from those entries as uncalibrated')].
+
+tests/integration/test_no_silent_fallback.py:308: Failed
+_______________ test_local_profile_ignored_on_a_shipped_profile ________________
+
+local_cache = PosixPath('<tmp>/test_local_profile_ignored_on_0')
+
+    def test_local_profile_ignored_on_a_shipped_profile(local_cache):
+        _write_local({**routing_table()["models"][MODEL], "auto_ane_buckets": [64], "auto_ane_max_len": 64})
+        laya = Laya.from_pretrained(MODEL, local_files_only=True)
+>       assert laya.routing_profile == "shipped"
+E       AssertionError: assert 'local:/priva...tools9.0.json' == 'shipped'
+E         
+E         - shipped
+E         + local:<tmp>/test_local_profile_ignored_on_0/profiles/Apple_M4_Max-macos27-coremltools9.0.json
+
+tests/integration/test_profiles.py:66: AssertionError
+____________ test_dead_gpu_worker_fails_loudly_and_never_falls_back ____________
+
+requests = {'short': ('The subscription 2033 got an error twice this month. Otherwise we will cancel the plan. The renewal 8364 c...s the customer describe the problem?', 'criteria': ['unclear', 'partly clear', 'clear', 'very clear with evidence']}})}
+
+    def test_dead_gpu_worker_fails_loudly_and_never_falls_back(requests):
+        laya = Laya.from_pretrained(MODEL, device="auto", execution="workers", local_files_only=True)
+        try:
+            gpu = laya._workers["gpu"]
+>           assert gpu.placement == "process" and laya._workers["ane"].placement == ane_placement_for(MODEL)
+                                                  ^^^^^^^^^^^^^^^^^^^^
+E           KeyError: 'ane'
+
+tests/integration/test_workers.py:110: KeyError
+____________ test_background_ane_startup_serves_mlx_first_then_ane _____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x75d78bde50>
+inline = {'gpu': <laya_apple.model.Laya object at 0x75d78db920>, 'ane': <laya_apple.model.Laya object at 0x75d78fbd70>}
+requests = {'short': ('The subscription 2033 got an error twice this month. Otherwise we will cancel the plan. The renewal 8364 c...s the customer describe the problem?', 'criteria': ['unclear', 'partly clear', 'clear', 'very clear with evidence']}})}
+
+    def test_background_ane_startup_serves_mlx_first_then_ane(monkeypatch, inline, requests):
+        import time as _time
+    
+        from laya_apple import executor
+    
+        real_warm = executor.warm
+    
+        def slow_warm(kind, backend, pad_id):
+            if kind == "ane":
+                _time.sleep(3.0)  # stands in for an evicted on-device ANE compile
+            return real_warm(kind, backend, pad_id)
+    
+        monkeypatch.setattr(executor, "warm", slow_warm)
+        with Laya.from_pretrained(
+            MODEL, execution="workers", ane_placement="thread", ane_startup="background", local_files_only=True
+        ) as laya:
+            state, qs = requests["short"]
+            r = laya.predict(context=state, questions=qs)
+>           assert r.runtime.device == "gpu" and r.runtime.routing_reason == routing.ANE_STARTING
+E           AssertionError: assert ('gpu' == 'gpu'
+E             
+E               gpu and 'platform_not_validated' == 'ane_starting'
+E             
+E             - ane_starting
+E             + platform_not_validated)
+
+tests/integration/test_workers.py:184: AssertionError
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/fastapi/testclient.py:1
+  <checkout>/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+tests/integration/test_cli.py: 2 warnings
+tests/integration/test_gpu_ane_agreement.py: 3 warnings
+tests/integration/test_mlx_compile_checkpoints.py: 2 warnings
+tests/integration/test_predict.py: 2 warnings
+tests/integration/test_routing_e2e.py: 10 warnings
+tests/parity/test_ane_async_parity.py: 2 warnings
+tests/parity/test_ane_parity.py: 2 warnings
+tests/integration/test_option_order.py: 2 warnings
+tests/integration/test_no_silent_fallback.py: 10 warnings
+tests/integration/test_profiles.py: 4 warnings
+tests/integration/test_request_trace_workers.py: 2 warnings
+tests/integration/test_serve_http.py: 1 warning
+tests/integration/test_switchyard.py: 3 warnings
+tests/integration/test_workers.py: 8 warnings
+  <checkout>/laya_apple/model.py:278: RuntimeWarning: laya-apple: checkpoint temperatures that are invalid or outside [0.5, 5.0] are replaced (choice:11+=0.10058280825614929 -> 0.5), as upstream does; treat confidence from those entries as uncalibrated
+    return cls(
+
+tests/integration/test_mlx_compile_checkpoints.py::test_compiled_forward_passes_parity_and_keeps_eager_decisions[laya-float16]
+tests/integration/test_mlx_compile_checkpoints.py::test_compiled_forward_passes_parity_and_keeps_eager_decisions[laya-float32]
+tests/integration/test_mlx_compile_checkpoints.py::test_compiled_forward_passes_parity_and_keeps_eager_decisions[laya-typed-decisions-float16]
+tests/integration/test_mlx_compile_checkpoints.py::test_compiled_forward_passes_parity_and_keeps_eager_decisions[laya-typed-decisions-float32]
+  <checkout>/tests/integration/test_mlx_compile_checkpoints.py:27: RuntimeWarning: laya-apple: checkpoint temperatures that are invalid or outside [0.5, 5.0] are replaced (choice:11+=0.10058280825614929 -> 0.5), as upstream does; treat confidence from those entries as uncalibrated
+    summary = evaluate(
+
+tests/integration/test_mlx_length_buckets_checkpoints.py::test_bucketed_batches_pass_parity_and_keep_decisions[laya-float16]
+tests/integration/test_mlx_length_buckets_checkpoints.py::test_bucketed_batches_pass_parity_and_keep_decisions[laya-float32]
+tests/integration/test_mlx_length_buckets_checkpoints.py::test_bucketed_batches_pass_parity_and_keep_decisions[laya-typed-decisions-float16]
+tests/integration/test_mlx_length_buckets_checkpoints.py::test_bucketed_batches_pass_parity_and_keep_decisions[laya-typed-decisions-float32]
+  <checkout>/tests/integration/test_mlx_length_buckets_checkpoints.py:40: RuntimeWarning: laya-apple: checkpoint temperatures that are invalid or outside [0.5, 5.0] are replaced (choice:11+=0.10058280825614929 -> 0.5), as upstream does; treat confidence from those entries as uncalibrated
+    summary = evaluate(
+
+tests/parity/test_ane_async_parity.py::test_async_path_passes_parity_and_equals_coremltools[laya]
+tests/parity/test_ane_async_parity.py::test_async_path_passes_parity_and_equals_coremltools[laya-typed-decisions]
+  <checkout>/tests/parity/test_ane_async_parity.py:67: RuntimeWarning: laya-apple: checkpoint temperatures that are invalid or outside [0.5, 5.0] are replaced (choice:11+=0.10058280825614929 -> 0.5), as upstream does; treat confidence from those entries as uncalibrated
+    summary = evaluate(
+
+tests/parity/test_ane_parity.py::test_ane_passes_parity_gate_for_each_present_bucket[laya]
+tests/parity/test_ane_parity.py::test_ane_passes_parity_gate_for_each_present_bucket[laya-typed-decisions]
+  <checkout>/tests/parity/test_ane_parity.py:24: RuntimeWarning: laya-apple: checkpoint temperatures that are invalid or outside [0.5, 5.0] are replaced (choice:11+=0.10058280825614929 -> 0.5), as upstream does; treat confidence from those entries as uncalibrated
+    summary = evaluate(
+
+tests/parity/test_mlx_parity.py::test_mlx_passes_parity_gate[laya-float16]
+tests/parity/test_mlx_parity.py::test_mlx_passes_parity_gate[laya-float32]
+tests/parity/test_mlx_parity.py::test_mlx_passes_parity_gate[laya-typed-decisions-float16]
+tests/parity/test_mlx_parity.py::test_mlx_passes_parity_gate[laya-typed-decisions-float32]
+  <checkout>/tests/parity/test_mlx_parity.py:15: RuntimeWarning: laya-apple: checkpoint temperatures that are invalid or outside [0.5, 5.0] are replaced (choice:11+=0.10058280825614929 -> 0.5), as upstream does; treat confidence from those entries as uncalibrated
+    summary = evaluate(
+
+tests/unit/test_prompt.py::test_answers_match_upstream_on_every_golden[laya]
+tests/unit/test_prompt.py::test_answers_match_upstream_on_every_golden[laya-typed-decisions]
+  <checkout>/.venv/lib/python3.12/site-packages/_pytest/fixtures.py:1005: RuntimeWarning: laya-apple: checkpoint temperatures that are invalid or outside [0.5, 5.0] are replaced (choice:11+=0.10058280825614929 -> 0.5), as upstream does; treat confidence from those entries as uncalibrated
+    fixture_result = fixturefunc(**kwargs)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+________________ test_cli_info_for_one_model_returns_zero[laya] ________________
+----------------------------- Captured stdout call -----------------------------
+{
+ "laya_apple": "1.6.0",
+ "platform": {
+  "soc": "Apple M4 Max",
+  "macos": "27.0",
+  "macos_build": "26A428",
+  "coremltools": "9.0"
+ },
+ "platform_validated_for_auto_ane": false,
+ "coremltools_available": true,
+ "environment": {
+  "python": "3.12.14",
+  "mlx": {
+   "available": true,
+   "version": "0.32.2"
+  },
+  "offline": {
+   "local_files_only": true,
+   "hf_hub_offline": true,
+   "effective": true
+  }
+ },
+ "models": {
+  "laya": {
+   "repo": "convaiinnovations/laya",
+   "revision": "c5d78730f3493e4fe16d61507ef4b78eef7318cf",
+   "encoder": "ModernBERT-large",
+   "max_len": 512,
+   "mlx_dtypes": [
+    "float16",
+    "float32"
+   ],
+   "ane_buckets": [
+    64,
+    96,
+    128
+   ],
+   "auto_ane_buckets": [
+    64,
+    96,
+    128
+   ],
+   "artifacts": {
+    "64": "validated",
+    "96": "validated",
+    "128": "validated"
+   }
+  }
+ }
+}
+_ test_compiled_forward_passes_parity_and_keeps_eager_decisions[laya-float16] __
+----------------------------- Captured stdout call -----------------------------
+
+laya float16: 176 rows, compiled vs eager max|Δlogit| 0, max|Δaction logit| 0, bitwise True
+_ test_compiled_forward_passes_parity_and_keeps_eager_decisions[laya-float32] __
+----------------------------- Captured stdout call -----------------------------
+
+laya float32: 176 rows, compiled vs eager max|Δlogit| 0, max|Δaction logit| 0, bitwise True
+______ test_bucketed_batches_pass_parity_and_keep_decisions[laya-float16] ______
+----------------------------- Captured stdout call -----------------------------
+
+laya float16: bucketed vs in-order max|Δlogit| 0, bitwise True, padded tokens saved 2%-46%
+______ test_bucketed_batches_pass_parity_and_keep_decisions[laya-float32] ______
+----------------------------- Captured stdout call -----------------------------
+
+laya float32: bucketed vs in-order max|Δlogit| 0, bitwise True, padded tokens saved 2%-46%
+_________ test_cli_info_for_one_model_returns_zero[laya-multilingual] __________
+----------------------------- Captured stdout call -----------------------------
+{
+ "laya_apple": "1.6.0",
+ "platform": {
+  "soc": "Apple M4 Max",
+  "macos": "27.0",
+  "macos_build": "26A428",
+  "coremltools": "9.0"
+ },
+ "platform_validated_for_auto_ane": false,
+ "coremltools_available": true,
+ "environment": {
+  "python": "3.12.14",
+  "mlx": {
+   "available": true,
+   "version": "0.32.2"
+  },
+  "offline": {
+   "local_files_only": true,
+   "hf_hub_offline": true,
+   "effective": true
+  }
+ },
+ "models": {
+  "laya-multilingual": {
+   "repo": "convaiinnovations/laya-multilingual",
+   "revision": "052592a15d198d9ad47da779604259b10b47b7aa",
+   "encoder": "mmBERT-base",
+   "max_len": 1024,
+   "mlx_dtypes": [
+    "float16",
+    "float32"
+   ],
+   "ane_buckets": [
+    64,
+    96,
+    128,
+    256
+   ],
+   "auto_ane_buckets": [
+    64,
+    96,
+    128
+   ],
+   "artifacts": {
+    "64": "validated",
+    "96": "validated",
+    "128": "validated",
+    "256": "validated"
+   }
+  }
+ }
+}
+_ test_compiled_forward_passes_parity_and_keeps_eager_decisions[laya-multilingual-float16] _
+----------------------------- Captured stdout call -----------------------------
+
+laya-multilingual float16: 200 rows, compiled vs eager max|Δlogit| 0, max|Δaction logit| 0, bitwise True
+_ test_compiled_forward_passes_parity_and_keeps_eager_decisions[laya-multilingual-float32] _
+----------------------------- Captured stdout call -----------------------------
+
+laya-multilingual float32: 200 rows, compiled vs eager max|Δlogit| 0, max|Δaction logit| 0, bitwise True
+_ test_bucketed_batches_pass_parity_and_keep_decisions[laya-multilingual-float16] _
+----------------------------- Captured stdout call -----------------------------
+
+laya-multilingual float16: bucketed vs in-order max|Δlogit| 0, bitwise True, padded tokens saved 1%-45%
+_ test_bucketed_batches_pass_parity_and_keep_decisions[laya-multilingual-float32] _
+----------------------------- Captured stdout call -----------------------------
+
+laya-multilingual float32: bucketed vs in-order max|Δlogit| 9.54e-07, bitwise False, padded tokens saved 1%-45%
+________ test_cli_info_for_one_model_returns_zero[laya-typed-decisions] ________
+----------------------------- Captured stdout call -----------------------------
+{
+ "laya_apple": "1.6.0",
+ "platform": {
+  "soc": "Apple M4 Max",
+  "macos": "27.0",
+  "macos_build": "26A428",
+  "coremltools": "9.0"
+ },
+ "platform_validated_for_auto_ane": false,
+ "coremltools_available": true,
+ "environment": {
+  "python": "3.12.14",
+  "mlx": {
+   "available": true,
+   "version": "0.32.2"
+  },
+  "offline": {
+   "local_files_only": true,
+   "hf_hub_offline": true,
+   "effective": true
+  }
+ },
+ "models": {
+  "laya-typed-decisions": {
+   "repo": "convaiinnovations/laya-typed-decisions",
+   "revision": "f9ab0b228f0fc0f14d873dbc99038f135c2da1b2",
+   "encoder": "ModernBERT-large",
+   "max_len": 1024,
+   "mlx_dtypes": [
+    "float16",
+    "float32"
+   ],
+   "ane_buckets": [
+    64,
+    96,
+    128
+   ],
+   "auto_ane_buckets": [
+    64,
+    96,
+    128
+   ],
+   "artifacts": {
+    "64": "validated",
+    "96": "validated",
+    "128": "validated"
+   }
+  }
+ }
+}
+_ test_compiled_forward_passes_parity_and_keeps_eager_decisions[laya-typed-decisions-float16] _
+----------------------------- Captured stdout call -----------------------------
+
+laya-typed-decisions float16: 200 rows, compiled vs eager max|Δlogit| 0, max|Δaction logit| 0, bitwise True
+_ test_compiled_forward_passes_parity_and_keeps_eager_decisions[laya-typed-decisions-float32] _
+----------------------------- Captured stdout call -----------------------------
+
+laya-typed-decisions float32: 200 rows, compiled vs eager max|Δlogit| 0, max|Δaction logit| 0, bitwise True
+_ test_bucketed_batches_pass_parity_and_keep_decisions[laya-typed-decisions-float16] _
+----------------------------- Captured stdout call -----------------------------
+
+laya-typed-decisions float16: bucketed vs in-order max|Δlogit| 0, bitwise True, padded tokens saved 1%-45%
+_ test_bucketed_batches_pass_parity_and_keep_decisions[laya-typed-decisions-float32] _
+----------------------------- Captured stdout call -----------------------------
+
+laya-typed-decisions float32: bucketed vs in-order max|Δlogit| 0, bitwise True, padded tokens saved 1%-45%
+_____________________ test_cli_artifacts_list_returns_zero _____________________
+----------------------------- Captured stdout call -----------------------------
+[
+ {
+  "path": "<cache>/artifacts/laya/c5d78730f349/bc1s-masked-L128-B1",
+  "status": "validated",
+  "source": {
+   "model": "laya",
+   "repo": "convaiinnovations/laya",
+   "revision": "c5d78730f3493e4fe16d61507ef4b78eef7318cf",
+   "weights_sha256": "891102d372688fc2a094dac56a384bc537b87c63f21f9f3dac0be2b7cbc8d86c"
+  },
+  "artifact": {
+   "graph": "bc1s-masked",
+   "length": 128,
+   "batch": 1,
+   "precision": "float16",
+   "max_options": 32,
+   "inputs": [
+    "embeddings",
+    "full_mask",
+    "local_mask",
+    "type_vectors",
+    "marker_map"
+   ],
+   "outputs": [
+    "logits",
+    "cls"
+   ]
+  },
+  "parity_passed": true,
+  "sha256": "f47a0fe400365f1e75dc37543405646acbe9a384b44591617de9d560a59a5412"
+ },
+ {
+  "path": "<cache>/artifacts/laya/c5d78730f349/bc1s-masked-L64-B1",
+  "status": "validated",
+  "source": {
+   "model": "laya",
+   "repo": "convaiinnovations/laya",
+   "revision": "c5d78730f3493e4fe16d61507ef4b78eef7318cf",
+   "weights_sha256": "891102d372688fc2a094dac56a384bc537b87c63f21f9f3dac0be2b7cbc8d86c"
+  },
+  "artifact": {
+   "graph": "bc1s-masked",
+   "length": 64,
+   "batch": 1,
+   "precision": "float16",
+   "max_options": 32,
+   "inputs": [
+    "embeddings",
+    "full_mask",
+    "local_mask",
+    "type_vectors",
+    "marker_map"
+   ],
+   "outputs": [
+    "logits",
+    "cls"
+   ]
+  },
+  "parity_passed": true,
+  "sha256": "ce3ee6df35fcf8bebe04eb3efef1b3bf6e3f9bdd7b6937ec2f02014930b68862"
+ },
+ {
+  "path": "<cache>/artifacts/laya/c5d78730f349/bc1s-masked-L96-B1",
+  "status": "validated",
+  "source": {
+   "model": "laya",
+   "repo": "convaiinnovations/laya",
+   "revision": "c5d78730f3493e4fe16d61507ef4b78eef7318cf",
+   "weights_sha256": "891102d372688fc2a094dac56a384bc537b87c63f21f9f3dac0be2b7cbc8d86c"
+  },
+  "artifact": {
+   "graph": "bc1s-masked",
+   "length": 96,
+   "batch": 1,
+   "precision": "float16",
+   "max_options": 32,
+   "inputs": [
+    "embeddings",
+    "full_mask",
+    "local_mask",
+    "type_vectors",
+    "marker_map"
+   ],
+   "outputs": [
+    "logits",
+    "cls"
+   ]
+  },
+  "parity_passed": true,
+  "sha256": "7ff8b2a5b67aa8a01a21543cb87b493fd60328bb31a8fea59def9d677fbb8e6c"
+ },
+ {
+  "path": "<cache>/artifacts/laya-multilingual/052592a15d19/bc1s-masked-L128-B1",
+  "status": "validated",
+  "source": {
+   "model": "laya-multilingual",
+   "repo": "convaiinnovations/laya-multilingual",
+   "revision": "052592a15d198d9ad47da779604259b10b47b7aa",
+   "weights_sha256": "9d628fd971b700382ac6f65920a86f149777b2e748e0c955fb3b19695aa8f204"
+  },
+  "artifact": {
+   "graph": "bc1s-masked",
+   "length": 128,
+   "batch": 1,
+   "precision": "float16",
+   "max_options": 32,
+   "inputs": [
+    "embeddings",
+    "full_mask",
+    "local_mask",
+    "type_vectors",
+    "marker_map"
+   ],
+   "outputs": [
+    "logits",
+    "cls"
+   ]
+  },
+  "parity_passed": true,
+  "sha256": "7d06f1db9ea86262d6a71e89efba5b822cf94331454ab7a26eb376459d44ccf1"
+ },
+ {
+  "path": "<cache>/artifacts/laya-multilingual/052592a15d19/bc1s-masked-L256-B1",
+  "status": "validated",
+  "source": {
+   "model": "laya-multilingual",
+   "repo": "convaiinnovations/laya-multilingual",
+   "revision": "052592a15d198d9ad47da779604259b10b47b7aa",
+   "weights_sha256": "9d628fd971b700382ac6f65920a86f149777b2e748e0c955fb3b19695aa8f204"
+  },
+  "artifact": {
+   "graph": "bc1s-masked",
+   "length": 256,
+   "batch": 1,
+   "precision": "float16",
+   "max_options": 32,
+   "inputs": [
+    "embeddings",
+    "full_mask",
+    "local_mask",
+    "type_vectors",
+    "marker_map"
+   ],
+   "outputs": [
+    "logits",
+    "cls"
+   ]
+  },
+  "parity_passed": true,
+  "sha256": "77440a63e1228ed2ec9f955dd19532ccd0e9b360329ab58aa50a90de2bf9010e"
+ },
+ {
+  "path": "<cache>/artifacts/laya-multilingual/052592a15d19/bc1s-masked-L64-B1",
+  "status": "validated",
+  "source": {
+   "model": "laya-multilingual",
+   "repo": "convaiinnovations/laya-multilingual",
+   "revision": "052592a15d198d9ad47da779604259b10b47b7aa",
+   "weights_sha256": "9d628fd971b700382ac6f65920a86f149777b2e748e0c955fb3b19695aa8f204"
+  },
+  "artifact": {
+   "graph": "bc1s-masked",
+   "length": 64,
+   "batch": 1,
+   "precision": "float16",
+   "max_options": 32,
+   "inputs": [
+    "embeddings",
+    "full_mask",
+    "local_mask",
+    "type_vectors",
+    "marker_map"
+   ],
+   "outputs": [
+    "logits",
+    "cls"
+   ]
+  },
+  "parity_passed": true,
+  "sha256": "318726186f4242491cec4f11d586619d31a3feb42a01ee8690f0ad4c170cd7c1"
+ },
+ {
+  "path": "<cache>/artifacts/laya-multilingual/052592a15d19/bc1s-masked-L96-B1",
+  "status": "validated",
+  "source": {
+   "model": "laya-multilingual",
+   "repo": "convaiinnovations/laya-multilingual",
+   "revision": "052592a15d198d9ad47da779604259b10b47b7aa",
+   "weights_sha256": "9d628fd971b700382ac6f65920a86f149777b2e748e0c955fb3b19695aa8f204"
+  },
+  "artifact": {
+   "graph": "bc1s-masked",
+   "length": 96,
+   "batch": 1,
+   "precision": "float16",
+   "max_options": 32,
+   "inputs": [
+    "embeddings",
+    "full_mask",
+    "local_mask",
+    "type_vectors",
+    "marker_map"
+   ],
+   "outputs": [
+    "logits",
+    "cls"
+   ]
+  },
+  "parity_passed": true,
+  "sha256": "afec4677072df621a48c49d9cecacfc4771d54d21ce5155592ce4a42e9f0272a"
+ },
+ {
+  "path": "<cache>/artifacts/laya-typed-decisions/f9ab0b228f0f/bc1s-masked-L128-B1",
+  "status": "validated",
+  "source": {
+   "model": "laya-typed-decisions",
+   "repo": "convaiinnovations/laya-typed-decisions",
+   "revision": "f9ab0b228f0fc0f14d873dbc99038f135c2da1b2",
+   "weights_sha256": "4fa56de72383a9d3efa9cfa78955733c81b9fc8067a587ca4beb82c78107a24e"
+  },
+  "artifact": {
+   "graph": "bc1s-masked",
+   "length": 128,
+   "batch": 1,
+   "precision": "float16",
+   "max_options": 32,
+   "inputs": [
+    "embeddings",
+    "full_mask",
+    "local_mask",
+    "type_vectors",
+    "marker_map"
+   ],
+   "outputs": [
+    "logits",
+    "cls"
+   ]
+  },
+  "parity_passed": true,
+  "sha256": "4792ff211eff86b6dea3cec2d687e76169f85f6453721e6b2d7adbdda276ffe8"
+ },
+ {
+  "path": "<cache>/artifacts/laya-typed-decisions/f9ab0b228f0f/bc1s-masked-L64-B1",
+  "status": "validated",
+  "source": {
+   "model": "laya-typed-decisions",
+   "repo": "convaiinnovations/laya-typed-decisions",
+   "revision": "f9ab0b228f0fc0f14d873dbc99038f135c2da1b2",
+   "weights_sha256": "4fa56de72383a9d3efa9cfa78955733c81b9fc8067a587ca4beb82c78107a24e"
+  },
+  "artifact": {
+   "graph": "bc1s-masked",
+   "length": 64,
+   "batch": 1,
+   "precision": "float16",
+   "max_options": 32,
+   "inputs": [
+    "embeddings",
+    "full_mask",
+    "local_mask",
+    "type_vectors",
+    "marker_map"
+   ],
+   "outputs": [
+    "logits",
+    "cls"
+   ]
+  },
+  "parity_passed": true,
+  "sha256": "b078691b4df9b1bec80370885fdb67397de9e83486b2e1c20bd2cc03923172d4"
+ },
+ {
+  "path": "<cache>/artifacts/laya-typed-decisions/f9ab0b228f0f/bc1s-masked-L96-B1",
+  "status": "validated",
+  "source": {
+   "model": "laya-typed-decisions",
+   "repo": "convaiinnovations/laya-typed-decisions",
+   "revision": "f9ab0b228f0fc0f14d873dbc99038f135c2da1b2",
+   "weights_sha256": "4fa56de72383a9d3efa9cfa78955733c81b9fc8067a587ca4beb82c78107a24e"
+  },
+  "artifact": {
+   "graph": "bc1s-masked",
+   "length": 96,
+   "batch": 1,
+   "precision": "float16",
+   "max_options": 32,
+   "inputs": [
+    "embeddings",
+    "full_mask",
+    "local_mask",
+    "type_vectors",
+    "marker_map"
+   ],
+   "outputs": [
+    "logits",
+    "cls"
+   ]
+  },
+  "parity_passed": true,
+  "sha256": "154967b90403585823532e0ff90d9d15cdb6e06fd6b8de2c0656c17cb0884655"
+ }
+]
+=========================== short test summary info ============================
+PASSED tests/integration/test_cli.py::test_cli_info_returns_zero
+PASSED tests/integration/test_cli.py::test_cli_info_for_one_model_returns_zero[laya]
+PASSED tests/integration/test_cli.py::test_cli_predict_returns_zero[laya]
+PASSED tests/integration/test_gpu_ane_agreement.py::test_gpu_and_ane_answers_agree_within_tolerance[laya]
+PASSED tests/integration/test_mlx_compile_checkpoints.py::test_compiled_forward_passes_parity_and_keeps_eager_decisions[laya-float16]
+PASSED tests/integration/test_mlx_compile_checkpoints.py::test_compiled_forward_passes_parity_and_keeps_eager_decisions[laya-float32]
+PASSED tests/integration/test_mlx_length_buckets_checkpoints.py::test_bucketed_batches_pass_parity_and_keep_decisions[laya-float16]
+PASSED tests/integration/test_mlx_length_buckets_checkpoints.py::test_bucketed_batches_pass_parity_and_keep_decisions[laya-float32]
+PASSED tests/integration/test_predict.py::test_model_loads_via_mlx_and_answers_all_question_types[laya]
+PASSED tests/integration/test_predict.py::test_predict_via_context_kwarg[laya]
+PASSED tests/integration/test_predict.py::test_predict_via_state_kwarg[laya]
+PASSED tests/integration/test_predict.py::test_predict_context_and_state_both_raises[laya]
+PASSED tests/integration/test_predict.py::test_repeated_predict_is_bitwise_identical[laya]
+PASSED tests/integration/test_predict.py::test_offline_load_with_local_files_only[laya]
+PASSED tests/integration/test_predict.py::test_normalised_outputs_have_input_and_output_token_usage[laya]
+PASSED tests/integration/test_predict.py::test_empty_questions_return_empty_answers_without_a_device[laya]
+PASSED tests/integration/test_routing_e2e.py::test_ane_device_row_longer_than_largest_bucket_raises_and_never_touches_mlx[laya]
+PASSED tests/integration/test_routing_e2e.py::test_ane_device_empty_artifact_cache_raises_at_load[laya]
+PASSED tests/integration/test_routing_e2e.py::test_artifact_revision_mismatch_under_explicit_ane_raises[laya]
+PASSED tests/integration/test_shortlist_mlx.py::test_embed_fn_from_laya_mean_pools_without_padding[laya]
+PASSED tests/integration/test_shortlist_mlx.py::test_predict_shortlist_end_to_end[laya]
+PASSED tests/integration/test_token_cache_goldens.py::test_cached_prepare_reproduces_the_golden_items[laya]
+PASSED tests/parity/test_ane_async_parity.py::test_async_path_passes_parity_and_equals_coremltools[laya]
+PASSED tests/parity/test_ane_parity.py::test_ane_passes_parity_gate_for_each_present_bucket[laya]
+PASSED tests/parity/test_mlx_parity.py::test_mlx_passes_parity_gate[laya-float16]
+PASSED tests/parity/test_mlx_parity.py::test_mlx_passes_parity_gate[laya-float32]
+PASSED tests/unit/test_prompt.py::test_prepared_token_ids_match_goldens_exactly[laya]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-not a dict or list]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-bad_questions1]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-bad_questions2]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-bad_questions3]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-bad_questions4]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-bad_questions5]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-bad_questions6]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-bad_questions7]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-bad_questions8]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-bad_questions9]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-bad_questions10]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-bad_questions11]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-bad_questions12]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-bad_questions13]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-bad_questions14]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-bad_questions15]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-bad_questions16]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-bad_questions17]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-bad_questions18]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-bad_questions19]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-bad_questions20]
+PASSED tests/unit/test_prompt.py::test_list_of_strings_becomes_noul_questions[laya]
+PASSED tests/unit/test_prompt.py::test_answers_match_upstream_on_every_golden[laya]
+PASSED tests/unit/test_prompt.py::test_answer_schema_choice[laya]
+PASSED tests/unit/test_prompt.py::test_answer_schema_score[laya]
+PASSED tests/unit/test_prompt.py::test_answer_schema_noul[laya]
+PASSED tests/unit/test_prompt.py::test_answer_probabilities_are_rounded_to_4_decimals[laya]
+PASSED tests/unit/test_prompt.py::test_answer_non_finite_logits_raise_floating_point_error[laya]
+PASSED tests/unit/test_prompt.py::test_answer_non_finite_action_logits_raise_floating_point_error[laya]
+PASSED tests/unit/test_workload.py::test_make_request_hits_exact_length[laya-64]
+PASSED tests/unit/test_workload.py::test_make_request_hits_exact_length[laya-128]
+PASSED tests/unit/test_workload.py::test_make_request_hits_exact_length[laya-200]
+PASSED tests/unit/test_workload.py::test_make_request_multi_question_hits_exact_length[laya]
+PASSED tests/unit/test_workload.py::test_make_request_exceeding_max_len_raises[laya]
+PASSED tests/integration/test_cli.py::test_cli_info_for_one_model_returns_zero[laya-multilingual]
+PASSED tests/integration/test_cli.py::test_cli_predict_returns_zero[laya-multilingual]
+PASSED tests/integration/test_gpu_ane_agreement.py::test_gpu_and_ane_answers_agree_within_tolerance[laya-multilingual]
+PASSED tests/integration/test_mlx_compile_checkpoints.py::test_compiled_forward_passes_parity_and_keeps_eager_decisions[laya-multilingual-float16]
+PASSED tests/integration/test_mlx_compile_checkpoints.py::test_compiled_forward_passes_parity_and_keeps_eager_decisions[laya-multilingual-float32]
+PASSED tests/integration/test_mlx_length_buckets_checkpoints.py::test_bucketed_batches_pass_parity_and_keep_decisions[laya-multilingual-float16]
+PASSED tests/integration/test_mlx_length_buckets_checkpoints.py::test_bucketed_batches_pass_parity_and_keep_decisions[laya-multilingual-float32]
+PASSED tests/integration/test_predict.py::test_model_loads_via_mlx_and_answers_all_question_types[laya-multilingual]
+PASSED tests/integration/test_predict.py::test_predict_via_context_kwarg[laya-multilingual]
+PASSED tests/integration/test_predict.py::test_predict_via_state_kwarg[laya-multilingual]
+PASSED tests/integration/test_predict.py::test_predict_context_and_state_both_raises[laya-multilingual]
+PASSED tests/integration/test_predict.py::test_repeated_predict_is_bitwise_identical[laya-multilingual]
+PASSED tests/integration/test_predict.py::test_offline_load_with_local_files_only[laya-multilingual]
+PASSED tests/integration/test_predict.py::test_normalised_outputs_have_input_and_output_token_usage[laya-multilingual]
+PASSED tests/integration/test_predict.py::test_empty_questions_return_empty_answers_without_a_device[laya-multilingual]
+PASSED tests/integration/test_routing_e2e.py::test_ane_device_row_longer_than_largest_bucket_raises_and_never_touches_mlx[laya-multilingual]
+PASSED tests/integration/test_routing_e2e.py::test_ane_device_empty_artifact_cache_raises_at_load[laya-multilingual]
+PASSED tests/integration/test_shortlist_mlx.py::test_embed_fn_from_laya_mean_pools_without_padding[laya-multilingual]
+PASSED tests/integration/test_shortlist_mlx.py::test_predict_shortlist_end_to_end[laya-multilingual]
+PASSED tests/integration/test_token_cache_goldens.py::test_cached_prepare_reproduces_the_golden_items[laya-multilingual]
+PASSED tests/parity/test_ane_parity.py::test_ane_passes_parity_gate_for_each_present_bucket[laya-multilingual]
+PASSED tests/parity/test_mlx_parity.py::test_mlx_passes_parity_gate[laya-multilingual-float16]
+PASSED tests/parity/test_mlx_parity.py::test_mlx_passes_parity_gate[laya-multilingual-float32]
+PASSED tests/unit/test_prompt.py::test_prepared_token_ids_match_goldens_exactly[laya-multilingual]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-multilingual-not a dict or list]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-multilingual-bad_questions1]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-multilingual-bad_questions2]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-multilingual-bad_questions3]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-multilingual-bad_questions4]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-multilingual-bad_questions5]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-multilingual-bad_questions6]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-multilingual-bad_questions7]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-multilingual-bad_questions8]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-multilingual-bad_questions9]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-multilingual-bad_questions10]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-multilingual-bad_questions11]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-multilingual-bad_questions12]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-multilingual-bad_questions13]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-multilingual-bad_questions14]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-multilingual-bad_questions15]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-multilingual-bad_questions16]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-multilingual-bad_questions17]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-multilingual-bad_questions18]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-multilingual-bad_questions19]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-multilingual-bad_questions20]
+PASSED tests/unit/test_prompt.py::test_list_of_strings_becomes_noul_questions[laya-multilingual]
+PASSED tests/unit/test_prompt.py::test_answers_match_upstream_on_every_golden[laya-multilingual]
+PASSED tests/unit/test_prompt.py::test_answer_schema_choice[laya-multilingual]
+PASSED tests/unit/test_prompt.py::test_answer_schema_score[laya-multilingual]
+PASSED tests/unit/test_prompt.py::test_answer_schema_noul[laya-multilingual]
+PASSED tests/unit/test_prompt.py::test_answer_probabilities_are_rounded_to_4_decimals[laya-multilingual]
+PASSED tests/unit/test_prompt.py::test_answer_non_finite_logits_raise_floating_point_error[laya-multilingual]
+PASSED tests/unit/test_prompt.py::test_answer_non_finite_action_logits_raise_floating_point_error[laya-multilingual]
+PASSED tests/unit/test_workload.py::test_make_request_hits_exact_length[laya-multilingual-64]
+PASSED tests/unit/test_workload.py::test_make_request_hits_exact_length[laya-multilingual-128]
+PASSED tests/unit/test_workload.py::test_make_request_hits_exact_length[laya-multilingual-200]
+PASSED tests/unit/test_workload.py::test_make_request_multi_question_hits_exact_length[laya-multilingual]
+PASSED tests/unit/test_workload.py::test_make_request_exceeding_max_len_raises[laya-multilingual]
+PASSED tests/integration/test_cli.py::test_cli_info_for_one_model_returns_zero[laya-typed-decisions]
+PASSED tests/integration/test_cli.py::test_cli_predict_returns_zero[laya-typed-decisions]
+PASSED tests/integration/test_gpu_ane_agreement.py::test_gpu_and_ane_answers_agree_within_tolerance[laya-typed-decisions]
+PASSED tests/integration/test_mlx_compile_checkpoints.py::test_compiled_forward_passes_parity_and_keeps_eager_decisions[laya-typed-decisions-float16]
+PASSED tests/integration/test_mlx_compile_checkpoints.py::test_compiled_forward_passes_parity_and_keeps_eager_decisions[laya-typed-decisions-float32]
+PASSED tests/integration/test_mlx_length_buckets_checkpoints.py::test_bucketed_batches_pass_parity_and_keep_decisions[laya-typed-decisions-float16]
+PASSED tests/integration/test_mlx_length_buckets_checkpoints.py::test_bucketed_batches_pass_parity_and_keep_decisions[laya-typed-decisions-float32]
+PASSED tests/integration/test_option_order.py::test_mlx_decisions_match_upstream_per_permutation[laya-typed-decisions]
+PASSED tests/integration/test_option_order.py::test_mlx_is_permutation_consistent_where_upstream_is[laya-typed-decisions]
+PASSED tests/integration/test_predict.py::test_model_loads_via_mlx_and_answers_all_question_types[laya-typed-decisions]
+PASSED tests/integration/test_predict.py::test_predict_via_context_kwarg[laya-typed-decisions]
+PASSED tests/integration/test_predict.py::test_predict_via_state_kwarg[laya-typed-decisions]
+PASSED tests/integration/test_predict.py::test_predict_context_and_state_both_raises[laya-typed-decisions]
+PASSED tests/integration/test_predict.py::test_repeated_predict_is_bitwise_identical[laya-typed-decisions]
+PASSED tests/integration/test_predict.py::test_offline_load_with_local_files_only[laya-typed-decisions]
+PASSED tests/integration/test_predict.py::test_normalised_outputs_have_input_and_output_token_usage[laya-typed-decisions]
+PASSED tests/integration/test_predict.py::test_empty_questions_return_empty_answers_without_a_device[laya-typed-decisions]
+PASSED tests/integration/test_routing_e2e.py::test_ane_device_row_longer_than_largest_bucket_raises_and_never_touches_mlx[laya-typed-decisions]
+PASSED tests/integration/test_routing_e2e.py::test_ane_device_empty_artifact_cache_raises_at_load[laya-typed-decisions]
+PASSED tests/integration/test_routing_e2e.py::test_artifact_revision_mismatch_under_explicit_ane_raises[laya-typed-decisions]
+PASSED tests/integration/test_shortlist_mlx.py::test_embed_fn_from_laya_mean_pools_without_padding[laya-typed-decisions]
+PASSED tests/integration/test_shortlist_mlx.py::test_predict_shortlist_end_to_end[laya-typed-decisions]
+PASSED tests/integration/test_token_cache_goldens.py::test_cached_prepare_reproduces_the_golden_items[laya-typed-decisions]
+PASSED tests/parity/test_ane_async_parity.py::test_async_path_passes_parity_and_equals_coremltools[laya-typed-decisions]
+PASSED tests/parity/test_ane_parity.py::test_ane_passes_parity_gate_for_each_present_bucket[laya-typed-decisions]
+PASSED tests/parity/test_mlx_parity.py::test_mlx_passes_parity_gate[laya-typed-decisions-float16]
+PASSED tests/parity/test_mlx_parity.py::test_mlx_passes_parity_gate[laya-typed-decisions-float32]
+PASSED tests/unit/test_prompt.py::test_prepared_token_ids_match_goldens_exactly[laya-typed-decisions]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-typed-decisions-not a dict or list]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-typed-decisions-bad_questions1]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-typed-decisions-bad_questions2]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-typed-decisions-bad_questions3]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-typed-decisions-bad_questions4]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-typed-decisions-bad_questions5]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-typed-decisions-bad_questions6]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-typed-decisions-bad_questions7]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-typed-decisions-bad_questions8]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-typed-decisions-bad_questions9]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-typed-decisions-bad_questions10]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-typed-decisions-bad_questions11]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-typed-decisions-bad_questions12]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-typed-decisions-bad_questions13]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-typed-decisions-bad_questions14]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-typed-decisions-bad_questions15]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-typed-decisions-bad_questions16]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-typed-decisions-bad_questions17]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-typed-decisions-bad_questions18]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-typed-decisions-bad_questions19]
+PASSED tests/unit/test_prompt.py::test_malformed_questions_raise_invalid_request_error[laya-typed-decisions-bad_questions20]
+PASSED tests/unit/test_prompt.py::test_list_of_strings_becomes_noul_questions[laya-typed-decisions]
+PASSED tests/unit/test_prompt.py::test_answers_match_upstream_on_every_golden[laya-typed-decisions]
+PASSED tests/unit/test_prompt.py::test_answer_schema_choice[laya-typed-decisions]
+PASSED tests/unit/test_prompt.py::test_answer_schema_score[laya-typed-decisions]
+PASSED tests/unit/test_prompt.py::test_answer_schema_noul[laya-typed-decisions]
+PASSED tests/unit/test_prompt.py::test_answer_probabilities_are_rounded_to_4_decimals[laya-typed-decisions]
+PASSED tests/unit/test_prompt.py::test_answer_non_finite_logits_raise_floating_point_error[laya-typed-decisions]
+PASSED tests/unit/test_prompt.py::test_answer_non_finite_action_logits_raise_floating_point_error[laya-typed-decisions]
+PASSED tests/unit/test_workload.py::test_make_request_hits_exact_length[laya-typed-decisions-64]
+PASSED tests/unit/test_workload.py::test_make_request_hits_exact_length[laya-typed-decisions-128]
+PASSED tests/unit/test_workload.py::test_make_request_hits_exact_length[laya-typed-decisions-200]
+PASSED tests/unit/test_workload.py::test_make_request_multi_question_hits_exact_length[laya-typed-decisions]
+PASSED tests/unit/test_workload.py::test_make_request_exceeding_max_len_raises[laya-typed-decisions]
+PASSED tests/integration/test_cli.py::test_cli_artifacts_list_returns_zero
+PASSED tests/integration/test_cli.py::test_cli_unsupported_model_returns_2
+PASSED tests/integration/test_export_import.py::test_import_revalidates_and_registers
+PASSED tests/integration/test_export_import.py::test_tampered_export_is_refused
+PASSED tests/integration/test_export_import.py::test_non_artifact_archive_is_refused
+PASSED tests/integration/test_no_silent_fallback.py::test_ane_refuses_a_dtype_it_is_not_validated_in[float32]
+PASSED tests/integration/test_no_silent_fallback.py::test_ane_refuses_a_dtype_it_is_not_validated_in[bfloat16]
+PASSED tests/integration/test_no_silent_fallback.py::test_unknown_dtype_is_refused_for_every_device
+PASSED tests/integration/test_no_silent_fallback.py::test_explicit_ane_never_pads_up_to_a_larger_bucket
+PASSED tests/integration/test_no_silent_fallback.py::test_explicit_ane_refuses_a_corrupt_bucket_at_load
+PASSED tests/integration/test_no_silent_fallback.py::test_route_to_a_missing_backend_raises_instead_of_using_the_other
+PASSED tests/integration/test_no_silent_fallback.py::test_dead_ane_worker_under_explicit_ane_keeps_raising
+PASSED tests/integration/test_no_silent_fallback.py::test_changed_artifact_files_invalidate_the_verification_stamp
+PASSED tests/integration/test_no_silent_fallback.py::test_local_profile_with_unoffered_buckets_is_ignored
+PASSED tests/integration/test_no_silent_fallback.py::test_unreadable_local_profile_is_warned
+PASSED tests/integration/test_no_silent_fallback.py::test_offline_with_an_uncached_checkpoint_raises_and_never_downloads
+PASSED tests/integration/test_no_silent_fallback.py::test_placement_probe_refuses_a_model_that_runs_like_the_cpu[4-10-True]
+PASSED tests/integration/test_no_silent_fallback.py::test_placement_probe_refuses_a_model_that_runs_like_the_cpu[10-10-False]
+PASSED tests/integration/test_no_silent_fallback.py::test_placement_probe_refuses_a_model_that_runs_like_the_cpu[12-10-False]
+PASSED tests/integration/test_no_silent_fallback.py::test_real_artifacts_pass_the_probe_and_report_it
+PASSED tests/integration/test_prebuilt_fetch.py::test_fetch_registers_only_after_local_validation_and_probe
+PASSED tests/integration/test_predict.py::test_from_pretrained_unregistered_model_raises
+PASSED tests/integration/test_profiles.py::test_derivation_reproduces_the_shipped_table
+PASSED tests/integration/test_profiles.py::test_profile_key_is_filesystem_safe
+PASSED tests/integration/test_profiles.py::test_unvalidated_platform_without_profile_is_mlx_only
+PASSED tests/integration/test_profiles.py::test_unvalidated_platform_uses_a_matching_local_profile
+PASSED tests/integration/test_profiles.py::test_stale_local_profile_wrong_revision_is_ignored_with_warning
+PASSED tests/integration/test_profiles.py::test_stale_local_profile_wrong_artifact_hash_is_ignored_with_warning
+PASSED tests/integration/test_profiles.py::test_local_profile_with_matching_revision_and_artifacts_is_used
+PASSED tests/integration/test_profiles.py::test_local_profile_for_another_machine_is_ignored
+PASSED tests/integration/test_serve_http.py::test_http_answers_match_the_runtime
+PASSED tests/integration/test_serve_http.py::test_long_state_is_flagged_truncated
+PASSED tests/integration/test_serve_http.py::test_health_reports_the_loaded_model
+PASSED tests/integration/test_switchyard.py::test_oracle_gate_gpu
+PASSED tests/integration/test_switchyard.py::test_oracle_gate_ane
+PASSED tests/integration/test_switchyard.py::test_every_train_prompt_fits_the_train_budget
+PASSED tests/integration/test_workers.py::test_explicit_ane_workers_refuses_long_rows_before_queueing
+PASSED tests/integration/test_workers.py::test_close_is_idempotent_and_refuses_new_work
+PASSED tests/integration/test_workers.py::test_context_manager_and_info
+PASSED tests/integration/test_workers.py::test_invalid_execution_raises
+PASSED tests/integration/test_workers.py::test_both_ane_placements_give_identical_answers[thread]
+PASSED tests/integration/test_workers.py::test_both_ane_placements_give_identical_answers[process]
+PASSED tests/integration/test_workers.py::test_invalid_ane_placement_raises
+PASSED tests/integration/test_workers.py::test_invalid_ane_startup_raises[kwargs0]
+PASSED tests/integration/test_workers.py::test_invalid_ane_startup_raises[kwargs1]
+PASSED tests/integration/test_workers.py::test_invalid_ane_startup_raises[kwargs2]
+PASSED tests/integration/test_workers.py::test_close_during_background_startup_is_clean[thread]
+PASSED tests/integration/test_workers.py::test_close_during_background_startup_is_clean[process]
+SKIPPED [2] tests/integration/test_option_order.py:59: fixture covers laya-typed-decisions only
+SKIPPED [2] tests/integration/test_option_order.py:82: fixture covers laya-typed-decisions only
+SKIPPED [1] tests/integration/test_routing_e2e.py:67: laya: no validated ANE artifacts present in this cache
+SKIPPED [1] tests/integration/test_routing_e2e.py:67: laya-multilingual: no validated ANE artifacts present in this cache
+SKIPPED [1] tests/parity/test_ane_async_parity.py:35: laya-multilingual does not use adaptive execution
+SKIPPED [1] tests/integration/test_routing_e2e.py:67: laya-typed-decisions: no validated ANE artifacts present in this cache
+SKIPPED [2] tests/integration/test_request_trace_workers.py:61: no validated ANE artifacts for the workers test model
+SKIPPED [2] tests/integration/test_request_trace_workers.py:82: no validated ANE artifacts for the workers test model
+SKIPPED [2] tests/integration/test_request_trace_workers.py:95: no validated ANE artifacts for the workers test model
+SKIPPED [2] tests/integration/test_request_trace_workers.py:122: no validated ANE artifacts for the workers test model
+SKIPPED [1] tests/integration/test_workers.py:51: no validated ANE artifacts for the workers test model
+SKIPPED [1] tests/integration/test_workers.py:63: no validated ANE artifacts for the workers test model
+SKIPPED [1] tests/integration/test_workers.py:80: no validated ANE artifacts for the workers test model
+FAILED tests/integration/test_routing_e2e.py::test_auto_with_empty_artifact_cache_routes_to_gpu_with_artifact_unavailable[laya]
+FAILED tests/integration/test_routing_e2e.py::test_auto_with_empty_artifact_cache_routes_to_gpu_with_artifact_unavailable[laya-multilingual]
+FAILED tests/integration/test_routing_e2e.py::test_artifact_revision_mismatch_under_explicit_ane_raises[laya-multilingual]
+FAILED tests/integration/test_routing_e2e.py::test_auto_with_empty_artifact_cache_routes_to_gpu_with_artifact_unavailable[laya-typed-decisions]
+FAILED tests/integration/test_no_silent_fallback.py::test_auto_with_a_rejected_bucket_warns_and_records_the_reason
+FAILED tests/integration/test_no_silent_fallback.py::test_dead_ane_worker_under_auto_is_recorded_and_warned_once
+FAILED tests/integration/test_no_silent_fallback.py::test_background_startup_failure_is_warned_and_recorded
+FAILED tests/integration/test_no_silent_fallback.py::test_placement_probe_failure_drops_the_bucket_under_auto_and_raises_under_ane
+FAILED tests/integration/test_profiles.py::test_local_profile_ignored_on_a_shipped_profile
+FAILED tests/integration/test_workers.py::test_dead_gpu_worker_fails_loudly_and_never_falls_back
+FAILED tests/integration/test_workers.py::test_background_ane_startup_serves_mlx_first_then_ane
+= 11 failed, 229 passed, 19 skipped, 1312 deselected, 72 warnings in 854.49s (0:14:14) =

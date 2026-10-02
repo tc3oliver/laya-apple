@@ -1,0 +1,31 @@
+$ sw_vers
+ProductName:		macOS
+ProductVersion:		27.0
+BuildVersion:		26A428
+
+$ uv pip show coremltools
+Name: coremltools
+Version: 9.0
+Location: <checkout>/.venv/lib/python3.12/site-packages
+Requires: attrs, cattrs, numpy, packaging, protobuf, pyaml, sympy, tqdm
+Required-by:
+
+$ uname -m
+arm64
+
+$ sysctl -n machdep.cpu.brand_string hw.model hw.memsize
+Apple M4 Max
+Mac16,9
+68719476736
+
+$ git rev-parse HEAD (laya-apple checkout)
+adf28da92d6fcee09d05343ddef9db5a70e37f45
+
+$ uv pip show (selected packages)
+coremltools             9.0
+huggingface-hub         1.32.0
+mlx                     0.32.2
+numpy                   2.1.3
+pyobjc-framework-coreml 12.2.2
+safetensors             0.8.0
+torch                   2.7.0
