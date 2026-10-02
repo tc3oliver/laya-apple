@@ -1,0 +1,2786 @@
+{
+ "cells": {
+  "A": {
+   "ane_stages_pooled": {
+    "features": {
+     "mean_ms": 0.2689332419867663,
+     "n": 11637,
+     "p50_ms": 0.159958,
+     "p95_ms": 0.6665914,
+     "p99_ms": 0.7728801199999998
+    },
+    "predict": {
+     "mean_ms": 9.739461602990463,
+     "n": 11637,
+     "p50_ms": 9.685667,
+     "p95_ms": 9.8788168,
+     "p99_ms": 10.181121119999997
+    },
+    "tail": {
+     "mean_ms": 0.06979107699578929,
+     "n": 11637,
+     "p50_ms": 0.06175,
+     "p95_ms": 0.12569179999999985,
+     "p99_ms": 0.16980375999999997
+    }
+   },
+   "forwards_pooled": {
+    "ane": {
+     "n": 11637,
+     "placement": "thread",
+     "service_ms_p50": 9.912542,
+     "thread_cpu_ms_mean": 0.6248238996304889
+    },
+    "gpu": {
+     "n": 2916,
+     "placement": "process",
+     "service_ms_p50": 35.680541500000004,
+     "thread_cpu_ms_mean": 1.7485117133058985
+    }
+   },
+   "gpu_return_p50_ms_pooled": 4.685499999999999,
+   "rounds": [
+    1,
+    2
+   ],
+   "slow_windows": 0,
+   "windows": 6
+  },
+  "PB-H": {
+   "ane_stages_pooled": {
+    "features": {
+     "mean_ms": 0.2736726728214554,
+     "n": 11969,
+     "p50_ms": 0.161,
+     "p95_ms": 0.6772578,
+     "p99_ms": 0.73676312
+    },
+    "native": {
+     "mean_ms": 9.452728464616927,
+     "n": 11969,
+     "p50_ms": 9.426833,
+     "p95_ms": 9.485125,
+     "p99_ms": 9.56405144
+    },
+    "post": {
+     "mean_ms": 0.010331516083214972,
+     "n": 11969,
+     "p50_ms": 0.007208,
+     "p95_ms": 0.017666,
+     "p99_ms": 0.025151559999999976
+    },
+    "pre": {
+     "mean_ms": 0.01622182722031916,
+     "n": 11969,
+     "p50_ms": 0.014583,
+     "p95_ms": 0.021042,
+     "p99_ms": 0.03581855999999997
+    },
+    "pre_overlap_any_fraction": 0.20770323335282814,
+    "pre_overlap_mean": 0.20770323335282814,
+    "predict": {
+     "mean_ms": 9.481482436377307,
+     "n": 11969,
+     "p50_ms": 9.453125,
+     "p95_ms": 9.5145252,
+     "p99_ms": 9.634534879999999
+    },
+    "reacquire": {
+     "mean_ms": 0.0022006284568468547,
+     "n": 11969,
+     "p50_ms": 0.001042,
+     "p95_ms": 0.002459,
+     "p99_ms": 0.005347119999999988
+    },
+    "tail": {
+     "mean_ms": 0.06669675595287826,
+     "n": 11969,
+     "p50_ms": 0.060875,
+     "p95_ms": 0.08425,
+     "p99_ms": 0.1794219999999992
+    }
+   },
+   "forwards_pooled": {
+    "ane": {
+     "n": 11969,
+     "placement": "thread",
+     "service_ms_p50": 9.694792,
+     "thread_cpu_ms_mean": 0.3839984814938592
+    },
+    "gpu": {
+     "n": 2997,
+     "placement": "process",
+     "service_ms_p50": 35.72225,
+     "thread_cpu_ms_mean": 1.6983242449115783
+    }
+   },
+   "gpu_return_p50_ms_pooled": 3.685,
+   "rounds": [
+    1,
+    2
+   ],
+   "slow_windows": 0,
+   "windows": 6
+  },
+  "PB-P": {
+   "ane_stages_pooled": {
+    "features": {
+     "mean_ms": 0.1715002919973545,
+     "n": 12096,
+     "p50_ms": 0.1595,
+     "p95_ms": 0.19488525,
+     "p99_ms": 0.5631437499999997
+    },
+    "native": {
+     "mean_ms": 9.46411414484127,
+     "n": 12096,
+     "p50_ms": 9.436375,
+     "p95_ms": 9.506208,
+     "p99_ms": 9.56071315
+    },
+    "post": {
+     "mean_ms": 0.008141378720238096,
+     "n": 12096,
+     "p50_ms": 0.005709,
+     "p95_ms": 0.017625,
+     "p99_ms": 0.022583
+    },
+    "pre": {
+     "mean_ms": 0.01678645014880953,
+     "n": 12096,
+     "p50_ms": 0.014375,
+     "p95_ms": 0.021792,
+     "p99_ms": 0.03663334999999988
+    },
+    "pre_overlap_any_fraction": 0.010416666666666666,
+    "pre_overlap_mean": 0.010416666666666666,
+    "predict": {
+     "mean_ms": 9.493499932870371,
+     "n": 12096,
+     "p50_ms": 9.459625,
+     "p95_ms": 9.5448015,
+     "p99_ms": 9.721727749999998
+    },
+    "reacquire": {
+     "mean_ms": 0.00445795916005291,
+     "n": 12096,
+     "p50_ms": 0.000708,
+     "p95_ms": 0.002708,
+     "p99_ms": 0.1266583499999995
+    },
+    "tail": {
+     "mean_ms": 0.06327188822751324,
+     "n": 12096,
+     "p50_ms": 0.060792,
+     "p95_ms": 0.079792,
+     "p99_ms": 0.134125
+    }
+   },
+   "forwards_pooled": {
+    "ane": {
+     "n": 12096,
+     "placement": "thread",
+     "service_ms_p50": 9.684542,
+     "thread_cpu_ms_mean": 0.37110894584986776
+    },
+    "gpu": {
+     "n": 3354,
+     "placement": "process",
+     "service_ms_p50": 35.215125,
+     "thread_cpu_ms_mean": 1.6742154057841385
+    }
+   },
+   "gpu_return_p50_ms_pooled": 0.035,
+   "rounds": [
+    1,
+    2
+   ],
+   "slow_windows": 0,
+   "windows": 6
+  },
+  "PB-R": {
+   "ane_stages_pooled": {
+    "features": {
+     "mean_ms": 0.6676875519047618,
+     "n": 10500,
+     "p50_ms": 0.475438,
+     "p95_ms": 2.5199333499999934,
+     "p99_ms": 4.370631250000001
+    },
+    "native": {
+     "mean_ms": 9.716858834952381,
+     "n": 10500,
+     "p50_ms": 9.6335415,
+     "p95_ms": 10.32875205,
+     "p99_ms": 10.526819080000001
+    },
+    "post": {
+     "mean_ms": 0.026740225809523812,
+     "n": 10500,
+     "p50_ms": 0.02625,
+     "p95_ms": 0.052542,
+     "p99_ms": 0.06487584000000002
+    },
+    "pre": {
+     "mean_ms": 0.07164596028571428,
+     "n": 10500,
+     "p50_ms": 0.0504165,
+     "p95_ms": 0.14579105,
+     "p99_ms": 0.18413500000000024
+    },
+    "pre_overlap_any_fraction": 0.056666666666666664,
+    "pre_overlap_mean": 0.056666666666666664,
+    "predict": {
+     "mean_ms": 9.844144139238095,
+     "n": 10500,
+     "p50_ms": 9.773667,
+     "p95_ms": 10.5747003,
+     "p99_ms": 11.90011684
+    },
+    "reacquire": {
+     "mean_ms": 0.028899118190476192,
+     "n": 10500,
+     "p50_ms": 0.004041,
+     "p95_ms": 0.010959,
+     "p99_ms": 0.6690006600000037
+    },
+    "tail": {
+     "mean_ms": 0.22655920057142853,
+     "n": 10500,
+     "p50_ms": 0.163896,
+     "p95_ms": 0.476667,
+     "p99_ms": 0.5564174100000001
+    }
+   },
+   "forwards_pooled": {
+    "ane": {
+     "n": 10500,
+     "placement": "thread",
+     "service_ms_p50": 10.386875,
+     "thread_cpu_ms_mean": 1.1438095402857142
+    },
+    "gpu": {
+     "n": 3066,
+     "placement": "process",
+     "service_ms_p50": 37.171583,
+     "thread_cpu_ms_mean": 5.363353748532289
+    }
+   },
+   "gpu_return_p50_ms_pooled": 0.1745,
+   "rounds": [
+    1,
+    2
+   ],
+   "slow_windows": 5,
+   "windows": 6
+  },
+  "PB-W": {
+   "ane_stages_pooled": {
+    "features": {
+     "mean_ms": 0.16964025278258718,
+     "n": 12129,
+     "p50_ms": 0.157209,
+     "p95_ms": 0.18902460000000001,
+     "p99_ms": 0.5573534799999923
+    },
+    "native": {
+     "mean_ms": 9.441833996784565,
+     "n": 12129,
+     "p50_ms": 9.441792,
+     "p95_ms": 9.502583,
+     "p99_ms": 9.53681676
+    },
+    "post": {
+     "mean_ms": 0.00916168628905928,
+     "n": 12129,
+     "p50_ms": 0.006709,
+     "p95_ms": 0.017292,
+     "p99_ms": 0.021154519999999975
+    },
+    "pre": {
+     "mean_ms": 0.01675481218567071,
+     "n": 12129,
+     "p50_ms": 0.01425,
+     "p95_ms": 0.020708,
+     "p99_ms": 0.03323851999999997
+    },
+    "pre_overlap_any_fraction": 0.009481408195234561,
+    "pre_overlap_mean": 0.009481408195234561,
+    "predict": {
+     "mean_ms": 9.472087535575891,
+     "n": 12129,
+     "p50_ms": 9.467417,
+     "p95_ms": 9.538583,
+     "p99_ms": 9.710879
+    },
+    "reacquire": {
+     "mean_ms": 0.004337040316596586,
+     "n": 12129,
+     "p50_ms": 0.001083,
+     "p95_ms": 0.002833,
+     "p99_ms": 0.09870475999999971
+    },
+    "tail": {
+     "mean_ms": 0.060884964382884,
+     "n": 12129,
+     "p50_ms": 0.059292,
+     "p95_ms": 0.074458,
+     "p99_ms": 0.12269651999999998
+    }
+   },
+   "forwards_pooled": {
+    "ane": {
+     "n": 12129,
+     "placement": "thread",
+     "service_ms_p50": 9.688333,
+     "thread_cpu_ms_mean": 0.3623895329375876
+    },
+    "gpu": {
+     "n": 3354,
+     "placement": "process",
+     "service_ms_p50": 35.2790625,
+     "thread_cpu_ms_mean": 1.6449386830649968
+    }
+   },
+   "gpu_return_p50_ms_pooled": 0.035,
+   "rounds": [
+    1,
+    2
+   ],
+   "slow_windows": 0,
+   "windows": 6
+  }
+ },
+ "check": {
+  "PB_H_bit_identical": true,
+  "PB_H_holds_gil": true,
+  "PB_R_bit_identical": true,
+  "PB_R_releases_gil": true,
+  "all_ok": true,
+  "buckets": {
+   "128": {
+    "PB-H_bit_identical": true,
+    "PB-H_forward_bit_identical": true,
+    "PB-R_bit_identical": true,
+    "PB-R_forward_bit_identical": true,
+    "PB_backings": {
+     "cls": "backed",
+     "logits": "backed"
+    },
+    "call_flags": {
+     "PB-H": 5,
+     "PB-R": 1
+    },
+    "crossings": {
+     "PB-H": {
+      "ctypes": 1,
+      "nested_sends": 0,
+      "objc_send": 0,
+      "pool_pop": 1,
+      "pool_push": 2,
+      "reentries": 0,
+      "sites": {
+       "ctypes CFunctionType <- prebind.py:PrebindModel.predict": 1,
+       "pool_pop __exit__ <- prebind.py:PrebindModel.predict": 1,
+       "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+       "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+      },
+      "total": 4
+     },
+     "PB-R": {
+      "ctypes": 1,
+      "nested_sends": 0,
+      "objc_send": 0,
+      "pool_pop": 1,
+      "pool_push": 2,
+      "reentries": 0,
+      "sites": {
+       "ctypes laya_predict_options_stamped <- prebind.py:PrebindModel.predict": 1,
+       "pool_pop __exit__ <- prebind.py:PrebindModel.predict": 1,
+       "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+       "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+      },
+      "total": 4
+     }
+    },
+    "rows": 11
+   },
+   "64": {
+    "PB-H_bit_identical": true,
+    "PB-H_forward_bit_identical": true,
+    "PB-R_bit_identical": true,
+    "PB-R_forward_bit_identical": true,
+    "PB_backings": {
+     "cls": "backed",
+     "logits": "backed"
+    },
+    "call_flags": {
+     "PB-H": 5,
+     "PB-R": 1
+    },
+    "crossings": {
+     "PB-H": {
+      "ctypes": 1,
+      "nested_sends": 0,
+      "objc_send": 0,
+      "pool_pop": 1,
+      "pool_push": 2,
+      "reentries": 0,
+      "sites": {
+       "ctypes CFunctionType <- prebind.py:PrebindModel.predict": 1,
+       "pool_pop __exit__ <- prebind.py:PrebindModel.predict": 1,
+       "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+       "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+      },
+      "total": 4
+     },
+     "PB-R": {
+      "ctypes": 1,
+      "nested_sends": 0,
+      "objc_send": 0,
+      "pool_pop": 1,
+      "pool_push": 2,
+      "reentries": 0,
+      "sites": {
+       "ctypes laya_predict_options_stamped <- prebind.py:PrebindModel.predict": 1,
+       "pool_pop __exit__ <- prebind.py:PrebindModel.predict": 1,
+       "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+       "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+      },
+      "total": 4
+     }
+    },
+    "rows": 11
+   },
+   "96": {
+    "PB-H_bit_identical": true,
+    "PB-H_forward_bit_identical": true,
+    "PB-R_bit_identical": true,
+    "PB-R_forward_bit_identical": true,
+    "PB_backings": {
+     "cls": "backed",
+     "logits": "backed"
+    },
+    "call_flags": {
+     "PB-H": 5,
+     "PB-R": 1
+    },
+    "crossings": {
+     "PB-H": {
+      "ctypes": 1,
+      "nested_sends": 0,
+      "objc_send": 0,
+      "pool_pop": 1,
+      "pool_push": 2,
+      "reentries": 0,
+      "sites": {
+       "ctypes CFunctionType <- prebind.py:PrebindModel.predict": 1,
+       "pool_pop __exit__ <- prebind.py:PrebindModel.predict": 1,
+       "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+       "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+      },
+      "total": 4
+     },
+     "PB-R": {
+      "ctypes": 1,
+      "nested_sends": 0,
+      "objc_send": 0,
+      "pool_pop": 1,
+      "pool_push": 2,
+      "reentries": 0,
+      "sites": {
+       "ctypes laya_predict_options_stamped <- prebind.py:PrebindModel.predict": 1,
+       "pool_pop __exit__ <- prebind.py:PrebindModel.predict": 1,
+       "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+       "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+      },
+      "total": 4
+     }
+    },
+    "rows": 11
+   }
+  },
+  "coremltools": "9.0",
+  "gil_test": {
+   "PB-H": {
+    "lateness_mean_ms": 8.731970294117648,
+    "lateness_p50_ms": 8.94725,
+    "lateness_p99_ms": 9.478062000000001,
+    "loop_ms": 474.653875,
+    "native_predict_p50_ms": 9.486563,
+    "predicts": 50,
+    "ticks": 51
+   },
+   "PB-R": {
+    "lateness_mean_ms": 0.3387157547169811,
+    "lateness_p50_ms": 0.338208,
+    "lateness_p99_ms": 0.345758,
+    "loop_ms": 477.388208,
+    "native_predict_p50_ms": 9.4985,
+    "predicts": 50,
+    "ticks": 477
+   },
+   "bucket": 128,
+   "hold_min_fraction_of_native": 0.5,
+   "period_ns": 1000000,
+   "predicts": 50,
+   "release_max_ms": 1.0
+  },
+  "laya_apple": "1.4.0",
+  "model": "laya",
+  "pyobjc": "12.2.2",
+  "rows_per_bucket": 11,
+  "seed": 0,
+  "switch_interval_s": 0.005
+ },
+ "decision": {
+  "candidates": [
+   "PB-H",
+   "PB-W",
+   "PB-P"
+  ],
+  "confirmed": [
+   "PB-H",
+   "PB-W",
+   "PB-P"
+  ],
+  "interpretations": {
+   "PB-H": "GIL release is one necessary condition for the slow-state transition; next: who takes CPU/GIL during the GIL-released period",
+   "PB-P": "the 1 ms probe changes scheduler/CPU residency; next: minimal wake mechanism and its overhead; the probe is not a production fix",
+   "PB-W": "hetero transition / scheduler residency state is key; next: minimal conditioning/state-retention mechanism"
+  },
+  "outcome": [
+   1,
+   2,
+   3
+  ],
+  "round1_slow": {
+   "A": 0,
+   "PB-H": 0,
+   "PB-P": 0,
+   "PB-R": 2,
+   "PB-W": 0
+  },
+  "round2": [
+   "A",
+   "PB-R",
+   "PB-H",
+   "PB-W",
+   "PB-P"
+  ],
+  "text": "round 2: PB-H confirmed; PB-W confirmed; PB-P confirmed (PB-R 5 of 6 slow, A 0 of 6 slow)"
+ },
+ "design": {
+  "cycles": 3,
+  "long": 512,
+  "model": "laya",
+  "round1": [
+   "A",
+   "PB-R",
+   "PB-H",
+   "PB-W",
+   "PB-P"
+  ],
+  "seconds": 20.0,
+  "short": 128,
+  "slow_short_p99_ms": 13.0
+ },
+ "failed_runs": [],
+ "next": null,
+ "outcome": "round 2: PB-H confirmed; PB-W confirmed; PB-P confirmed (PB-R 5 of 6 slow, A 0 of 6 slow)",
+ "runs": {
+  "laya-A-r1": {
+   "ane_stages": {
+    "features": {
+     "mean_ms": 0.27013910542635655,
+     "n": 5805,
+     "p50_ms": 0.161875,
+     "p95_ms": 0.6736084,
+     "p99_ms": 0.850762
+    },
+    "predict": {
+     "mean_ms": 9.740951740396211,
+     "n": 5805,
+     "p50_ms": 9.683917,
+     "p95_ms": 9.9137494,
+     "p99_ms": 10.14995732
+    },
+    "tail": {
+     "mean_ms": 0.07228259965546943,
+     "n": 5805,
+     "p50_ms": 0.0625,
+     "p95_ms": 0.13632500000000003,
+     "p99_ms": 0.17273836
+    }
+   },
+   "cell": "A",
+   "crossings_short_bucket": {
+    "ctypes": 0,
+    "nested_sends": 0,
+    "objc_send": 0,
+    "pool_pop": 0,
+    "pool_push": 0,
+    "reentries": 0,
+    "sites": {},
+    "total": 0
+   },
+   "forwards": {
+    "ane": {
+     "n": 5805,
+     "placement": "thread",
+     "service_ms_p50": 9.912958,
+     "thread_cpu_ms_mean": 0.6358381848406546
+    },
+    "gpu": {
+     "n": 1455,
+     "placement": "process",
+     "service_ms_p50": 35.698792,
+     "thread_cpu_ms_mean": 1.7795810597938144
+    }
+   },
+   "gil_probe_ticks": null,
+   "gpu_return_p50_ms": 4.6785,
+   "hetero_predicts": 5805,
+   "hetero_predicts_with_native_stamps": 0,
+   "mismatches_all_windows": 0,
+   "round": 1,
+   "routing_failures": [],
+   "run_wall_s": 276.3756861250149,
+   "shim_flags": null,
+   "slow_windows": 0,
+   "versions": {
+    "coremltools": "9.0",
+    "laya_apple": "1.4.0",
+    "mlx": "0.32.2",
+    "pyobjc": "12.2.2"
+   },
+   "warmups": null,
+   "windows": [
+    {
+     "aggregate_req_s": 120.93169344560218,
+     "ane_stages_p50_ms": {
+      "features": 0.1622495,
+      "native": null,
+      "post": null,
+      "pre": null,
+      "predict": 9.6848545,
+      "reacquire": null,
+      "tail": 0.0625
+     },
+     "client_cpu_ms": {
+      "long": 227.618,
+      "short": 312.745
+     },
+     "cycle": 0,
+     "devices": {
+      "long": {
+       "gpu": 485
+      },
+      "short": {
+       "ane": 1934
+      }
+     },
+     "gil_probe": null,
+     "long_p99_ms": 43.9230200019665,
+     "mismatches": 0,
+     "short_p99_ms": 11.7448869853979,
+     "slow": false,
+     "thread_cpu_per_forward_ms": {
+      "ane": 0.6439286799379524,
+      "gpu": 1.8001251835051546
+     }
+    },
+    {
+     "aggregate_req_s": 120.74293616762597,
+     "ane_stages_p50_ms": {
+      "features": 0.1600205,
+      "native": null,
+      "post": null,
+      "pre": null,
+      "predict": 9.6817295,
+      "reacquire": null,
+      "tail": 0.061667
+     },
+     "client_cpu_ms": {
+      "long": 223.383,
+      "short": 300.645
+     },
+     "cycle": 1,
+     "devices": {
+      "long": {
+       "gpu": 484
+      },
+      "short": {
+       "ane": 1932
+      }
+     },
+     "gil_probe": null,
+     "long_p99_ms": 47.90330914547667,
+     "mismatches": 0,
+     "short_p99_ms": 11.938605722971266,
+     "slow": false,
+     "thread_cpu_per_forward_ms": {
+      "ane": 0.6286556801242236,
+      "gpu": 1.7635139607438017
+     }
+    },
+    {
+     "aggregate_req_s": 121.2052396908333,
+     "ane_stages_p50_ms": {
+      "features": 0.163458,
+      "native": null,
+      "post": null,
+      "pre": null,
+      "predict": 9.68575,
+      "reacquire": null,
+      "tail": 0.063375
+     },
+     "client_cpu_ms": {
+      "long": 216.919,
+      "short": 302.593
+     },
+     "cycle": 2,
+     "devices": {
+      "long": {
+       "gpu": 486
+      },
+      "short": {
+       "ane": 1939
+      }
+     },
+     "gil_probe": null,
+     "long_p99_ms": 43.69498925516382,
+     "mismatches": 0,
+     "short_p99_ms": 11.345722087426111,
+     "slow": false,
+     "thread_cpu_per_forward_ms": {
+      "ane": 0.6349251273852502,
+      "gpu": 1.7750801872427984
+     }
+    }
+   ]
+  },
+  "laya-A-r2": {
+   "ane_stages": {
+    "features": {
+     "mean_ms": 0.26773296124828533,
+     "n": 5832,
+     "p50_ms": 0.158292,
+     "p95_ms": 0.6583098999999999,
+     "p99_ms": 0.7269417099999997
+    },
+    "predict": {
+     "mean_ms": 9.737978364368999,
+     "n": 5832,
+     "p50_ms": 9.686834,
+     "p95_ms": 9.84719605,
+     "p99_ms": 10.189941689999996
+    },
+    "tail": {
+     "mean_ms": 0.0673110891632373,
+     "n": 5832,
+     "p50_ms": 0.061084,
+     "p95_ms": 0.110208,
+     "p99_ms": 0.1620660199999998
+    }
+   },
+   "cell": "A",
+   "crossings_short_bucket": {
+    "ctypes": 0,
+    "nested_sends": 0,
+    "objc_send": 0,
+    "pool_pop": 0,
+    "pool_push": 0,
+    "reentries": 0,
+    "sites": {},
+    "total": 0
+   },
+   "forwards": {
+    "ane": {
+     "n": 5832,
+     "placement": "thread",
+     "service_ms_p50": 9.91225,
+     "thread_cpu_ms_mean": 0.6138606064814814
+    },
+    "gpu": {
+     "n": 1461,
+     "placement": "process",
+     "service_ms_p50": 35.664458,
+     "thread_cpu_ms_mean": 1.717569961670089
+    }
+   },
+   "gil_probe_ticks": null,
+   "gpu_return_p50_ms": 4.694,
+   "hetero_predicts": 5832,
+   "hetero_predicts_with_native_stamps": 0,
+   "mismatches_all_windows": 0,
+   "round": 2,
+   "routing_failures": [],
+   "run_wall_s": 275.25648391700815,
+   "shim_flags": null,
+   "slow_windows": 0,
+   "versions": {
+    "coremltools": "9.0",
+    "laya_apple": "1.4.0",
+    "mlx": "0.32.2",
+    "pyobjc": "12.2.2"
+   },
+   "warmups": null,
+   "windows": [
+    {
+     "aggregate_req_s": 121.74691055051302,
+     "ane_stages_p50_ms": {
+      "features": 0.157417,
+      "native": null,
+      "post": null,
+      "pre": null,
+      "predict": 9.689583500000001,
+      "reacquire": null,
+      "tail": 0.0604795
+     },
+     "client_cpu_ms": {
+      "long": 217.251,
+      "short": 283.876
+     },
+     "cycle": 0,
+     "devices": {
+      "long": {
+       "gpu": 488
+      },
+      "short": {
+       "ane": 1948
+      }
+     },
+     "gil_probe": null,
+     "long_p99_ms": 43.247982999891974,
+     "mismatches": 0,
+     "short_p99_ms": 10.978054959559813,
+     "slow": false,
+     "thread_cpu_per_forward_ms": {
+      "ane": 0.596747275154004,
+      "gpu": 1.6885152192622952
+     }
+    },
+    {
+     "aggregate_req_s": 120.92593524092612,
+     "ane_stages_p50_ms": {
+      "features": 0.163792,
+      "native": null,
+      "post": null,
+      "pre": null,
+      "predict": 9.693667,
+      "reacquire": null,
+      "tail": 0.062459
+     },
+     "client_cpu_ms": {
+      "long": 226.657,
+      "short": 307.365
+     },
+     "cycle": 1,
+     "devices": {
+      "long": {
+       "gpu": 485
+      },
+      "short": {
+       "ane": 1935
+      }
+     },
+     "gil_probe": null,
+     "long_p99_ms": 44.12459115032106,
+     "mismatches": 0,
+     "short_p99_ms": 11.409226197283717,
+     "slow": false,
+     "thread_cpu_per_forward_ms": {
+      "ane": 0.6452371829457364,
+      "gpu": 1.7720152907216495
+     }
+    },
+    {
+     "aggregate_req_s": 121.80822918277356,
+     "ane_stages_p50_ms": {
+      "features": 0.156875,
+      "native": null,
+      "post": null,
+      "pre": null,
+      "predict": 9.678084,
+      "reacquire": null,
+      "tail": 0.06075
+     },
+     "client_cpu_ms": {
+      "long": 217.623,
+      "short": 285.597
+     },
+     "cycle": 2,
+     "devices": {
+      "long": {
+       "gpu": 488
+      },
+      "short": {
+       "ane": 1949
+      }
+     },
+     "gil_probe": null,
+     "long_p99_ms": 43.15463147126138,
+     "mismatches": 0,
+     "short_p99_ms": 11.075684991665184,
+     "slow": false,
+     "thread_cpu_per_forward_ms": {
+      "ane": 0.5998139640841458,
+      "gpu": 1.6925140799180327
+     }
+    }
+   ]
+  },
+  "laya-PB-H-r1": {
+   "ane_stages": {
+    "features": {
+     "mean_ms": 0.2694811721832163,
+     "n": 5982,
+     "p50_ms": 0.1580625,
+     "p95_ms": 0.6579569,
+     "p99_ms": 0.7014202099999998
+    },
+    "native": {
+     "mean_ms": 9.4619408629221,
+     "n": 5982,
+     "p50_ms": 9.4338125,
+     "p95_ms": 9.488625,
+     "p99_ms": 9.57020446
+    },
+    "post": {
+     "mean_ms": 0.011156271481109998,
+     "n": 5982,
+     "p50_ms": 0.009166,
+     "p95_ms": 0.018042,
+     "p99_ms": 0.02666619
+    },
+    "pre": {
+     "mean_ms": 0.015834421598127715,
+     "n": 5982,
+     "p50_ms": 0.014375,
+     "p95_ms": 0.021417,
+     "p99_ms": 0.03625797999999998
+    },
+    "pre_overlap_any_fraction": 0.20661985957873621,
+    "pre_overlap_mean": 0.20661985957873621,
+    "predict": {
+     "mean_ms": 9.49108109144099,
+     "n": 5982,
+     "p50_ms": 9.46,
+     "p95_ms": 9.51853685,
+     "p99_ms": 9.64354354
+    },
+    "reacquire": {
+     "mean_ms": 0.00214953543965229,
+     "n": 5982,
+     "p50_ms": 0.001833,
+     "p95_ms": 0.0025809499999999925,
+     "p99_ms": 0.005840979999999983
+    },
+    "tail": {
+     "mean_ms": 0.0676637036108325,
+     "n": 5982,
+     "p50_ms": 0.061792,
+     "p95_ms": 0.08960414999999992,
+     "p99_ms": 0.17000493999999955
+    }
+   },
+   "cell": "PB-H",
+   "crossings_short_bucket": {
+    "ctypes": 1,
+    "nested_sends": 0,
+    "objc_send": 0,
+    "pool_pop": 1,
+    "pool_push": 2,
+    "reentries": 0,
+    "sites": {
+     "ctypes CFunctionType <- prebind.py:PrebindModel.predict": 1,
+     "pool_pop __exit__ <- prebind.py:PrebindModel.predict": 1,
+     "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+     "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+    },
+    "total": 4
+   },
+   "forwards": {
+    "ane": {
+     "n": 5982,
+     "placement": "thread",
+     "service_ms_p50": 9.6975415,
+     "thread_cpu_ms_mean": 0.38707531126713474
+    },
+    "gpu": {
+     "n": 1498,
+     "placement": "process",
+     "service_ms_p50": 35.720395499999995,
+     "thread_cpu_ms_mean": 1.6975018037383178
+    }
+   },
+   "gil_probe_ticks": null,
+   "gpu_return_p50_ms": 3.693,
+   "hetero_predicts": 5982,
+   "hetero_predicts_with_native_stamps": 5982,
+   "mismatches_all_windows": 0,
+   "round": 1,
+   "routing_failures": [],
+   "run_wall_s": 275.82825308298925,
+   "shim_flags": {
+    "128": 5,
+    "64": 5,
+    "96": 5
+   },
+   "slow_windows": 0,
+   "versions": {
+    "coremltools": "9.0",
+    "laya_apple": "1.4.0",
+    "mlx": "0.32.2",
+    "pyobjc": "12.2.2"
+   },
+   "warmups": null,
+   "windows": [
+    {
+     "aggregate_req_s": 124.72120137657254,
+     "ane_stages_p50_ms": {
+      "features": 0.156667,
+      "native": 9.432,
+      "post": 0.0087705,
+      "pre": 0.014292,
+      "predict": 9.4581455,
+      "reacquire": 0.001833,
+      "tail": 0.0619795
+     },
+     "client_cpu_ms": {
+      "long": 223.185,
+      "short": 287.498
+     },
+     "cycle": 0,
+     "devices": {
+      "long": {
+       "gpu": 500
+      },
+      "short": {
+       "ane": 1996
+      }
+     },
+     "gil_probe": null,
+     "long_p99_ms": 41.34642819408327,
+     "mismatches": 0,
+     "short_p99_ms": 10.533513955306262,
+     "slow": false,
+     "thread_cpu_per_forward_ms": {
+      "ane": 0.38281958767535074,
+      "gpu": 1.686478478
+     }
+    },
+    {
+     "aggregate_req_s": 124.35505901072543,
+     "ane_stages_p50_ms": {
+      "features": 0.160208,
+      "native": 9.436271,
+      "post": 0.00925,
+      "pre": 0.014791,
+      "predict": 9.463270999999999,
+      "reacquire": 0.001833,
+      "tail": 0.0621045
+     },
+     "client_cpu_ms": {
+      "long": 230.732,
+      "short": 298.512
+     },
+     "cycle": 1,
+     "devices": {
+      "long": {
+       "gpu": 498
+      },
+      "short": {
+       "ane": 1990
+      }
+     },
+     "gil_probe": null,
+     "long_p99_ms": 42.55259224504698,
+     "mismatches": 0,
+     "short_p99_ms": 10.892216869397089,
+     "slow": false,
+     "thread_cpu_per_forward_ms": {
+      "ane": 0.3963371361809045,
+      "gpu": 1.7362715722891566
+     }
+    },
+    {
+     "aggregate_req_s": 124.73159259888376,
+     "ane_stages_p50_ms": {
+      "features": 0.157333,
+      "native": 9.432770999999999,
+      "post": 0.009375,
+      "pre": 0.014167,
+      "predict": 9.45775,
+      "reacquire": 0.001833,
+      "tail": 0.0613955
+     },
+     "client_cpu_ms": {
+      "long": 221.282,
+      "short": 284.899
+     },
+     "cycle": 2,
+     "devices": {
+      "long": {
+       "gpu": 500
+      },
+      "short": {
+       "ane": 1996
+      }
+     },
+     "gil_probe": null,
+     "long_p99_ms": 41.30947415134869,
+     "mismatches": 0,
+     "short_p99_ms": 10.543397604487835,
+     "slow": false,
+     "thread_cpu_per_forward_ms": {
+      "ane": 0.38209705110220443,
+      "gpu": 1.66991044
+     }
+    }
+   ]
+  },
+  "laya-PB-H-r2": {
+   "ane_stages": {
+    "features": {
+     "mean_ms": 0.2778606729580758,
+     "n": 5987,
+     "p50_ms": 0.171334,
+     "p95_ms": 0.6927412000000001,
+     "p99_ms": 0.745875
+    },
+    "native": {
+     "mean_ms": 9.443523759979957,
+     "n": 5987,
+     "p50_ms": 9.420708,
+     "p95_ms": 9.4820714,
+     "p99_ms": 9.55174064
+    },
+    "post": {
+     "mean_ms": 0.009507449473860029,
+     "n": 5987,
+     "p50_ms": 0.00625,
+     "p95_ms": 0.017208,
+     "p99_ms": 0.023898240000000053
+    },
+    "pre": {
+     "mean_ms": 0.0166089093034909,
+     "n": 5987,
+     "p50_ms": 0.014958,
+     "p95_ms": 0.020570699999999994,
+     "p99_ms": 0.034088880000000016
+    },
+    "pre_overlap_any_fraction": 0.20878570235510271,
+    "pre_overlap_mean": 0.20878570235510271,
+    "predict": {
+     "mean_ms": 9.471891797561383,
+     "n": 5987,
+     "p50_ms": 9.44625,
+     "p95_ms": 9.508200200000001,
+     "p99_ms": 9.62072638
+    },
+    "reacquire": {
+     "mean_ms": 0.0022516788040754967,
+     "n": 5987,
+     "p50_ms": 0.000709,
+     "p95_ms": 0.002334,
+     "p99_ms": 0.004594760000000028
+    },
+    "tail": {
+     "mean_ms": 0.06573061583430767,
+     "n": 5987,
+     "p50_ms": 0.059709,
+     "p95_ms": 0.08009979999999998,
+     "p99_ms": 0.2344988800000001
+    }
+   },
+   "cell": "PB-H",
+   "crossings_short_bucket": {
+    "ctypes": 1,
+    "nested_sends": 0,
+    "objc_send": 0,
+    "pool_pop": 1,
+    "pool_push": 2,
+    "reentries": 0,
+    "sites": {
+     "ctypes CFunctionType <- prebind.py:PrebindModel.predict": 1,
+     "pool_pop __exit__ <- prebind.py:PrebindModel.predict": 1,
+     "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+     "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+    },
+    "total": 4
+   },
+   "forwards": {
+    "ane": {
+     "n": 5987,
+     "placement": "thread",
+     "service_ms_p50": 9.691167,
+     "thread_cpu_ms_mean": 0.38092422131284454
+    },
+    "gpu": {
+     "n": 1499,
+     "placement": "process",
+     "service_ms_p50": 35.724417,
+     "thread_cpu_ms_mean": 1.69914613742495
+    }
+   },
+   "gil_probe_ticks": null,
+   "gpu_return_p50_ms": 3.674,
+   "hetero_predicts": 5987,
+   "hetero_predicts_with_native_stamps": 5987,
+   "mismatches_all_windows": 0,
+   "round": 2,
+   "routing_failures": [],
+   "run_wall_s": 275.7801397090079,
+   "shim_flags": {
+    "128": 5,
+    "64": 5,
+    "96": 5
+   },
+   "slow_windows": 0,
+   "versions": {
+    "coremltools": "9.0",
+    "laya_apple": "1.4.0",
+    "mlx": "0.32.2",
+    "pyobjc": "12.2.2"
+   },
+   "warmups": null,
+   "windows": [
+    {
+     "aggregate_req_s": 124.67238311077254,
+     "ane_stages_p50_ms": {
+      "features": 0.157833,
+      "native": 9.43375,
+      "post": 0.009042,
+      "pre": 0.014208,
+      "predict": 9.459625,
+      "reacquire": 0.00175,
+      "tail": 0.061708
+     },
+     "client_cpu_ms": {
+      "long": 222.281,
+      "short": 288.495
+     },
+     "cycle": 0,
+     "devices": {
+      "long": {
+       "gpu": 500
+      },
+      "short": {
+       "ane": 1995
+      }
+     },
+     "gil_probe": null,
+     "long_p99_ms": 41.31660659157205,
+     "mismatches": 0,
+     "short_p99_ms": 10.581925036385655,
+     "slow": false,
+     "thread_cpu_per_forward_ms": {
+      "ane": 0.38267244010025064,
+      "gpu": 1.68539133
+     }
+    },
+    {
+     "aggregate_req_s": 124.58912297562145,
+     "ane_stages_p50_ms": {
+      "features": 0.1600835,
+      "native": 9.428708,
+      "post": 0.007667,
+      "pre": 0.014375,
+      "predict": 9.454646,
+      "reacquire": 0.001083,
+      "tail": 0.0616455
+     },
+     "client_cpu_ms": {
+      "long": 227.99,
+      "short": 292.567
+     },
+     "cycle": 1,
+     "devices": {
+      "long": {
+       "gpu": 499
+      },
+      "short": {
+       "ane": 1994
+      }
+     },
+     "gil_probe": null,
+     "long_p99_ms": 41.28325667814349,
+     "mismatches": 0,
+     "short_p99_ms": 10.713280898053197,
+     "slow": false,
+     "thread_cpu_per_forward_ms": {
+      "ane": 0.3844978821464393,
+      "gpu": 1.7161237815631263
+     }
+    },
+    {
+     "aggregate_req_s": 124.87281817980218,
+     "ane_stages_p50_ms": {
+      "features": 0.1766455,
+      "native": 9.380812500000001,
+      "post": 0.0050834999999999995,
+      "pre": 0.016417,
+      "predict": 9.403229,
+      "reacquire": 0.000542,
+      "tail": 0.055917
+     },
+     "client_cpu_ms": {
+      "long": 246.904,
+      "short": 313.312
+     },
+     "cycle": 2,
+     "devices": {
+      "long": {
+       "gpu": 500
+      },
+      "short": {
+       "ane": 1998
+      }
+     },
+     "gil_probe": null,
+     "long_p99_ms": 41.28626413468737,
+     "mismatches": 0,
+     "short_p99_ms": 10.604828020441346,
+     "slow": false,
+     "thread_cpu_per_forward_ms": {
+      "ane": 0.3756121211211211,
+      "gpu": 1.695957256
+     }
+    }
+   ]
+  },
+  "laya-PB-P-r1": {
+   "ane_stages": {
+    "features": {
+     "mean_ms": 0.16665411323869264,
+     "n": 6058,
+     "p50_ms": 0.1578125,
+     "p95_ms": 0.186459,
+     "p99_ms": 0.38104069000000107
+    },
+    "native": {
+     "mean_ms": 9.457223212446353,
+     "n": 6058,
+     "p50_ms": 9.428,
+     "p95_ms": 9.4942143,
+     "p99_ms": 9.52963087
+    },
+    "post": {
+     "mean_ms": 0.00847838246946187,
+     "n": 6058,
+     "p50_ms": 0.005792,
+     "p95_ms": 0.017792,
+     "p99_ms": 0.02160163000000001
+    },
+    "pre": {
+     "mean_ms": 0.01584478458237042,
+     "n": 6058,
+     "p50_ms": 0.014125,
+     "p95_ms": 0.020042,
+     "p99_ms": 0.033946380000000054
+    },
+    "pre_overlap_any_fraction": 0.007263123142951469,
+    "pre_overlap_mean": 0.007263123142951469,
+    "predict": {
+     "mean_ms": 9.487167798778474,
+     "n": 6058,
+     "p50_ms": 9.4505,
+     "p95_ms": 9.53106075,
+     "p99_ms": 9.73052
+    },
+    "reacquire": {
+     "mean_ms": 0.005621419280290525,
+     "n": 6058,
+     "p50_ms": 0.000709,
+     "p95_ms": 0.002792,
+     "p99_ms": 0.21879281000000034
+    },
+    "tail": {
+     "mean_ms": 0.06268227913502807,
+     "n": 6058,
+     "p50_ms": 0.061041,
+     "p95_ms": 0.076791,
+     "p99_ms": 0.12728038000000003
+    }
+   },
+   "cell": "PB-P",
+   "crossings_short_bucket": {
+    "ctypes": 1,
+    "nested_sends": 0,
+    "objc_send": 0,
+    "pool_pop": 1,
+    "pool_push": 2,
+    "reentries": 0,
+    "sites": {
+     "ctypes laya_predict_options_stamped <- prebind.py:PrebindModel.predict": 1,
+     "pool_pop __exit__ <- prebind.py:PrebindModel.predict": 1,
+     "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+     "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+    },
+    "total": 4
+   },
+   "forwards": {
+    "ane": {
+     "n": 6058,
+     "placement": "thread",
+     "service_ms_p50": 9.672520500000001,
+     "thread_cpu_ms_mean": 0.3660870041267746
+    },
+    "gpu": {
+     "n": 1677,
+     "placement": "process",
+     "service_ms_p50": 35.214625,
+     "thread_cpu_ms_mean": 1.6501404466308884
+    }
+   },
+   "gil_probe_ticks": 272649,
+   "gpu_return_p50_ms": 0.034,
+   "hetero_predicts": 6058,
+   "hetero_predicts_with_native_stamps": 6058,
+   "mismatches_all_windows": 0,
+   "round": 1,
+   "routing_failures": [],
+   "run_wall_s": 275.85829987499164,
+   "shim_flags": {
+    "128": 1,
+    "64": 1,
+    "96": 1
+   },
+   "slow_windows": 0,
+   "versions": {
+    "coremltools": "9.0",
+    "laya_apple": "1.4.0",
+    "mlx": "0.32.2",
+    "pyobjc": "12.2.2"
+   },
+   "warmups": null,
+   "windows": [
+    {
+     "aggregate_req_s": 128.90821895450316,
+     "ane_stages_p50_ms": {
+      "features": 0.157417,
+      "native": 9.426375,
+      "post": 0.00575,
+      "pre": 0.014083,
+      "predict": 9.4491665,
+      "reacquire": 0.000709,
+      "tail": 0.060917
+     },
+     "client_cpu_ms": {
+      "long": 240.867,
+      "short": 288.921
+     },
+     "cycle": 0,
+     "devices": {
+      "long": {
+       "gpu": 559
+      },
+      "short": {
+       "ane": 2020
+      }
+     },
+     "gil_probe": {
+      "mean_ms": 0.34626791726276823,
+      "n": 19991,
+      "over_1ms_fraction": 0.0002000900405182332,
+      "p50_ms": 0.342,
+      "p99_ms": 0.582320799999999
+     },
+     "long_p99_ms": 36.14097487065009,
+     "mismatches": 0,
+     "short_p99_ms": 10.39807570981793,
+     "slow": false,
+     "thread_cpu_per_forward_ms": {
+      "ane": 0.3641626623762376,
+      "gpu": 1.6467310393559929
+     }
+    },
+    {
+     "aggregate_req_s": 128.82115510701254,
+     "ane_stages_p50_ms": {
+      "features": 0.158,
+      "native": 9.429625,
+      "post": 0.005834,
+      "pre": 0.014167,
+      "predict": 9.451833,
+      "reacquire": 0.00075,
+      "tail": 0.061375
+     },
+     "client_cpu_ms": {
+      "long": 241.937,
+      "short": 286.146
+     },
+     "cycle": 1,
+     "devices": {
+      "long": {
+       "gpu": 559
+      },
+      "short": {
+       "ane": 2019
+      }
+     },
+     "gil_probe": {
+      "mean_ms": 0.34592661793986695,
+      "n": 19989,
+      "over_1ms_fraction": 0.00025013757566661664,
+      "p50_ms": 0.341875,
+      "p99_ms": 0.5775569999999999
+     },
+     "long_p99_ms": 36.19174688239581,
+     "mismatches": 0,
+     "short_p99_ms": 10.386198046617208,
+     "slow": false,
+     "thread_cpu_per_forward_ms": {
+      "ane": 0.36706894155522535,
+      "gpu": 1.654625373881932
+     }
+    },
+    {
+     "aggregate_req_s": 128.87542393882745,
+     "ane_stages_p50_ms": {
+      "features": 0.157916,
+      "native": 9.42825,
+      "post": 0.00575,
+      "pre": 0.014084,
+      "predict": 9.45075,
+      "reacquire": 0.000708,
+      "tail": 0.06075
+     },
+     "client_cpu_ms": {
+      "long": 243.639,
+      "short": 285.428
+     },
+     "cycle": 2,
+     "devices": {
+      "long": {
+       "gpu": 559
+      },
+      "short": {
+       "ane": 2019
+      }
+     },
+     "gil_probe": {
+      "mean_ms": 0.34576272759103643,
+      "n": 19992,
+      "over_1ms_fraction": 0.00015006002400960383,
+      "p50_ms": 0.341917,
+      "p99_ms": 0.57288247
+     },
+     "long_p99_ms": 36.22746934532187,
+     "mismatches": 0,
+     "short_p99_ms": 10.38800140377134,
+     "slow": false,
+     "thread_cpu_per_forward_ms": {
+      "ane": 0.36703036156513125,
+      "gpu": 1.6490649266547408
+     }
+    }
+   ]
+  },
+  "laya-PB-P-r2": {
+   "ane_stages": {
+    "features": {
+     "mean_ms": 0.17636252302086783,
+     "n": 6038,
+     "p50_ms": 0.163209,
+     "p95_ms": 0.20186434999999994,
+     "p99_ms": 0.62989837
+    },
+    "native": {
+     "mean_ms": 9.471027902451143,
+     "n": 6038,
+     "p50_ms": 9.442584,
+     "p95_ms": 9.51405445,
+     "p99_ms": 9.57393717
+    },
+    "post": {
+     "mean_ms": 0.0078032586949320975,
+     "n": 6038,
+     "p50_ms": 0.005666,
+     "p95_ms": 0.017416,
+     "p99_ms": 0.02388592000000001
+    },
+    "pre": {
+     "mean_ms": 0.01773123484597549,
+     "n": 6038,
+     "p50_ms": 0.015125,
+     "p95_ms": 0.02359559999999997,
+     "p99_ms": 0.03931358000000002
+    },
+    "pre_overlap_any_fraction": 0.013580655846306725,
+    "pre_overlap_mean": 0.013580655846306725,
+    "predict": {
+     "mean_ms": 9.49985304123882,
+     "n": 6038,
+     "p50_ms": 9.46575,
+     "p95_ms": 9.55276875,
+     "p99_ms": 9.7064495
+    },
+    "reacquire": {
+     "mean_ms": 0.0032906452467704535,
+     "n": 6038,
+     "p50_ms": 0.000708,
+     "p95_ms": 0.002583,
+     "p99_ms": 0.03373175000000018
+    },
+    "tail": {
+     "mean_ms": 0.06386345031467373,
+     "n": 6038,
+     "p50_ms": 0.060583,
+     "p95_ms": 0.08347774999999996,
+     "p99_ms": 0.13933967000000003
+    }
+   },
+   "cell": "PB-P",
+   "crossings_short_bucket": {
+    "ctypes": 1,
+    "nested_sends": 0,
+    "objc_send": 0,
+    "pool_pop": 1,
+    "pool_push": 2,
+    "reentries": 0,
+    "sites": {
+     "ctypes laya_predict_options_stamped <- prebind.py:PrebindModel.predict": 1,
+     "pool_pop __exit__ <- prebind.py:PrebindModel.predict": 1,
+     "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+     "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+    },
+    "total": 4
+   },
+   "forwards": {
+    "ane": {
+     "n": 6038,
+     "placement": "thread",
+     "service_ms_p50": 9.693625,
+     "thread_cpu_ms_mean": 0.37614752202716134
+    },
+    "gpu": {
+     "n": 1677,
+     "placement": "process",
+     "service_ms_p50": 35.2155,
+     "thread_cpu_ms_mean": 1.6982903649373882
+    }
+   },
+   "gil_probe_ticks": 272609,
+   "gpu_return_p50_ms": 0.037,
+   "hetero_predicts": 6038,
+   "hetero_predicts_with_native_stamps": 6038,
+   "mismatches_all_windows": 0,
+   "round": 2,
+   "routing_failures": [],
+   "run_wall_s": 275.8053102910053,
+   "shim_flags": {
+    "128": 1,
+    "64": 1,
+    "96": 1
+   },
+   "slow_windows": 0,
+   "versions": {
+    "coremltools": "9.0",
+    "laya_apple": "1.4.0",
+    "mlx": "0.32.2",
+    "pyobjc": "12.2.2"
+   },
+   "warmups": null,
+   "windows": [
+    {
+     "aggregate_req_s": 128.6511575676361,
+     "ane_stages_p50_ms": {
+      "features": 0.159083,
+      "native": 9.441459,
+      "post": 0.00575,
+      "pre": 0.0145,
+      "predict": 9.464458,
+      "reacquire": 0.000708,
+      "tail": 0.06075
+     },
+     "client_cpu_ms": {
+      "long": 246.854,
+      "short": 297.603
+     },
+     "cycle": 0,
+     "devices": {
+      "long": {
+       "gpu": 559
+      },
+      "short": {
+       "ane": 2015
+      }
+     },
+     "gil_probe": {
+      "mean_ms": 0.34511113295983187,
+      "n": 19991,
+      "over_1ms_fraction": 0.0001500675303886749,
+      "p50_ms": 0.340792,
+      "p99_ms": 0.5829714999999999
+     },
+     "long_p99_ms": 36.07902798685245,
+     "mismatches": 0,
+     "short_p99_ms": 10.407320380909368,
+     "slow": false,
+     "thread_cpu_per_forward_ms": {
+      "ane": 0.37116293548387097,
+      "gpu": 1.6976460125223616
+     }
+    },
+    {
+     "aggregate_req_s": 128.48275428425842,
+     "ane_stages_p50_ms": {
+      "features": 0.171,
+      "native": 9.4403545,
+      "post": 0.005541,
+      "pre": 0.015875,
+      "predict": 9.4638125,
+      "reacquire": 0.000667,
+      "tail": 0.060209
+     },
+     "client_cpu_ms": {
+      "long": 257.07,
+      "short": 306.493
+     },
+     "cycle": 1,
+     "devices": {
+      "long": {
+       "gpu": 559
+      },
+      "short": {
+       "ane": 2012
+      }
+     },
+     "gil_probe": {
+      "mean_ms": 0.3442717196598299,
+      "n": 19990,
+      "over_1ms_fraction": 0.00020010005002501252,
+      "p50_ms": 0.3395,
+      "p99_ms": 0.5848148800000001
+     },
+     "long_p99_ms": 36.172715126303956,
+     "mismatches": 0,
+     "short_p99_ms": 10.466229012818076,
+     "slow": false,
+     "thread_cpu_per_forward_ms": {
+      "ane": 0.3796813623260437,
+      "gpu": 1.6988403381037567
+     }
+    },
+    {
+     "aggregate_req_s": 128.4693357355146,
+     "ane_stages_p50_ms": {
+      "features": 0.166209,
+      "native": 9.445625,
+      "post": 0.005667,
+      "pre": 0.015625,
+      "predict": 9.469291,
+      "reacquire": 0.000708,
+      "tail": 0.060792
+     },
+     "client_cpu_ms": {
+      "long": 255.691,
+      "short": 302.061
+     },
+     "cycle": 2,
+     "devices": {
+      "long": {
+       "gpu": 559
+      },
+      "short": {
+       "ane": 2011
+      }
+     },
+     "gil_probe": {
+      "mean_ms": 0.3436864770100565,
+      "n": 19987,
+      "over_1ms_fraction": 0.0003001951268324411,
+      "p50_ms": 0.339584,
+      "p99_ms": 0.5763503799999998
+     },
+     "long_p99_ms": 36.232687649317086,
+     "mismatches": 0,
+     "short_p99_ms": 10.467904491815716,
+     "slow": false,
+     "thread_cpu_per_forward_ms": {
+      "ane": 0.3776064256588762,
+      "gpu": 1.6983847441860465
+     }
+    }
+   ]
+  },
+  "laya-PB-R-r1": {
+   "ane_stages": {
+    "features": {
+     "mean_ms": 0.5194673387096773,
+     "n": 5456,
+     "p50_ms": 0.165104,
+     "p95_ms": 1.13266625,
+     "p99_ms": 4.3250022999999995
+    },
+    "native": {
+     "mean_ms": 9.652546214809385,
+     "n": 5456,
+     "p50_ms": 9.4829165,
+     "p95_ms": 10.265354499999999,
+     "p99_ms": 10.524062650000001
+    },
+    "post": {
+     "mean_ms": 0.021818953079178884,
+     "n": 5456,
+     "p50_ms": 0.014437499999999999,
+     "p95_ms": 0.0515,
+     "p99_ms": 0.06289389999999999
+    },
+    "pre": {
+     "mean_ms": 0.05672679637096774,
+     "n": 5456,
+     "p50_ms": 0.0156045,
+     "p95_ms": 0.13758325000000002,
+     "p99_ms": 0.1723939
+    },
+    "pre_overlap_any_fraction": 0.04233870967741935,
+    "pre_overlap_mean": 0.04233870967741935,
+    "predict": {
+     "mean_ms": 9.75260432276393,
+     "n": 5456,
+     "p50_ms": 9.513771,
+     "p95_ms": 10.51081225,
+     "p99_ms": 11.144710299999998
+    },
+    "reacquire": {
+     "mean_ms": 0.021512358504398827,
+     "n": 5456,
+     "p50_ms": 0.002291,
+     "p95_ms": 0.010833,
+     "p99_ms": 0.3912207999999994
+    },
+    "tail": {
+     "mean_ms": 0.17833187481671553,
+     "n": 5456,
+     "p50_ms": 0.0665,
+     "p95_ms": 0.46270825,
+     "p99_ms": 0.5462581499999999
+    }
+   },
+   "cell": "PB-R",
+   "crossings_short_bucket": {
+    "ctypes": 1,
+    "nested_sends": 0,
+    "objc_send": 0,
+    "pool_pop": 1,
+    "pool_push": 2,
+    "reentries": 0,
+    "sites": {
+     "ctypes laya_predict_options_stamped <- prebind.py:PrebindModel.predict": 1,
+     "pool_pop __exit__ <- prebind.py:PrebindModel.predict": 1,
+     "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+     "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+    },
+    "total": 4
+   },
+   "forwards": {
+    "ane": {
+     "n": 5456,
+     "placement": "thread",
+     "service_ms_p50": 9.7395415,
+     "thread_cpu_ms_mean": 0.9156068614369502
+    },
+    "gpu": {
+     "n": 1571,
+     "placement": "process",
+     "service_ms_p50": 35.332875,
+     "thread_cpu_ms_mean": 4.27519335709739
+    }
+   },
+   "gil_probe_ticks": null,
+   "gpu_return_p50_ms": 0.051,
+   "hetero_predicts": 5456,
+   "hetero_predicts_with_native_stamps": 5456,
+   "mismatches_all_windows": 0,
+   "round": 1,
+   "routing_failures": [],
+   "run_wall_s": 275.755385416036,
+   "shim_flags": {
+    "128": 1,
+    "64": 1,
+    "96": 1
+   },
+   "slow_windows": 2,
+   "versions": {
+    "coremltools": "9.0",
+    "laya_apple": "1.4.0",
+    "mlx": "0.32.2",
+    "pyobjc": "12.2.2"
+   },
+   "warmups": null,
+   "windows": [
+    {
+     "aggregate_req_s": 127.68047713388788,
+     "ane_stages_p50_ms": {
+      "features": 0.158584,
+      "native": 9.4584585,
+      "post": 0.008834,
+      "pre": 0.014458,
+      "predict": 9.487521000000001,
+      "reacquire": 0.001834,
+      "tail": 0.062708
+     },
+     "client_cpu_ms": {
+      "long": 272.673,
+      "short": 331.698
+     },
+     "cycle": 0,
+     "devices": {
+      "long": {
+       "gpu": 556
+      },
+      "short": {
+       "ane": 1998
+      }
+     },
+     "gil_probe": null,
+     "long_p99_ms": 41.29601469903722,
+     "mismatches": 0,
+     "short_p99_ms": 12.12845622561872,
+     "slow": false,
+     "thread_cpu_per_forward_ms": {
+      "ane": 0.42557578978978977,
+      "gpu": 1.8668660089928057
+     }
+    },
+    {
+     "aggregate_req_s": 120.07666730940909,
+     "ane_stages_p50_ms": {
+      "features": 0.15810449999999998,
+      "native": 9.4739375,
+      "post": 0.011938,
+      "pre": 0.014291,
+      "predict": 9.5028545,
+      "reacquire": 0.002125,
+      "tail": 0.0618125
+     },
+     "client_cpu_ms": {
+      "long": 537.931,
+      "short": 602.065
+     },
+     "cycle": 1,
+     "devices": {
+      "long": {
+       "gpu": 532
+      },
+      "short": {
+       "ane": 1870
+      }
+     },
+     "gil_probe": null,
+     "long_p99_ms": 44.1640887199901,
+     "mismatches": 0,
+     "short_p99_ms": 16.583986220066436,
+     "slow": true,
+     "thread_cpu_per_forward_ms": {
+      "ane": 0.7603011786096256,
+      "gpu": 3.5477246466165413
+     }
+    },
+    {
+     "aggregate_req_s": 103.49204268834914,
+     "ane_stages_p50_ms": {
+      "features": 0.7894369999999999,
+      "native": 9.8351875,
+      "post": 0.0392705,
+      "pre": 0.098667,
+      "predict": 9.993103999999999,
+      "reacquire": 0.00625,
+      "tail": 0.366625
+     },
+     "client_cpu_ms": {
+      "long": 1129.638,
+      "short": 1199.492
+     },
+     "cycle": 2,
+     "devices": {
+      "long": {
+       "gpu": 483
+      },
+      "short": {
+       "ane": 1588
+      }
+     },
+     "gil_probe": null,
+     "long_p99_ms": 47.52279700245708,
+     "mismatches": 0,
+     "short_p99_ms": 16.955267498851747,
+     "slow": true,
+     "thread_cpu_per_forward_ms": {
+      "ane": 1.7150424458438287,
+      "gpu": 7.848782093167702
+     }
+    }
+   ]
+  },
+  "laya-PB-R-r2": {
+   "ane_stages": {
+    "features": {
+     "mean_ms": 0.8280145707771609,
+     "n": 5044,
+     "p50_ms": 0.7544795,
+     "p95_ms": 3.986931349999999,
+     "p99_ms": 4.404140749999998
+    },
+    "native": {
+     "mean_ms": 9.78642458743061,
+     "n": 5044,
+     "p50_ms": 9.7697295,
+     "p95_ms": 10.3586456,
+     "p99_ms": 10.530736430000001
+    },
+    "post": {
+     "mean_ms": 0.03206347402854877,
+     "n": 5044,
+     "p50_ms": 0.035395499999999996,
+     "p95_ms": 0.05349369999999998,
+     "p99_ms": 0.06880836999999984
+    },
+    "pre": {
+     "mean_ms": 0.0877837394924663,
+     "n": 5044,
+     "p50_ms": 0.091542,
+     "p95_ms": 0.152458,
+     "p99_ms": 0.21182731999999874
+    },
+    "pre_overlap_any_fraction": 0.07216494845360824,
+    "pre_overlap_mean": 0.07216494845360824,
+    "predict": {
+     "mean_ms": 9.943161038263284,
+     "n": 5044,
+     "p50_ms": 9.915312499999999,
+     "p95_ms": 10.617584899999999,
+     "p99_ms": 12.221138499999997
+    },
+    "reacquire": {
+     "mean_ms": 0.03688923731165742,
+     "n": 5044,
+     "p50_ms": 0.005167,
+     "p95_ms": 0.011125,
+     "p99_ms": 1.4398276299999977
+    },
+    "tail": {
+     "mean_ms": 0.2787257924266455,
+     "n": 5044,
+     "p50_ms": 0.334562,
+     "p95_ms": 0.4875169499999999,
+     "p99_ms": 0.5672015599999999
+    }
+   },
+   "cell": "PB-R",
+   "crossings_short_bucket": {
+    "ctypes": 1,
+    "nested_sends": 0,
+    "objc_send": 0,
+    "pool_pop": 1,
+    "pool_push": 2,
+    "reentries": 0,
+    "sites": {
+     "ctypes laya_predict_options_stamped <- prebind.py:PrebindModel.predict": 1,
+     "pool_pop __exit__ <- prebind.py:PrebindModel.predict": 1,
+     "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+     "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+    },
+    "total": 4
+   },
+   "forwards": {
+    "ane": {
+     "n": 5044,
+     "placement": "thread",
+     "service_ms_p50": 11.024188,
+     "thread_cpu_ms_mean": 1.3906520890166536
+    },
+    "gpu": {
+     "n": 1495,
+     "placement": "process",
+     "service_ms_p50": 38.101292,
+     "thread_cpu_ms_mean": 6.506831992642141
+    }
+   },
+   "gil_probe_ticks": null,
+   "gpu_return_p50_ms": 0.239,
+   "hetero_predicts": 5044,
+   "hetero_predicts_with_native_stamps": 5044,
+   "mismatches_all_windows": 0,
+   "round": 2,
+   "routing_failures": [],
+   "run_wall_s": 275.8460291670053,
+   "shim_flags": {
+    "128": 1,
+    "64": 1,
+    "96": 1
+   },
+   "slow_windows": 3,
+   "versions": {
+    "coremltools": "9.0",
+    "laya_apple": "1.4.0",
+    "mlx": "0.32.2",
+    "pyobjc": "12.2.2"
+   },
+   "warmups": null,
+   "windows": [
+    {
+     "aggregate_req_s": 122.04109659216351,
+     "ane_stages_p50_ms": {
+      "features": 0.157625,
+      "native": 9.454417,
+      "post": 0.011292,
+      "pre": 0.014208,
+      "predict": 9.484042,
+      "reacquire": 0.002042,
+      "tail": 0.062666
+     },
+     "client_cpu_ms": {
+      "long": 482.907,
+      "short": 536.882
+     },
+     "cycle": 0,
+     "devices": {
+      "long": {
+       "gpu": 538
+      },
+      "short": {
+       "ane": 1903
+      }
+     },
+     "gil_probe": null,
+     "long_p99_ms": 44.50373886793386,
+     "mismatches": 0,
+     "short_p99_ms": 16.522297179326415,
+     "slow": true,
+     "thread_cpu_per_forward_ms": {
+      "ane": 0.6802546784025223,
+      "gpu": 3.1521016152416355
+     }
+    },
+    {
+     "aggregate_req_s": 103.47884989306121,
+     "ane_stages_p50_ms": {
+      "features": 0.790625,
+      "native": 9.8135,
+      "post": 0.039208,
+      "pre": 0.100333,
+      "predict": 9.9725,
+      "reacquire": 0.005958,
+      "tail": 0.365917
+     },
+     "client_cpu_ms": {
+      "long": 1161.116,
+      "short": 1229.681
+     },
+     "cycle": 1,
+     "devices": {
+      "long": {
+       "gpu": 482
+      },
+      "short": {
+       "ane": 1589
+      }
+     },
+     "gil_probe": null,
+     "long_p99_ms": 44.76768672117032,
+     "mismatches": 0,
+     "short_p99_ms": 16.876995009370148,
+     "slow": true,
+     "thread_cpu_per_forward_ms": {
+      "ane": 1.7479783876651982,
+      "gpu": 8.054463076763486
+     }
+    },
+    {
+     "aggregate_req_s": 101.27727620408962,
+     "ane_stages_p50_ms": {
+      "features": 0.7982085,
+      "native": 9.826540999999999,
+      "post": 0.040584,
+      "pre": 0.101833,
+      "predict": 9.9860625,
+      "reacquire": 0.006375,
+      "tail": 0.377125
+     },
+     "client_cpu_ms": {
+      "long": 1244.103,
+      "short": 1308.525
+     },
+     "cycle": 2,
+     "devices": {
+      "long": {
+       "gpu": 475
+      },
+      "short": {
+       "ane": 1552
+      }
+     },
+     "gil_probe": null,
+     "long_p99_ms": 44.84982407768257,
+     "mismatches": 0,
+     "short_p99_ms": 16.910082981921732,
+     "slow": true,
+     "thread_cpu_per_forward_ms": {
+      "ane": 1.8958678002577318,
+      "gpu": 8.736067277894737
+     }
+    }
+   ]
+  },
+  "laya-PB-W-r1": {
+   "ane_stages": {
+    "features": {
+     "mean_ms": 0.16503814627703484,
+     "n": 6057,
+     "p50_ms": 0.155167,
+     "p95_ms": 0.1804162,
+     "p99_ms": 0.5583299599999914
+    },
+    "native": {
+     "mean_ms": 9.459542662869408,
+     "n": 6057,
+     "p50_ms": 9.4595,
+     "p95_ms": 9.507916,
+     "p99_ms": 9.541890039999998
+    },
+    "post": {
+     "mean_ms": 0.010166031533762589,
+     "n": 6057,
+     "p50_ms": 0.00925,
+     "p95_ms": 0.017417,
+     "p99_ms": 0.019685479999999984
+    },
+    "pre": {
+     "mean_ms": 0.015975619118375434,
+     "n": 6057,
+     "p50_ms": 0.013916,
+     "p95_ms": 0.019342199999999993,
+     "p99_ms": 0.03217495999999992
+    },
+    "pre_overlap_any_fraction": 0.009575697540036322,
+    "pre_overlap_mean": 0.009575697540036322,
+    "predict": {
+     "mean_ms": 9.489841659897639,
+     "n": 6057,
+     "p50_ms": 9.4885,
+     "p95_ms": 9.5426416,
+     "p99_ms": 9.694906999999995
+    },
+    "reacquire": {
+     "mean_ms": 0.004157346376093776,
+     "n": 6057,
+     "p50_ms": 0.001875,
+     "p95_ms": 0.002833,
+     "p99_ms": 0.08030851999999317
+    },
+    "tail": {
+     "mean_ms": 0.06206783803863299,
+     "n": 6057,
+     "p50_ms": 0.06025,
+     "p95_ms": 0.07388319999999998,
+     "p99_ms": 0.11638007999999962
+    }
+   },
+   "cell": "PB-W",
+   "crossings_short_bucket": {
+    "ctypes": 1,
+    "nested_sends": 0,
+    "objc_send": 0,
+    "pool_pop": 1,
+    "pool_push": 2,
+    "reentries": 0,
+    "sites": {
+     "ctypes laya_predict_options_stamped <- prebind.py:PrebindModel.predict": 1,
+     "pool_pop __exit__ <- prebind.py:PrebindModel.predict": 1,
+     "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+     "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+    },
+    "total": 4
+   },
+   "forwards": {
+    "ane": {
+     "n": 6057,
+     "placement": "thread",
+     "service_ms_p50": 9.702917,
+     "thread_cpu_ms_mean": 0.36214047564801055
+    },
+    "gpu": {
+     "n": 1676,
+     "placement": "process",
+     "service_ms_p50": 35.279458,
+     "thread_cpu_ms_mean": 1.6408157899761335
+    }
+   },
+   "gil_probe_ticks": null,
+   "gpu_return_p50_ms": 0.033,
+   "hetero_predicts": 6057,
+   "hetero_predicts_with_native_stamps": 6057,
+   "mismatches_all_windows": 0,
+   "round": 1,
+   "routing_failures": [],
+   "run_wall_s": 282.0070072080125,
+   "shim_flags": {
+    "128": 1,
+    "64": 1,
+    "96": 1
+   },
+   "slow_windows": 0,
+   "versions": {
+    "coremltools": "9.0",
+    "laya_apple": "1.4.0",
+    "mlx": "0.32.2",
+    "pyobjc": "12.2.2"
+   },
+   "warmups": [
+    {
+     "before": "hetero",
+     "cycle": 0,
+     "end_ns": 335920769849958,
+     "start_ns": 335918747486750,
+     "streams": {
+      "long": {
+       "devices": {
+        "gpu": 56
+       },
+       "mismatches": 0,
+       "n": 56
+      },
+      "short": {
+       "devices": {
+        "ane": 198
+       },
+       "mismatches": 0,
+       "n": 198
+      }
+     }
+    },
+    {
+     "before": "hetero",
+     "cycle": 1,
+     "end_ns": 335990605085875,
+     "start_ns": 335988583101625,
+     "streams": {
+      "long": {
+       "devices": {
+        "gpu": 56
+       },
+       "mismatches": 0,
+       "n": 56
+      },
+      "short": {
+       "devices": {
+        "ane": 199
+       },
+       "mismatches": 0,
+       "n": 199
+      }
+     }
+    },
+    {
+     "before": "hetero",
+     "cycle": 2,
+     "end_ns": 336105538432750,
+     "start_ns": 336103517183208,
+     "streams": {
+      "long": {
+       "devices": {
+        "gpu": 56
+       },
+       "mismatches": 0,
+       "n": 56
+      },
+      "short": {
+       "devices": {
+        "ane": 198
+       },
+       "mismatches": 0,
+       "n": 198
+      }
+     }
+    }
+   ],
+   "windows": [
+    {
+     "aggregate_req_s": 128.93815574119537,
+     "ane_stages_p50_ms": {
+      "features": 0.155209,
+      "native": 9.456833,
+      "post": 0.009334,
+      "pre": 0.013834,
+      "predict": 9.486084,
+      "reacquire": 0.001875,
+      "tail": 0.060083
+     },
+     "client_cpu_ms": {
+      "long": 239.849,
+      "short": 288.667
+     },
+     "cycle": 0,
+     "devices": {
+      "long": {
+       "gpu": 559
+      },
+      "short": {
+       "ane": 2021
+      }
+     },
+     "gil_probe": null,
+     "long_p99_ms": 36.165925787063316,
+     "mismatches": 0,
+     "short_p99_ms": 10.378266836050898,
+     "slow": false,
+     "thread_cpu_per_forward_ms": {
+      "ane": 0.358859085106383,
+      "gpu": 1.6246995957066188
+     }
+    },
+    {
+     "aggregate_req_s": 128.6302548729275,
+     "ane_stages_p50_ms": {
+      "features": 0.155333,
+      "native": 9.461375,
+      "post": 0.009208,
+      "pre": 0.014,
+      "predict": 9.490667,
+      "reacquire": 0.001917,
+      "tail": 0.060583
+     },
+     "client_cpu_ms": {
+      "long": 246.167,
+      "short": 294.479
+     },
+     "cycle": 1,
+     "devices": {
+      "long": {
+       "gpu": 558
+      },
+      "short": {
+       "ane": 2015
+      }
+     },
+     "gil_probe": null,
+     "long_p99_ms": 36.25605000881478,
+     "mismatches": 0,
+     "short_p99_ms": 10.42797924252227,
+     "slow": false,
+     "thread_cpu_per_forward_ms": {
+      "ane": 0.3705000744416873,
+      "gpu": 1.679142383512545
+     }
+    },
+    {
+     "aggregate_req_s": 128.9641321470478,
+     "ane_stages_p50_ms": {
+      "features": 0.154959,
+      "native": 9.461041,
+      "post": 0.009167,
+      "pre": 0.013875,
+      "predict": 9.488792,
+      "reacquire": 0.001875,
+      "tail": 0.060042
+     },
+     "client_cpu_ms": {
+      "long": 240.926,
+      "short": 287.244
+     },
+     "cycle": 2,
+     "devices": {
+      "long": {
+       "gpu": 559
+      },
+      "short": {
+       "ane": 2021
+      }
+     },
+     "gil_probe": null,
+     "long_p99_ms": 36.02420907118358,
+     "mismatches": 0,
+     "short_p99_ms": 10.376758396159858,
+     "slow": false,
+     "thread_cpu_per_forward_ms": {
+      "ane": 0.35708708560118757,
+      "gpu": 1.618673953488372
+     }
+    }
+   ]
+  },
+  "laya-PB-W-r2": {
+   "ane_stages": {
+    "features": {
+     "mean_ms": 0.17423099044795784,
+     "n": 6072,
+     "p50_ms": 0.169209,
+     "p95_ms": 0.19258345000000002,
+     "p99_ms": 0.5302250399999985
+    },
+    "native": {
+     "mean_ms": 9.42416907740448,
+     "n": 6072,
+     "p50_ms": 9.423,
+     "p95_ms": 9.48968545,
+     "p99_ms": 9.53292482
+    },
+    "post": {
+     "mean_ms": 0.00815982213438735,
+     "n": 6072,
+     "p50_ms": 0.005834,
+     "p95_ms": 0.01695845,
+     "p99_ms": 0.022661249999999994
+    },
+    "pre": {
+     "mean_ms": 0.017532080368906456,
+     "n": 6072,
+     "p50_ms": 0.015917,
+     "p95_ms": 0.02164344999999999,
+     "p99_ms": 0.03385161
+    },
+    "pre_overlap_any_fraction": 0.009387351778656126,
+    "pre_overlap_mean": 0.009387351778656126,
+    "predict": {
+     "mean_ms": 9.454377270256916,
+     "n": 6072,
+     "p50_ms": 9.447771,
+     "p95_ms": 9.525583,
+     "p99_ms": 9.72433611
+    },
+    "reacquire": {
+     "mean_ms": 0.004516290349143609,
+     "n": 6072,
+     "p50_ms": 0.000791,
+     "p95_ms": 0.002833,
+     "p99_ms": 0.1302062499999996
+    },
+    "tail": {
+     "mean_ms": 0.059705012845849816,
+     "n": 6072,
+     "p50_ms": 0.057834,
+     "p95_ms": 0.07547689999999999,
+     "p99_ms": 0.12674156999999997
+    }
+   },
+   "cell": "PB-W",
+   "crossings_short_bucket": {
+    "ctypes": 1,
+    "nested_sends": 0,
+    "objc_send": 0,
+    "pool_pop": 1,
+    "pool_push": 2,
+    "reentries": 0,
+    "sites": {
+     "ctypes laya_predict_options_stamped <- prebind.py:PrebindModel.predict": 1,
+     "pool_pop __exit__ <- prebind.py:PrebindModel.predict": 1,
+     "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+     "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+    },
+    "total": 4
+   },
+   "forwards": {
+    "ane": {
+     "n": 6072,
+     "placement": "thread",
+     "service_ms_p50": 9.672458500000001,
+     "thread_cpu_ms_mean": 0.36263797496706196
+    },
+    "gpu": {
+     "n": 1678,
+     "placement": "process",
+     "service_ms_p50": 35.27814600000001,
+     "thread_cpu_ms_mean": 1.6490566620977352
+    }
+   },
+   "gil_probe_ticks": null,
+   "gpu_return_p50_ms": 0.037,
+   "hetero_predicts": 6072,
+   "hetero_predicts_with_native_stamps": 6072,
+   "mismatches_all_windows": 0,
+   "round": 2,
+   "routing_failures": [],
+   "run_wall_s": 281.9073762500193,
+   "shim_flags": {
+    "128": 1,
+    "64": 1,
+    "96": 1
+   },
+   "slow_windows": 0,
+   "versions": {
+    "coremltools": "9.0",
+    "laya_apple": "1.4.0",
+    "mlx": "0.32.2",
+    "pyobjc": "12.2.2"
+   },
+   "warmups": [
+    {
+     "before": "hetero",
+     "cycle": 0,
+     "end_ns": 337310351970541,
+     "start_ns": 337308345119833,
+     "streams": {
+      "long": {
+       "devices": {
+        "gpu": 56
+       },
+       "mismatches": 0,
+       "n": 56
+      },
+      "short": {
+       "devices": {
+        "ane": 199
+       },
+       "mismatches": 0,
+       "n": 199
+      }
+     }
+    },
+    {
+     "before": "hetero",
+     "cycle": 1,
+     "end_ns": 337380169926166,
+     "start_ns": 337378147743916,
+     "streams": {
+      "long": {
+       "devices": {
+        "gpu": 56
+       },
+       "mismatches": 0,
+       "n": 56
+      },
+      "short": {
+       "devices": {
+        "ane": 199
+       },
+       "mismatches": 0,
+       "n": 199
+      }
+     }
+    },
+    {
+     "before": "hetero",
+     "cycle": 2,
+     "end_ns": 337495095850208,
+     "start_ns": 337493074484166,
+     "streams": {
+      "long": {
+       "devices": {
+        "gpu": 56
+       },
+       "mismatches": 0,
+       "n": 56
+      },
+      "short": {
+       "devices": {
+        "ane": 199
+       },
+       "mismatches": 0,
+       "n": 199
+      }
+     }
+    }
+   ],
+   "windows": [
+    {
+     "aggregate_req_s": 128.9583165178135,
+     "ane_stages_p50_ms": {
+      "features": 0.15741650000000001,
+      "native": 9.4394165,
+      "post": 0.007,
+      "pre": 0.014334,
+      "predict": 9.466021,
+      "reacquire": 0.001125,
+      "tail": 0.059291
+     },
+     "client_cpu_ms": {
+      "long": 249.182,
+      "short": 297.152
+     },
+     "cycle": 0,
+     "devices": {
+      "long": {
+       "gpu": 560
+      },
+      "short": {
+       "ane": 2020
+      }
+     },
+     "gil_probe": null,
+     "long_p99_ms": 36.23133500514086,
+     "mismatches": 0,
+     "short_p99_ms": 10.418972983607091,
+     "slow": false,
+     "thread_cpu_per_forward_ms": {
+      "ane": 0.3666968658415842,
+      "gpu": 1.6585395821428572
+     }
+    },
+    {
+     "aggregate_req_s": 129.07599650076074,
+     "ane_stages_p50_ms": {
+      "features": 0.158709,
+      "native": 9.432459,
+      "post": 0.00675,
+      "pre": 0.014667,
+      "predict": 9.458625,
+      "reacquire": 0.001,
+      "tail": 0.059042
+     },
+     "client_cpu_ms": {
+      "long": 248.159,
+      "short": 295.62
+     },
+     "cycle": 1,
+     "devices": {
+      "long": {
+       "gpu": 560
+      },
+      "short": {
+       "ane": 2023
+      }
+     },
+     "gil_probe": null,
+     "long_p99_ms": 36.15483862697147,
+     "mismatches": 0,
+     "short_p99_ms": 10.398648480186239,
+     "slow": false,
+     "thread_cpu_per_forward_ms": {
+      "ane": 0.3643302694018784,
+      "gpu": 1.6541440428571428
+     }
+    },
+    {
+     "aggregate_req_s": 129.34529430402253,
+     "ane_stages_p50_ms": {
+      "features": 0.174125,
+      "native": 9.376708,
+      "post": 0.004833,
+      "pre": 0.016417,
+      "predict": 9.400459,
+      "reacquire": 0.000625,
+      "tail": 0.05375
+     },
+     "client_cpu_ms": {
+      "long": 264.783,
+      "short": 308.488
+     },
+     "cycle": 2,
+     "devices": {
+      "long": {
+       "gpu": 558
+      },
+      "short": {
+       "ane": 2029
+      }
+     },
+     "gil_probe": null,
+     "long_p99_ms": 36.18050338700414,
+     "mismatches": 0,
+     "short_p99_ms": 10.38067001849413,
+     "slow": false,
+     "thread_cpu_per_forward_ms": {
+      "ane": 0.35690979793001476,
+      "gpu": 1.6344341379928315
+     }
+    }
+   ]
+  }
+ },
+ "unused_runs": []
+}

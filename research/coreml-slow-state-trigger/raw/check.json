@@ -1,0 +1,182 @@
+{
+ "PB_H_bit_identical": true,
+ "PB_H_holds_gil": true,
+ "PB_R_bit_identical": true,
+ "PB_R_releases_gil": true,
+ "all_ok": true,
+ "buckets": {
+  "128": {
+   "PB-H_bit_identical": true,
+   "PB-H_forward_bit_identical": true,
+   "PB-R_bit_identical": true,
+   "PB-R_forward_bit_identical": true,
+   "PB_backings": {
+    "cls": "backed",
+    "logits": "backed"
+   },
+   "call_flags": {
+    "PB-H": 5,
+    "PB-R": 1
+   },
+   "crossings": {
+    "PB-H": {
+     "ctypes": 1,
+     "nested_sends": 0,
+     "objc_send": 0,
+     "pool_pop": 1,
+     "pool_push": 2,
+     "reentries": 0,
+     "sites": {
+      "ctypes CFunctionType <- prebind.py:PrebindModel.predict": 1,
+      "pool_pop __exit__ <- prebind.py:PrebindModel.predict": 1,
+      "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+      "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+     },
+     "total": 4
+    },
+    "PB-R": {
+     "ctypes": 1,
+     "nested_sends": 0,
+     "objc_send": 0,
+     "pool_pop": 1,
+     "pool_push": 2,
+     "reentries": 0,
+     "sites": {
+      "ctypes laya_predict_options_stamped <- prebind.py:PrebindModel.predict": 1,
+      "pool_pop __exit__ <- prebind.py:PrebindModel.predict": 1,
+      "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+      "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+     },
+     "total": 4
+    }
+   },
+   "rows": 11
+  },
+  "64": {
+   "PB-H_bit_identical": true,
+   "PB-H_forward_bit_identical": true,
+   "PB-R_bit_identical": true,
+   "PB-R_forward_bit_identical": true,
+   "PB_backings": {
+    "cls": "backed",
+    "logits": "backed"
+   },
+   "call_flags": {
+    "PB-H": 5,
+    "PB-R": 1
+   },
+   "crossings": {
+    "PB-H": {
+     "ctypes": 1,
+     "nested_sends": 0,
+     "objc_send": 0,
+     "pool_pop": 1,
+     "pool_push": 2,
+     "reentries": 0,
+     "sites": {
+      "ctypes CFunctionType <- prebind.py:PrebindModel.predict": 1,
+      "pool_pop __exit__ <- prebind.py:PrebindModel.predict": 1,
+      "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+      "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+     },
+     "total": 4
+    },
+    "PB-R": {
+     "ctypes": 1,
+     "nested_sends": 0,
+     "objc_send": 0,
+     "pool_pop": 1,
+     "pool_push": 2,
+     "reentries": 0,
+     "sites": {
+      "ctypes laya_predict_options_stamped <- prebind.py:PrebindModel.predict": 1,
+      "pool_pop __exit__ <- prebind.py:PrebindModel.predict": 1,
+      "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+      "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+     },
+     "total": 4
+    }
+   },
+   "rows": 11
+  },
+  "96": {
+   "PB-H_bit_identical": true,
+   "PB-H_forward_bit_identical": true,
+   "PB-R_bit_identical": true,
+   "PB-R_forward_bit_identical": true,
+   "PB_backings": {
+    "cls": "backed",
+    "logits": "backed"
+   },
+   "call_flags": {
+    "PB-H": 5,
+    "PB-R": 1
+   },
+   "crossings": {
+    "PB-H": {
+     "ctypes": 1,
+     "nested_sends": 0,
+     "objc_send": 0,
+     "pool_pop": 1,
+     "pool_push": 2,
+     "reentries": 0,
+     "sites": {
+      "ctypes CFunctionType <- prebind.py:PrebindModel.predict": 1,
+      "pool_pop __exit__ <- prebind.py:PrebindModel.predict": 1,
+      "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+      "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+     },
+     "total": 4
+    },
+    "PB-R": {
+     "ctypes": 1,
+     "nested_sends": 0,
+     "objc_send": 0,
+     "pool_pop": 1,
+     "pool_push": 2,
+     "reentries": 0,
+     "sites": {
+      "ctypes laya_predict_options_stamped <- prebind.py:PrebindModel.predict": 1,
+      "pool_pop __exit__ <- prebind.py:PrebindModel.predict": 1,
+      "pool_push alloc <- __init__.py:autorelease_pool.__enter__": 1,
+      "pool_push init <- __init__.py:autorelease_pool.__enter__": 1
+     },
+     "total": 4
+    }
+   },
+   "rows": 11
+  }
+ },
+ "coremltools": "9.0",
+ "gil_test": {
+  "PB-H": {
+   "lateness_mean_ms": 8.731970294117648,
+   "lateness_p50_ms": 8.94725,
+   "lateness_p99_ms": 9.478062000000001,
+   "loop_ms": 474.653875,
+   "native_predict_p50_ms": 9.486563,
+   "predicts": 50,
+   "ticks": 51
+  },
+  "PB-R": {
+   "lateness_mean_ms": 0.3387157547169811,
+   "lateness_p50_ms": 0.338208,
+   "lateness_p99_ms": 0.345758,
+   "loop_ms": 477.388208,
+   "native_predict_p50_ms": 9.4985,
+   "predicts": 50,
+   "ticks": 477
+  },
+  "bucket": 128,
+  "hold_min_fraction_of_native": 0.5,
+  "period_ns": 1000000,
+  "predicts": 50,
+  "release_max_ms": 1.0
+ },
+ "laya_apple": "1.4.0",
+ "model": "laya",
+ "pyobjc": "12.2.2",
+ "rows_per_bucket": 11,
+ "seed": 0,
+ "switch_interval_s": 0.005
+}

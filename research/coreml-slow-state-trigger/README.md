@@ -1,14 +1,14 @@
 # What triggers the host-side slow state (trigger screen)
 
-**Status: paused before any campaign run (2026-09-26).**
-- **Why.** A higher-priority architectural alternative was identified before any campaign run and
-  before any result was inspected: Core ML's official asynchronous prediction API (#90,
-  `research/coreml-async-predict/`).
-- **What exists.** The harness is written and statically validated. The pre-campaign check passed
-  in a smoke location. No campaign data exists.
-- **When it resumes.** This screen resumes if async prediction does not remove the host-side slow
-  state, or cannot be implemented safely.
-- **The criteria** are in [`criteria.md`](criteria.md), and they are unchanged. Issue #89.
+**Status: run (2026-10-02, macOS 27.0). Outcome: PB-H, PB-W and PB-P are each confirmed; no
+single cause is attributed.**
+- **Why it ran.** It was paused on 2026-09-26 for Core ML's asynchronous prediction API (#90,
+  `research/coreml-async-predict/`). #92's outcome was that async does not solve the slow state, so
+  this screen resumed.
+- **The result.** PB-R reproduced the slow state in 5 of 6 hetero windows and A in 0 of 6. PB-H, PB-W
+  and PB-P each had 0 of 6. The readings, the tables and the limitations are in
+  [`results.md`](results.md).
+- **The criteria** are in [`criteria.md`](criteria.md), and they were not changed. Issue #89.
 
 ## Question
 
@@ -59,5 +59,9 @@ uv run python research/coreml-slow-state-trigger/scripts/analyze.py      # --che
 | `scripts/design.py` | the rounds and the next step |
 | `scripts/run_all.sh` | the check, then the rounds the rules require |
 | `scripts/analyze.py` | states, outcomes, `results.json` and `tables.md` (`--check`) |
+| `results.md` | the outcome, setup, tables, findings and limitations |
+| `results.json`, `tables.md` | the reduced results `analyze.py` writes |
+| `raw/check.json` | the pre-campaign check |
+| `evidence.json` | the ten raw run files, held externally: URL, SHA-256 and size ([`docs/evidence.md`](../../docs/evidence.md)) |
 
 Unit tests: `tests/unit/test_slow_state_trigger.py`.
