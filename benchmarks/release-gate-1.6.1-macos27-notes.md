@@ -10,7 +10,10 @@ full runs of the 1.6.1 release gate, how they were made, and the cause of run 1'
 
 - Run 1 stays recorded unchanged as the failure record.
 - Both runs used the same command, environment, machine, OS and artifact cache. They differ
-  only in the candidate commit.
+  in three ways:
+  - the candidate commit;
+  - other load on the machine, which was present during run 2 (see "Revision and load");
+  - how warm the `uv` cache was for the install matrix: 129 s in run 1 against 25 s in run 2.
 - No gate, tolerance or threshold changed between them.
 
 ## Run 2 (PASS)
@@ -36,18 +39,29 @@ The gate's wall time was 1139 s (00:06:26 to 00:25:25 +0800, 2026-10-03).
 
 - **Recorded revision:** the report records `f41fb41`. That is `origin/main` at `5d8da47`
   plus only run 1's result files. `laya_apple/`, `tests/` and `scripts/` are identical to
-  `5d8da47`. Run 2's files and these notes were added in the next commit.
+  `5d8da47`.
+  - `f41fb41` is a commit on the PR branch of
+    [#155](https://github.com/tc3oliver/laya-apple/pull/155). It is reachable as
+    `refs/pull/155/head`, but it will not be on `main` after the squash merge.
+  - Run 2's files and these notes were added in later commits on that branch.
 - **Machine state:** oMLX was stopped. `pmset -g therm` reported no thermal or performance
   warning before or after the run.
 - **Load average:** 2.43 / 2.09 / 1.91 before the run, and 3.43 / 6.93 / 6.34 after it.
-- **Other load:** the 5- and 15-minute averages after the run show that other work ran on
-  the machine during the second half of the run. No benchmark timing is part of this gate's
-  result, and every step passed.
+- **Other load:** other work ran on the machine for much of the run.
+  - The 15-minute average went from 1.91 to 6.34. That rise cannot come from load that
+    started only at the midpoint of a 19-minute run.
+  - What that work was is not known.
+- **Why it matters:** no benchmark timing is part of this gate's result. The gate does
+  contain timing-dependent tests, though, as run 1's failure showed. Run 2 passed every
+  step under this load.
 
 ### pytest count
 
-Run 2 has 1643 + 9 tests against run 1's 1622. The difference is the tests added on `main`
-between `486997f` and `5d8da47`, namely #154 and #156.
+Run 2 collected 1652 tests (1643 passed + 9 skipped), against 1622 in run 1 (1 failed +
+1612 passed + 9 skipped).
+
+- All 30 extra tests come from #154.
+- #156 only rewrote an existing test. It adds no test function or parametrization.
 
 ## Run 1 (FAIL)
 
@@ -100,9 +114,27 @@ The gate's wall time was 1219 s (23:22:37 to 23:42:56 +0800, 2026-10-02).
   available for 1.6.1.
 - **Routing profile:** this OS uses the shipped profile from #152
   (`Apple_M4_Max-macos27-coremltools9.0.json`) instead of `routing.json`.
-- **Artifact cache:** the run used the macOS 27 artifact cache, not the 26.6.2 one.
-- **Install matrix timing:** the install matrix took 129 s, against 36 s for 1.6.0. Part of
-  the `uv` cache was cold. Its result does not depend on timing.
+- **Artifact cache:** the runs used the macOS 27 artifact cache, not the 26.6.2 one.
+- **Manifest coverage:** `manifest schema` validated 10 manifests here, against 15 for 1.6.0.
+  - The macOS 27 cache holds fewer artifacts. All of them are `bc1s-masked` B1 graphs, as in
+    the 26.6.2 cache.
+  - These buckets are in the 26.6.2 cache but not in the macOS 27 one:
+    - `laya`: L256 and L512;
+    - `laya-multilingual`: L512;
+    - `laya-typed-decisions`: L256 and L512.
+  - So `artifacts verify` and the ANE parity tests covered only these buckets:
+    - L64, L96 and L128 for every model;
+    - L256 for `laya-multilingual`.
+  - The comparison was made by listing each cache's `*/*/*/manifest.json`, read-only.
+- **Routing check:** `derive_routing --check` covers only `laya_apple/data/routing.json`. It
+  does not check the shipped macOS 27 profile
+  (`laya_apple/data/profiles/Apple_M4_Max-macos27-coremltools9.0.json`).
+  - That file is checked by the tests in `tests/unit/test_profiles_unit.py`, which ran in the
+    pytest step. For example, `test_shipped_profile_is_the_committed_calibration` and
+    `test_shipped_profile_rederives_and_matches_the_registry`.
+- **Install matrix timing:** the install matrix took 129 s in run 1 and 25 s in run 2,
+  against 36 s for 1.6.0. Part of the `uv` cache was cold in run 1. Its result does not
+  depend on timing.
 
 ## Run 1's failure
 
@@ -119,7 +151,9 @@ The gate's wall time was 1219 s (23:22:37 to 23:42:56 +0800, 2026-10-02).
 
 - On this machine, `time.sleep(0.01)` often oversleeps by up to about 5 ms. The likely cause
   is macOS timer coalescing.
-- A histogram of 1500 sleeps, measured right after the gate, had these durations:
+- A histogram of 1500 sleeps was measured about 1 minute after run 1 ended. No gate step or
+  other known heavy work was running then. The load average was 1.68 / 1.93 / 1.75. The
+  sleeps had these durations:
 
   | duration (ms) | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
   |---|---|---|---|---|---|---|---|
@@ -130,7 +164,7 @@ The gate's wall time was 1219 s (23:22:37 to 23:42:56 +0800, 2026-10-02).
 
 ### Measurements
 
-- **Direct probe calls:** `probe_placement` was called 200 times with the test's two 10 ms
+- **Direct probe calls:** after run 1 ended, `probe_placement` was called 200 times with the test's two 10 ms
   fakes. It accepted the model 16 times out of 200 (8%). Examples:
   - `ane_ms` 10.13 against `cpu_ms` 14.95, ratio 0.678;
   - `ane_ms` 11.13 against `cpu_ms` 15.01, ratio 0.742.
