@@ -67,8 +67,9 @@ across calls for a given question if you need repeatable decisions.
 
 Each example below follows the [question schema](#question-schema) above and runs as written
 on the pinned `laya-typed-decisions` checkpoint, on the MLX GPU (`device="gpu"`, see
-[Devices](#devices)). It prints the whole answer for one question. The output is from one
-Apple M4 Max with float16 weights; another machine may differ in the last digits.
+[Devices](#devices)). The first run downloads the checkpoint, and later runs work
+[offline](#offline-use). Each prints the whole answer for one question. The output is from
+one Apple M4 Max with float16 weights; another machine may differ in the last digits.
 
 Loading this checkpoint warns that the `choice:11+` temperature is replaced. That entry is
 for `choice` questions with 11 or more options, so it does not affect these two examples.
@@ -131,6 +132,12 @@ print(json.dumps(result.answers["severity"], indent=1))
   keyed the same way.
 - `answer_confidence` is the probability of the most likely level (`3` here), not a
   confidence in `score`.
+- `confidence` is the normalised entropy 1 − H(p)/log(k), a different quantity (see
+  [the answer fields](#question-schema) above). It is low, 0.1865, because the probability is
+  spread over levels 1 to 3 rather than concentrated on one.
+- `score` and `confidence` are computed from the unrounded probabilities, and every value is
+  rounded to 4 decimals. Recomputing them from the printed `probabilities` can therefore
+  differ in the last digit: it gives 2.1731 and 0.1864 here.
 
 **`noul`.** `criteria` is optional. When given, it describes each side as
 `{"false": ..., "true": ...}`.
