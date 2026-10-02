@@ -1,0 +1,41 @@
+{
+ "laya-typed-decisions": {
+  "auto_ane_buckets": [
+   64,
+   96,
+   128
+  ],
+  "shipped_auto_ane_buckets": [
+   64,
+   96,
+   128
+  ],
+  "profile": "<cache>/profiles/Apple_M4_Max-macos27-coremltools9.0.json"
+ },
+ "laya": {
+  "auto_ane_buckets": [
+   64,
+   96,
+   128
+  ],
+  "shipped_auto_ane_buckets": [
+   64,
+   96,
+   128
+  ],
+  "profile": "<cache>/profiles/Apple_M4_Max-macos27-coremltools9.0.json"
+ },
+ "laya-multilingual": {
+  "auto_ane_buckets": [
+   64,
+   96,
+   128
+  ],
+  "shipped_auto_ane_buckets": [
+   64,
+   96,
+   128
+  ],
+  "profile": "<cache>/profiles/Apple_M4_Max-macos27-coremltools9.0.json"
+ }
+}

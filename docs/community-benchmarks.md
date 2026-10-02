@@ -171,8 +171,9 @@ routing table (`laya_apple/data/routing.json`) applies only to the profiles it w
 derived on, and a validated ANE result on another profile does not add that profile to
 it. On your own machine, `laya-apple calibrate` writes a local profile that lets `auto`
 use the ANE there ([`compatibility.md`](compatibility.md), "What happens on an untested
-profile"). Adding a new shipped profile is a separate change that re-derives the table
-from committed measurements. It is not done through this matrix.
+profile"). Adding a new shipped profile is a separate change that commits its own calibration
+measurements ([`support-matrix.md`](support-matrix.md#shipped-calibrated-profiles)). It is
+not done through this matrix.
 
 The bundle format is described in [`hardware-results/README.md`](../hardware-results/README.md).
 

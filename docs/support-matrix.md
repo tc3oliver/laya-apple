@@ -9,14 +9,16 @@ someone deciding whether to run `laya-apple` on a given machine.
 | Scope | Status |
 |---|---|
 | Apple M4 Max, macOS 26.6.2, MLX 0.32.2, coremltools 9.0 | **Tested (release validation).** The shipped routing thresholds, the release benchmarks and the full validation of all three models come from this profile |
-| Apple M4 Max 64 GB, macOS 27.0 (26A428), MLX 0.32.2, coremltools 9.0 | **Build and parity validation only**, on the release machine after its upgrade from 26.6.2, so only macOS changed: [`research/macos27-validation/`](../research/macos27-validation/README.md) ([#17](https://github.com/tc3oliver/laya-apple/issues/17)). All three models, every explicit ANE bucket (10 pairs): built, 100% Neural Engine with 0 transitions, FP16 parity passed with 0 hard mismatches, placement probe and `artifacts verify` passed. Same op counts and parity error as on 26.6.2. No routing, latency or throughput measured; not a shipped routing profile, so `auto` stays on MLX |
+| Apple M4 Max 64 GB, macOS 27.0 (26A428), MLX 0.32.2, coremltools 9.0 | **Shipped routing profile (unreleased; after 1.6.0), no release benchmarks.** The release machine after its upgrade from 26.6.2, so only macOS changed. Build and parity validation: [`research/macos27-validation/`](../research/macos27-validation/README.md) ([#17](https://github.com/tc3oliver/laya-apple/issues/17)). All three models, every explicit ANE bucket (10 pairs): built, 100% Neural Engine with 0 transitions, FP16 parity passed with 0 hard mismatches, placement probe and `artifacts verify` passed. Same op counts and parity error as on 26.6.2. Routing: `laya-apple calibrate`, two passes, gave the same auto ANE buckets as 26.6.2 for every model (64, 96, 128), shipped as `laya_apple/data/profiles/Apple_M4_Max-macos27-coremltools9.0.json` ([`benchmarks/routing-macos27/`](../benchmarks/routing-macos27/README.md)). `auto` uses the ANE here once the artifacts are built locally (no macOS 27 prebuilt artifacts). The release benchmarks, `serve` and adaptive-execution results are 26.6.2 only |
 | Apple M4 Pro 48 GB, macOS 27.0, MLX 0.32.2, coremltools 9.0 | **Community measurement**, one `--quick` run of `laya-typed-decisions` only: [`hardware-results/apple-m4-pro-macos27/`](../hardware-results/apple-m4-pro-macos27/summary.md) ([#32](https://github.com/tc3oliver/laya-apple/pull/32)). MLX and ANE parity passed with 0 hard mismatches, a locally calibrated profile made `auto` use the ANE, and the heterogeneous check passed. Not a shipped routing profile and not release-validated |
 | Apple M4 32 GB, macOS 26.2, MLX 0.32.2, coremltools 9.0 | **Community measurement**, one `--quick` run of `laya-typed-decisions` only: [`hardware-results/apple-m4-macos26/`](../hardware-results/apple-m4-macos26/summary.md) ([#41](https://github.com/tc3oliver/laya-apple/pull/41)). MLX and ANE parity passed with 0 hard mismatches. `laya-apple calibrate` was not run, so `auto` stayed on MLX (`platform_not_validated`) and the heterogeneous check did not run. Not a shipped routing profile and not release-validated |
 | Apple M2 Pro 16 GB, macOS 26.6.2, MLX 0.32.2, no coremltools | **Community measurement**, one MLX-only `--quick` run of `laya-typed-decisions`: [`hardware-results/apple-m2-pro-macos26/`](../hardware-results/apple-m2-pro-macos26/summary.md) ([#47](https://github.com/tc3oliver/laya-apple/pull/47)). MLX FP16 parity passed. coremltools was not installed, so no ANE artifacts were built, `auto` stayed on MLX (`ane_runtime_unavailable`) and the heterogeneous check did not run. The first measured result on an SoC outside the M4 family. Not a shipped routing profile and not release-validated |
 | Other Apple M-series SoCs, macOS 15–26 | **Expected** to run the MLX backend correctly (hypothesis; measured only on the M2 Pro row above). ANE placement, correctness and routing thresholds are **unknown** |
-| macOS 27.x | **Two measurements, both macOS 27.0 with coremltools 9.0:** the M4 Max build and parity validation (all three models) and the M4 Pro community run (`laya-typed-decisions`), above. Neither is a shipped routing profile. Every other SoC and macOS 27 profile is **unknown**. Prior third-party work (laya-coreml, M3 Max, macOS 27.2) reported an enumerated-shape package running on the GPU. On macOS 27.0, the M4 Max run recorded 100% Neural Engine placement with 0 transitions for every fixed-shape BC1S artifact. The M4 Pro run's placement is inferred: its artifacts registered, which requires the same compute-plan check. Neither run tested enumerated shapes or macOS 27.2 |
+| macOS 27.x | **Two measurements, both macOS 27.0 with coremltools 9.0:** the M4 Max build, parity and routing validation (all three models; a shipped routing profile for M4 Max, macOS 27, coremltools 9.0) and the M4 Pro community run (`laya-typed-decisions`, not a shipped profile), above. Every other SoC and macOS 27 profile is **unknown**. Prior third-party work (laya-coreml, M3 Max, macOS 27.2) reported an enumerated-shape package running on the GPU. On macOS 27.0, the M4 Max run recorded 100% Neural Engine placement with 0 transitions for every fixed-shape BC1S artifact. The M4 Pro run's placement is inferred: its artifacts registered, which requires the same compute-plan check. Neither run tested enumerated shapes or macOS 27.2 |
 | iOS / iPadOS | Out of scope |
 
+Two profiles are validated for `device="auto"`: M4 Max / macOS 26 / coremltools 9.0
+(`routing.json`) and M4 Max / macOS 27 / coremltools 9.0 (a shipped calibrated profile).
 On an unvalidated hardware/OS profile, `device="auto"` uses MLX only
 (`platform_not_validated`). `device="ane"` there requires building and
 parity-validating artifacts on that machine yourself.
@@ -64,7 +66,7 @@ by either explicit `device="ane"` or `auto` — they lose to MLX on latency
 | all three | Core ML ordinary graph | enumerated/flexible shape | any | M4 Max / 26.6.2 | **invalid for acceleration** — runs 100% on CPU |
 | `laya-typed-decisions` | Core ML BC1S windowed attention | fixed B=1, L128–1024 | `CPU_AND_NE` | M4 Max / 26.6.2 | validated, research only (not shipped) |
 | all three | Core ML BC1S | fixed B=4 / B=8 | `CPU_AND_NE` | M4 Max / 26.6.2 | **unknown** — FP32 layout check only, parity not run |
-| all three | Core ML BC1S (`bc1s-masked`) | fixed B=1, the explicit ANE buckets only | `CPU_AND_NE` | M4 Max / 27.0 | build, placement and parity passed ([`research/macos27-validation/`](../research/macos27-validation/README.md)); routing not measured |
+| all three | Core ML BC1S (`bc1s-masked`) | fixed B=1, the explicit ANE buckets only | `CPU_AND_NE` | M4 Max / 27.0 | **validated**: build, placement and parity passed ([`research/macos27-validation/`](../research/macos27-validation/README.md)); routing calibrated and shipped ([`benchmarks/routing-macos27/`](../benchmarks/routing-macos27/README.md)) |
 | any | any Core ML | any | any | any other profile | **unknown** |
 
 \* Parity was measured at these lengths (`laya` up to 512). Which of them the
@@ -131,3 +133,28 @@ Regenerate and check the committed file with:
 uv run python scripts/derive_routing.py            # writes laya_apple/data/routing.json
 uv run python scripts/derive_routing.py --check    # fails if the committed file is stale
 ```
+
+### Shipped calibrated profiles
+
+A profile validated after `routing.json` was derived ships as the unedited output of
+`laya-apple calibrate` on that profile, in `laya_apple/data/profiles/<profile-key>.json`, with
+its raw measurements committed under `benchmarks/`. It uses the same rule
+(`laya_apple/derivation.py`) and replaces the auto buckets and service times for its profile
+only, the way a local calibrated profile does. It ships only if two calibration passes agree
+on every model's auto buckets. A unit test checks that each file equals its committed
+evidence and re-derives its buckets.
+
+| Profile | File | Evidence | Auto ANE buckets |
+|---|---|---|---|
+| Apple M4 Max, macOS 27, coremltools 9.0 | `Apple_M4_Max-macos27-coremltools9.0.json` | [`benchmarks/routing-macos27/`](../benchmarks/routing-macos27/README.md) | 64, 96, 128 for all three models (as on 26.6.2) |
+
+It was measured with `calibrate`, not the Phase -1 harness behind `routing.json`; the
+differences are listed in that record.
+
+Profiles match on the macOS major version, so this one covers every macOS 27.x release with
+coremltools 9.0 on an M4 Max, although only 27.0 (26A428) was measured. Prior third-party
+work (laya-coreml, M3 Max, macOS 27.2) reported an enumerated-shape Core ML package running
+on the GPU ([`typed-decisions-ane.md`](../research/phase-0-feasibility/typed-decisions-ane.md)).
+laya-apple ships only fixed-shape artifacts, and every artifact must still pass the compute-plan
+check (100% Neural Engine, 0 transitions) and the placement probe on the machine that loads
+it, but 27.2 itself is unmeasured here.

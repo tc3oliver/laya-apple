@@ -198,8 +198,8 @@ print(json.dumps(result.answers["refund"], indent=1))
   2. the longest prompt row fits one of the model's auto-ANE buckets;
   3. a validated artifact for that bucket is present in the cache and passes
      its placement/parity checks at load;
-  4. the platform profile matches a validated profile (currently only Apple
-     M4 Max / macOS 26.6.2 / coremltools 9.0).
+  4. the platform profile matches a validated profile (currently Apple M4 Max with
+     coremltools 9.0, on macOS 26 or macOS 27).
 
   Otherwise the request runs on MLX. Every result records exactly one
   routing reason in `result.runtime.routing_reason`:
@@ -668,8 +668,9 @@ including any on-device compile. Until it is ready, `auto` routes to MLX with re
 
 ## Calibrating another machine
 
-The shipped routing table applies only to the profile it was measured on (SoC, macOS
-major version, coremltools version). On any other profile, `auto` uses MLX only
+The shipped routing profiles apply only to the profiles they were measured on (SoC, macOS
+major version, coremltools version): Apple M4 Max with coremltools 9.0, on macOS 26 or 27.
+On any other profile, `auto` uses MLX only
 (`platform_not_validated`). To enable the ANE on your machine:
 
 ```bash

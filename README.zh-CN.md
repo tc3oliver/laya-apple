@@ -307,8 +307,12 @@ Mac 上有两个引擎可以运行 Laya，分别擅长不同的请求。
 | [`convaiinnovations/laya-multilingual`](https://huggingface.co/convaiinnovations/laya-multilingual) | 1024 | FP16 / FP32，任意长度 | 64, 96, 128, 256 | 64, 96, 128 | 否（ANE 在 worker 进程中运行） |
 | [`convaiinnovations/laya-typed-decisions`](https://huggingface.co/convaiinnovations/laya-typed-decisions) | 1024 | FP16 / FP32，任意长度 | 64, 96, 128 | 64, 96, 128 | 是 |
 
-自适应 ANE 执行仅在 `execution="workers"`、`device="auto"` 下启用。仅在一台运行 macOS 26.6.2 的 Apple M4 Max 上验证过。在其他 Mac 上，需要先在该机器上构建并校准
-ANE artifact（`laya-apple calibrate`），`auto` 才会使用 ANE，在此之前一直走 MLX。预构建的 artifact
+自适应 ANE 执行仅在 `execution="workers"`、`device="auto"` 下启用。仅在一台运行 macOS 26.6.2 的 Apple M4 Max 上验证过。
+内置的路由 profile 覆盖 coremltools 9.0 的 Apple M4 Max，包括 macOS 26.6.2 和 macOS 27.0，因此在这两者上
+只要构建好 artifact，`auto` 就会使用 ANE。macOS 27 上只测量了构建、parity 和路由；自适应执行、`serve`
+和发布 benchmark 都没有测量（[`benchmarks/routing-macos27/`](benchmarks/routing-macos27/README.md)）。
+在其他 Mac 上，需要先在该机器上构建并校准 ANE artifact（`laya-apple calibrate`），`auto` 才会使用 ANE，
+在此之前一直走 MLX。预构建的 artifact
 （`laya-apple artifacts fetch`）只提供 Apple M4 Max、macOS 26、coremltools 9.0。参见
 [`docs/compatibility.md`](docs/compatibility.md)。
 

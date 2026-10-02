@@ -1,0 +1,30 @@
+<checkout>/.venv/lib/python3.12/site-packages/coremltools/optimize/torch/palettization/fake_palettize.py:82: SyntaxWarning: invalid escape sequence '\_'
+  n_bits (:obj:`int`): Number of palettization bits. There would be :math:`2^{n\_bits}` unique weights in the ``LUT``.
+<checkout>/laya_apple/model.py:278: RuntimeWarning: laya-apple: checkpoint temperatures that are invalid or outside [0.5, 5.0] are replaced (choice:11+=0.10058280825614929 -> 0.5), as upstream does; treat confidence from those entries as uncalibrated
+  return cls(
+laya-typed-decisions MLX q1 L64: 9.39 ms
+laya-typed-decisions MLX q1 L96: 11.59 ms
+laya-typed-decisions MLX q1 L128: 12.23 ms
+laya-typed-decisions MLX q1 L160: 14.75 ms
+laya-typed-decisions MLX q1 L192: 15.51 ms
+laya-typed-decisions MLX q1 L224: 18.63 ms
+laya-typed-decisions MLX q1 L256: 19.19 ms
+laya-typed-decisions MLX q1 L320: 23.32 ms
+laya-typed-decisions MLX q1 L384: 27.20 ms
+laya-typed-decisions MLX q1 L448: 31.08 ms
+laya-typed-decisions MLX q1 L512: 35.16 ms
+laya-typed-decisions MLX q1 L768: 51.91 ms
+laya-typed-decisions MLX q1 L1024: 70.87 ms
+laya-typed-decisions MLX q4 L64: 18.76 ms
+laya-typed-decisions MLX q4 L128: 33.14 ms
+laya-typed-decisions MLX q4 L256: 63.37 ms
+laya-typed-decisions MLX q4 L512: 123.46 ms
+laya-typed-decisions MLX q4 L1024: 261.50 ms
+laya-typed-decisions MLX q8 L64: 32.73 ms
+laya-typed-decisions MLX q8 L128: 61.97 ms
+laya-typed-decisions MLX q8 L256: 118.16 ms
+laya-typed-decisions MLX q8 L512: 240.82 ms
+laya-typed-decisions MLX q8 L1024: 516.60 ms
+laya-typed-decisions ANE L64: 8.21 ms
+laya-typed-decisions ANE L96: 9.07 ms
+laya-typed-decisions ANE L128: 9.97 ms

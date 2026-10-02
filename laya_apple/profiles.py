@@ -12,6 +12,10 @@ measurements and writes `<cache>/profiles/<profile-key>.json`. The ANE artifacts
 themselves already passed the parity gate on this machine when they were built. A local
 profile is used only when no shipped profile matches the machine, and `Laya.info()`
 reports which one is in effect.
+
+Profiles validated after routing.json was derived ship as calibrate output in
+`laya_apple/data/profiles/<profile-key>.json` (Apple M4 Max, macOS 27, coremltools 9.0).
+They count as shipped, not local.
 """
 
 from __future__ import annotations
@@ -23,6 +27,8 @@ import re
 import time
 import warnings
 from datetime import datetime, timezone
+from functools import cache
+from importlib import resources
 from pathlib import Path
 
 import numpy as np
@@ -49,8 +55,39 @@ def local_profile_path(profile: dict | None = None) -> Path:
 
 
 def shipped_profile_matches(profile: dict | None = None) -> bool:
+    """The shipped table (routing.json) or a shipped calibrated profile covers this machine."""
     profile = profile or platform_profile()
-    return any(profile_matches(profile, p) for p in routing_table().get("validated_profiles", []))
+    if any(profile_matches(profile, p) for p in routing_table().get("validated_profiles", [])):
+        return True
+    return _shipped_profile(profile) is not None
+
+
+def _shipped_profile(profile: dict) -> dict | None:
+    """The calibrated profile shipped in laya_apple/data/profiles/ for this profile, if any.
+    It is the unedited output of `laya-apple calibrate` on a release-validated machine."""
+    data = _read_shipped(profile_key(profile))
+    if data is None or not profile_matches(data.get("platform") or {}, profile):
+        return None
+    return data
+
+
+@cache
+def _read_shipped(key: str) -> dict | None:
+    """Parsed shipped profile file for a profile key (package data, read once per process)."""
+    path = resources.files("laya_apple.data").joinpath("profiles", f"{key}.json")
+    if not path.is_file():
+        return None
+    return dict(json.loads(path.read_text()), source=f"laya_apple/data/profiles/{path.name}")
+
+
+def load_shipped(model: str, profile: dict | None = None) -> dict | None:
+    """The shipped calibrated profile's entry for `model` on this profile, if one exists.
+    Unlike a local profile it is not tied to this cache's artifact hashes: like routing.json,
+    it applies to any artifact that passed parity and placement on this profile."""
+    data = _shipped_profile(profile or platform_profile())
+    if data is None or model not in data.get("models", {}):
+        return None
+    return dict(data["models"][model], source=data["source"])
 
 
 def load_local(model: str, profile: dict | None = None) -> dict | None:
