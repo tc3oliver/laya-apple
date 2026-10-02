@@ -4,8 +4,9 @@ Issue: [#8](https://github.com/tc3oliver/laya-apple/issues/8) (cold start). Prer
 [#121](https://github.com/tc3oliver/laya-apple/issues/121), which holds the "Preregistered
 criteria" below verbatim, opened before any data. They are not edited after a run. Status:
 **run on macOS 27.0 ([`results.md`](results.md)): `move` INCONCLUSIVE, `same-path-recopy` RECOMPILED, `touch`
-REUSED, Phase B pays twice, decision 1 undecided (no code change), the < 30 s target not met.** The earlier
-screen ([`screen.md`](screen.md), macOS 26.6.2: screen-INCONCLUSIVE) is a separate result and is not pooled.
+REUSED, Phase B meets the "pays twice" rule, decision 1 undecided (no code change), the < 30 s target not
+met.** The earlier screen ([`screen.md`](screen.md), macOS 26.6.2: screen-INCONCLUSIVE) is a separate result
+and is not pooled.
 
 ## Question
 
@@ -224,12 +225,15 @@ Decisions 3 and 4 above (no shipped compile cache; the < 30 s target is met only
 
 Both were posted on [#121](https://github.com/tc3oliver/laya-apple/issues/121) before the data they cover.
 The criteria, the validity guard, the classification, the decisions and the method above are unchanged by them.
-- **Platform and cache:** the preregistered Phase A, B and C run on macOS 27.0 (26A428), not on macOS 26.6.2
-  where the screen ran, with a cache of artifacts validated on macOS 27. The screen's rows do not count toward
-  `C`, `W` or any arm.
-- **Re-run:** the first Phase A attempt (laya-apple 9be5382) is INVALID: all rows served on the GPU because the
-  platform was not yet validated. It is kept as recorded and counts toward nothing. Phase A re-ran in full on
-  57caed2, which ships the macOS 27 M4 Max routing profile.
+- **Platform and cache** ([comment](https://github.com/tc3oliver/laya-apple/issues/121#issuecomment-5952648568)):
+  the preregistered Phase A, B and C run on macOS 27.0 (26A428), not on macOS 26.6.2 where the screen ran, with
+  a cache of artifacts validated on macOS 27. The screen's rows do not count toward `C`, `W` or any arm.
+- **Re-run** ([comment](https://github.com/tc3oliver/laya-apple/issues/121#issuecomment-5953209479)): the first
+  Phase A attempt (laya-apple 9be5382) is INVALID: it was stopped during the `move` arm's preparation, so no
+  `move` row exists, and all `fresh-copy` rows served on the GPU because the platform was not yet validated. It
+  is kept as recorded and counts toward nothing. Phase A re-ran in full on 57caed2, which ships the macOS 27 M4
+  Max routing profile. Phases B and C also ran on 57caed2; [`results.md`](results.md) records why that does not
+  change the code under test.
 
 ## Files
 
