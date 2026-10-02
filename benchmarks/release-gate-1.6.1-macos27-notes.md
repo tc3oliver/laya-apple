@@ -1,15 +1,59 @@
 # Release gate for 1.6.1 on macOS 27: notes
 
-Tracker: [#139](https://github.com/tc3oliver/laya-apple/issues/139). The generated
-reports are [`release-gate-1.6.1-macos27.json`](release-gate-1.6.1-macos27.json) and
-[`release-gate-1.6.1-macos27.md`](release-gate-1.6.1-macos27.md). This file records how the
-run was made and what its one failure is.
+Tracker: [#139](https://github.com/tc3oliver/laya-apple/issues/139). This file covers the two
+full runs of the 1.6.1 release gate, how they were made, and the cause of run 1's failure.
 
-## Result
+| run | candidate | result | generated reports |
+|---|---|---|---|
+| 1 | `main` at `486997f` | **FAIL**: 1 required step | [`.json`](release-gate-1.6.1-macos27.json), [`.md`](release-gate-1.6.1-macos27.md) |
+| 2 | `main` at `5d8da47`, which includes the test fix [#156](https://github.com/tc3oliver/laya-apple/pull/156) | **PASS** | [`.json`](release-gate-1.6.1-macos27-run2.json), [`.md`](release-gate-1.6.1-macos27-run2.md) |
 
-**FAIL.** 1 required step failed. The failure is a test that depends on `time.sleep`
-precision (details below). It is not a product regression. The gate is unchanged and the run
-is recorded as it came out. 1.6.1 is not qualified by this run.
+- Run 1 stays recorded unchanged as the failure record.
+- Both runs used the same command, environment, machine, OS and artifact cache. They differ
+  only in the candidate commit.
+- No gate, tolerance or threshold changed between them.
+
+## Run 2 (PASS)
+
+| step | status | duration (s) |
+|---|---|---|
+| ruff check | pass | 0.06 |
+| ruff format --check | pass | 0.02 |
+| derive_routing --check | pass | 0.07 |
+| make_goldens --check | pass | 0.05 |
+| derive_placement --check | pass | 0.04 |
+| pytest (full, incl. integration/parity/ane) | pass: 1643 passed, 9 skipped | 1097.1 |
+| clean install matrix (3.11/3.12/3.13 x base/ane) | pass | 25.08 |
+| artifacts verify | pass | 15.21 |
+| manifest schema | pass | 0.0 |
+| no silent fallback tests | pass | 0.01 |
+| docs versions | pass | 0.0 |
+| soak | skipped (no `--soak`, as for 1.6.0) | 0.0 |
+
+The gate's wall time was 1139 s (00:06:26 to 00:25:25 +0800, 2026-10-03).
+
+### Revision and load
+
+- **Recorded revision:** the report records `f41fb41`. That is `origin/main` at `5d8da47`
+  plus only run 1's result files. `laya_apple/`, `tests/` and `scripts/` are identical to
+  `5d8da47`. Run 2's files and these notes were added in the next commit.
+- **Machine state:** oMLX was stopped. `pmset -g therm` reported no thermal or performance
+  warning before or after the run.
+- **Load average:** 2.43 / 2.09 / 1.91 before the run, and 3.43 / 6.93 / 6.34 after it.
+- **Other load:** the 5- and 15-minute averages after the run show that other work ran on
+  the machine during the second half of the run. No benchmark timing is part of this gate's
+  result, and every step passed.
+
+### pytest count
+
+Run 2 has 1643 + 9 tests against run 1's 1622. The difference is the tests added on `main`
+between `486997f` and `5d8da47`, namely #154 and #156.
+
+## Run 1 (FAIL)
+
+**FAIL.** 1 required step failed. The failure was a test that depended on `time.sleep`
+precision (details below). It was not a product regression. It is fixed by
+[#156](https://github.com/tc3oliver/laya-apple/pull/156) and run 2 passed.
 
 | step | status | duration (s) |
 |---|---|---|
@@ -28,22 +72,26 @@ is recorded as it came out. 1.6.1 is not qualified by this run.
 
 The gate's wall time was 1219 s (23:22:37 to 23:42:56 +0800, 2026-10-02).
 
-## What was run
+## Setup (both runs)
 
-- Candidate: `main` at `486997f` (after #152 and #153). The version was **not** bumped, so
-  the reports say `laya-apple 1.6.0`, and the `docs versions` step checked 1.6.0. The
-  release PR has to show version sync again after the bump.
+- Candidates: run 1 used `main` at `486997f` (after #152 and #153), and run 2 used `main` at
+  `5d8da47` (after #154 and #156).
+- Version: the version was **not** bumped, so the reports say `laya-apple 1.6.0`, and the
+  `docs versions` step checked 1.6.0. The release PR has to show version sync again after the
+  bump.
 - Command: `LAYA_APPLE_CACHE=<cache> HF_HUB_OFFLINE=1 uv run python scripts/release_gate.py --out benchmarks/release-gate-1.6.1-macos27`.
-  The run was full, not `--quick`. The environment was
+  Run 2 wrote to `-run2` instead. Both runs were full, not `--quick`. The environment was
   `uv sync --extra dev --extra ane --extra convert --extra serve`.
 - The ANE artifacts were the ones built and parity-validated on this OS in
   `research/macos27-validation/`.
 - The Hugging Face Hub was offline. The clean-install matrix resolved its dependencies
   from PyPI through `uv`, as in earlier gates.
 - Machine: Apple M4 Max, macOS 27.0 (26A428), coremltools 9.0, Python 3.12.14.
-  - oMLX was stopped for the run. No other heavy work ran during it.
-  - `pmset -g therm` reported no thermal or performance warning before or after the run.
-  - The load average was 2.37 / 1.81 / 1.57 before the run and 2.44 / 2.09 / 1.79 after.
+  - oMLX was stopped for both runs.
+  - `pmset -g therm` reported no thermal or performance warning before or after either run.
+  - Run 1's load average was 2.37 / 1.81 / 1.57 before and 2.44 / 2.09 / 1.79 after, and no
+    other heavy work ran during it.
+  - Run 2's load is under "Revision and load" above.
 
 ### Methodology differences from the 1.6.0 gate
 
@@ -56,7 +104,7 @@ The gate's wall time was 1219 s (23:22:37 to 23:42:56 +0800, 2026-10-02).
 - **Install matrix timing:** the install matrix took 129 s, against 36 s for 1.6.0. Part of
   the `uv` cache was cold. Its result does not depend on timing.
 
-## The failure
+## Run 1's failure
 
 `tests/integration/test_no_silent_fallback.py::test_placement_probe_refuses_a_model_that_runs_like_the_cpu[10-10-False]`
 
@@ -102,8 +150,14 @@ The gate's wall time was 1219 s (23:22:37 to 23:42:56 +0800, 2026-10-02).
   test.
 - No macOS 26 machine is available to compare.
 
-### Before 1.6.1 can qualify
+### Fix
 
-1. Make the test deterministic in its own `fix` PR. For example, fake the timings instead of
-   sleeping.
-2. Run the gate again.
+[#156](https://github.com/tc3oliver/laya-apple/pull/156) makes the test deterministic.
+
+- **How:** the fake models no longer sleep. Each `predict` advances a shared fake clock by
+  exactly its duration, and the test installs that clock as `time.perf_counter`, the clock
+  `_fastest_ms` uses.
+- **Result:** the ratio is now exactly `loaded_ms / cpu_ms`.
+- **What stayed the same:** every case keeps its expected outcome. `laya_apple/` code,
+  `PROBE_MAX_RATIO` and every other threshold are unchanged.
+- **Verification:** run 2 includes the fix and passed.
