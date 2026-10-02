@@ -26,7 +26,8 @@ parity-validated there ([`research/macos27-validation/`](../research/macos27-val
 and `laya-apple calibrate` gave the same auto ANE buckets as on 26.6.2 in two passes. That
 calibration ships as a routing profile, so `device="auto"` uses the ANE on an M4 Max with
 macOS 27 and coremltools 9.0 once its artifacts are built
-([`benchmarks/routing-macos27/`](../benchmarks/routing-macos27/README.md)). **Known limitation:** the release
+([`benchmarks/routing-macos27/`](../benchmarks/routing-macos27/README.md)). Since 1.6.2 they can
+also be fetched prebuilt. **Known limitation:** the release
 benchmarks, `serve` and adaptive execution (`ane_handoff`) were not measured on macOS 27;
 their results are from macOS 26.6.2 only.
 
@@ -69,7 +70,7 @@ The M4 Max run was then calibrated and ships as a routing profile ([`benchmarks/
 | `ane_placement="thread"` | validated for `laya`, `laya-typed-decisions` | — | — |
 | `ane_placement="process"` | validated for `laya-multilingual` | — | — |
 | Adaptive ANE execution (`ane_handoff`, 1.5) | validated on the tested profile for `laya` and `laya-typed-decisions` (`workers`, `auto`, ANE on a thread): release validation, and the async path's parity against the goldens ([`research/coreml-adaptive-breaker/`](../research/coreml-adaptive-breaker/README.md)) | — | Other Macs and macOS versions, including macOS 27 on the M4 Max, where `auto` now routes to the ANE but adaptive execution was not measured; `serve` beside a local LLM; `pyobjc-framework-CoreML` versions other than 12.2.2 |
-| Prebuilt ANE artifacts (`artifacts fetch`, 1.6) | published for Apple M4 Max, macOS 26, coremltools 9.0 only (all 10 model/bucket pairs); a clean-cache download on the build machine passed fetch, verify, parity and placement ([`prebuilt-artifacts-1.6.0.md`](../benchmarks/prebuilt-artifacts-1.6.0.md)) | — | An independent fetch on a second machine of the same profile (recommended, not required for publishing); every other profile has no prebuilt artifacts (`ArtifactMissingError`, build locally) |
+| Prebuilt ANE artifacts (`artifacts fetch`, 1.6) | published for Apple M4 Max with coremltools 9.0, on macOS 26 and (since 1.6.2) macOS 27, all 10 model/bucket pairs each; on each profile a clean-cache download on the build machine passed fetch, verify, parity and placement ([`prebuilt-artifacts-1.6.0.md`](../benchmarks/prebuilt-artifacts-1.6.0.md), [`prebuilt-artifacts-1.6.2-macos27.md`](../benchmarks/prebuilt-artifacts-1.6.2-macos27.md)) | The macOS 27 archives on 27.x releases after 27.0 (the profile matches them; only 27.0 was measured) | An independent fetch on a second machine of either profile (recommended, not required for publishing); every other profile has no prebuilt artifacts (`ArtifactMissingError`, build locally) |
 | Offline operation | validated (`local_files_only=True`, `HF_HUB_OFFLINE=1`, `--offline`) — no network access once checkpoints/artifacts are cached | — | — |
 | `laya-apple serve` against upstream `laya.serve` | validated since 1.3.0 against unmodified `laya.serve` 0.3.20 on the same pinned weights: 792 of 792 requests within the FP16 parity gate, 365 of them answered on the ANE ([`serve-compat`](../benchmarks/serve-compat/README.md)) | — | Other upstream `laya.serve` versions; upstream's `LAYA_AUTO_TASK` routing and caller language hints (not implemented) |
 | `laya-apple serve` with Jev clients | 7 clients at their released versions, unmodified, on 2026-09-25 ([list](../integrations/jev-plugins/README.md)): wire compatibility only | Other clients that speak the same `POST /v1/systemone` wire format | Other versions of the tested clients; decision quality against Jev (Laya is a different model) |

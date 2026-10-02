@@ -15,8 +15,8 @@ Neural Engine 只在结果与上游一致时才启用。**
 给 Laya 一段 context，一次 forward pass 就能答完多个带类型的问题（`choice`、`score`、`noul`）。
 laya-apple 在 Mac 的两个引擎上运行上游 Laya，每个请求自动选一个引擎。
 
-1.6.1 新变化：`artifacts fetch` 更稳妥；M4 Max 在 macOS 27 上构建好 artifact 后，`auto` 同样会用上 ANE
-（[release notes](docs/releases/v1.6.1.md)）。
+1.6.2 新变化：M4 Max + macOS 27 也有预构建的 ANE artifact 了，用 `artifacts fetch` 下载即可
+（[release notes](docs/releases/v1.6.2.md)）。
 
 ## 为什么要用
 
@@ -81,7 +81,7 @@ ane validated_short_single_question_path 11.2 ms
 
 - 第一次调用会下载固定版本的 checkpoint，之后即可离线使用（`local_files_only=True`）。
 - 没有 ANE artifact 时，同一个请求会改在 MLX 上运行，`routing_reason` 会说明原因。
-- Apple M4 Max + macOS 26 + coremltools 9.0：直接下载预构建的 artifact，它会在你的 Mac 上完成验证：
+- Apple M4 Max + macOS 26 或 27 + coremltools 9.0：直接下载预构建的 artifact，它会在你的 Mac 上完成验证：
   `laya-apple artifacts fetch laya-typed-decisions`。
 - 其他环境请自行构建（需要 `convert` extra）：`laya-apple artifacts build laya-typed-decisions`。
 - 概率、其他问题类型和完整 API：[`examples/`](examples/)、[用户指南](docs/guide.md) 和
@@ -125,17 +125,19 @@ with Laya.from_pretrained("auto") as model:       # laya or laya-multilingual, p
   `predict` 本身没有变化（[`examples/auto_fetch_shortlist.py`](examples/auto_fetch_shortlist.py)）。
 
 局限：
-- **预构建的 artifact 目前只有一个平台 profile：Apple M4 Max、macOS 26、coremltools 9.0。**
-  其他 Mac 都会得到 `ArtifactMissingError`，错误信息会给出构建命令，照旧在本地构建
-  （`laya-apple artifacts build MODEL`，需要 `convert` extra）。
-- **已发布的 artifact 经过一次空缓存下载检查：** 在该 profile 上，全部 10 组 model/bucket 的
-  fetch、verify、parity 和 placement 都通过
-  （[`benchmarks/prebuilt-artifacts-1.6.0.md`](benchmarks/prebuilt-artifacts-1.6.0.md)）。
-  这项检查是在构建 artifact 的同一台机器上、用空缓存执行的。每一台接收端机器在注册 artifact 前，
+- **预构建的 artifact 目前有两个平台 profile：Apple M4 Max + coremltools 9.0，macOS 26 和
+  macOS 27（1.6.2 起）各一套。** 其他 Mac 都会得到 `ArtifactMissingError`，错误信息会给出构建命令，
+  照旧在本地构建（`laya-apple artifacts build MODEL`，需要 `convert` extra）。
+- **已发布的 artifact 都做过空缓存下载检查：** 两个 profile 各 10 组 model/bucket，
+  fetch、verify、parity 和 placement 全部通过
+  （[macOS 26.6.2](benchmarks/prebuilt-artifacts-1.6.0.md)、
+  [macOS 27.0](benchmarks/prebuilt-artifacts-1.6.2-macos27.md)）。
+  两次检查都是在构建 artifact 的那台机器上做的。每一台接收端机器在注册 artifact 前，
   都会再做一次完整性、平台、parity 和 placement 检查。
-- **Core ML 首次加载模型时仍需在设备上编译：** 约 4.5 分钟。在一次实测中，laya-typed-decisions
+- **Core ML 首次加载模型时仍需在设备上编译：** macOS 26 上约 4.5 分钟。在一次实测中，laya-typed-decisions
   （bucket 64/96/128）在新位置冷启动用了 273.5 s，热启动只要 2.7 s
-  （[`research/coreml-compile-cache/screen.md`](research/coreml-compile-cache/screen.md)）。
+  （[`research/coreml-compile-cache/screen.md`](research/coreml-compile-cache/screen.md)）；
+  macOS 27.0 上约 210 s（[`research/coreml-compile-cache/results.md`](research/coreml-compile-cache/results.md)）。
   下载 artifact 无法省掉这段时间。设置 `ane_startup="background"` 时，这段时间会先用 MLX 提供服务。
 
 1.6 的其他小改动：MLX 快速路径（token-id 缓存默认开启；`mx.compile` 和按长度分组的
@@ -309,12 +311,12 @@ Mac 上有两个引擎可以运行 Laya，分别擅长不同的请求。
 
 自适应 ANE 执行仅在 `execution="workers"`、`device="auto"` 下启用，目前只在一台运行 macOS 26.6.2
 的 Apple M4 Max 上验证过。内置路由 profile 支持 Apple M4 Max + coremltools 9.0，macOS 26.6.2 和 27.0
-都在内：只要构建好 artifact，`auto` 就会使用 ANE。macOS 27 的 profile 对所有 27.x 生效，不过只实测过 27.0。
-macOS 27 上只测量了构建、parity 和路由；自适应执行、`serve`
+都在内：artifact 无论是本地构建还是 fetch 下来，`auto` 都会用上 ANE。macOS 27 的 profile 对所有 27.x 生效，不过只实测过 27.0。
+macOS 27 上只测量了构建、parity、路由，以及预构建 artifact 的 fetch 检查；自适应执行、`serve`
 和发布 benchmark 都没有测量（[`benchmarks/routing-macos27/`](benchmarks/routing-macos27/README.md)）。
 在其他 Mac 上，需要先在该机器上构建并校准 ANE artifact（`laya-apple calibrate`），`auto` 才会使用 ANE，
 在此之前一直走 MLX。预构建的 artifact
-（`laya-apple artifacts fetch`）只提供 Apple M4 Max、macOS 26、coremltools 9.0。参见
+（`laya-apple artifacts fetch`）只支持 Apple M4 Max + coremltools 9.0，系统为 macOS 26 或 27。参见
 [`docs/compatibility.md`](docs/compatibility.md)。
 
 ## 正确性
@@ -355,10 +357,11 @@ macOS 27 上只测量了构建、parity 和路由；自适应执行、`serve`
   （[`research/coreml-compile-cache/screen.md`](research/coreml-compile-cache/screen.md)）。
 - **Core ML 的编译缓存只增不减：** 每个新的 artifact 位置（一次 fetch、一次 import、移动过的缓存）
   每个 bucket 会多出 0.7–1.4 GB。laya-apple 从不清理它（[用户指南](docs/guide.md#artifact-lifecycle)）。
-- **预构建的 artifact 只有一个平台 profile**（Apple M4 Max、macOS 26、coremltools 9.0），而且
-  只在构建它们的那台机器上用空缓存下载验证过
-  （[`benchmarks/prebuilt-artifacts-1.6.0.md`](benchmarks/prebuilt-artifacts-1.6.0.md)），
-  目前还没有在第二台同 profile 的机器上做独立验证。建议发布前做一次，但不强制
+- **预构建的 artifact 只有两个平台 profile**（Apple M4 Max + coremltools 9.0，macOS 26 和 27），
+  而且只在构建它们的那台机器上用空缓存下载验证过
+  （[macOS 26.6.2](benchmarks/prebuilt-artifacts-1.6.0.md)、
+  [macOS 27.0](benchmarks/prebuilt-artifacts-1.6.2-macos27.md)）。macOS 27 的 profile 对所有 27.x 生效，
+  不过只实测过 27.0。两个 profile 都还没有在第二台机器上做独立验证。建议发布前做一次，但不强制
   （[`docs/publishing.md`](docs/publishing.md)）；每一台接收端机器仍会在注册前验证每个 artifact。
 - **目前不发布任何量化 artifact。** W8 研究中只有 laya-typed-decisions L64 `w8-pt` 的结果得到复现
   （延迟为 FP16 的 0.650）；laya 和 laya-multilingual 没有通过 parity 关卡
@@ -375,13 +378,14 @@ macOS 27 上只测量了构建、parity 和路由；自适应执行、`serve`
 ## 研究、版本与复现
 
 - **复现。** 上面每个主要数字，都能在 [`docs/reproducibility.md`](docs/reproducibility.md)
-  中找到对应的报告、原始数据、命令和环境。1.6 预构建 artifact 的检查记录在
-  [`benchmarks/prebuilt-artifacts-1.6.0.md`](benchmarks/prebuilt-artifacts-1.6.0.md)。1.5 的相关证据见
+  中找到对应的报告、原始数据、命令和环境。预构建 artifact 的检查记录在
+  [`benchmarks/prebuilt-artifacts-1.6.0.md`](benchmarks/prebuilt-artifacts-1.6.0.md)（macOS 26）和
+  [`benchmarks/prebuilt-artifacts-1.6.2-macos27.md`](benchmarks/prebuilt-artifacts-1.6.2-macos27.md)（macOS 27）。1.5 的相关证据见
   [`research/coreml-adaptive-breaker/`](research/coreml-adaptive-breaker/README.md)。
 - **研究。** 1.5 和 1.6 版本背后的研究脉络，包括失败的路线，整理在 [`research/README.md`](research/README.md)。
 - **版本。** 所有变更都记录在 [`CHANGELOG.md`](CHANGELOG.md)；release notes 放在
-  [`docs/releases/`](docs/releases/)，最新的是 [1.6.1](docs/releases/v1.6.1.md)、
-  [1.6.0](docs/releases/v1.6.0.md) 和 [1.5.0](docs/releases/v1.5.0.md)。
+  [`docs/releases/`](docs/releases/)，最新的是 [1.6.2](docs/releases/v1.6.2.md)、
+  [1.6.1](docs/releases/v1.6.1.md) 和 [1.6.0](docs/releases/v1.6.0.md)。
 
 ## 参与贡献
 

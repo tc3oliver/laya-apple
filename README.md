@@ -13,8 +13,8 @@ the same time, and use the Neural Engine only where it gives upstream's answers.
 Laya answers typed questions about a context (`choice`, `score`, `noul`) in one forward pass.
 laya-apple runs upstream Laya on both engines and picks one per request.
 
-New in 1.6.1: a safer `artifacts fetch`, and `auto` routing on an M4 Max with macOS 27
-([release notes](docs/releases/v1.6.1.md)).
+New in 1.6.2: prebuilt ANE artifacts for an M4 Max with macOS 27, so `artifacts fetch` works
+there too ([release notes](docs/releases/v1.6.2.md)).
 
 ## Why use it
 
@@ -84,7 +84,7 @@ ane validated_short_single_question_path 11.2 ms
 - The first call downloads the pinned checkpoint. After that it works offline
   (`local_files_only=True`).
 - Without an ANE artifact the same request runs on MLX, and `routing_reason` says why.
-- On Apple M4 Max with macOS 26 and coremltools 9.0, fetch a prebuilt artifact; it is
+- On Apple M4 Max with macOS 26 or 27 and coremltools 9.0, fetch a prebuilt artifact; it is
   validated on your Mac: `laya-apple artifacts fetch laya-typed-decisions`.
 - Anywhere else, build one (needs the `convert` extra):
   `laya-apple artifacts build laya-typed-decisions`.
@@ -133,17 +133,21 @@ with Laya.from_pretrained("auto") as model:       # laya or laya-multilingual, p
   ([`examples/auto_fetch_shortlist.py`](examples/auto_fetch_shortlist.py)).
 
 Limits:
-- **Prebuilt artifacts exist for exactly one platform profile: Apple M4 Max, macOS 26,
-  coremltools 9.0.** Every other Mac gets `ArtifactMissingError` naming the build command,
-  and builds locally as before (`laya-apple artifacts build MODEL`, `convert` extra).
-- **The published artifacts were checked by a clean-cache download** on that profile: fetch,
+- **Prebuilt artifacts exist for two platform profiles: Apple M4 Max with coremltools 9.0, on
+  macOS 26 and (since 1.6.2) macOS 27.** Every other Mac gets `ArtifactMissingError` naming
+  the build command, and builds locally as before (`laya-apple artifacts build MODEL`,
+  `convert` extra).
+- **The published artifacts were checked by a clean-cache download** on each profile: fetch,
   verify, parity and placement passed for all 10 model/bucket pairs
-  ([`benchmarks/prebuilt-artifacts-1.6.0.md`](benchmarks/prebuilt-artifacts-1.6.0.md)). That
-  check ran on the build machine with an empty cache. Every receiving machine repeats the
+  ([macOS 26.6.2](benchmarks/prebuilt-artifacts-1.6.0.md),
+  [macOS 27.0](benchmarks/prebuilt-artifacts-1.6.2-macos27.md)). Both checks ran on the build
+  machine with an empty cache. Every receiving machine repeats the
   integrity, platform, parity and placement checks before it registers an artifact.
-- **The first Core ML load still compiles on the device:** about 4.5 minutes. In one run,
-  laya-typed-decisions (buckets 64/96/128) took 273.5 s cold at a new location against 2.7 s
-  warm ([`research/coreml-compile-cache/screen.md`](research/coreml-compile-cache/screen.md)).
+- **The first Core ML load still compiles on the device:** about 4.5 minutes on macOS 26. In
+  one run, laya-typed-decisions (buckets 64/96/128) took 273.5 s cold at a new location against
+  2.7 s warm ([`research/coreml-compile-cache/screen.md`](research/coreml-compile-cache/screen.md));
+  about 210 s on macOS 27.0
+  ([`research/coreml-compile-cache/results.md`](research/coreml-compile-cache/results.md)).
   Fetching does not remove it. `ane_startup="background"` serves on MLX in the meantime.
 
 Smaller 1.6 changes: an MLX fast path (a token-id cache on by default; `mx.compile`
@@ -334,13 +338,13 @@ per-request timing; you do not need to pass `trace=` for it. Architecture:
 
 Adaptive ANE execution applies with `execution="workers"` and `device="auto"`. Validated on one Apple M4 Max with macOS 26.6.2.
 Shipped routing profiles cover the Apple M4 Max with coremltools 9.0 on macOS 26.6.2 and
-macOS 27.0, so `auto` uses the ANE there once the artifacts are built. The macOS 27 profile
+macOS 27.0, so `auto` uses the ANE there once the artifacts are built or fetched. The macOS 27 profile
 matches every 27.x, but only 27.0 was measured. On macOS 27 only build,
-parity and routing were measured; adaptive execution, `serve` and the release benchmarks were
+parity, routing and the prebuilt fetch check were measured; adaptive execution, `serve` and the release benchmarks were
 not ([`benchmarks/routing-macos27/`](benchmarks/routing-macos27/README.md)). On other Macs,
 `auto` stays on MLX until ANE artifacts are built and calibrated there (`laya-apple
-calibrate`). Prebuilt artifacts (`laya-apple artifacts fetch`) exist for Apple M4 Max,
-macOS 26, coremltools 9.0 only. Details: [`docs/compatibility.md`](docs/compatibility.md).
+calibrate`). Prebuilt artifacts (`laya-apple artifacts fetch`) exist only for Apple M4 Max with
+coremltools 9.0, on macOS 26 or 27. Details: [`docs/compatibility.md`](docs/compatibility.md).
 
 ## Correctness
 
@@ -387,10 +391,12 @@ Definitions, every configuration tested and the fallback audit:
 - **Core ML's compile cache grows without eviction:** 0.7–1.4 GB per bucket for every new
   artifact location (a fetch, an import, a moved cache). laya-apple never evicts it
   ([guide](docs/guide.md#artifact-lifecycle)).
-- **Prebuilt artifacts exist for one platform profile only** (Apple M4 Max, macOS 26,
-  coremltools 9.0), and have been fetched only on the machine that built them, with an empty
-  cache ([`benchmarks/prebuilt-artifacts-1.6.0.md`](benchmarks/prebuilt-artifacts-1.6.0.md)).
-  No independent check on a second machine of the same profile has been done yet. We
+- **Prebuilt artifacts exist for two platform profiles only** (Apple M4 Max with coremltools
+  9.0, on macOS 26 and 27), and have been fetched only on the machine that built them, with an
+  empty cache ([macOS 26.6.2](benchmarks/prebuilt-artifacts-1.6.0.md),
+  [macOS 27.0](benchmarks/prebuilt-artifacts-1.6.2-macos27.md)). The macOS 27 profile matches
+  every 27.x, but only 27.0 was measured.
+  No independent check on a second machine of either profile has been done yet. We
   recommend one before publishing, but it is not required ([`docs/publishing.md`](docs/publishing.md));
   each receiving machine still validates every artifact before registering it.
 - **No quantized artifact ships.** In the W8 research only the laya-typed-decisions L64
@@ -409,15 +415,18 @@ in [`docs/serve.md`](docs/serve.md#limits), and what has not been measured in
 ## Research, releases and reproduction
 
 - **Reproduction.** Each headline number above traces to a report, raw data, a command and an
-  environment in [`docs/reproducibility.md`](docs/reproducibility.md). The 1.6 prebuilt-artifact
-  check is in [`benchmarks/prebuilt-artifacts-1.6.0.md`](benchmarks/prebuilt-artifacts-1.6.0.md).
+  environment in [`docs/reproducibility.md`](docs/reproducibility.md). The prebuilt-artifact
+  checks are in [`benchmarks/prebuilt-artifacts-1.6.0.md`](benchmarks/prebuilt-artifacts-1.6.0.md)
+  (macOS 26) and
+  [`benchmarks/prebuilt-artifacts-1.6.2-macos27.md`](benchmarks/prebuilt-artifacts-1.6.2-macos27.md)
+  (macOS 27).
   The 1.5 evidence is in
   [`research/coreml-adaptive-breaker/`](research/coreml-adaptive-breaker/README.md).
 - **Research.** The research behind the 1.5 and 1.6 releases, failed routes included, is mapped in
   [`research/README.md`](research/README.md).
 - **Releases.** Every change is in [`CHANGELOG.md`](CHANGELOG.md); release notes are in
-  [`docs/releases/`](docs/releases/), most recently [1.6.1](docs/releases/v1.6.1.md),
-  [1.6.0](docs/releases/v1.6.0.md) and [1.5.0](docs/releases/v1.5.0.md).
+  [`docs/releases/`](docs/releases/), most recently [1.6.2](docs/releases/v1.6.2.md),
+  [1.6.1](docs/releases/v1.6.1.md) and [1.6.0](docs/releases/v1.6.0.md).
 
 ## Contributing
 
