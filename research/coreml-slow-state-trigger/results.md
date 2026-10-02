@@ -4,14 +4,15 @@
 the slow state. No single cause is attributed.**
 - **The positive control reproduced.** PB-R, the #88 path, was slow in 5 of 6 hetero windows. The
   negative control, A, was slow in 0 of 6.
-- **Three single-factor changes each removed it.** PB-H (the same native call with the GIL held),
-  PB-W (a fixed 2 s hetero warm-up before each hetero window) and PB-P (a 1 ms GIL probe thread)
-  each had 0 of 6 slow windows.
+- **Three changes, each one difference from PB-R, each removed it.** PB-H (the same native call
+  with the GIL held), PB-W (a fixed 2 s hetero warm-up before each hetero window) and PB-P (a 1 ms
+  GIL probe thread) each had 0 of 6 slow windows. PB-H's contrast is wider than "the GIL"; see the
+  limitations.
 - **What follows.** The criteria ([`criteria.md`](criteria.md), unchanged since it was committed)
   report each confirmed reading and rank none. There is no automatic third round: the rule's next
   step is "none", so anything further is a new human decision.
-- **The numbers:** [`tables.md`](tables.md), [`results.json`](results.json) and
-  [`raw/check.json`](raw/check.json). The per-run raw files are external evidence; see
+- **The numbers:** [`tables.md`](tables.md), [`results.json`](results.json),
+  [`background.md`](background.md) and [`raw/check.json`](raw/check.json). The per-run raw files are external evidence; see
   [Evidence](#evidence).
 
 ## Outcome, as the preregistered rule printed it
@@ -37,8 +38,10 @@ Crashed runs and re-runs (`raw/failed/`): none. Runs not used by the rule: none.
   with the GIL held), PB-W (#83's 2 s hetero warm-up) and PB-P (#83's 1 ms GIL probe). A hetero
   window is slow if its short P99 is at least 13.0 ms. That classifies state only.
 - **Criteria addendum.** [Addendum 1 on #89](https://github.com/tc3oliver/laya-apple/issues/89#issuecomment-5954732480)
-  was posted before any data. It left the criteria unchanged and recorded the platform and code
-  below.
+  was posted at 14:33:54 UTC, before the first run at 14:34:43 UTC. It left the criteria unchanged
+  and recorded the platform and code below. The criteria were committed at `0420cd9` on the branch
+  `research/slow-state-trigger`, which is kept: the repository squash-merges, so that branch is the
+  durable record of the commit. They are rebased here as `6ee5f7b`, with an identical patch-id.
 - **Platform.** One Mac Studio, Apple M4 Max, macOS 27.0 (26A428). Python 3.12.14, coremltools 9.0,
   MLX 0.32.2, pyobjc-framework-CoreML 12.2.2 (every run records these versions).
 - **Code.** `laya_apple` 1.4.0 at `0420cd9b234498ea026e2d50e176d0faad94e3b5`, the preregistration
@@ -62,8 +65,9 @@ Crashed runs and re-runs (`raw/failed/`): none. Runs not used by the rule: none.
 - **Run order.** Round 1: A, PB-R, PB-H, PB-W, PB-P. Round 2 applied because PB-R's round-1 run was
   slow and A's had no slow window. It ran A, PB-R and the three candidates (each was 3 of 3 normal
   in round 1), in the same fixed order. Every run took about 276 s (PB-W 282 s).
-- **Machine.** As preregistered: idle, on AC power, the local LLM server stopped, the Core ML E5
-  cache not cleared. See the limitations for background load.
+- **Machine.** Preregistered: idle, on AC power, the local LLM server stopped (stated in addendum 1;
+  not recorded in the raw files). The recorded `conditions_before` samples show background load; see
+  the limitations and [`background.md`](background.md).
 
 ## Results
 
@@ -167,8 +171,8 @@ or range of values listed there.
 - **One machine and one OS version.** Every run is on one M4 Max on macOS 27.0. R1's slow state was
   observed on macOS 26.6.2, and this screen says nothing about 26.6.2. It shows the state on
   macOS 27.0 for PB-R.
-- **Three confirmed candidates, so no single-cause attribution.** Each of the three single-factor
-  changes coincided with 0 of 6 slow windows. The screen cannot say whether they act through one
+- **Three confirmed candidates, so no single-cause attribution.** Each of the three changes, one
+  difference from PB-R each, coincided with 0 of 6 slow windows. The screen cannot say whether they act through one
   shared mechanism, such as scheduler or CPU residency, or separately. The criteria rank none, and
   neither does this page.
 - **PB-H's contrast is wider than "the GIL".** PB-H differs from PB-R only in how the one native
@@ -183,10 +187,40 @@ or range of values listed there.
 - **Fixed run order.** A, PB-R, PB-H, PB-W, PB-P in both rounds, as preregistered. Cell is therefore
   aligned with position in time, and machine history (time since boot, thermal state) is not
   separated from the cell.
-- **Background load.** A process sample taken before the first run (not committed) showed
-  WallpaperAerialsExtension at about 12% CPU and VideoToolbox's VTDecoderXPCService at about 4%.
-  The preregistration asks for an idle machine. Background load during the runs was not recorded,
-  so this sample is the only evidence of it, and its effect on any cell is not tested.
+- **Background load was present, and it is a confound for all three readings.** The raw runs record
+  the machine's load averages and its five busiest processes (`ps -Ao %cpu=`) once before each
+  window, after the 2.0 s idle and before the window, and never during one. [`background.md`](background.md)
+  reduces all 120 windows of the ten runs; `scripts/background.py` generates it from the raw files.
+  `ps` `%cpu` is a decaying average over up to a minute, with 100 as one core, so a value says a
+  process was recently busy, not that it ran during the window. Only the top five are kept. What the
+  samples show, descriptively:
+  - **A constant background.** WallpaperAerialsExtension is in the top five before all 120 windows
+    (6.0 to 14.0%), VTDecoderXPCService before 115 (3.2 to 5.3%), OrbStack Helper before 115 (2.4 to
+    93.4%) and WindowServer before 109 (2.6 to 9.1%). Processes named `claude` (51 windows, 0.9 to
+    42.1%) and `python` (29 windows, 2.1 to 6.8%) are recorded by name only; the data do not say which
+    instance. The first three appear in every window group, including the cells with no slow window,
+    so they do not separate the cells. Together they mean the machine was not idle.
+  - **Load.** The 1 minute load before a hetero window is 0.96 to 1.72 in the cells with no slow
+    window, 1.04 before PB-R's normal window and 1.12 to 2.07 before its slow windows. The two
+    highest of all hetero windows are PB-R's (2.07 before round 2 cycle 0, 1.77 before cycle 1). The
+    load average includes the benchmark's own threads, so it does not isolate a background cause.
+    The largest rise between consecutive samples of any run, 1.29 to 2.63, is in PB-R round 2, during
+    cycle 0's solo_short window. The next window of that run is its first hetero window, slow at
+    16.52 ms with 2.07 before it. No process in either of those samples is above 8.8%.
+  - **Spikes.** A process at or above 50% appears in the sample before 4 of the 24 hetero windows of
+    the cells with no slow window (A round 2 cycle 0: mobileassetd 98.5%; PB-P round 1 cycle 2:
+    Google Chrome Helper (Renderer) 95.0%; PB-P round 2 cycles 0 and 2: OrbStack Helper 92.7% and
+    88.4%), all normal, and before none of PB-R's six. A process at or above 20% appears before 7 of
+    those 24, 0 of PB-R's one normal window and 1 of its 5 slow windows (round 2 cycle 1: OrbStack
+    Helper 36.5%). The other four slow windows have a highest sample of 8.1 to 11.0%. Earlier in the
+    same cycles, before PB-R's solo_short windows, launchd is at 30.9% (round 1 cycle 2) and
+    PerfPowerServices at 70.1% with runningboardd at 59.3% (round 2 cycle 2); those are not in the
+    hetero windows' own samples.
+  - **What this does and does not say.** No background spike coincides with PB-R's slow windows more
+    often than with the windows that stayed normal, so the samples do not point to one. They also
+    cannot see activity during a window, and background activity was neither controlled nor
+    excluded. It remains a possible confound for each of the three readings, which compare cells run
+    in a fixed order over 47 minutes on a machine that was never idle. No causal claim is made.
 - **The 13.0 ms classifier states a window's state; it is not a threshold.** The one PB-R window at
   12.13 ms is above every window of the other cells and below the split.
 - **Absolute paths were redacted from the committed data.** Each raw run recorded the local routing
@@ -218,6 +252,7 @@ listed in [`evidence.json`](evidence.json). A downloaded file counts only if its
 | `raw/laya-PB-W-r2.json.gz` | 1,087,885 | `d6273128a06907ffc99e35c6c568c10f289dd11b16f614e29aea7887f927c729` |
 
 Everything in this page can be read without downloading them. They are needed only to re-derive
-`results.json` and `tables.md`: fetch each file to its `path` under this directory as
-[`docs/evidence.md`](../../docs/evidence.md) describes, then run
-`uv run python research/coreml-slow-state-trigger/scripts/analyze.py --check`.
+`results.json`, `tables.md` and `background.md`: fetch each file to its `path` under this directory
+as [`docs/evidence.md`](../../docs/evidence.md) describes, then run
+`uv run python research/coreml-slow-state-trigger/scripts/analyze.py --check` and
+`python research/coreml-slow-state-trigger/scripts/background.py --check`.
