@@ -5,6 +5,26 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.6.2] - 2026-10-03
+
+Prebuilt ANE artifacts for Apple M4 Max with macOS 27 and coremltools 9.0. `laya-apple
+artifacts fetch` now works on that profile instead of raising `ArtifactMissingError`. No code
+path changes; only the pinned repository commit does.
+
+### Changed
+
+- **`DEFAULT_PREBUILT_REVISION` is now `44a54765f89d434e9d85f401126cfee7d2059e7d`**
+  (was `93181067cfee9c6117a7919321eb303ec36fcbd4`). That commit of
+  [`tc3oliver/laya-apple-artifacts`](https://huggingface.co/tc3oliver/laya-apple-artifacts)
+  adds 10 archives built on macOS 27.0 (26A428): `laya` 64/96/128, `laya-multilingual`
+  64/96/128/256 and `laya-typed-decisions` 64/96/128. Its index has 20 entries; the 10 macOS 26
+  entries are identical to the old pin's, so nothing changes on macOS 26. Into an empty cache on
+  the build machine, released 1.6.1 (with `--revision`) and the 1.6.2 wheel (at its pin) each
+  fetched all 10 macOS 27 pairs and passed the SHA-256 check, `artifacts verify`, the FP16
+  parity gate (0 hard mismatches) and placement (100% Neural Engine, 0 transitions, probe ratio
+  ≤ 0.8). Record: `benchmarks/prebuilt-artifacts-1.6.2-macos27.md`. Only 27.0 was measured,
+  though the profile matches every 27.x, and no second machine has checked the archives.
+
 ## [1.6.1] - 2026-10-03
 
 `laya-apple artifacts fetch` now registers an artifact only after every check has passed, and

@@ -581,31 +581,37 @@ this machine. In addition:
   again; a corrupt one is quarantined first.
 
 Without `--revision`, the default repository is read at the commit this release was
-validated against (`93181067cfee9c6117a7919321eb303ec36fcbd4` for 1.6.0), never at its mutable `main`, so one
+validated against (`44a54765f89d434e9d85f401126cfee7d2059e7d` since 1.6.2; 1.6.0 and 1.6.1 read
+`93181067cfee9c6117a7919321eb303ec36fcbd4`), never at its mutable `main`, so one
 laya-apple version always gets the same index and archives. `--revision` overrides it. A
 repository given with `--repo` or `LAYA_APPLE_PREBUILT_REPO` defaults to `main`.
 
 A download is trusted no more than a local build. The repository is `--repo`, or
 `LAYA_APPLE_PREBUILT_REPO`, and otherwise the default
 [`tc3oliver/laya-apple-artifacts`](https://huggingface.co/tc3oliver/laya-apple-artifacts).
-It currently holds one platform profile: Apple M4 Max, macOS 26, coremltools 9.0. Any other
-profile gets `ArtifactMissingError` and builds locally. Fetching removes the build and its PyTorch
-dependency. It does not remove Core ML's on-device ANE compile, which still runs once when
+At the 1.6.2 pin it holds two platform profiles: Apple M4 Max with coremltools 9.0, on macOS 26
+and on macOS 27. Any other profile gets `ArtifactMissingError` and builds locally. Fetching
+removes the build and its PyTorch dependency. It does not remove Core ML's on-device ANE compile, which still runs once when
 the artifact is first loaded at its registered location.
 
-**How the published artifacts were checked.** On the profile they were built for, they were
+**How the published artifacts were checked.** On each profile they were built for, they were
 downloaded into an empty cache and passed fetch, verify, parity and placement for all 10
-model/bucket pairs
-([`benchmarks/prebuilt-artifacts-1.6.0.md`](../benchmarks/prebuilt-artifacts-1.6.0.md)). That
-check ran on the build machine with an empty cache. An independent check on a second machine
-of the same profile has not been done yet; it is recommended, not required
-([`publishing.md`](publishing.md)).
+model/bucket pairs: macOS 26.6.2
+([`benchmarks/prebuilt-artifacts-1.6.0.md`](../benchmarks/prebuilt-artifacts-1.6.0.md)) and
+macOS 27.0
+([`benchmarks/prebuilt-artifacts-1.6.2-macos27.md`](../benchmarks/prebuilt-artifacts-1.6.2-macos27.md)).
+Both checks ran on the build machine. An independent check on a second machine of either
+profile has not been done yet; it is recommended, not required
+([`publishing.md`](publishing.md)). The macOS 27 profile matches every 27.x, but only 27.0 was
+measured.
 
 **Fetching does not give a fast cold start.** On one M4 Max (macOS 26.6.2), the first start of
 laya-typed-decisions (buckets 64, 96, 128) at a new location took 273.5 s with
 `ane_startup="wait"`, against 2.7 s warm
 ([`research/coreml-compile-cache/screen.md`](../research/coreml-compile-cache/screen.md),
-one run). That time is Core ML's on-device compile, so prebuilt artifacts do not bring a
+one run). On macOS 27.0 it took 210.2 s, the median of 3
+([`research/coreml-compile-cache/results.md`](../research/coreml-compile-cache/results.md)).
+That time is Core ML's on-device compile, so prebuilt artifacts do not bring a
 cold start under 30 s. Use `ane_startup="background"` to serve on MLX while it runs.
 
 **Limitation: Core ML's compile cache is never evicted.** Core ML stores the on-device
