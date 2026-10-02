@@ -131,9 +131,15 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   artifacts are built locally.
 - **On macOS 27 only build, parity and routing were measured.** The release benchmarks,
   `serve` beside a local LLM and adaptive ANE execution were not re-measured there.
+- **The macOS 27 routing profile matches every macOS 27.x** on an M4 Max with coremltools 9.0,
+  but only 27.0 (26A428) was measured. The compute-plan check and the placement probe still run
+  on every machine ([`docs/support-matrix.md`](docs/support-matrix.md)).
 - **Cold start on macOS 27 is about 210 s** for laya-typed-decisions (buckets 64/96/128) at a
   new artifact location, against about 2 s warm
   ([`research/coreml-compile-cache/results.md`](research/coreml-compile-cache/results.md)).
+- **Core ML's compile cache still grows without eviction** (4.36 GB per 3-bucket cold load on
+  macOS 27), and **no second machine has checked the prebuilt artifacts yet.** The other 1.6.0
+  limitations still apply ([`docs/releases/v1.6.1.md`](docs/releases/v1.6.1.md#limitations)).
 
 ### Research (not shipped)
 
@@ -144,7 +150,8 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   ([`research/coreml-compile-cache/results.md`](research/coreml-compile-cache/results.md)).
 - **What triggers the host-side slow state of the no-GIL ANE thread** (#89, #154), on macOS
   27.0 with 1.4's synchronous path: holding the GIL, a fixed warm-up and a 1 ms probe thread
-  each removed it; no single cause is attributed
+  each removed it. No single cause is attributed: the GIL contrast also changed the GPU reply
+  wait, and background load was a possible confound
   ([`research/coreml-slow-state-trigger/results.md`](research/coreml-slow-state-trigger/results.md)).
 
 ## [1.6.0] - 2026-09-27

@@ -7,31 +7,32 @@
 ![Python 3.11–3.13](https://img.shields.io/badge/python-3.11%E2%80%933.13-blue)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
 
-**Correctness-validated, adaptive [Laya](https://github.com/NandhaKishorM/laya) inference on
-Apple silicon:** the MLX GPU and the Apple Neural Engine, serving at the same time.
+**Run [Laya](https://github.com/NandhaKishorM/laya) on your Mac's GPU and Neural Engine at
+the same time, and use the Neural Engine only where it gives upstream's answers.**
 
 Laya answers typed questions about a context (`choice`, `score`, `noul`) in one forward pass.
-laya-apple runs upstream Laya on a Mac's two engines, picks one per request, and uses a
-Neural Engine (ANE) artifact only after it matches upstream within the FP16 parity gate on
-the machine that runs it.
+laya-apple runs upstream Laya on both engines and picks one per request.
+
+New in 1.6.1: a safer `artifacts fetch`, and `auto` routing on an M4 Max with macOS 27
+([release notes](docs/releases/v1.6.1.md)).
 
 ## Why use it
 
-- **Correct ANE results, not just fast ones.** On the tested Mac, the ordinary Core ML export
-  ran on the Neural Engine without any error and disagreed with upstream on up to 85
-  decisions. laya-apple uses an ANE artifact only after it passes a parity gate on the machine
-  that uses it ([Correctness](#correctness)).
-- **Short decisions stop queueing behind long work.** Short, single-question decisions go to
-  the ANE when a validated artifact is present (otherwise `auto` stays on MLX); long or
-  multi-question work stays on the MLX GPU; with `execution="workers"` both engines serve at
-  once. Measured on one Apple M4 Max; watch it with `uvx laya-apple switchyard`
+- **Correct ANE results, not just fast ones.** On the tested Mac, a plain Core ML export ran
+  on the Neural Engine (ANE) without a single error and still disagreed with upstream on up to
+  85 decisions. laya-apple uses an ANE artifact only after it passes a parity gate on your
+  machine ([Correctness](#correctness)).
+- **Short decisions stop queueing behind long work.** Single-question requests go to the ANE
+  when a validated artifact is present; long and multi-question ones stay on the GPU. With
+  `execution="workers"` both engines serve at once. Measured on one Apple M4 Max; watch it
+  with `uvx laya-apple switchyard`
   ([Switchyard](#see-it-yourself-switchyard), [GPU + ANE benchmarks](#gpu--ane-benchmarks)).
 - **A local stand-in for the Jev API.** `laya-apple serve` answers existing Jev clients with
   upstream Laya on your Mac, without changes to the client
   ([Local Jev-compatible server](#local-jev-compatible-server)).
-- **Every routing decision is explained.** Each result records the device and the
-  `routing_reason`, and an explicit ANE request runs the validated artifact or raises; it never
-  falls back silently ([How it works](#how-it-works)).
+- **Every routing decision is explained.** Each result records its device and
+  `routing_reason`. Ask for the ANE explicitly and you get the validated artifact or an
+  exception, never a silent fallback ([How it works](#how-it-works)).
 
 ## Install
 
@@ -51,7 +52,7 @@ pip install 'laya-apple[ane]'   # MLX GPU + the Neural Engine runtime
 Without the `ane` extra, or without a built ANE artifact, everything runs on the MLX GPU. To
 run from source or develop laya-apple, see [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
-## Quickstart (30 seconds)
+## Quickstart
 
 ```python
 from laya_apple import Laya
@@ -82,10 +83,10 @@ ane validated_short_single_question_path 11.2 ms
 
 - The first call downloads the pinned checkpoint. After that it works offline
   (`local_files_only=True`).
-- Without an ANE artifact the same request runs on MLX, and `routing_reason` says why. On
-  Apple M4 Max, macOS 26, coremltools 9.0, fetch a prebuilt one, validated on this Mac:
-  `laya-apple artifacts fetch laya-typed-decisions`. On any other Mac, build and
-  parity-validate one (with the `convert` extra):
+- Without an ANE artifact the same request runs on MLX, and `routing_reason` says why.
+- On Apple M4 Max with macOS 26 and coremltools 9.0, fetch a prebuilt artifact; it is
+  validated on your Mac: `laya-apple artifacts fetch laya-typed-decisions`.
+- Anywhere else, build one (needs the `convert` extra):
   `laya-apple artifacts build laya-typed-decisions`.
 - Probabilities, other question types and the full API: [`examples/`](examples/), the
   [user guide](docs/guide.md) and [`docs/api.md`](docs/api.md).
@@ -98,8 +99,6 @@ with Laya.from_pretrained("convaiinnovations/laya-typed-decisions", execution="w
 ```
 
 ### Fetch validated ANE artifacts, then route by language (1.6)
-
-`laya-apple artifacts fetch` → `from_pretrained("auto")` → `predict` / `predict_shortlist`.
 
 ```bash
 pip install -U 'laya-apple[ane]'
@@ -126,8 +125,8 @@ with Laya.from_pretrained("auto") as model:       # laya or laya-multilingual, p
   and registers it through the validating `artifacts import`: SHA-256 against the index,
   manifest and platform profile, compute plan, the full FP16 parity gate and the placement
   probe, all on the receiving machine. A download is trusted no more than a local build.
-  laya-apple 1.6.0 reads that repository at the commit it was validated against, never at
-  its mutable `main`. It replaces the local build and its PyTorch dependency: the `convert` extra is not needed.
+  Fetch reads that repository at a pinned, validated commit, never its mutable `main`. You
+  skip the local build, and with it PyTorch and the `convert` extra.
 - **`predict` as before; `predict_shortlist` opt-in.** For `choice` questions with many
   labels, `predict_shortlist(..., embed_fn, k=20)` keeps the `k` labels most similar to the
   request, then runs one `predict`. `predict` itself is unchanged
@@ -147,15 +146,15 @@ Limits:
   warm ([`research/coreml-compile-cache/screen.md`](research/coreml-compile-cache/screen.md)).
   Fetching does not remove it. `ane_startup="background"` serves on MLX in the meantime.
 
-Also in 1.6, not headlines: an MLX fast path (a token-id cache on by default; `mx.compile`
+Smaller 1.6 changes: an MLX fast path (a token-id cache on by default; `mx.compile`
 and length-bucketed batching opt-in; see [Limitations](#limitations) for what was measured),
 and W8 ANE research that ships nothing ([Limitations](#limitations)). Release notes:
 [`docs/releases/v1.6.0.md`](docs/releases/v1.6.0.md).
 
 ## GPU + ANE benchmarks
 
-Every number in this section, apart from the community subsection, is from one Apple M4 Max;
-results from other Macs are kept separate there ([Community benchmarks](#community-benchmarks)).
+Except for the community results, every number in this section comes from one Apple M4 Max
+([Community benchmarks](#community-benchmarks)).
 
 ### See it yourself: Switchyard
 
@@ -286,7 +285,8 @@ GPU-only (one run on one M4 Max, `--model laya`). Run 3, on laya-apple 1.5.0 wit
 defaults, measured **41.7 ms** (`auto`) against **79.5 ms** (`--device gpu`), and every
 preregistered criterion passed. Adaptive execution was enabled, but its asynchronous path
 engaged in 0 of 3,222 Neural Engine forwards, so run 3 measures 1.5 serve as shipped, not the
-asynchronous path ([`benchmarks/serve/m4-max-r3/tables.md`](benchmarks/serve/m4-max-r3/tables.md)). The runs are separate campaigns, compared descriptively only.
+asynchronous path ([`benchmarks/serve/m4-max-r3/tables.md`](benchmarks/serve/m4-max-r3/tables.md)).
+The runs are separate campaigns; compare them only descriptively.
 LLM throughput cost, method and limits:
 [`docs/serve.md`](docs/serve.md#beside-a-local-llm).
 
@@ -365,8 +365,8 @@ Definitions, every configuration tested and the fallback audit:
 ## Limitations
 
 - **One test machine.** Every benchmark, including the 1.5 validation and recovery runs, is
-  from one Apple M4 Max on macOS 26.6.2. Routing thresholds are not assumed to hold on other
-  Apple SoCs.
+  from one Apple M4 Max: macOS 26.6.2, plus build, parity and routing on macOS 27.0. Routing
+  thresholds are not assumed to hold on other Apple SoCs.
 - **Adaptive execution hands off conservatively:** the first ANE requests of every GPU + ANE
   overlap run the 1.4 path. laya-multilingual, whose ANE runs in a worker process, does not
   use it.
@@ -389,8 +389,8 @@ Definitions, every configuration tested and the fallback audit:
 - **Prebuilt artifacts exist for one platform profile only** (Apple M4 Max, macOS 26,
   coremltools 9.0), and have been fetched only on the machine that built them, with an empty
   cache ([`benchmarks/prebuilt-artifacts-1.6.0.md`](benchmarks/prebuilt-artifacts-1.6.0.md)).
-  No independent check on a second machine of the same profile has been done yet. It is
-  recommended, not required, before publishing ([`docs/publishing.md`](docs/publishing.md));
+  No independent check on a second machine of the same profile has been done yet. We
+  recommend one before publishing, but it is not required ([`docs/publishing.md`](docs/publishing.md));
   each receiving machine still validates every artifact before registering it.
 - **No quantized artifact ships.** In the W8 research only the laya-typed-decisions L64
   `w8-pt` result is reproduced (0.650 of FP16 latency); laya and laya-multilingual failed the
