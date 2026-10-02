@@ -99,6 +99,7 @@ Evidence kinds:
 | 17 | Can the runtime detect the slow state online from public signals? | [#104]; [`replay.md`](coreml-adaptive-breaker/replay.md). Replay of recorded data, no new runs. | Yes on recorded laya L128 data. The signal is `RequestTrace` `prepare_ms` > 0.3 ms. C3 (3 consecutive host-slow ANE requests) catches 16 of 16 sustained episodes, worst delay 126 ms, with 4 false trips in 51 healthy episodes. 14 of the 16 are slow from their first second; #103's starts 4.7 s after its handoff. Not preregistered: C3 was chosen on the same data. | C3 is frozen for Phase 1. |
 | 18 | Does falling back to A actually recover? | [#104]; [`phase1.md`](coreml-adaptive-breaker/phase1.md), [`phase1_tables.md`](coreml-adaptive-breaker/phase1_tables.md). Controlled intervention, gate. | **PASS.** B (no breaker) slow in 6 of 6 episodes; R (breaker, armed 1 s into the episode, no 64-forward guard) tripped in 12 of 12, all on a naturally occurring slow state at onset. Trip → sustained A-like latency 215 / 364 / 414 ms (median / P95 / worst; range 164–414 ms), against a preregistered limit of 1.0 s. Throughput after fallback 0.999 × A. | The fallback is the product mechanism. |
 | 19 | Does the production runtime pass validation? | [#105]; [`validation.md`](coreml-adaptive-breaker/validation.md), [`val_tables.md`](coreml-adaptive-breaker/val_tables.md). Production. | **PASS.** 154 episodes (12 + 78 + 64), all stayed async, 0 trips. GPU return P50 0.035–0.043 ms against A's 4.28–8.60 ms. 0 mismatches, routing failures, request loss or crashes. No natural slow state occurred. | 1.5 ships adaptive execution as the default for laya and laya-typed-decisions. |
+| 20 | What triggers the host slow state of the no-GIL ANE thread? | [#89]; [`coreml-slow-state-trigger/`](coreml-slow-state-trigger/results.md), run on macOS 27.0 after 1.6. Intervention, screen (not a production gate). | The #88 path (PB-R) was slow in 5 of 6 hetero windows, A in 0 of 6. Three changes, each one difference from PB-R, each had 0 of 6 slow windows: the same native call with the GIL held (PB-H), a 2 s hetero warm-up before each window (PB-W) and a 1 ms GIL probe thread (PB-P). The preregistered rule confirms all three and ranks none. | No single cause is attributed; PB-H's contrast also restores the GPU reply wait. Background load was present and not controlled. It tests the synchronous no-GIL thread path under 1.4 only; 1.5's adaptive execution is neither validated nor invalidated. |
 
 ## Key findings
 
@@ -223,8 +224,9 @@ All phases passed, with 0 mismatches, routing failures, request loss or crashes.
   - H64's confirmation FAIL is a FAIL, although its population latency gate passed.
 - **Some findings are post-hoc.** #93, #100 and the replay's detector choice are analyses of
   existing data. They direct the next experiment. They are not gates.
-- **Still open:** [#89], what triggers the host slow state. Its screen was preregistered but has
-  never run.
+- **Run, no single cause:** [#89], what triggers the host slow state. Its screen ran on macOS 27.0:
+  PB-R was slow in 5 of 6 hetero windows, A in 0 of 6, and three changes, each one difference from
+  PB-R, each removed it ([`results.md`](coreml-slow-state-trigger/results.md)).
 
 ## Detailed research tracks
 
@@ -244,6 +246,7 @@ In chain order:
 | Dependency QoS | [`coreml-dependency-qos/`](coreml-dependency-qos/README.md) | [#97] | [#98], [#99], [#100] |
 | Staged handoff | [`coreml-staged-handoff/`](coreml-staged-handoff/README.md) | [#101] | [#102], [#103] |
 | Adaptive breaker | [`coreml-adaptive-breaker/`](coreml-adaptive-breaker/README.md) | [#104] | [#105] |
+| Slow-state trigger | [`coreml-slow-state-trigger/`](coreml-slow-state-trigger/README.md) | [#89] | [#154] |
 
 Tracks from the 1.6 cycle, outside this line of research. Each status is copied from the
 track's own README:
@@ -310,4 +313,5 @@ Other tracks in this directory, outside this line of research:
 [#121]: https://github.com/tc3oliver/laya-apple/issues/121
 [#123]: https://github.com/tc3oliver/laya-apple/issues/123
 [#129]: https://github.com/tc3oliver/laya-apple/pull/129
+[#154]: https://github.com/tc3oliver/laya-apple/pull/154
 [apple/coremltools#2876]: https://github.com/apple/coremltools/pull/2876

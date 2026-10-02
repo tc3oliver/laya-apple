@@ -1,0 +1,76 @@
+{
+  "format": "laya-apple-evidence-manifest",
+  "format_version": 1,
+  "files": [
+    {
+      "path": "raw/laya-A-r1.json.gz",
+      "url": "https://github.com/tc3oliver/laya-apple/releases/download/evidence-coreml-slow-state-trigger-20261002/laya-A-r1.json.gz",
+      "sha256": "7574cec1533a3b1f0d93039170ceccc8d064cb4d12c04720215d48231352c04a",
+      "size": 856044,
+      "description": "Raw run, cell A, round 1 (laya, L128 / L512, 3 hetero windows)"
+    },
+    {
+      "path": "raw/laya-A-r2.json.gz",
+      "url": "https://github.com/tc3oliver/laya-apple/releases/download/evidence-coreml-slow-state-trigger-20261002/laya-A-r2.json.gz",
+      "sha256": "5fd3c839209272d91bb3bd011630b9581deccf86c885c9c54a0f4857c61e4445",
+      "size": 857771,
+      "description": "Raw run, cell A, round 2 (laya, L128 / L512, 3 hetero windows)"
+    },
+    {
+      "path": "raw/laya-PB-H-r1.json.gz",
+      "url": "https://github.com/tc3oliver/laya-apple/releases/download/evidence-coreml-slow-state-trigger-20261002/laya-PB-H-r1.json.gz",
+      "sha256": "ce5bea6db30bc3b31ebe92aebd3acff0008faceec1ec35dd16615ad7165cfb12",
+      "size": 1037815,
+      "description": "Raw run, cell PB-H, round 1 (laya, L128 / L512, 3 hetero windows)"
+    },
+    {
+      "path": "raw/laya-PB-H-r2.json.gz",
+      "url": "https://github.com/tc3oliver/laya-apple/releases/download/evidence-coreml-slow-state-trigger-20261002/laya-PB-H-r2.json.gz",
+      "sha256": "30cc7fca1e481c658d935bea8211d0a56202845272d84657c2f23ca3b2ac3419",
+      "size": 1040369,
+      "description": "Raw run, cell PB-H, round 2 (laya, L128 / L512, 3 hetero windows)"
+    },
+    {
+      "path": "raw/laya-PB-P-r1.json.gz",
+      "url": "https://github.com/tc3oliver/laya-apple/releases/download/evidence-coreml-slow-state-trigger-20261002/laya-PB-P-r1.json.gz",
+      "sha256": "ddc58d163dfd9c228d0fcd9d6723c534dec4871d7404a683fa26f0449de8b562",
+      "size": 1120135,
+      "description": "Raw run, cell PB-P, round 1 (laya, L128 / L512, 3 hetero windows)"
+    },
+    {
+      "path": "raw/laya-PB-P-r2.json.gz",
+      "url": "https://github.com/tc3oliver/laya-apple/releases/download/evidence-coreml-slow-state-trigger-20261002/laya-PB-P-r2.json.gz",
+      "sha256": "4983ce3929b0a28d8f5e547b36b8bb684d88474eeece6e39a1f09e1c087f5625",
+      "size": 1119301,
+      "description": "Raw run, cell PB-P, round 2 (laya, L128 / L512, 3 hetero windows)"
+    },
+    {
+      "path": "raw/laya-PB-R-r1.json.gz",
+      "url": "https://github.com/tc3oliver/laya-apple/releases/download/evidence-coreml-slow-state-trigger-20261002/laya-PB-R-r1.json.gz",
+      "sha256": "aa628d0146de5f07935be8d8dd6dc2cd287670c180d6d2879f0d4ca9881d650f",
+      "size": 1004749,
+      "description": "Raw run, cell PB-R, round 1 (laya, L128 / L512, 3 hetero windows)"
+    },
+    {
+      "path": "raw/laya-PB-R-r2.json.gz",
+      "url": "https://github.com/tc3oliver/laya-apple/releases/download/evidence-coreml-slow-state-trigger-20261002/laya-PB-R-r2.json.gz",
+      "sha256": "3c5f70021196253ccc7dc9cce4cb0b90b911981977fd2682c3d1c752ad8e99e7",
+      "size": 970241,
+      "description": "Raw run, cell PB-R, round 2 (laya, L128 / L512, 3 hetero windows)"
+    },
+    {
+      "path": "raw/laya-PB-W-r1.json.gz",
+      "url": "https://github.com/tc3oliver/laya-apple/releases/download/evidence-coreml-slow-state-trigger-20261002/laya-PB-W-r1.json.gz",
+      "sha256": "8727e1428d90bec9fde8cb967102b53f3d1a48f26e302ff87a27f3719f5557ed",
+      "size": 1084175,
+      "description": "Raw run, cell PB-W, round 1 (laya, L128 / L512, 3 hetero windows)"
+    },
+    {
+      "path": "raw/laya-PB-W-r2.json.gz",
+      "url": "https://github.com/tc3oliver/laya-apple/releases/download/evidence-coreml-slow-state-trigger-20261002/laya-PB-W-r2.json.gz",
+      "sha256": "d6273128a06907ffc99e35c6c568c10f289dd11b16f614e29aea7887f927c729",
+      "size": 1087885,
+      "description": "Raw run, cell PB-W, round 2 (laya, L128 / L512, 3 hetero windows)"
+    }
+  ]
+}
