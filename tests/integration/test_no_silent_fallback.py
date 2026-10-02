@@ -299,7 +299,7 @@ def test_placement_probe_refuses_a_model_that_runs_like_the_cpu(monkeypatch, loa
     spec = models()[MODEL]
     if ok:
         r = coreml_ane.probe_placement(spec, 64, _TimedModel(clock, loaded_ms), tmp_path, {})
-        assert r["ratio"] == pytest.approx(loaded_ms / cpu_ms)
+        assert r["ratio"] == pytest.approx(loaded_ms / cpu_ms, abs=5e-4)  # the probe rounds to 3 decimals
         assert r["ratio"] < coreml_ane.PROBE_MAX_RATIO
     else:
         with pytest.raises(ComputeUnitMismatchError, match="not running on the Neural Engine"):
