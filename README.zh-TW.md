@@ -15,7 +15,7 @@ Neural Engine 只在結果跟上游一致時才上場。**
 Laya 讀一段 context，一次 forward pass 就能回答多個有型別的問題（`choice`、`score`、`noul`）。
 laya-apple 在 Mac 的兩個引擎上跑上游 Laya，每個請求自動挑一個引擎。
 
-1.6.2 更新：M4 Max 搭 macOS 27 也有預先建置的 ANE artifact 了，`artifacts fetch` 下載就能用
+1.6.2 更新：M4 Max 搭 macOS 27 也有預先建置的 ANE artifact 了，用 `artifacts fetch` 抓下來就好，不必自己建置
 （[release notes](docs/releases/v1.6.2.md)）。
 
 ## 為什麼要用
@@ -126,8 +126,8 @@ with Laya.from_pretrained("auto") as model:       # laya or laya-multilingual, p
   `predict` 本身沒有改變（[`examples/auto_fetch_shortlist.py`](examples/auto_fetch_shortlist.py)）。
 
 限制：
-- **預先建置的 artifact 目前有兩個平台 profile：Apple M4 Max + coremltools 9.0，macOS 26 和
-  macOS 27（1.6.2 起）各一份。** 其他 Mac 都會拿到 `ArtifactMissingError`，錯誤訊息會附上建置指令，
+- **預先建置的 artifact 目前有兩個平台 profile：Apple M4 Max + coremltools 9.0，macOS 26 一份，
+  macOS 27 從 1.6.2 起也有一份。** 其他 Mac 都會拿到 `ArtifactMissingError`，錯誤訊息會附上建置指令，
   照舊在本機建置（`laya-apple artifacts build MODEL`，需要 `convert` extra）。
 - **已發布的 artifact 都用空快取下載檢查過：** 兩個 profile 各自的 10 組 model/bucket，
   fetch、verify、parity 與 placement 全部通過
@@ -135,9 +135,10 @@ with Laya.from_pretrained("auto") as model:       # laya or laya-multilingual, p
   [macOS 27.0](benchmarks/prebuilt-artifacts-1.6.2-macos27.md)）。
   兩次檢查都是在建置 artifact 的那台機器上跑的。每一台接收端機器在註冊 artifact 前，
   都會再做一次完整性、平台、parity 與 placement 檢查。
-- **Core ML 第一次載入模型時仍要在裝置上編譯：** 約 4.5 分鐘。在一次實測中，laya-typed-decisions
+- **Core ML 第一次載入模型時仍要在裝置上編譯：** macOS 26 上約 4.5 分鐘。在一次實測中，laya-typed-decisions
   （bucket 64/96/128）在新位置冷啟動花了 273.5 s，暖啟動只要 2.7 s
-  （[`research/coreml-compile-cache/screen.md`](research/coreml-compile-cache/screen.md)）。
+  （[`research/coreml-compile-cache/screen.md`](research/coreml-compile-cache/screen.md)）；
+  macOS 27.0 上約 210 s（[`research/coreml-compile-cache/results.md`](research/coreml-compile-cache/results.md)）。
   下載 artifact 無法省掉這段時間。設定 `ane_startup="background"` 時，這段期間會先用 MLX 服務。
 
 1.6 其他較小的變動：MLX 快速路徑（token-id 快取預設開啟；`mx.compile` 與依長度分組的
@@ -311,12 +312,12 @@ Mac 上有兩個引擎可以跑 Laya，各自擅長不同的請求。
 
 自適應 ANE 執行只在 `execution="workers"`、`device="auto"` 下啟用，目前只在一台 macOS 26.6.2 的
 Apple M4 Max 上驗證過。內建路由 profile 支援 Apple M4 Max + coremltools 9.0，macOS 26.6.2 和 27.0
-都有：只要建置好 artifact，`auto` 就會用 ANE。macOS 27 的 profile 適用所有 27.x，但實際只測過 27.0。
-macOS 27 上只量測了建置、parity 與路由；自適應執行、`serve`
+都有：只要 artifact 建置好或 fetch 下來，`auto` 就會用 ANE。macOS 27 的 profile 適用所有 27.x，但實際只測過 27.0。
+macOS 27 上只量測了建置、parity、路由，以及預先建置 artifact 的 fetch 檢查；自適應執行、`serve`
 與發行 benchmark 都沒有量測（[`benchmarks/routing-macos27/`](benchmarks/routing-macos27/README.md)）。
 在其他 Mac 上，要先在那台機器建置並校準 ANE artifact（`laya-apple calibrate`），`auto` 才會使用 ANE，
 在那之前都走 MLX。預先建置的 artifact
-（`laya-apple artifacts fetch`）只有 Apple M4 Max + coremltools 9.0 的 macOS 26 與 27 版本。詳見
+（`laya-apple artifacts fetch`）只支援 Apple M4 Max + coremltools 9.0，搭 macOS 26 或 27。詳見
 [`docs/compatibility.md`](docs/compatibility.md)。
 
 ## 正確性

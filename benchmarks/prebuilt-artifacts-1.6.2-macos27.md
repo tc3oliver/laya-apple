@@ -17,7 +17,7 @@ that 1.6.0 and 1.6.1 read at `93181067cfee9c6117a7919321eb303ec36fcbd4`. Its `in
     `--revision 44a54765f89d434e9d85f401126cfee7d2059e7d`. It checks the upload with the
     released code, before the pin changed.
   - **Run B:** laya-apple 1.6.2, a wheel built from a clean `git archive` of `37f726c` (the
-    release branch, with the new pin), with no `--revision`. It checks that the pin resolves to
+    PR #159 branch, with the new pin), with no `--revision`. It checks that the pin resolves to
     the upload.
 - **Checkpoints** came from the existing Hugging Face cache. No archive was cached locally
   beforehand.

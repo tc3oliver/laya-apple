@@ -143,9 +143,11 @@ Limits:
   [macOS 27.0](benchmarks/prebuilt-artifacts-1.6.2-macos27.md)). Both checks ran on the build
   machine with an empty cache. Every receiving machine repeats the
   integrity, platform, parity and placement checks before it registers an artifact.
-- **The first Core ML load still compiles on the device:** about 4.5 minutes. In one run,
-  laya-typed-decisions (buckets 64/96/128) took 273.5 s cold at a new location against 2.7 s
-  warm ([`research/coreml-compile-cache/screen.md`](research/coreml-compile-cache/screen.md)).
+- **The first Core ML load still compiles on the device:** about 4.5 minutes on macOS 26. In
+  one run, laya-typed-decisions (buckets 64/96/128) took 273.5 s cold at a new location against
+  2.7 s warm ([`research/coreml-compile-cache/screen.md`](research/coreml-compile-cache/screen.md));
+  about 210 s on macOS 27.0
+  ([`research/coreml-compile-cache/results.md`](research/coreml-compile-cache/results.md)).
   Fetching does not remove it. `ane_startup="background"` serves on MLX in the meantime.
 
 Smaller 1.6 changes: an MLX fast path (a token-id cache on by default; `mx.compile`
@@ -336,13 +338,13 @@ per-request timing; you do not need to pass `trace=` for it. Architecture:
 
 Adaptive ANE execution applies with `execution="workers"` and `device="auto"`. Validated on one Apple M4 Max with macOS 26.6.2.
 Shipped routing profiles cover the Apple M4 Max with coremltools 9.0 on macOS 26.6.2 and
-macOS 27.0, so `auto` uses the ANE there once the artifacts are built. The macOS 27 profile
+macOS 27.0, so `auto` uses the ANE there once the artifacts are built or fetched. The macOS 27 profile
 matches every 27.x, but only 27.0 was measured. On macOS 27 only build,
-parity and routing were measured; adaptive execution, `serve` and the release benchmarks were
+parity, routing and the prebuilt fetch check were measured; adaptive execution, `serve` and the release benchmarks were
 not ([`benchmarks/routing-macos27/`](benchmarks/routing-macos27/README.md)). On other Macs,
 `auto` stays on MLX until ANE artifacts are built and calibrated there (`laya-apple
-calibrate`). Prebuilt artifacts (`laya-apple artifacts fetch`) exist for Apple M4 Max with
-coremltools 9.0 only, on macOS 26 and 27. Details: [`docs/compatibility.md`](docs/compatibility.md).
+calibrate`). Prebuilt artifacts (`laya-apple artifacts fetch`) exist only for Apple M4 Max with
+coremltools 9.0, on macOS 26 or 27. Details: [`docs/compatibility.md`](docs/compatibility.md).
 
 ## Correctness
 
