@@ -636,6 +636,22 @@ back `null`, it never raises. Each record:
 | `offered_by_auto` | whether `bucket` is in the model's `auto_ane_buckets` (§ [Devices](#devices)) |
 | `offered_explicit` | whether `bucket` is in the model's `ane_buckets` |
 
+To read them rather than parse them, add `--format table` (to `list` or `list --capabilities`;
+both print the same table). It has one row per registered artifact, sorted by model, revision
+and bucket (the JSON keeps the registry order):
+
+```text
+MODEL                 BUCKET  STATUS     PARITY PASSED  COMPUTE PLAN
+laya-typed-decisions     128  validated  yes            CPU_AND_NE (ane=<n> gpu=0 cpu=0 transitions=0)
+```
+
+`PARITY PASSED` is `yes` or `no`, `-` stands for any field the manifest does not have, and
+`?` replaces a control character in one.
+The compute plan is `compute_target.compute_units` with the op counts per device and the
+transitions. With nothing registered it says so and names `artifacts fetch` and
+`artifacts build`. The default format, `--format json`, is unchanged; scripts should keep
+reading that.
+
 An unsupported request shape (too long, wrong graph, a dynamic length) is never padded
 or reshaped to fit a bucket — it raises `UnsupportedShapeError` instead. Only buckets
 that passed the parity gate **on this machine** (its SoC, macOS major version and
@@ -713,7 +729,7 @@ laya-apple predict MODEL --context TEXT --questions JSON [--device auto|gpu|ane]
 laya-apple info [MODEL]
 laya-apple download MODEL...
 laya-apple artifacts build MODEL [--length L ...] [--force] [--skip-existing]
-laya-apple artifacts list [--capabilities]
+laya-apple artifacts list [--capabilities] [--format json|table]
 laya-apple artifacts verify [MODEL] [--length L ...]
 laya-apple artifacts warm [MODEL] [--length L ...]
 laya-apple artifacts prune [--yes]

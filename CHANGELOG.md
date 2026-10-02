@@ -7,6 +7,20 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- **`laya-apple artifacts list --format table`**
+  ([#4](https://github.com/tc3oliver/laya-apple/issues/4)). A table for reading, one row per
+  registered artifact, sorted by model, revision and bucket: model, bucket, status, whether
+  parity passed and the compute plan (compute units, op counts per device, transitions). It is
+  the same with or without `--capabilities`, uses `-` for a field the manifest lacks, shows a
+  control character from a manifest as `?`, and says so when nothing is registered.
+  `--format json` is the default and its output is unchanged.
+- **`scripts/hardware_report.py --json PATH` writes a compact JSON summary of the run**
+  ([#7](https://github.com/tc3oliver/laya-apple/issues/7)): a `schema_version`, the platform
+  identifiers of `platform_profile()`, the forward P50 of every measured device, length and
+  question count, and the parity verdict per model. It is derived from the bundle, so
+  `--render BUNDLE --json PATH` summarises an existing bundle without measuring anything (PATH
+  may not be that bundle). A test pins the schema, which is documented in `docs/community-benchmarks.md`. The bundle
+  format and `summary.md` are unchanged.
 - **`laya-apple info` reports the runtime environment.** A new `environment` block holds
   the Python version, `mlx` (`available`, `version`) and `offline`: `local_files_only` (whether
   `--offline` was given), `hf_hub_offline` (`huggingface_hub`'s own offline mode, from

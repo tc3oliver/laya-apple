@@ -175,3 +175,97 @@ profile"). Adding a new shipped profile is a separate change that re-derives the
 from committed measurements. It is not done through this matrix.
 
 The bundle format is described in [`hardware-results/README.md`](../hardware-results/README.md).
+
+## Summary JSON
+
+`--json PATH` also writes a compact summary of the run, for a dashboard or a comparison
+across `hardware-results/*/` that should not have to parse `bundle.json`. It is derived from
+the bundle and every number in it is the bundle's own. It is optional and not part of the
+directory you submit: reviewers check `bundle.json` and `summary.md`.
+
+```bash
+uv run python scripts/hardware_report.py --quick --json summary.json
+
+# or, for a bundle you already have, without measuring anything (summary.md is still printed):
+uv run python scripts/hardware_report.py --render hardware-results/<dir>/bundle.json --json summary.json
+```
+
+PATH must be a writable file in an existing directory, and with `--render` it must not be
+the bundle being read. This is checked before the run starts, and an existing file is
+overwritten. This is the summary of
+[`hardware-results/apple-m2-pro-macos26/bundle.json`](../hardware-results/apple-m2-pro-macos26/bundle.json):
+
+```json
+{
+ "format": "laya-apple-hardware-summary",
+ "schema_version": 1,
+ "laya_apple": "1.0.2",
+ "started_at": "2026-09-24T05:55:15.663454+00:00",
+ "quick": true,
+ "platform": {
+  "soc": "Apple M2 Pro",
+  "macos": "26.6.2",
+  "macos_build": "25G83",
+  "coremltools": null
+ },
+ "hardware": {
+  "hw_model": "Mac14,12",
+  "memory_gb": 16
+ },
+ "models": {
+  "laya-typed-decisions": {
+   "revision": "f9ab0b228f0fc0f14d873dbc99038f135c2da1b2",
+   "parity": {
+    "mlx": true,
+    "ane": null
+   },
+   "forward_p50_ms": [
+    {
+     "device": "gpu",
+     "length": 64,
+     "questions": 1,
+     "p50_ms": 16.046146163716912
+    },
+    {
+     "device": "gpu",
+     "length": 128,
+     "questions": 1,
+     "p50_ms": 28.06797926314175
+    },
+    {
+     "device": "gpu",
+     "length": 512,
+     "questions": 1,
+     "p50_ms": 96.29687503911555
+    },
+    {
+     "device": "gpu",
+     "length": 128,
+     "questions": 4,
+     "p50_ms": 90.46510397456586
+    }
+   ]
+  }
+ }
+}
+```
+
+Schema, version 1:
+
+| Key | Contents |
+|---|---|
+| `format`, `schema_version` | `laya-apple-hardware-summary` and the integer `1`. Any change to a key or to what it means bumps `schema_version`; a test pins the exact output |
+| `laya_apple` | the laya-apple version that ran |
+| `started_at` | UTC start time of the run, as in the bundle |
+| `quick` | `true` for a `--quick` run (fewer iterations), so compare like with like |
+| `platform` | `soc`, `macos`, `macos_build` and `coremltools`: exactly the keys and values of `laya_apple.artifacts.platform_profile()`, the profile routing uses. `coremltools` is `null` when it is not installed |
+| `hardware` | `hw_model` (for example `Mac14,12`) and `memory_gb` |
+| `models.<name>.revision` | the pinned checkpoint revision that was measured |
+| `models.<name>.parity.mlx`, `.ane` | the parity gate's verdict: `true` passed, `false` failed or errored, `null` did not run (ANE unavailable on this machine, or the weights step failed; see the bundle) |
+| `models.<name>.forward_p50_ms` | one entry per measured configuration, in measurement order: `device` (`gpu` or `ane`), `length` (tokens), `questions` and `p50_ms`, the median warm forward time in milliseconds |
+
+`forward_p50_ms` is a list, not a map by length, because the same length is measured with
+different question counts (128 tokens with 1 and with 4 questions above). The forward time
+is the backend call alone, as in `laya-apple benchmark`; the end-to-end predict times and the
+raw samples stay in the bundle. A configuration that was skipped or failed has no entry
+there, and the reason is in the bundle.
