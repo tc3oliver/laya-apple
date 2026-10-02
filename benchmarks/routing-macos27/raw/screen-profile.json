@@ -1,0 +1,108 @@
+{
+ "format": "laya-apple-profile",
+ "format_version": 1,
+ "platform": {
+  "soc": "Apple M4 Max",
+  "macos": "27.0",
+  "macos_build": "26A428",
+  "coremltools": "9.0"
+ },
+ "laya_apple": "1.6.0",
+ "models": {
+  "laya-typed-decisions": {
+   "ane_buckets": [
+    64,
+    96,
+    128
+   ],
+   "auto_ane_buckets": [
+    64,
+    96,
+    128
+   ],
+   "auto_ane_max_len": 128,
+   "auto_ane_max_questions": 1,
+   "decisions": [
+    {
+     "bucket": 64,
+     "parity_pass": true,
+     "parity_prob_max_abs": 0.004626551731036654,
+     "ane_p50_ms": 8.212,
+     "mlx_p50_ms_at": 64,
+     "mlx_p50_ms": 9.392,
+     "auto": true
+    },
+    {
+     "bucket": 96,
+     "parity_pass": true,
+     "parity_prob_max_abs": 0.004629080340655012,
+     "ane_p50_ms": 9.0702,
+     "mlx_p50_ms_at": 64,
+     "mlx_p50_ms": 9.392,
+     "auto": true
+    },
+    {
+     "bucket": 128,
+     "parity_pass": true,
+     "parity_prob_max_abs": 0.007666298291743701,
+     "ane_p50_ms": 9.9735,
+     "mlx_p50_ms_at": 96,
+     "mlx_p50_ms": 11.5856,
+     "auto": true
+    }
+   ],
+   "revision": "f9ab0b228f0fc0f14d873dbc99038f135c2da1b2",
+   "service_ms": {
+    "gpu": {
+     "1": {
+      "64": 9.392,
+      "96": 11.5856,
+      "128": 12.2327,
+      "160": 14.753,
+      "192": 15.5085,
+      "224": 18.633,
+      "256": 19.19,
+      "320": 23.3171,
+      "384": 27.197,
+      "448": 31.083,
+      "512": 35.1638,
+      "768": 51.9144,
+      "1024": 70.8682
+     },
+     "4": {
+      "64": 18.7591,
+      "128": 33.1356,
+      "256": 63.3669,
+      "512": 123.4641,
+      "1024": 261.503
+     },
+     "8": {
+      "64": 32.7294,
+      "128": 61.9684,
+      "256": 118.1588,
+      "512": 240.8195,
+      "1024": 516.5977
+     }
+    },
+    "ane": {
+     "1": {
+      "64": 8.212,
+      "96": 9.0702,
+      "128": 9.9735
+     }
+    }
+   },
+   "artifacts": {
+    "64": "b078691b4df9b1bec80370885fdb67397de9e83486b2e1c20bd2cc03923172d4",
+    "96": "154967b90403585823532e0ff90d9d15cdb6e06fd6b8de2c0656c17cb0884655",
+    "128": "4792ff211eff86b6dea3cec2d687e76169f85f6453721e6b2d7adbdda276ffe8"
+   },
+   "measured_at": "2026-10-02T11:47:00.112642+00:00",
+   "method": {
+    "warmup": 5,
+    "iters": 30,
+    "boundary": "backend forward, synchronised, P50"
+   }
+  }
+ }
+}

@@ -30,7 +30,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from . import routing, scheduling
-from .artifacts import platform_profile, profile_matches
 from .errors import (
     ArtifactMissingError,
     BackendUnavailableError,
@@ -111,8 +110,9 @@ def _coremltools_available() -> bool:
 
 
 def platform_validated(profile: dict | None = None) -> bool:
-    profile = profile or platform_profile()
-    return any(profile_matches(profile, p) for p in routing_table().get("validated_profiles", []))
+    from .profiles import shipped_profile_matches
+
+    return shipped_profile_matches(profile)
 
 
 class _GPUView:
@@ -291,21 +291,27 @@ class Laya:
     def _routing_profile(self):
         """Which measured routing table applies on this machine.
 
-        The shipped table if a shipped profile matches; otherwise a local calibration for
+        The shipped table if a shipped profile matches (routing.json, or a shipped calibrated
+        profile, which also replaces the auto buckets); otherwise a local calibration for
         this exact profile (laya-apple calibrate), which also replaces the auto buckets;
         otherwise none, and auto uses MLX only."""
-        from .profiles import load_local
+        from .profiles import load_local, load_shipped
 
         shipped = routing_table()["models"][self.spec.name]["service_ms"]
         if platform_validated():
-            return "shipped", shipped
-        local = load_local(self.spec.name)
-        if local is None:
-            return None, shipped
-        buckets = tuple(local.get("auto_ane_buckets") or ())
+            profile = load_shipped(self.spec.name)
+            if profile is None:
+                return "shipped", shipped
+            name = "shipped"
+        else:
+            profile = load_local(self.spec.name)
+            if profile is None:
+                return None, shipped
+            name = f"local:{profile['source']}"
+        buckets = tuple(profile.get("auto_ane_buckets") or ())
         if buckets != self.spec.ane_buckets[: len(buckets)]:
             warnings.warn(
-                f"laya-apple: ignoring local profile {local['source']}: its auto buckets {list(buckets)} are not "
+                f"laya-apple: ignoring profile {profile['source']}: its auto buckets {list(buckets)} are not "
                 f"a prefix of the offered buckets {list(self.spec.ane_buckets)} for {self.spec.name}; "
                 "re-run laya-apple calibrate",
                 RuntimeWarning,
@@ -314,11 +320,11 @@ class Laya:
             return None, shipped
         self.spec = dataclasses.replace(
             self.spec,
-            auto_ane_buckets=tuple(local["auto_ane_buckets"]),
-            auto_ane_max_len=int(local["auto_ane_max_len"]),
-            auto_ane_max_questions=int(local["auto_ane_max_questions"]),
+            auto_ane_buckets=tuple(profile["auto_ane_buckets"]),
+            auto_ane_max_len=int(profile["auto_ane_max_len"]),
+            auto_ane_max_questions=int(profile["auto_ane_max_questions"]),
         )
-        return f"local:{local['source']}", local["service_ms"]
+        return name, profile["service_ms"]
 
     def _ane_gate(self) -> str | None:
         """Why auto cannot use the ANE here, or None."""

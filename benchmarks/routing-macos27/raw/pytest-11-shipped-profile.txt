@@ -1,0 +1,26 @@
+.............                                                            [100%]
+=============================== warnings summary ===============================
+tests/integration/test_routing_e2e.py: 4 warnings
+tests/integration/test_no_silent_fallback.py: 5 warnings
+tests/integration/test_profiles.py: 1 warning
+tests/integration/test_workers.py: 2 warnings
+  <checkout>/laya_apple/model.py:278: RuntimeWarning: laya-apple: checkpoint temperatures that are invalid or outside [0.5, 5.0] are replaced (choice:11+=0.10058280825614929 -> 0.5), as upstream does; treat confidence from those entries as uncalibrated
+    return cls(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED tests/integration/test_routing_e2e.py::test_auto_with_empty_artifact_cache_routes_to_gpu_with_artifact_unavailable[laya]
+PASSED tests/integration/test_routing_e2e.py::test_artifact_revision_mismatch_under_explicit_ane_raises[laya]
+PASSED tests/integration/test_routing_e2e.py::test_auto_with_empty_artifact_cache_routes_to_gpu_with_artifact_unavailable[laya-multilingual]
+PASSED tests/integration/test_routing_e2e.py::test_artifact_revision_mismatch_under_explicit_ane_raises[laya-multilingual]
+PASSED tests/integration/test_routing_e2e.py::test_auto_with_empty_artifact_cache_routes_to_gpu_with_artifact_unavailable[laya-typed-decisions]
+PASSED tests/integration/test_routing_e2e.py::test_artifact_revision_mismatch_under_explicit_ane_raises[laya-typed-decisions]
+PASSED tests/integration/test_no_silent_fallback.py::test_auto_with_a_rejected_bucket_warns_and_records_the_reason
+PASSED tests/integration/test_no_silent_fallback.py::test_dead_ane_worker_under_auto_is_recorded_and_warned_once
+PASSED tests/integration/test_no_silent_fallback.py::test_background_startup_failure_is_warned_and_recorded
+PASSED tests/integration/test_no_silent_fallback.py::test_placement_probe_failure_drops_the_bucket_under_auto_and_raises_under_ane
+PASSED tests/integration/test_profiles.py::test_local_profile_ignored_on_a_shipped_profile
+PASSED tests/integration/test_workers.py::test_dead_gpu_worker_fails_loudly_and_never_falls_back
+PASSED tests/integration/test_workers.py::test_background_ane_startup_serves_mlx_first_then_ane
+13 passed, 12 warnings in 21.54s

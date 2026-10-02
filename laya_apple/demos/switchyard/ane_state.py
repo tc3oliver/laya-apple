@@ -102,12 +102,11 @@ def _calibrated(model: str) -> bool:
 
 def _auto_buckets(spec, validated: bool) -> tuple:
     """The buckets auto routes to the ANE here: shipped, or the local calibration's."""
-    if not validated:
-        from ...profiles import load_local
+    from ...profiles import load_local, load_shipped
 
-        local = load_local(spec.name)
-        if local is not None:
-            return tuple(local.get("auto_ane_buckets") or ())
+    profile = load_shipped(spec.name) if validated else load_local(spec.name)
+    if profile is not None:
+        return tuple(profile.get("auto_ane_buckets") or ())
     return tuple(spec.auto_ane_buckets)
 
 

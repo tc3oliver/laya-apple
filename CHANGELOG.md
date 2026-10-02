@@ -7,6 +7,21 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- **A shipped routing profile for Apple M4 Max on macOS 27 with coremltools 9.0**
+  ([#17](https://github.com/tc3oliver/laya-apple/issues/17),
+  [#151](https://github.com/tc3oliver/laya-apple/issues/151)). On that profile
+  `device="auto"` now uses the ANE once the artifacts are built locally, instead of staying on
+  MLX with `platform_not_validated`, and `Laya.info()["routing_profile"]` is `"shipped"`. Two
+  `laya-apple calibrate` passes on the release machine after its upgrade to macOS 27.0 gave the
+  same auto ANE buckets as on 26.6.2 for every model (64, 96, 128; `laya-multilingual` L256
+  stays explicit-only). The calibration ships unedited as
+  `laya_apple/data/profiles/Apple_M4_Max-macos27-coremltools9.0.json`, with its measurements
+  and the methodology differences from the 26.6.2 table in `benchmarks/routing-macos27/`.
+  Shipped calibrated profiles use the same rule as `routing.json` and replace its auto buckets
+  and service times for their own profile only; a unit test checks each one against its
+  committed evidence. `routing.json`, the 26.6.2 profile, the rule and every gate are
+  unchanged. The release benchmarks, `serve` and adaptive-execution results were not
+  re-measured on macOS 27.
 - **`laya-apple artifacts list --format table`**
   ([#4](https://github.com/tc3oliver/laya-apple/issues/4)). A table for reading, one row per
   registered artifact, sorted by model, revision and bucket: model, bucket, status, whether

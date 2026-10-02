@@ -1,0 +1,306 @@
+{
+ "format": "laya-apple-profile",
+ "format_version": 1,
+ "platform": {
+  "soc": "Apple M4 Max",
+  "macos": "27.0",
+  "macos_build": "26A428",
+  "coremltools": "9.0"
+ },
+ "laya_apple": "1.6.0",
+ "models": {
+  "laya-typed-decisions": {
+   "ane_buckets": [
+    64,
+    96,
+    128
+   ],
+   "auto_ane_buckets": [
+    64,
+    96,
+    128
+   ],
+   "auto_ane_max_len": 128,
+   "auto_ane_max_questions": 1,
+   "decisions": [
+    {
+     "bucket": 64,
+     "parity_pass": true,
+     "parity_prob_max_abs": 0.004626551731036654,
+     "ane_p50_ms": 8.2864,
+     "mlx_p50_ms_at": 64,
+     "mlx_p50_ms": 9.3546,
+     "auto": true
+    },
+    {
+     "bucket": 96,
+     "parity_pass": true,
+     "parity_prob_max_abs": 0.004629080340655012,
+     "ane_p50_ms": 9.1454,
+     "mlx_p50_ms_at": 64,
+     "mlx_p50_ms": 9.3546,
+     "auto": true
+    },
+    {
+     "bucket": 128,
+     "parity_pass": true,
+     "parity_prob_max_abs": 0.007666298291743701,
+     "ane_p50_ms": 10.0513,
+     "mlx_p50_ms_at": 96,
+     "mlx_p50_ms": 11.5496,
+     "auto": true
+    }
+   ],
+   "revision": "f9ab0b228f0fc0f14d873dbc99038f135c2da1b2",
+   "service_ms": {
+    "gpu": {
+     "1": {
+      "64": 9.3546,
+      "96": 11.5496,
+      "128": 12.2367,
+      "160": 14.7483,
+      "192": 15.5004,
+      "224": 18.631,
+      "256": 19.2031,
+      "320": 23.3097,
+      "384": 27.2441,
+      "448": 31.1282,
+      "512": 35.1739,
+      "768": 51.9507,
+      "1024": 70.8757
+     },
+     "4": {
+      "64": 18.7835,
+      "128": 33.1309,
+      "256": 63.3395,
+      "512": 123.4914,
+      "1024": 261.6107
+     },
+     "8": {
+      "64": 32.7641,
+      "128": 61.9535,
+      "256": 118.2259,
+      "512": 240.9709,
+      "1024": 516.8784
+     }
+    },
+    "ane": {
+     "1": {
+      "64": 8.2864,
+      "96": 9.1454,
+      "128": 10.0513
+     }
+    }
+   },
+   "artifacts": {
+    "64": "b078691b4df9b1bec80370885fdb67397de9e83486b2e1c20bd2cc03923172d4",
+    "96": "154967b90403585823532e0ff90d9d15cdb6e06fd6b8de2c0656c17cb0884655",
+    "128": "4792ff211eff86b6dea3cec2d687e76169f85f6453721e6b2d7adbdda276ffe8"
+   },
+   "measured_at": "2026-10-02T11:56:57.399694+00:00",
+   "method": {
+    "warmup": 10,
+    "iters": 300,
+    "boundary": "backend forward, synchronised, P50"
+   }
+  },
+  "laya": {
+   "ane_buckets": [
+    64,
+    96,
+    128
+   ],
+   "auto_ane_buckets": [
+    64,
+    96,
+    128
+   ],
+   "auto_ane_max_len": 128,
+   "auto_ane_max_questions": 1,
+   "decisions": [
+    {
+     "bucket": 64,
+     "parity_pass": true,
+     "parity_prob_max_abs": 0.00933087152072301,
+     "ane_p50_ms": 8.2774,
+     "mlx_p50_ms_at": 64,
+     "mlx_p50_ms": 9.4296,
+     "auto": true
+    },
+    {
+     "bucket": 96,
+     "parity_pass": true,
+     "parity_prob_max_abs": 0.01257044066898344,
+     "ane_p50_ms": 9.1618,
+     "mlx_p50_ms_at": 64,
+     "mlx_p50_ms": 9.4296,
+     "auto": true
+    },
+    {
+     "bucket": 128,
+     "parity_pass": true,
+     "parity_prob_max_abs": 0.01257044066898344,
+     "ane_p50_ms": 10.0431,
+     "mlx_p50_ms_at": 96,
+     "mlx_p50_ms": 11.6038,
+     "auto": true
+    }
+   ],
+   "revision": "c5d78730f3493e4fe16d61507ef4b78eef7318cf",
+   "service_ms": {
+    "gpu": {
+     "1": {
+      "64": 9.4296,
+      "96": 11.6038,
+      "128": 12.263,
+      "160": 14.7564,
+      "192": 15.519,
+      "224": 18.6539,
+      "256": 19.2185,
+      "320": 23.3368,
+      "384": 27.2529,
+      "448": 31.1374,
+      "512": 35.1833
+     },
+     "4": {
+      "64": 18.8128,
+      "128": 33.1458,
+      "256": 63.3471,
+      "512": 123.4927
+     },
+     "8": {
+      "64": 32.7384,
+      "128": 61.9459,
+      "256": 118.1135,
+      "512": 240.9226
+     }
+    },
+    "ane": {
+     "1": {
+      "64": 8.2774,
+      "96": 9.1618,
+      "128": 10.0431
+     }
+    }
+   },
+   "artifacts": {
+    "64": "ce3ee6df35fcf8bebe04eb3efef1b3bf6e3f9bdd7b6937ec2f02014930b68862",
+    "96": "7ff8b2a5b67aa8a01a21543cb87b493fd60328bb31a8fea59def9d677fbb8e6c",
+    "128": "f47a0fe400365f1e75dc37543405646acbe9a384b44591617de9d560a59a5412"
+   },
+   "measured_at": "2026-10-02T12:01:52.904791+00:00",
+   "method": {
+    "warmup": 10,
+    "iters": 300,
+    "boundary": "backend forward, synchronised, P50"
+   }
+  },
+  "laya-multilingual": {
+   "ane_buckets": [
+    64,
+    96,
+    128,
+    256
+   ],
+   "auto_ane_buckets": [
+    64,
+    96,
+    128
+   ],
+   "auto_ane_max_len": 128,
+   "auto_ane_max_questions": 1,
+   "decisions": [
+    {
+     "bucket": 64,
+     "parity_pass": true,
+     "parity_prob_max_abs": 0.007930902595345929,
+     "ane_p50_ms": 3.4553,
+     "mlx_p50_ms_at": 64,
+     "mlx_p50_ms": 5.3858,
+     "auto": true
+    },
+    {
+     "bucket": 96,
+     "parity_pass": true,
+     "parity_prob_max_abs": 0.012800862258820267,
+     "ane_p50_ms": 3.972,
+     "mlx_p50_ms_at": 64,
+     "mlx_p50_ms": 5.3858,
+     "auto": true
+    },
+    {
+     "bucket": 128,
+     "parity_pass": true,
+     "parity_prob_max_abs": 0.012800862258820267,
+     "ane_p50_ms": 4.4306,
+     "mlx_p50_ms_at": 96,
+     "mlx_p50_ms": 6.3323,
+     "auto": true
+    },
+    {
+     "bucket": 256,
+     "parity_pass": true,
+     "parity_prob_max_abs": 0.012800862258820267,
+     "ane_p50_ms": 8.6253,
+     "mlx_p50_ms_at": 128,
+     "mlx_p50_ms": 6.4247,
+     "auto": false
+    }
+   ],
+   "revision": "052592a15d198d9ad47da779604259b10b47b7aa",
+   "service_ms": {
+    "gpu": {
+     "1": {
+      "64": 5.3858,
+      "96": 6.3323,
+      "128": 6.4247,
+      "160": 7.4605,
+      "192": 7.825,
+      "224": 8.2791,
+      "256": 8.5529,
+      "320": 10.073,
+      "384": 11.6817,
+      "448": 13.3634,
+      "512": 14.8733,
+      "768": 22.5608,
+      "1024": 29.0871
+     },
+     "4": {
+      "64": 8.2649,
+      "128": 13.7905,
+      "256": 24.3884,
+      "512": 47.9664,
+      "1024": 104.4594
+     },
+     "8": {
+      "64": 13.5591,
+      "128": 23.5088,
+      "256": 44.6371,
+      "512": 91.9378,
+      "1024": 203.2452
+     }
+    },
+    "ane": {
+     "1": {
+      "64": 3.4553,
+      "96": 3.972,
+      "128": 4.4306,
+      "256": 8.6253
+     }
+    }
+   },
+   "artifacts": {
+    "64": "318726186f4242491cec4f11d586619d31a3feb42a01ee8690f0ad4c170cd7c1",
+    "96": "afec4677072df621a48c49d9cecacfc4771d54d21ce5155592ce4a42e9f0272a",
+    "128": "7d06f1db9ea86262d6a71e89efba5b822cf94331454ab7a26eb376459d44ccf1",
+    "256": "77440a63e1228ed2ec9f955dd19532ccd0e9b360329ab58aa50a90de2bf9010e"
+   },
+   "measured_at": "2026-10-02T12:05:48.362344+00:00",
+   "method": {
+    "warmup": 10,
+    "iters": 300,
+    "boundary": "backend forward, synchronised, P50"
+   }
+  }
+ }
+}

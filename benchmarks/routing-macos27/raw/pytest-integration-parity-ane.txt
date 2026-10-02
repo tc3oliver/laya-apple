@@ -1,0 +1,68 @@
+.......ss..............................................................s [ 27%]
+s................s...................................................... [ 55%]
+........................................................................ [ 83%]
+...........................................                              [100%]
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/fastapi/testclient.py:1
+  <checkout>/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+tests/integration/test_cli.py: 2 warnings
+tests/integration/test_gpu_ane_agreement.py: 3 warnings
+tests/integration/test_mlx_compile_checkpoints.py: 2 warnings
+tests/integration/test_predict.py: 2 warnings
+tests/integration/test_routing_e2e.py: 10 warnings
+tests/parity/test_ane_async_parity.py: 2 warnings
+tests/parity/test_ane_parity.py: 2 warnings
+tests/integration/test_option_order.py: 2 warnings
+tests/integration/test_no_silent_fallback.py: 10 warnings
+tests/integration/test_profiles.py: 4 warnings
+tests/integration/test_request_trace_workers.py: 2 warnings
+tests/integration/test_serve_http.py: 1 warning
+tests/integration/test_switchyard.py: 3 warnings
+tests/integration/test_workers.py: 8 warnings
+  <checkout>/laya_apple/model.py:279: RuntimeWarning: laya-apple: checkpoint temperatures that are invalid or outside [0.5, 5.0] are replaced (choice:11+=0.10058280825614929 -> 0.5), as upstream does; treat confidence from those entries as uncalibrated
+    return cls(
+
+tests/integration/test_mlx_compile_checkpoints.py::test_compiled_forward_passes_parity_and_keeps_eager_decisions[laya-float16]
+tests/integration/test_mlx_compile_checkpoints.py::test_compiled_forward_passes_parity_and_keeps_eager_decisions[laya-float32]
+tests/integration/test_mlx_compile_checkpoints.py::test_compiled_forward_passes_parity_and_keeps_eager_decisions[laya-typed-decisions-float16]
+tests/integration/test_mlx_compile_checkpoints.py::test_compiled_forward_passes_parity_and_keeps_eager_decisions[laya-typed-decisions-float32]
+  <checkout>/tests/integration/test_mlx_compile_checkpoints.py:27: RuntimeWarning: laya-apple: checkpoint temperatures that are invalid or outside [0.5, 5.0] are replaced (choice:11+=0.10058280825614929 -> 0.5), as upstream does; treat confidence from those entries as uncalibrated
+    summary = evaluate(
+
+tests/integration/test_mlx_length_buckets_checkpoints.py::test_bucketed_batches_pass_parity_and_keep_decisions[laya-float16]
+tests/integration/test_mlx_length_buckets_checkpoints.py::test_bucketed_batches_pass_parity_and_keep_decisions[laya-float32]
+tests/integration/test_mlx_length_buckets_checkpoints.py::test_bucketed_batches_pass_parity_and_keep_decisions[laya-typed-decisions-float16]
+tests/integration/test_mlx_length_buckets_checkpoints.py::test_bucketed_batches_pass_parity_and_keep_decisions[laya-typed-decisions-float32]
+  <checkout>/tests/integration/test_mlx_length_buckets_checkpoints.py:40: RuntimeWarning: laya-apple: checkpoint temperatures that are invalid or outside [0.5, 5.0] are replaced (choice:11+=0.10058280825614929 -> 0.5), as upstream does; treat confidence from those entries as uncalibrated
+    summary = evaluate(
+
+tests/parity/test_ane_async_parity.py::test_async_path_passes_parity_and_equals_coremltools[laya]
+tests/parity/test_ane_async_parity.py::test_async_path_passes_parity_and_equals_coremltools[laya-typed-decisions]
+  <checkout>/tests/parity/test_ane_async_parity.py:67: RuntimeWarning: laya-apple: checkpoint temperatures that are invalid or outside [0.5, 5.0] are replaced (choice:11+=0.10058280825614929 -> 0.5), as upstream does; treat confidence from those entries as uncalibrated
+    summary = evaluate(
+
+tests/parity/test_ane_parity.py::test_ane_passes_parity_gate_for_each_present_bucket[laya]
+tests/parity/test_ane_parity.py::test_ane_passes_parity_gate_for_each_present_bucket[laya-typed-decisions]
+  <checkout>/tests/parity/test_ane_parity.py:24: RuntimeWarning: laya-apple: checkpoint temperatures that are invalid or outside [0.5, 5.0] are replaced (choice:11+=0.10058280825614929 -> 0.5), as upstream does; treat confidence from those entries as uncalibrated
+    summary = evaluate(
+
+tests/parity/test_mlx_parity.py::test_mlx_passes_parity_gate[laya-float16]
+tests/parity/test_mlx_parity.py::test_mlx_passes_parity_gate[laya-float32]
+tests/parity/test_mlx_parity.py::test_mlx_passes_parity_gate[laya-typed-decisions-float16]
+tests/parity/test_mlx_parity.py::test_mlx_passes_parity_gate[laya-typed-decisions-float32]
+  <checkout>/tests/parity/test_mlx_parity.py:15: RuntimeWarning: laya-apple: checkpoint temperatures that are invalid or outside [0.5, 5.0] are replaced (choice:11+=0.10058280825614929 -> 0.5), as upstream does; treat confidence from those entries as uncalibrated
+    summary = evaluate(
+
+tests/unit/test_prompt.py::test_answers_match_upstream_on_every_golden[laya]
+tests/unit/test_prompt.py::test_answers_match_upstream_on_every_golden[laya-typed-decisions]
+  <checkout>/.venv/lib/python3.12/site-packages/_pytest/fixtures.py:1005: RuntimeWarning: laya-apple: checkpoint temperatures that are invalid or outside [0.5, 5.0] are replaced (choice:11+=0.10058280825614929 -> 0.5), as upstream does; treat confidence from those entries as uncalibrated
+    fixture_result = fixturefunc(**kwargs)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+SKIPPED [2] tests/integration/test_option_order.py:59: fixture covers laya-typed-decisions only
+SKIPPED [2] tests/integration/test_option_order.py:82: fixture covers laya-typed-decisions only
+SKIPPED [1] tests/parity/test_ane_async_parity.py:35: laya-multilingual does not use adaptive execution
+254 passed, 5 skipped, 1357 deselected, 72 warnings in 889.85s (0:14:49)

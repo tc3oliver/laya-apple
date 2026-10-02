@@ -1,0 +1,77 @@
+<checkout>/laya_apple/model.py:278: RuntimeWarning: laya-apple: checkpoint temperatures that are invalid or outside [0.5, 5.0] are replaced (choice:11+=0.10058280825614929 -> 0.5), as upstream does; treat confidence from those entries as uncalibrated
+  return cls(
+laya-typed-decisions MLX q1 L64: 9.35 ms
+laya-typed-decisions MLX q1 L96: 11.55 ms
+laya-typed-decisions MLX q1 L128: 12.24 ms
+laya-typed-decisions MLX q1 L160: 14.75 ms
+laya-typed-decisions MLX q1 L192: 15.50 ms
+laya-typed-decisions MLX q1 L224: 18.63 ms
+laya-typed-decisions MLX q1 L256: 19.20 ms
+laya-typed-decisions MLX q1 L320: 23.31 ms
+laya-typed-decisions MLX q1 L384: 27.24 ms
+laya-typed-decisions MLX q1 L448: 31.13 ms
+laya-typed-decisions MLX q1 L512: 35.17 ms
+laya-typed-decisions MLX q1 L768: 51.95 ms
+laya-typed-decisions MLX q1 L1024: 70.88 ms
+laya-typed-decisions MLX q4 L64: 18.78 ms
+laya-typed-decisions MLX q4 L128: 33.13 ms
+laya-typed-decisions MLX q4 L256: 63.34 ms
+laya-typed-decisions MLX q4 L512: 123.49 ms
+laya-typed-decisions MLX q4 L1024: 261.61 ms
+laya-typed-decisions MLX q8 L64: 32.76 ms
+laya-typed-decisions MLX q8 L128: 61.95 ms
+laya-typed-decisions MLX q8 L256: 118.23 ms
+laya-typed-decisions MLX q8 L512: 240.97 ms
+laya-typed-decisions MLX q8 L1024: 516.88 ms
+laya-typed-decisions ANE L64: 8.29 ms
+laya-typed-decisions ANE L96: 9.15 ms
+laya-typed-decisions ANE L128: 10.05 ms
+laya MLX q1 L64: 9.43 ms
+laya MLX q1 L96: 11.60 ms
+laya MLX q1 L128: 12.26 ms
+laya MLX q1 L160: 14.76 ms
+laya MLX q1 L192: 15.52 ms
+laya MLX q1 L224: 18.65 ms
+laya MLX q1 L256: 19.22 ms
+laya MLX q1 L320: 23.34 ms
+laya MLX q1 L384: 27.25 ms
+laya MLX q1 L448: 31.14 ms
+laya MLX q1 L512: 35.18 ms
+laya MLX q4 L64: 18.81 ms
+laya MLX q4 L128: 33.15 ms
+laya MLX q4 L256: 63.35 ms
+laya MLX q4 L512: 123.49 ms
+laya MLX q8 L64: 32.74 ms
+laya MLX q8 L128: 61.95 ms
+laya MLX q8 L256: 118.11 ms
+laya MLX q8 L512: 240.92 ms
+laya ANE L64: 8.28 ms
+laya ANE L96: 9.16 ms
+laya ANE L128: 10.04 ms
+laya-multilingual MLX q1 L64: 5.39 ms
+laya-multilingual MLX q1 L96: 6.33 ms
+laya-multilingual MLX q1 L128: 6.42 ms
+laya-multilingual MLX q1 L160: 7.46 ms
+laya-multilingual MLX q1 L192: 7.83 ms
+laya-multilingual MLX q1 L224: 8.28 ms
+laya-multilingual MLX q1 L256: 8.55 ms
+laya-multilingual MLX q1 L320: 10.07 ms
+laya-multilingual MLX q1 L384: 11.68 ms
+laya-multilingual MLX q1 L448: 13.36 ms
+laya-multilingual MLX q1 L512: 14.87 ms
+laya-multilingual MLX q1 L768: 22.56 ms
+laya-multilingual MLX q1 L1024: 29.09 ms
+laya-multilingual MLX q4 L64: 8.26 ms
+laya-multilingual MLX q4 L128: 13.79 ms
+laya-multilingual MLX q4 L256: 24.39 ms
+laya-multilingual MLX q4 L512: 47.97 ms
+laya-multilingual MLX q4 L1024: 104.46 ms
+laya-multilingual MLX q8 L64: 13.56 ms
+laya-multilingual MLX q8 L128: 23.51 ms
+laya-multilingual MLX q8 L256: 44.64 ms
+laya-multilingual MLX q8 L512: 91.94 ms
+laya-multilingual MLX q8 L1024: 203.25 ms
+laya-multilingual ANE L64: 3.46 ms
+laya-multilingual ANE L96: 3.97 ms
+laya-multilingual ANE L128: 4.43 ms
+laya-multilingual ANE L256: 8.63 ms
