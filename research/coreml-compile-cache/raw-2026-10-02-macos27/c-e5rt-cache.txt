@@ -1,0 +1,20 @@
+# e5rt bundle cache: entries newer than the Phase C start (paths and sizes only)
+726976	~/Library/Caches/python/com.apple.e5rt.e5bundlecache/26A428/FDF653365C60E8E5325AB7E15954662643231E429A0D8EFBC51299B49F05838A
+726984	~/Library/Caches/python/com.apple.e5rt.e5bundlecache/26A428/D9FCBD2DA4A82022B9F397BEE212301D1BE2CC2A9F04560167B597F0B7A9AA7A
+4	~/Library/Caches/python/com.apple.e5rt.e5bundlecache/26A428/9288D20D69E1F1BD160B74615F20AA48117C5A32E0DA19088564C4C2B0BA0BF2
+727372	~/Library/Caches/python/com.apple.e5rt.e5bundlecache/26A428/BEA3205B51DE88901487ABF2B378A5A40C308F1194F42D791D355BE2754FAA5A
+727372	~/Library/Caches/python/com.apple.e5rt.e5bundlecache/26A428/F04FAEE3A254209E22EECDEB9C129C9F9ABC7727045983AC83DDFB9C1A6BB1AC
+727388	~/Library/Caches/python/com.apple.e5rt.e5bundlecache/26A428/D2606B477E9026CDC12E35CEC7DF990F1F46139F913A79022A4C6188FB4AF7B1
+4	~/Library/Caches/python/com.apple.e5rt.e5bundlecache/26A428/FBEB18E817BDF658EBFAC2E6EB9A9250F10B8A15D7043BA4E42B86CFADFC4947
+726984	~/Library/Caches/python/com.apple.e5rt.e5bundlecache/26A428/B5EBD3BA60B2F233C1E1102AF65EB4CA8122BEFB269ABC8BC7C6047F351DBBB0
+4	~/Library/Caches/python/com.apple.e5rt.e5bundlecache/26A428/525A1D27ADEC82272F6E7173ED2B4810AC1C0C2F8D8D4EE556A4F2FDDD31513E
+# per build totals
+102752812	~/Library/Caches/python/com.apple.e5rt.e5bundlecache/26A428
+# entry count per build
+379 26A428
+# other per-process e5rt caches
+~/Library/Caches/com.apple.Spotlight/com.apple.e5rt.e5bundlecache
+~/Library/Caches/com.apple.campo/com.apple.e5rt.e5bundlecache
+~/Library/Caches/com.apple.duetexpertd/com.apple.e5rt.e5bundlecache
+~/Library/Caches/com.apple.visualintelligenced/com.apple.e5rt.e5bundlecache
+~/Library/Caches/python/com.apple.e5rt.e5bundlecache

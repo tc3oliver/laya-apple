@@ -1,0 +1,176 @@
+{
+ "generated_at": "2026-10-02T22:03:38+0800",
+ "location": "same-path-recopy",
+ "modes": [
+  "wait"
+ ],
+ "repeats": 3,
+ "platform": {
+  "soc": "Apple M4 Max",
+  "macos": "27.0",
+  "macos_build": "26A428",
+  "coremltools": "9.0"
+ },
+ "python": "3.12.14",
+ "rows": [
+  {
+   "location": "same-path-recopy",
+   "repeat": 0,
+   "model": "laya-typed-decisions",
+   "prep_load_s": 211.403,
+   "prep_buckets": [
+    64,
+    96,
+    128
+   ],
+   "mode": "wait",
+   "ready_s": 211.257,
+   "first_request_s": 0.0096,
+   "first_request_device": "ane",
+   "first_request_reason": "validated_short_single_question_path",
+   "ane_ready_s": 211.268,
+   "after_ready_device": "ane",
+   "after_ready_answers": {
+    "q0": {
+     "type": "choice",
+     "choice": "negative",
+     "probabilities": {
+      "positive": 0.0448,
+      "neutral": 0.1788,
+      "negative": 0.7764
+     },
+     "confidence": 0.4144,
+     "answer_confidence": 0.7764,
+     "action": {
+      "act_probability": 1.0
+     }
+    }
+   },
+   "same_answers": true,
+   "warm_ready_s": 2.066,
+   "ane_probes": {
+    "64": {
+     "ane_ms": 7.944,
+     "cpu_ms": 15.704,
+     "ratio": 0.506
+    },
+    "96": {
+     "ane_ms": 8.635,
+     "cpu_ms": 24.121,
+     "ratio": 0.358
+    },
+    "128": {
+     "ane_ms": 9.43,
+     "cpu_ms": 25.896,
+     "ratio": 0.364
+    }
+   }
+  },
+  {
+   "location": "same-path-recopy",
+   "repeat": 1,
+   "model": "laya-typed-decisions",
+   "prep_load_s": 211.789,
+   "prep_buckets": [
+    64,
+    96,
+    128
+   ],
+   "mode": "wait",
+   "ready_s": 210.94,
+   "first_request_s": 0.0099,
+   "first_request_device": "ane",
+   "first_request_reason": "validated_short_single_question_path",
+   "ane_ready_s": 210.951,
+   "after_ready_device": "ane",
+   "after_ready_answers": {
+    "q0": {
+     "type": "choice",
+     "choice": "negative",
+     "probabilities": {
+      "positive": 0.0448,
+      "neutral": 0.1788,
+      "negative": 0.7764
+     },
+     "confidence": 0.4144,
+     "answer_confidence": 0.7764,
+     "action": {
+      "act_probability": 1.0
+     }
+    }
+   },
+   "same_answers": true,
+   "warm_ready_s": 2.083,
+   "ane_probes": {
+    "64": {
+     "ane_ms": 7.928,
+     "cpu_ms": 15.821,
+     "ratio": 0.501
+    },
+    "96": {
+     "ane_ms": 8.642,
+     "cpu_ms": 24.324,
+     "ratio": 0.355
+    },
+    "128": {
+     "ane_ms": 9.44,
+     "cpu_ms": 26.05,
+     "ratio": 0.362
+    }
+   }
+  },
+  {
+   "location": "same-path-recopy",
+   "repeat": 2,
+   "model": "laya-typed-decisions",
+   "prep_load_s": 211.291,
+   "prep_buckets": [
+    64,
+    96,
+    128
+   ],
+   "mode": "wait",
+   "ready_s": 210.7,
+   "first_request_s": 0.009,
+   "first_request_device": "ane",
+   "first_request_reason": "validated_short_single_question_path",
+   "ane_ready_s": 210.71,
+   "after_ready_device": "ane",
+   "after_ready_answers": {
+    "q0": {
+     "type": "choice",
+     "choice": "negative",
+     "probabilities": {
+      "positive": 0.0448,
+      "neutral": 0.1788,
+      "negative": 0.7764
+     },
+     "confidence": 0.4144,
+     "answer_confidence": 0.7764,
+     "action": {
+      "act_probability": 1.0
+     }
+    }
+   },
+   "same_answers": true,
+   "warm_ready_s": 2.072,
+   "ane_probes": {
+    "64": {
+     "ane_ms": 7.961,
+     "cpu_ms": 15.815,
+     "ratio": 0.503
+    },
+    "96": {
+     "ane_ms": 8.645,
+     "cpu_ms": 24.292,
+     "ratio": 0.356
+    },
+    "128": {
+     "ane_ms": 9.422,
+     "cpu_ms": 26.111,
+     "ratio": 0.361
+    }
+   }
+  }
+ ]
+}

@@ -1,0 +1,110 @@
+{
+ "generated_at": "2026-10-02T20:47:18+0800",
+ "location": "fresh-copy",
+ "modes": [
+  "wait"
+ ],
+ "repeats": 3,
+ "platform": {
+  "soc": "Apple M4 Max",
+  "macos": "27.0",
+  "macos_build": "26A428",
+  "coremltools": "9.0"
+ },
+ "python": "3.12.14",
+ "rows": [
+  {
+   "location": "fresh-copy",
+   "repeat": 0,
+   "model": "laya-typed-decisions",
+   "mode": "wait",
+   "ready_s": 2.339,
+   "first_request_s": 0.0173,
+   "first_request_device": "gpu",
+   "first_request_reason": "platform_not_validated",
+   "ane_ready_s": 2.358,
+   "after_ready_device": "gpu",
+   "after_ready_answers": {
+    "q0": {
+     "type": "choice",
+     "choice": "negative",
+     "probabilities": {
+      "positive": 0.0449,
+      "neutral": 0.1788,
+      "negative": 0.7763
+     },
+     "confidence": 0.4141,
+     "answer_confidence": 0.7763,
+     "action": {
+      "act_probability": 1.0
+     }
+    }
+   },
+   "same_answers": true,
+   "warm_ready_s": 0.148,
+   "ane_probes": {}
+  },
+  {
+   "location": "fresh-copy",
+   "repeat": 1,
+   "model": "laya-typed-decisions",
+   "mode": "wait",
+   "ready_s": 1.244,
+   "first_request_s": 0.0135,
+   "first_request_device": "gpu",
+   "first_request_reason": "platform_not_validated",
+   "ane_ready_s": 1.259,
+   "after_ready_device": "gpu",
+   "after_ready_answers": {
+    "q0": {
+     "type": "choice",
+     "choice": "negative",
+     "probabilities": {
+      "positive": 0.0449,
+      "neutral": 0.1788,
+      "negative": 0.7763
+     },
+     "confidence": 0.4141,
+     "answer_confidence": 0.7763,
+     "action": {
+      "act_probability": 1.0
+     }
+    }
+   },
+   "same_answers": true,
+   "warm_ready_s": 0.145,
+   "ane_probes": {}
+  },
+  {
+   "location": "fresh-copy",
+   "repeat": 2,
+   "model": "laya-typed-decisions",
+   "mode": "wait",
+   "ready_s": 1.243,
+   "first_request_s": 0.0137,
+   "first_request_device": "gpu",
+   "first_request_reason": "platform_not_validated",
+   "ane_ready_s": 1.258,
+   "after_ready_device": "gpu",
+   "after_ready_answers": {
+    "q0": {
+     "type": "choice",
+     "choice": "negative",
+     "probabilities": {
+      "positive": 0.0449,
+      "neutral": 0.1788,
+      "negative": 0.7763
+     },
+     "confidence": 0.4141,
+     "answer_confidence": 0.7763,
+     "action": {
+      "act_probability": 1.0
+     }
+    }
+   },
+   "same_answers": true,
+   "warm_ready_s": 0.148,
+   "ane_probes": {}
+  }
+ ]
+}

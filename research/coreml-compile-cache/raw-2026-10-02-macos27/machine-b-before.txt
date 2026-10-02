@@ -1,0 +1,12 @@
+2026-10-02T14:16:28Z
+ProductName:		macOS
+ProductVersion:		27.0
+BuildVersion:		26A428
+22:16  up 3 days, 20:46, 4 users, load averages: 1.97 1.74 1.70
+Note: No thermal warning level has been recorded
+Note: No performance warning level has been recorded
+Note: No CPU power status has been recorded
+Filesystem        Size    Used   Avail Capacity iused ifree %iused  Mounted on
+/dev/disk3s3s1   926Gi    13Gi   464Gi     3%    484k  4.3G    0%   /
+/dev/disk7s1     931Gi   148Gi   783Gi    16%    2.0k  8.2G    0%   <data>
+94027796	~/Library/Caches/python/com.apple.e5rt.e5bundlecache/26A428

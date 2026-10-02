@@ -1,0 +1,2 @@
+57caed242f145c2854e6a905a28285b408eecfb9
+coremltools 9.0 laya_apple 1.6.0 python 3.12.14 platform_validated True

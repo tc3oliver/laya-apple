@@ -1,0 +1,1 @@
+STOPPED by operator at 12:47:34Z during 'move' prep: every fresh-copy row served on gpu (platform_not_validated), ane_probes empty -> validity guard fails for all rows
