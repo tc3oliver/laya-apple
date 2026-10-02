@@ -27,6 +27,7 @@ import re
 import time
 import warnings
 from datetime import datetime, timezone
+from functools import cache
 from importlib import resources
 from pathlib import Path
 
@@ -64,13 +65,19 @@ def shipped_profile_matches(profile: dict | None = None) -> bool:
 def _shipped_profile(profile: dict) -> dict | None:
     """The calibrated profile shipped in laya_apple/data/profiles/ for this profile, if any.
     It is the unedited output of `laya-apple calibrate` on a release-validated machine."""
-    path = resources.files("laya_apple.data").joinpath("profiles", f"{profile_key(profile)}.json")
+    data = _read_shipped(profile_key(profile))
+    if data is None or not profile_matches(data.get("platform") or {}, profile):
+        return None
+    return data
+
+
+@cache
+def _read_shipped(key: str) -> dict | None:
+    """Parsed shipped profile file for a profile key (package data, read once per process)."""
+    path = resources.files("laya_apple.data").joinpath("profiles", f"{key}.json")
     if not path.is_file():
         return None
-    data = json.loads(path.read_text())
-    if not profile_matches(data.get("platform") or {}, profile):
-        return None
-    return dict(data, source=f"laya_apple/data/profiles/{path.name}")
+    return dict(json.loads(path.read_text()), source=f"laya_apple/data/profiles/{path.name}")
 
 
 def load_shipped(model: str, profile: dict | None = None) -> dict | None:

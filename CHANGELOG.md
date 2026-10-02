@@ -19,7 +19,9 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   and the methodology differences from the 26.6.2 table in `benchmarks/routing-macos27/`.
   Shipped calibrated profiles use the same rule as `routing.json` and replace its auto buckets
   and service times for their own profile only; a unit test checks each one against its
-  committed evidence. `routing.json`, the 26.6.2 profile, the rule and every gate are
+  committed evidence. A local `laya-apple calibrate` profile on an M4 Max with macOS 27 and
+  coremltools 9.0 is now superseded by the shipped one and ignored, as on any shipped profile
+  (`routing_profile` reports `"shipped"`). `routing.json`, the 26.6.2 profile, the rule and every gate are
   unchanged. The release benchmarks, `serve` and adaptive-execution results were not
   re-measured on macOS 27.
 - **`laya-apple artifacts list --format table`**

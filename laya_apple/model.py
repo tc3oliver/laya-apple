@@ -310,10 +310,10 @@ class Laya:
             name = f"local:{profile['source']}"
         buckets = tuple(profile.get("auto_ane_buckets") or ())
         if buckets != self.spec.ane_buckets[: len(buckets)]:
+            fix = "reinstall laya-apple" if name == "shipped" else "re-run laya-apple calibrate"
             warnings.warn(
                 f"laya-apple: ignoring profile {profile['source']}: its auto buckets {list(buckets)} are not "
-                f"a prefix of the offered buckets {list(self.spec.ane_buckets)} for {self.spec.name}; "
-                "re-run laya-apple calibrate",
+                f"a prefix of the offered buckets {list(self.spec.ane_buckets)} for {self.spec.name}; {fix}",
                 RuntimeWarning,
                 stacklevel=4,
             )

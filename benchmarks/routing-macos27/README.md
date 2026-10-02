@@ -19,7 +19,8 @@ buckets, and do they hold across two passes?
 model:** 64, 96 and 128 for `laya`, `laya-multilingual` and `laya-typed-decisions`.
 `laya-multilingual` L256 stays explicit-only, as on 26.6.2. The criterion written down before
 the full run ([`PLAN.md`](PLAN.md)) is met, so pass 1's profile ships, unedited, as
-`laya_apple/data/profiles/Apple_M4_Max-macos27-coremltools9.0.json`.
+`laya_apple/data/profiles/Apple_M4_Max-macos27-coremltools9.0.json`. The plan was written
+before pass 1 but committed only with the results, so the history does not attest that order.
 
 The narrowest margin is L96 of the two ModernBERT-large models: the ANE at 96 tokens beats MLX
 at 64 tokens by 0.21 to 0.27 ms (about 2–3%). On 26.6.2 the same comparison had a 0.37–0.41 ms

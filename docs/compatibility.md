@@ -26,8 +26,9 @@ parity-validated there ([`research/macos27-validation/`](../research/macos27-val
 and `laya-apple calibrate` gave the same auto ANE buckets as on 26.6.2 in two passes. That
 calibration ships as a routing profile, so `device="auto"` uses the ANE on an M4 Max with
 macOS 27 and coremltools 9.0 once its artifacts are built
-([`benchmarks/routing-macos27/`](../benchmarks/routing-macos27/README.md)). The release
-benchmarks, `serve` and adaptive-execution results were not re-measured on macOS 27.
+([`benchmarks/routing-macos27/`](../benchmarks/routing-macos27/README.md)). **Known limitation:** the release
+benchmarks, `serve` and adaptive execution (`ane_handoff`) were not measured on macOS 27;
+their results are from macOS 26.6.2 only.
 
 Community hardware results are recorded separately, in
 [`community-benchmarks.md`](community-benchmarks.md) and `hardware-results/`. They do not
@@ -67,12 +68,12 @@ The M4 Max run was then calibrated and ships as a routing profile ([`benchmarks/
 | Execution: `workers` | validated: GPU always in its own worker process; ANE placement (`thread`/`process`) chosen per model from measurement on the tested profile | The same GPU-process / ANE-thread-or-process split should hold on other Apple Silicon, since the mechanism (GIL contention, IPC cost) is not M4-Max-specific | Whether the per-model `thread` vs `process` choice in `laya_apple/data/placement.json` is the right one on a different SoC — it was derived from measurements on this machine only |
 | `ane_placement="thread"` | validated for `laya`, `laya-typed-decisions` | — | — |
 | `ane_placement="process"` | validated for `laya-multilingual` | — | — |
-| Adaptive ANE execution (`ane_handoff`, 1.5) | validated on the tested profile for `laya` and `laya-typed-decisions` (`workers`, `auto`, ANE on a thread): release validation, and the async path's parity against the goldens ([`research/coreml-adaptive-breaker/`](../research/coreml-adaptive-breaker/README.md)) | — | Other Macs and macOS versions; `serve` beside a local LLM; `pyobjc-framework-CoreML` versions other than 12.2.2 |
+| Adaptive ANE execution (`ane_handoff`, 1.5) | validated on the tested profile for `laya` and `laya-typed-decisions` (`workers`, `auto`, ANE on a thread): release validation, and the async path's parity against the goldens ([`research/coreml-adaptive-breaker/`](../research/coreml-adaptive-breaker/README.md)) | — | Other Macs and macOS versions, including macOS 27 on the M4 Max, where `auto` now routes to the ANE but adaptive execution was not measured; `serve` beside a local LLM; `pyobjc-framework-CoreML` versions other than 12.2.2 |
 | Prebuilt ANE artifacts (`artifacts fetch`, 1.6) | published for Apple M4 Max, macOS 26, coremltools 9.0 only (all 10 model/bucket pairs); a clean-cache download on the build machine passed fetch, verify, parity and placement ([`prebuilt-artifacts-1.6.0.md`](../benchmarks/prebuilt-artifacts-1.6.0.md)) | — | An independent fetch on a second machine of the same profile (recommended, not required for publishing); every other profile has no prebuilt artifacts (`ArtifactMissingError`, build locally) |
 | Offline operation | validated (`local_files_only=True`, `HF_HUB_OFFLINE=1`, `--offline`) — no network access once checkpoints/artifacts are cached | — | — |
 | `laya-apple serve` against upstream `laya.serve` | validated since 1.3.0 against unmodified `laya.serve` 0.3.20 on the same pinned weights: 792 of 792 requests within the FP16 parity gate, 365 of them answered on the ANE ([`serve-compat`](../benchmarks/serve-compat/README.md)) | — | Other upstream `laya.serve` versions; upstream's `LAYA_AUTO_TASK` routing and caller language hints (not implemented) |
 | `laya-apple serve` with Jev clients | 7 clients at their released versions, unmodified, on 2026-09-25 ([list](../integrations/jev-plugins/README.md)): wire compatibility only | Other clients that speak the same `POST /v1/systemone` wire format | Other versions of the tested clients; decision quality against Jev (Laya is a different model) |
-| `laya-apple serve` beside a local LLM | measured once (published in 1.4.0; measured on 1.3.0) on the release profile, one LLM (`Qwen3.8-27B-oQ4e-mtp` on oMLX), `--model laya`, 8 req/s offered ([`serve.md`](serve.md#beside-a-local-llm)) | — | Other LLM servers and models, prefill-heavy LLM loads, other request rates, other Macs; serve's maximum decision throughput (run 2 used a fixed 8 req/s offered load); the other checkpoints (`laya-typed-decisions`, `--model laya-multilingual`) and `--model auto` |
+| `laya-apple serve` beside a local LLM | measured once (published in 1.4.0; measured on 1.3.0) on the release profile, one LLM (`Qwen3.8-27B-oQ4e-mtp` on oMLX), `--model laya`, 8 req/s offered ([`serve.md`](serve.md#beside-a-local-llm)) | — | Other LLM servers and models, prefill-heavy LLM loads, other request rates, other Macs, and macOS 27 on the M4 Max (not measured there); serve's maximum decision throughput (run 2 used a fixed 8 req/s offered load); the other checkpoints (`laya-typed-decisions`, `--model laya-multilingual`) and `--model auto` |
 
 ## What happens on an untested profile
 

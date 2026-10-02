@@ -332,10 +332,14 @@ per-request timing; you do not need to pass `trace=` for it. Architecture:
 | [`convaiinnovations/laya-multilingual`](https://huggingface.co/convaiinnovations/laya-multilingual) | 1024 | FP16 / FP32, any length | 64, 96, 128, 256 | 64, 96, 128 | No (worker-process ANE) |
 | [`convaiinnovations/laya-typed-decisions`](https://huggingface.co/convaiinnovations/laya-typed-decisions) | 1024 | FP16 / FP32, any length | 64, 96, 128 | 64, 96, 128 | Yes |
 
-Adaptive ANE execution applies with `execution="workers"` and `device="auto"`. Validated on one Apple M4 Max with macOS 26.6.2. On other Macs, `auto` stays on MLX until
-ANE artifacts are built and calibrated there (`laya-apple calibrate`). Prebuilt artifacts
-(`laya-apple artifacts fetch`) exist for Apple M4 Max, macOS 26, coremltools 9.0 only.
-Details: [`docs/compatibility.md`](docs/compatibility.md).
+Adaptive ANE execution applies with `execution="workers"` and `device="auto"`. Validated on one Apple M4 Max with macOS 26.6.2.
+Shipped routing profiles cover the Apple M4 Max with coremltools 9.0 on macOS 26.6.2 and
+macOS 27.0, so `auto` uses the ANE there once the artifacts are built. On macOS 27 only build,
+parity and routing were measured; adaptive execution, `serve` and the release benchmarks were
+not ([`benchmarks/routing-macos27/`](benchmarks/routing-macos27/README.md)). On other Macs,
+`auto` stays on MLX until ANE artifacts are built and calibrated there (`laya-apple
+calibrate`). Prebuilt artifacts (`laya-apple artifacts fetch`) exist for Apple M4 Max,
+macOS 26, coremltools 9.0 only. Details: [`docs/compatibility.md`](docs/compatibility.md).
 
 ## Correctness
 

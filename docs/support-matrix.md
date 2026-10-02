@@ -150,3 +150,11 @@ evidence and re-derives its buckets.
 
 It was measured with `calibrate`, not the Phase -1 harness behind `routing.json`; the
 differences are listed in that record.
+
+Profiles match on the macOS major version, so this one covers every macOS 27.x release with
+coremltools 9.0 on an M4 Max, although only 27.0 (26A428) was measured. Prior third-party
+work (laya-coreml, M3 Max, macOS 27.2) reported an enumerated-shape Core ML package running
+on the GPU ([`typed-decisions-ane.md`](../research/phase-0-feasibility/typed-decisions-ane.md)).
+laya-apple ships only fixed-shape artifacts, and every artifact must still pass the compute-plan
+check (100% Neural Engine, 0 transitions) and the placement probe on the machine that loads
+it, but 27.2 itself is unmeasured here.

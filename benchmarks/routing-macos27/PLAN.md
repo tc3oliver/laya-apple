@@ -1,6 +1,8 @@
 # Plan (written before the full calibration ran)
 
-Recorded 2026-10-02, after the screen (`raw/screen-*`) and before pass 1.
+Written 2026-10-02 in the working tree, after the screen (`raw/screen-*`) and before pass 1
+started. It was not committed separately before pass 1, so the history does not attest that
+order: it was committed together with the results, and no timestamp was backfilled.
 
 - Procedure: `laya-apple --offline calibrate laya-typed-decisions laya laya-multilingual
   --warmup 10 --iters 300` (pass 1), then the same command with the model order reversed
