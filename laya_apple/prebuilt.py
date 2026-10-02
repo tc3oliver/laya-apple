@@ -53,7 +53,8 @@ from .hub import sha256_file
 from .registry import ANE_GRAPH, ModelSpec
 
 PREBUILT_REPO_ENV = "LAYA_APPLE_PREBUILT_REPO"
-# The published repository (first upload: Apple M4 Max, macOS 26, coremltools 9.0). While
+# The published repository (Apple M4 Max with coremltools 9.0: macOS 26 since 1.6.0, macOS 27
+# since 1.6.2). While
 # DEFAULT_REPO_PUBLISHED is False, fetching without --repo / LAYA_APPLE_PREBUILT_REPO raises
 # instead of trying a repository that does not exist.
 DEFAULT_PREBUILT_REPO = "tc3oliver/laya-apple-artifacts"
@@ -62,7 +63,9 @@ DEFAULT_REPO_PUBLISHED = True
 # repository without an explicit revision reads this commit, never the mutable `main`, so one
 # laya-apple version always resolves to the same index and archives. Another repository
 # (--repo / LAYA_APPLE_PREBUILT_REPO) defaults to CUSTOM_REPO_REVISION instead.
-DEFAULT_PREBUILT_REVISION = "93181067cfee9c6117a7919321eb303ec36fcbd4"
+# 1.6.2: the commit that added the macOS 27 archives; the macOS 26 archives are the ones 1.6.0
+# and 1.6.1 read at 93181067cfee9c6117a7919321eb303ec36fcbd4, unchanged.
+DEFAULT_PREBUILT_REVISION = "44a54765f89d434e9d85f401126cfee7d2059e7d"
 CUSTOM_REPO_REVISION = "main"
 
 INDEX = "index.json"
