@@ -3,7 +3,7 @@
 laya-apple predict MODEL --context TEXT --questions JSON [--device auto|gpu|ane]
 laya-apple info [MODEL]
 laya-apple download MODEL...
-laya-apple artifacts build MODEL [--length L ...] | list | verify [MODEL]
+laya-apple artifacts build MODEL [--length L ...] | list [--capabilities] [--format json|table] | verify [MODEL]
 laya-apple artifacts fetch MODEL [--length L ...] [--repo OWNER/NAME] [--revision REV]
 laya-apple parity MODEL [--device gpu|ane] [--dtype float16|float32]
 laya-apple benchmark MODEL [--device ...] [--lengths ...] [--questions N]
@@ -16,6 +16,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+import unicodedata
 from pathlib import Path
 
 
@@ -140,15 +141,90 @@ def cmd_download(a):
         print(f"{spec.repo}@{spec.revision[:12]} -> {path} (sha256 verified)")
 
 
+def _compute_plan(target) -> str:
+    """`CPU_AND_NE (ane=412 gpu=0 cpu=0 transitions=0)`; `-` when the manifest records no placement."""
+    target = target if isinstance(target, dict) else {}
+    ops = target.get("ops")
+    detail = [f"{device}={count}" for device, count in ops.items()] if isinstance(ops, dict) else []
+    if target.get("transitions") is not None:
+        detail.append(f"transitions={target['transitions']}")
+    plan = f"{target.get('compute_units') or ''} ({' '.join(detail)})" if detail else target.get("compute_units")
+    return str(plan or "-").strip()
+
+
+def _row_order(record: dict):
+    """Model, then revision, then bucket as a number (not 128 < 512 < 64); a record without a
+    model sorts last, a non-numeric bucket after the numeric ones."""
+    bucket = record.get("bucket")
+    numeric = isinstance(bucket, int) and not isinstance(bucket, bool)
+    return (
+        record.get("model") is None,
+        str(record.get("model")),
+        str(record.get("revision")),
+        not numeric,
+        bucket if numeric else 0,
+        str(bucket),
+    )
+
+
+def _cell(value) -> str:
+    """Text for one table cell: a control character (newline, ESC, ...) from a manifest becomes `?`,
+    so it can neither break a row nor drive the terminal."""
+    return "".join(c if c.isprintable() else "?" for c in str(value))
+
+
+def _columns(text: str) -> int:
+    """Terminal columns of `text`: East Asian wide and fullwidth characters take two, combining marks none."""
+    return sum(0 if unicodedata.combining(c) else 2 if unicodedata.east_asian_width(c) in "WF" else 1 for c in text)
+
+
+def _artifact_table(records: list[dict]) -> str:
+    """`artifacts list --format table`: one row per `artifact_capabilities()` record, sorted by
+    model, revision and bucket (the JSON output keeps the registry order)."""
+    if not records:
+        return (
+            "no artifacts registered; fetch prebuilt ones with `laya-apple artifacts fetch MODEL` "
+            "or build them with `laya-apple artifacts build MODEL`"
+        )
+    header = ("MODEL", "BUCKET", "STATUS", "PARITY PASSED", "COMPUTE PLAN")
+    rows = []
+    for r in sorted(records, key=_row_order):
+        passed = (r.get("parity") or {}).get("passed")
+        rows.append(
+            tuple(
+                _cell(cell)
+                for cell in (
+                    r.get("model") or "-",
+                    "-" if r.get("bucket") is None else r["bucket"],
+                    r.get("status") or "-",
+                    "yes" if passed is True else "no" if passed is False else "-",
+                    _compute_plan(r.get("compute_target")),
+                )
+            )
+        )
+    widths = [max(_columns(cell) for cell in column) for column in zip(header, *rows)]
+    right = {1}  # BUCKET is a number
+
+    def pad(i, cell):
+        fill = " " * (widths[i] - _columns(cell))
+        return fill + cell if i in right else cell + fill
+
+    return "\n".join("  ".join(pad(i, cell) for i, cell in enumerate(row)).rstrip() for row in (header, *rows))
+
+
 def cmd_artifacts(a):
     from .artifacts import list_artifacts, load_verified
     from .registry import models, resolve
 
     if a.action == "list":
-        if a.capabilities:
+        if a.format == "table" or a.capabilities:
             from .artifacts import artifact_capabilities
 
-            _json(artifact_capabilities())
+            records = artifact_capabilities()
+            if a.format == "table":
+                print(_artifact_table(records))
+            else:
+                _json(records)
             return 0
         _json(
             [
@@ -368,6 +444,13 @@ def build_parser():
     )
     s.add_argument(
         "--capabilities", action="store_true", help="list: print full provenance records instead of the summary"
+    )
+    s.add_argument(
+        "--format",
+        default="json",
+        choices=["json", "table"],
+        help="list: json (default) or table (model, bucket, status, parity passed, compute plan; "
+        "the same table with or without --capabilities)",
     )
     s.set_defaults(fn=cmd_artifacts)
 

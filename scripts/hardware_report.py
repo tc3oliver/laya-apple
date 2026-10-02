@@ -1,7 +1,7 @@
 """Community hardware report: one command that measures this Mac for the results matrix.
 
-    uv run python scripts/hardware_report.py [--models M ...] [--quick] [--offline]
-    uv run python scripts/hardware_report.py --render hardware-results/<dir>/bundle.json
+    uv run python scripts/hardware_report.py [--models M ...] [--quick] [--offline] [--json PATH]
+    uv run python scripts/hardware_report.py --render hardware-results/<dir>/bundle.json [--json PATH]
 
 Records the environment automatically (SoC, memory, macOS, package versions, laya-apple
 revision, pinned model revisions and weight hashes, whether a shipped routing profile
@@ -19,6 +19,11 @@ matches), then per model:
 
 Writes hardware-results/<soc>-macos<major>/bundle.json (everything, raw samples
 included) and summary.md. Home-directory paths are replaced with `~`.
+
+--json PATH also writes a compact machine-readable summary of the bundle (platform, forward
+P50 per model, device, length and question count, parity per model) with a schema_version;
+the schema is in docs/community-benchmarks.md. With --render it summarises an existing
+bundle without measuring anything.
 """
 
 from __future__ import annotations
@@ -26,6 +31,7 @@ from __future__ import annotations
 import argparse
 import importlib.util
 import json
+import os
 import platform
 import re
 import subprocess
@@ -38,6 +44,8 @@ from importlib import metadata
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+SUMMARY_FORMAT = "laya-apple-hardware-summary"
+SUMMARY_SCHEMA_VERSION = 1  # bump on any change to the keys or meaning of build_summary()'s output
 QUICK_MODELS = ["laya-typed-decisions"]
 MLX_CONFIGS = [((64, 128, 512), 1), ((128,), 4)]  # (lengths, questions)
 ROUTING_SHAPES = [(64, 1), (96, 1), (128, 1), (256, 1), (512, 1), (1024, 1), (64, 4), (128, 4)]
@@ -480,6 +488,63 @@ def render_summary(bundle: dict) -> str:
     return "\n".join(lines) + "\n"
 
 
+def build_summary(bundle: dict) -> dict:
+    """The compact machine-readable summary of a bundle (docs/community-benchmarks.md).
+
+    Everything is copied from `bundle`, so the numbers are the bundle's own. A parity entry is
+    true if the gate passed, false if it failed or errored and null if it did not run; latency
+    steps that were skipped or errored have no entry."""
+    env = bundle["environment"]
+    models = {}
+    for name, m in bundle["models"].items():
+        forward = []
+        for key in ("mlx_latency", "ane_latency"):
+            records = m.get(key)
+            for r in records if isinstance(records, list) else []:
+                if r.get("status") == "ok":
+                    forward.append(
+                        {
+                            "device": r["device"],
+                            "length": r["length"],
+                            "questions": r["questions"],
+                            "p50_ms": r["forward"]["p50_ms"],
+                        }
+                    )
+        models[name] = {
+            "revision": m["revision"],
+            "parity": {"mlx": _ok(m.get("mlx_parity")), "ane": _ok(m.get("ane_parity"))},
+            "forward_p50_ms": forward,
+        }
+    return {
+        "format": SUMMARY_FORMAT,
+        "schema_version": SUMMARY_SCHEMA_VERSION,
+        "laya_apple": env["laya_apple"]["version"],
+        "started_at": bundle["started_at"],
+        "quick": bundle["configuration"]["quick"],
+        "platform": dict(bundle["platform"]["profile"]),
+        "hardware": {"hw_model": env["hw_model"], "memory_gb": env["memory_gb"]},
+        "models": models,
+    }
+
+
+def json_path_problem(path: Path, render: Path | None) -> str | None:
+    """Why `--json path` cannot be written (None if it can). `render` is the bundle `--render` reads:
+    writing the summary over it would destroy the bundle."""
+    if path.is_dir():
+        return "is a directory"
+    if not path.parent.is_dir():
+        return "its directory does not exist"
+    if render is not None and path.exists() and render.exists() and path.samefile(render):
+        return "is the --render bundle, which the summary would overwrite"
+    if not os.access(path if path.exists() else path.parent, os.W_OK):
+        return "is not writable"
+    return None
+
+
+def write_summary(bundle: dict, path: Path) -> None:
+    path.write_text(json.dumps(build_summary(bundle), indent=1, ensure_ascii=False) + "\n")
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--models", nargs="+", help="default: laya-typed-decisions with --quick, every model otherwise")
@@ -487,9 +552,22 @@ def main(argv=None) -> int:
     ap.add_argument("--offline", action="store_true", help="never touch the network (local_files_only)")
     ap.add_argument("--out-root", type=Path, default=ROOT / "hardware-results")
     ap.add_argument("--render", type=Path, metavar="BUNDLE", help="print summary.md for an existing bundle.json")
+    ap.add_argument(
+        "--json",
+        type=Path,
+        metavar="PATH",
+        help="also write the compact JSON summary here (overwrites PATH; with --render, from that bundle)",
+    )
     a = ap.parse_args(argv)
+    if a.json:  # fail now, not after a 10-25 minute run
+        problem = json_path_problem(a.json, a.render)
+        if problem:
+            ap.error(f"--json {a.json}: {problem}")
     if a.render:
-        print(render_summary(json.loads(a.render.read_text())), end="")
+        bundle = json.loads(a.render.read_text())
+        print(render_summary(bundle), end="")
+        if a.json:
+            write_summary(bundle, a.json)
         return 0
 
     from laya_apple.artifacts import platform_profile
@@ -544,6 +622,9 @@ def main(argv=None) -> int:
     print()
     print(bundle["matrix_row"])
     print(f"\nwrote {shown}/bundle.json and {shown}/summary.md ({bundle['wall_time_s']:.0f} s)")
+    if a.json:
+        write_summary(bundle, a.json)
+        print(f"wrote {a.json} (schema_version {SUMMARY_SCHEMA_VERSION})")
     print(f"open a PR adding this directory: {shown}/")
     return 0
 
