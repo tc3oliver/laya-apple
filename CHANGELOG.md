@@ -5,6 +5,13 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.6.1] - 2026-10-03
+
+`laya-apple artifacts fetch` now registers an artifact only after every check has passed, and
+on an Apple M4 Max with macOS 27 and coremltools 9.0, `device="auto"` uses the ANE once the
+artifacts are built locally. `predict`, the parity tolerances, the routing rule, the macOS
+26.6.2 routing table and the prebuilt-artifact pin are unchanged.
+
 ### Added
 
 - **A shipped routing profile for Apple M4 Max on macOS 27 with coremltools 9.0**
