@@ -158,3 +158,75 @@ def test_a_failed_restore_after_a_failed_forced_rebuild_says_where_the_previous_
     left = [p for p in final.parent.iterdir() if ".old-" in p.name]
     assert len(left) == 1 and not final.exists()
     assert f"could not restore the previous artifact; it was left at {left[0]}" in capsys.readouterr().err
+
+
+def test_a_failed_removal_of_the_replaced_artifact_keeps_the_new_one_registered(stub_build, monkeypatch, capsys):
+    spec = models()["laya"]
+    final = artifact_dir(spec, 64)
+    build(spec, 64)
+    real_rmtree = B.shutil.rmtree
+
+    def rmtree(path, *args, **kwargs):
+        if ".old-" in Path(path).name:
+            raise OSError("simulated removal failure")
+        return real_rmtree(path, *args, **kwargs)
+
+    monkeypatch.setattr(B.shutil, "rmtree", rmtree)
+    assert build(spec, 64, force=True) == final
+    monkeypatch.setattr(B.shutil, "rmtree", real_rmtree)
+    assert "could not remove the replaced copy" in capsys.readouterr().err
+    assert [p.name for p in final.parent.iterdir() if ".old-" in p.name]
+    load_verified(spec, 64, full=True)
+
+
+@pytest.mark.parametrize("force", [False, True], ids=["new", "forced-rebuild"])
+def test_an_interrupt_right_after_the_move_into_place_leaves_the_new_artifact_registered(
+    stub_build, monkeypatch, force
+):
+    spec = models()["laya"]
+    final = artifact_dir(spec, 64)
+    before = None
+    if force:
+        build(spec, 64)
+        before = (final / "manifest.json").read_text()
+    real_rename = os.rename
+
+    def rename(src, dst):
+        real_rename(src, dst)
+        if Path(src).name.startswith(f"{spec.name}-L64-"):  # the staged artifact has just moved into place
+            raise KeyboardInterrupt
+
+    monkeypatch.setattr(os, "rename", rename)
+    with pytest.raises(KeyboardInterrupt):
+        build(spec, 64, force=force)
+    monkeypatch.setattr(os, "rename", real_rename)
+    assert sorted(p.name for p in final.iterdir()) == sorted(["manifest.json", COMPILED])
+    assert not any((artifacts_root() / ".staging").iterdir())
+    load_verified(spec, 64, full=True)
+    left = [p for p in final.parent.iterdir() if p != final]
+    if force:  # the previous artifact is kept beside it, intact
+        assert len(left) == 1 and ".old-" in left[0].name
+        assert (left[0] / "manifest.json").read_text() == before
+    else:
+        assert left == []
+
+
+def test_an_interrupt_before_the_move_into_place_restores_the_previous_artifact(stub_build, monkeypatch):
+    spec = models()["laya"]
+    final = artifact_dir(spec, 64)
+    build(spec, 64)
+    before = (final / "manifest.json").read_text()
+    real_rename = os.rename
+
+    def rename(src, dst):
+        if Path(src).name.startswith(f"{spec.name}-L64-"):
+            raise KeyboardInterrupt
+        return real_rename(src, dst)
+
+    monkeypatch.setattr(os, "rename", rename)
+    with pytest.raises(KeyboardInterrupt):
+        build(spec, 64, force=True)
+    monkeypatch.setattr(os, "rename", real_rename)
+    assert (final / "manifest.json").read_text() == before
+    assert [p.name for p in final.parent.iterdir()] == [final.name]
+    assert not any((artifacts_root() / ".staging").iterdir())

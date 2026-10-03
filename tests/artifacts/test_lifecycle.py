@@ -648,3 +648,86 @@ def test_an_unpublished_install_that_vanishes_during_the_scan_is_skipped(cache, 
     plan = lifecycle.plan_prune(PROFILE)
     monkeypatch.setattr(Path, "stat", real_stat)
     assert gone and plan == []
+
+
+# ----------------------------------------------------------------------------- prune claims before deleting
+
+
+def _abandoned_entry(kind):
+    """An abandoned staging directory or unpublished install, and the check prune applies to it."""
+    if kind == "staging":
+        return _old_staging("abandoned"), "_abandoned_staging"
+    return _unpublished(json.dumps({"pid": _dead_pid()})), "_abandoned_pending"
+
+
+def _live_entry(path, kind):
+    """What a running build or import renames into `path`."""
+    path.mkdir()
+    marker = lifecycle.BUILDING if kind == "staging" else lifecycle.PENDING
+    (path / marker).write_text(json.dumps({"pid": os.getpid()}))
+    (path / "live").write_text("in use")
+
+
+@pytest.mark.parametrize("kind", ["staging", "pending"])
+@pytest.mark.parametrize("when", ["after the first check", "after the second check"])
+def test_a_directory_renamed_into_the_path_while_prune_checks_it_is_never_deleted(cache, monkeypatch, kind, when):
+    p, check = _abandoned_entry(kind)
+    plan = lifecycle.plan_prune(PROFILE)
+    assert str(p) in _listed(plan)
+    real = getattr(lifecycle, check)
+    calls = []
+
+    def racing(d):
+        result = real(d)
+        calls.append(d)
+        if len(calls) == (1 if when == "after the first check" else 2):
+            if p.exists():  # the abandoned one goes elsewhere first (another prune, or a recovery)
+                os.rename(p, cache / "moved-away")
+            _live_entry(p, kind)
+        return result
+
+    monkeypatch.setattr(lifecycle, check, racing)
+    removed = lifecycle.prune(plan)
+    monkeypatch.setattr(lifecycle, check, real)
+    assert len(calls) == 2
+    assert (p / "live").read_text() == "in use"
+    assert not [x for x in p.parent.iterdir() if ".pruning-" in x.name]
+    assert removed == ([] if when == "after the first check" else [x for x in plan if x["path"] == str(p)])
+
+
+def _pruning_copy(where, *, pid, marker_pid=None, manifest=False, old=True):
+    d = where.with_name(f"{where.name}.pruning-{pid}-0a1b2c3d")
+    d.mkdir(parents=True)
+    (d / "file").write_text("x")
+    if marker_pid is not None:
+        (d / lifecycle.BUILDING).write_text(json.dumps({"pid": marker_pid}))
+    if manifest:
+        (d / "manifest.json").write_text("{}")
+    if old:
+        age = time.time() - 2 * lifecycle.STAGING_MAX_AGE_S
+        os.utime(d, (age, age))
+    return d
+
+
+@pytest.mark.parametrize("where", ["staging", "registered"])
+def test_a_copy_left_by_a_prune_that_exited_is_pruned_once_abandoned(cache, where):
+    base = artifacts_root() / ".staging" / "x" if where == "staging" else artifact_dir(models()["laya"], 64)
+    d = _pruning_copy(base, pid=_dead_pid())
+    plan = lifecycle.plan_prune(PROFILE)
+    assert [(x["path"], x["reason"]) for x in plan] == [(str(d), "copy left by an interrupted prune")]
+    assert [x["path"] for x in lifecycle.prune(plan)] == [str(d)]
+    assert not d.exists()
+
+
+@pytest.mark.parametrize("state", ["prune still running", "build still running", "has a manifest", "recent"])
+def test_a_copy_left_by_a_prune_is_kept_while_anything_may_still_need_it(cache, state):
+    base = artifact_dir(models()["laya"], 64)
+    d = _pruning_copy(
+        base,
+        pid=os.getpid() if state == "prune still running" else _dead_pid(),
+        marker_pid=os.getpid() if state == "build still running" else None,
+        manifest=state == "has a manifest",
+        old=state != "recent",
+    )
+    assert str(d) not in _listed(lifecycle.plan_prune(PROFILE))
+    assert lifecycle.prune([{"path": str(d), "reason": "hand-written", "bytes": 0}]) == [] and d.exists()
