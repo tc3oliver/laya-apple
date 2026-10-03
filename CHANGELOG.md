@@ -53,6 +53,24 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - A forced `artifacts build` whose move into place fails now puts the previous artifact
     back, as `artifacts import` and `artifacts fetch` already did. It left the previous
     artifact at `.old-<pid>` with nothing registered.
+- **`artifacts prune` and `artifacts build --force` hold up against concurrent imports and
+  interruptions.** No threshold or check changed.
+  - `artifacts prune` checked an abandoned staging directory or unpublished install and then
+    deleted the path, so a directory an import renamed into that path in between could be
+    deleted. It now claims the path with one rename to a unique `.pruning-<pid>-<rand>`
+    sibling, checks that copy again with the same rules, and deletes only the copy; a copy
+    that is no longer abandoned is renamed back. A copy a crashed prune left is listed and
+    removed once that prune has exited and the copy is still abandoned; one with a manifest is
+    never deleted, and `artifacts prune` reports it with the `mv` command that puts it back.
+    A symlink in a hand-written plan, or a path outside the cache that resolves into it, is
+    never claimed or reported as removed.
+  - A forced `artifacts build` that could not remove the replaced artifact raised although
+    the new one was registered. It now logs where the replaced copy is and returns, as
+    `artifacts import` does.
+  - An interrupt right after a build's move into place tried to restore the previous artifact
+    over the new one. Whether the staging directory still exists now decides: if it is gone,
+    the new artifact stays registered and the previous one is kept beside it (reported by
+    `artifacts prune`, never deleted); otherwise the previous artifact is put back.
 
 ## [1.6.2] - 2026-10-03
 

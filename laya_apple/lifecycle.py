@@ -19,7 +19,12 @@
   - an unpublished install an import left at the registered path (`PENDING.json`, no
     `manifest.json`), once that import has exited and the directory is older than
     STAGING_MAX_AGE_S;
-  - orphaned verification stamps.
+  - orphaned verification stamps;
+  - a `.pruning-<pid>-<rand>` copy a prune claimed and did not finish with, once that prune
+    has exited and the copy is still abandoned by the rules above.
+  Before deleting a staging directory or an unpublished install, prune claims it with one
+  rename to such a copy and checks it again there, so a directory another process renames
+  into the original path meanwhile is never the one deleted.
   A `.old-<pid>` with a manifest is a previous artifact an interrupted or failed replace
   kept, possibly the only good copy: prune never deletes one, even from a hand-written plan,
   and `kept_previous_artifacts()` reports it.
@@ -35,7 +40,9 @@ import fcntl
 import json
 import os
 import re
+import secrets
 import shutil
+import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -61,6 +68,8 @@ PENDING = "PENDING.json"
 PENDING_MANIFEST = "manifest.pending.json"
 _PENDING_REASON = "unpublished install left by an import that exited"
 _LEFTOVER = re.compile(r"\.(old|failed)-(\d+)$")
+_PRUNING = re.compile(r"\.pruning-(\d+)-[0-9a-f]+$")
+_PRUNING_REASON = "copy left by an interrupted prune"
 
 
 def _pid_alive(pid) -> bool:
@@ -90,14 +99,20 @@ def _kept_previous(d: Path) -> bool:
 
 
 def kept_previous_artifacts() -> list[dict]:
-    """Every `.old-<pid>` with a manifest whose import has exited. prune never deletes them;
-    the user verifies and removes one by hand, or renames it back to its registered path."""
+    """Every `.old-<pid>` with a manifest whose import has exited, and every `.pruning-<pid>-<rand>`
+    copy with a manifest whose prune has exited (a published artifact a prune claimed and could
+    not rename back). prune never deletes them; the user verifies and removes one by hand, or
+    renames it back to its registered path."""
     root = artifacts_root()
     out = []
     for d in sorted(root.glob("*/*/*")) if root.exists() else []:
-        if not _kept_previous(d) or _leftover(d)[2]:
+        m = _PRUNING.search(d.name)
+        if m and d.is_dir() and (d / "manifest.json").exists() and not _pid_alive(int(m.group(1))):
+            registered, what = d.with_name(d.name[: m.start()]), "artifact left by an interrupted prune"
+        elif _kept_previous(d) and not _leftover(d)[2]:
+            registered, what = _leftover(d)[1], "previous artifact kept from an interrupted or failed replace"
+        else:
             continue
-        registered = _leftover(d)[1]
         missing = not (registered / "manifest.json").exists()
         state = "nothing is registered at" if missing else "an artifact is registered at"
         out.append(
@@ -106,7 +121,7 @@ def kept_previous_artifacts() -> list[dict]:
                 "registered": str(registered),
                 "registered_missing": missing,
                 "message": (
-                    f"previous artifact kept from an interrupted or failed replace ({state} {registered}); "
+                    f"{what} ({state} {registered}); "
                     f"verify and remove it by hand, or rename it back: mv {d} {registered}"
                 ),
             }
@@ -224,6 +239,62 @@ def _abandoned_pending(d: Path) -> bool:
     return time.time() - d.stat().st_mtime > STAGING_MAX_AGE_S
 
 
+def _abandoned_pruning(d: Path) -> bool:
+    """`d` is a `.pruning-<pid>-<rand>` copy whose prune has exited, that holds no manifest (it
+    may be a good artifact; never deleted here), and that is still abandoned by the staging and
+    unpublished-install rules. Raises FileNotFoundError if `d` vanishes meanwhile."""
+    m = _PRUNING.search(d.name)
+    if not m or _pid_alive(int(m.group(1))):
+        return False
+    if d.parent.name != ".staging" and (d / "manifest.json").exists():
+        return False  # possibly a published artifact; kept_previous_artifacts reports it
+    if (d / PENDING).exists() and not _abandoned_pending(d):
+        return False
+    return _abandoned_staging(d)
+
+
+def _named_inside(p: Path, parent: Path | None = None) -> bool:
+    """`p` itself is not a symlink and its directory resolves inside the artifacts root (or to
+    `parent`): a hand-written plan may name a link outside the cache that points into it."""
+    try:
+        where = p.parent.resolve()
+        return not p.is_symlink() and (
+            where == parent if parent is not None else where.is_relative_to(artifacts_root().resolve())
+        )
+    except OSError:
+        return False
+
+
+def _remove_claimed(p: Path, abandoned) -> bool:
+    """Delete `p` when `abandoned(p)` holds, and return whether it did. Raises FileNotFoundError
+    if `p` vanishes before it is claimed.
+
+    `p` is first claimed with one rename to a unique `.pruning-<pid>-<rand>` sibling and checked
+    again there; only that copy is deleted. A directory another process renames into `p` after
+    the claim is never touched, and one it renamed in before the claim fails the second check
+    and is renamed back (unless `p` is taken again by then; then the copy stays, and a later
+    prune removes it once it is abandoned, or kept_previous_artifacts reports it if it has a
+    manifest). A symlink, or a path whose directory is outside the cache, is never claimed."""
+    if not abandoned(p) or not _named_inside(p):
+        return False
+    claimed = p.with_name(f"{p.name}.pruning-{os.getpid()}-{secrets.token_hex(4)}")
+    os.rename(p, claimed)
+    try:
+        still = abandoned(claimed)
+    except FileNotFoundError:
+        still = False  # e.g. its marker went away: an import published or recovered it
+    if still:
+        shutil.rmtree(claimed) if claimed.is_dir() and not claimed.is_symlink() else claimed.unlink()
+        return True
+    try:
+        if p.exists():
+            raise FileExistsError(f"{p} was taken meanwhile")
+        os.rename(claimed, p)
+    except OSError as e:
+        print(f"[prune] kept {claimed}: could not rename it back to {p}: {e}", file=sys.stderr, flush=True)
+    return False
+
+
 def _remove_aside(final: Path, log) -> None:
     """Free the registered path with one rename to `.failed-<pid>`, then remove that copy; prune
     removes whatever the removal leaves once this process has exited."""
@@ -251,6 +322,13 @@ def plan_prune(profile: dict | None = None) -> list[dict]:
         out.append({"path": str(path), "reason": reason, "bytes": _dir_bytes(path)})
 
     for d in sorted(root.glob("*/*/*")):
+        if _PRUNING.search(d.name):
+            try:
+                if _abandoned_pruning(d):
+                    add(d, _PRUNING_REASON)
+            except FileNotFoundError:
+                pass  # removed or renamed back meanwhile
+            continue
         # `.old-<pid>` / `.failed-<pid>`: a replaced or failed copy an import left beside an
         # artifact, possibly partly removed (no manifest). Kept while that import still runs.
         # A `.old-<pid>` with a manifest is never listed (kept_previous_artifacts reports it).
@@ -268,7 +346,7 @@ def plan_prune(profile: dict | None = None) -> list[dict]:
                 continue  # published, removed or recovered by an import meanwhile
     for mf in sorted(root.glob("*/*/*/manifest.json")):
         d = mf.parent
-        if _LEFTOVER.search(d.name):
+        if _LEFTOVER.search(d.name) or _PRUNING.search(d.name):
             continue  # handled above
         try:
             data = json.loads(mf.read_text())
@@ -298,7 +376,10 @@ def plan_prune(profile: dict | None = None) -> list[dict]:
     if staging.exists():
         for p in sorted(staging.glob("*")):
             try:
-                if _abandoned_staging(p):
+                if _PRUNING.search(p.name):
+                    if _abandoned_pruning(p):
+                        add(p, _PRUNING_REASON)
+                elif _abandoned_staging(p):
                     add(p, "abandoned staging directory")
             except FileNotFoundError:
                 continue  # renamed into place, or removed, by the build that owned it
@@ -322,10 +403,21 @@ def prune(plan: list[dict] | None = None) -> list[dict]:
         info = _leftover(p)
         if info and (info[2] or _kept_previous(p)):
             continue  # its import is running, or it is a kept previous artifact (never deleted here)
-        if p.resolve().parent == staging_root and _inside_root(p):  # resolved: a plan may spell the cache differently
+        if _PRUNING.search(p.name):
+            # Only ever deleted as a copy an exited prune claimed (a plan may be hand-written).
             try:
-                if _abandoned_staging(p):  # checked again: its build may have started or finished since the plan
-                    shutil.rmtree(p) if p.is_dir() else p.unlink()
+                if _inside_root(p) and _named_inside(p) and _abandoned_pruning(p):  # checked again
+                    shutil.rmtree(p) if p.is_dir() and not p.is_symlink() else p.unlink()
+                    removed.append(item)
+            except FileNotFoundError:
+                pass  # removed or renamed back since the plan was made
+            continue
+        if p.resolve().parent == staging_root and _inside_root(p):  # resolved: a plan may spell the cache differently
+            if not _named_inside(p, staging_root):
+                continue  # a link, or a path outside the cache that resolves into it: never claimed
+            try:
+                # Checked again: its build may have started or finished since the plan.
+                if _remove_claimed(p, _abandoned_staging):
                     removed.append(item)
             except FileNotFoundError:
                 pass  # renamed into place, or removed, since the plan was made
@@ -334,8 +426,7 @@ def prune(plan: list[dict] | None = None) -> list[dict]:
             # Only ever deleted as an unpublished install: by now an import may have recovered and
             # published it, or be validating a new one there (and a plan may be hand-written).
             try:
-                if _abandoned_pending(p):  # checked again
-                    shutil.rmtree(p)
+                if _remove_claimed(p, _abandoned_pending):  # checked again
                     removed.append(item)
             except FileNotFoundError:
                 pass  # published, removed or recovered by an import since the plan was made

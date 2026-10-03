@@ -542,7 +542,12 @@ bucket. If the system evicts its cache, the next load pays it again.
   - builds from another platform profile, unvalidated or rejected builds;
   - quarantined entries, abandoned staging directories, orphaned verification stamps;
   - unpublished installs a killed import left at the registered path, once that import has
-    exited and they are older than an hour.
+    exited and they are older than an hour;
+  - a `.pruning-<pid>-<rand>` copy a killed prune left (prune renames a staging directory or
+    an unpublished install to such a copy and checks it again before deleting it). It is
+    removed once that prune has exited, no running build or import marks it and it is older
+    than an hour. One that holds a published artifact (`manifest.json`) is never deleted:
+    prune reports it with the `mv` command that puts it back.
   Add `--yes` to delete. It only ever deletes inside the cache.
 - **Warm after eviction.** `laya-apple artifacts warm MODEL` pays Core ML's on-device ANE
   compile ahead of the first request.

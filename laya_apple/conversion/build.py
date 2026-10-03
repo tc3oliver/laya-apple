@@ -287,14 +287,27 @@ def _build_locked(spec: ModelSpec, length: int, final: Path, *, local_files_only
             (stage / BUILDING).unlink(missing_ok=True)
             os.rename(stage, final)
         except BaseException:
-            if old is not None:  # put the previous artifact back; the original error is raised
+            # The staging directory leaves only by the rename into place, or by a prune claiming
+            # it, which its marker (live pid) prevents until just before the rename. So if it is
+            # gone and the registered path is taken, the new artifact got registered (an
+            # interrupt right after the rename): it stays, and the previous one is kept beside it.
+            # Otherwise the previous artifact is put back. The original error is raised either way.
+            if old is not None and (stage.exists() or not final.exists()):
                 try:
                     os.rename(old, final)
                 except OSError as e:
                     _log(f"{spec.name} L{length}: could not restore the previous artifact; it was left at {old}: {e}")
+            elif old is not None:
+                _log(f"{spec.name} L{length}: interrupted after registering {final}; the previous artifact is at {old}")
             raise
         if old is not None:
-            shutil.rmtree(old)
+            try:
+                shutil.rmtree(old)
+            except OSError as e:  # the new artifact is registered; only cleanup failed
+                _log(
+                    f"{spec.name} L{length}: registered, but could not remove the replaced copy {old}: {e}. "
+                    "Remove it by hand once the new one works; `laya-apple artifacts prune` reports it."
+                )
         _log(f"registered {final} ({timings['total_s']:.0f} s)")
         # Core ML's on-device ANE compile is cached per model location, so the load at the
         # staging path does not cover the registered path. Pay that compile now, through the
