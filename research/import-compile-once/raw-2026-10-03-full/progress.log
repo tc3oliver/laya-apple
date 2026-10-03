@@ -1,0 +1,23 @@
+04:12:45 export L128 and L64 from the source cache
+04:15:27 start baseline-L128-1
+04:17:54 end baseline-L128-1 rc=0
+04:17:54 start final-path-L128-1
+04:19:12 end final-path-L128-1 rc=0
+04:19:12 start baseline-L128-2
+04:21:39 end baseline-L128-2 rc=0
+04:21:39 start final-path-L128-2
+04:22:57 end final-path-L128-2 rc=0
+04:22:57 start baseline-L128-3
+04:25:24 end baseline-L128-3 rc=0
+04:25:24 start final-path-L128-3
+04:26:41 end final-path-L128-3 rc=0
+04:26:41 start inject-i-L64
+04:27:50 end inject-i-L64 rc=0
+04:27:50 start inject-ii-L64
+04:29:03 end inject-ii-L64 rc=0
+04:29:03 start inject-iii-L64
+04:32:38 end inject-iii-L64 rc=0
+04:32:38 start inject-iv-L64
+04:34:38 end inject-iv-L64 rc=0
+04:34:38 cleanup: e5rt entries new since the run started, temp caches, the export directory
+04:34:38 done; restore the local LLM service

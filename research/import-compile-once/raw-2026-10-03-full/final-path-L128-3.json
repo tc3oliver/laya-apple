@@ -1,0 +1,1405 @@
+{
+ "archive": "laya-typed-decisions-L128.tar.gz",
+ "arm": "final-path",
+ "bucket": 128,
+ "cache_removed": true,
+ "e5rt_import": {
+  "bytes": 1489264469,
+  "count": 3,
+  "kb": 1454376,
+  "new": [
+   {
+    "bytes": 64,
+    "kb": 4,
+    "name": "python/26A428/52497489D86473AC45A5489E5EF1E1A7E946D0A1B7A3D9E520FFA5D95A7DCA7E"
+   },
+   {
+    "bytes": 744843570,
+    "kb": 727388,
+    "name": "python/26A428/C345BD46C0630B94C23C9CBAF780D3FD8EE037E1B9332D35FC60E7CC2CC04A8B"
+   },
+   {
+    "bytes": 744420835,
+    "kb": 726984,
+    "name": "python/26A428/FCB0F384540845AFCDF402EE1E2095EF5485AB3828E88EBE5345840C2325B4A9"
+   }
+  ],
+  "removed_count": 0
+ },
+ "e5rt_reader": {
+  "bytes": 0,
+  "count": 0,
+  "kb": 0,
+  "new": [],
+  "removed_count": 0
+ },
+ "finished": "2026-10-03T04:26:41.767854+00:00",
+ "import": {
+  "T": 75.27700179099338,
+  "arm": "final-path",
+  "bucket": 128,
+  "error": null,
+  "events": [
+   {
+    "arm": "final-path",
+    "final": "<tmp>/laya-ic-cache-ku5rayhj/artifacts/laya-typed-decisions/f9ab0b228f0f/bc1s-masked-L128-B1",
+    "inject": "none",
+    "msg": "start",
+    "pid": 7848,
+    "t": 1791001525.0581179
+   },
+   {
+    "msg": "parity gate for imported laya-typed-decisions L128 on this machine (at the registered path)",
+    "t": 1791001569.689318
+   },
+   {
+    "msg": "laya-typed-decisions L128: parity gate ran in 26.9 s (includes the load)",
+    "t": 1791001596.6234062
+   },
+   {
+    "msg": "laya-typed-decisions L128: publishing",
+    "t": 1791001600.334711
+   },
+   {
+    "msg": "laya-typed-decisions L128: published",
+    "t": 1791001600.334823
+   }
+  ],
+  "final": "<tmp>/laya-ic-cache-ku5rayhj/artifacts/laya-typed-decisions/f9ab0b228f0f/bc1s-masked-L128-B1",
+  "force": false,
+  "inject": "none",
+  "inject_fired": [],
+  "killed": null,
+  "ok": true,
+  "phases": {
+   "P": 26.93388749996666,
+   "Q": 3.710788916971069,
+   "S": 41.18297420901945
+  },
+  "probes": {
+   "registered_probe:registered": {
+    "ane_ms": 9.392,
+    "cpu_ms": 25.998,
+    "ratio": 0.361
+   }
+  },
+  "returncode": 0
+ },
+ "inject": "none",
+ "label": "final-path-L128-3",
+ "machine_after": {
+  "at": "2026-10-03T04:26:41.725949+00:00",
+  "coremltools": "9.0",
+  "df": "Filesystem     1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s3s1   971350180  13756656 440536952     4%  484014 4293182300    0%   /\n/dev/disk7s1     976557744 147102544 829252908    16%    1891 8292529080    0%   <data>",
+  "e5rt": {
+   "python/com.apple.e5rt.e5bundlecache/26A428": {
+    "entries": 31,
+    "kb": 14543360
+   }
+  },
+  "executable": "python",
+  "git_dirty": true,
+  "git_sha": "0d497893ea25aeb712921e4a292b2531b4f9e37c",
+  "laya_apple": "1.6.2",
+  "pmset_batt": "Now drawing from 'AC Power'",
+  "pmset_therm": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+  "python": "3.12.14",
+  "sw_vers": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0\nBuildVersion:\t\t26A428",
+  "uptime": "12:26  up 4 days, 10:56, 4 users, load averages: 1.76 1.89 1.91"
+ },
+ "machine_before": {
+  "at": "2026-10-03T04:25:24.842444+00:00",
+  "coremltools": "9.0",
+  "df": "Filesystem     1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s3s1   971350180  13756656 444238520     4%  484014 4293182300    0%   /\n/dev/disk7s1     976557744 147102544 829252908    16%    1891 8292529080    0%   <data>",
+  "e5rt": {
+   "python/com.apple.e5rt.e5bundlecache/26A428": {
+    "entries": 28,
+    "kb": 13088984
+   }
+  },
+  "executable": "python",
+  "git_dirty": true,
+  "git_sha": "0d497893ea25aeb712921e4a292b2531b4f9e37c",
+  "laya_apple": "1.6.2",
+  "pmset_batt": "Now drawing from 'AC Power'",
+  "pmset_therm": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+  "python": "3.12.14",
+  "sw_vers": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0\nBuildVersion:\t\t26A428",
+  "uptime": "12:25  up 4 days, 10:55, 4 users, load averages: 1.89 1.97 1.94"
+ },
+ "model": "laya-typed-decisions",
+ "poller": [
+  {
+   "event": "ready",
+   "final": "<tmp>/laya-ic-cache-ku5rayhj/artifacts/laya-typed-decisions/f9ab0b228f0f/bc1s-masked-L128-B1",
+   "t": 1791001524.943263
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001524.9433222,
+   "t1": 1791001525.0936031
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001525.445314,
+   "t1": 1791001525.4454038
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001525.955345,
+   "t1": 1791001525.95541
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001526.4654348,
+   "t1": 1791001526.465606
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001526.9754739,
+   "t1": 1791001526.975553
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001527.4855092,
+   "t1": 1791001527.485586
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001527.995541,
+   "t1": 1791001527.995611
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001528.504735,
+   "t1": 1791001528.5048268
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001529.014787,
+   "t1": 1791001529.014888
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001529.5248199,
+   "t1": 1791001529.524891
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001530.034834,
+   "t1": 1791001530.034878
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001530.5448608,
+   "t1": 1791001530.5449228
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001531.0548968,
+   "t1": 1791001531.054976
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001531.564919,
+   "t1": 1791001531.564969
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001532.0749362,
+   "t1": 1791001532.074977
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001532.5849621,
+   "t1": 1791001532.5850172
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001533.094984,
+   "t1": 1791001533.0950341
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001533.60501,
+   "t1": 1791001533.605061
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001534.11505,
+   "t1": 1791001534.115135
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001534.625081,
+   "t1": 1791001534.62515
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001535.1351008,
+   "t1": 1791001535.135137
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001535.6451159,
+   "t1": 1791001535.645161
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001536.151041,
+   "t1": 1791001536.151118
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001536.661057,
+   "t1": 1791001536.6610959
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001537.1710851,
+   "t1": 1791001537.171148
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001537.681107,
+   "t1": 1791001537.681155
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001538.191147,
+   "t1": 1791001538.1912372
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001538.7011771,
+   "t1": 1791001538.701243
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001539.211199,
+   "t1": 1791001539.2112498
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001539.719636,
+   "t1": 1791001539.719711
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001540.2296681,
+   "t1": 1791001540.229738
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001540.739694,
+   "t1": 1791001540.739758
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001541.249717,
+   "t1": 1791001541.249773
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001541.759742,
+   "t1": 1791001541.759815
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001542.269779,
+   "t1": 1791001542.269857
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001542.779791,
+   "t1": 1791001542.779826
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001543.287332,
+   "t1": 1791001543.2874408
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001543.7973802,
+   "t1": 1791001543.797475
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001544.30742,
+   "t1": 1791001544.307497
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001544.816729,
+   "t1": 1791001544.8168051
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001545.3267672,
+   "t1": 1791001545.326854
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001545.8368,
+   "t1": 1791001545.836885
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001546.3468401,
+   "t1": 1791001546.34692
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001546.85308,
+   "t1": 1791001546.853157
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001547.363107,
+   "t1": 1791001547.363162
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001547.8659909,
+   "t1": 1791001547.8660648
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001548.3760169,
+   "t1": 1791001548.3760772
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001548.886038,
+   "t1": 1791001548.886086
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001549.39605,
+   "t1": 1791001549.3960881
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001549.9060638,
+   "t1": 1791001549.906091
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001550.4161,
+   "t1": 1791001550.416165
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001550.9261491,
+   "t1": 1791001550.926241
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001551.436196,
+   "t1": 1791001551.4362938
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001551.9462452,
+   "t1": 1791001551.946341
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001552.4562838,
+   "t1": 1791001552.4563682
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001552.966321,
+   "t1": 1791001552.966399
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001553.476353,
+   "t1": 1791001553.476419
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001553.986391,
+   "t1": 1791001553.986457
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001554.496429,
+   "t1": 1791001554.496497
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001555.006465,
+   "t1": 1791001555.00653
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001555.516503,
+   "t1": 1791001555.5165749
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001556.0265431,
+   "t1": 1791001556.026607
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001556.532025,
+   "t1": 1791001556.532131
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001557.042072,
+   "t1": 1791001557.042151
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001557.552129,
+   "t1": 1791001557.5522392
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001558.0621781,
+   "t1": 1791001558.062272
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001558.5722299,
+   "t1": 1791001558.572324
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001559.0822778,
+   "t1": 1791001559.082356
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001559.592316,
+   "t1": 1791001559.592391
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001560.1023538,
+   "t1": 1791001560.1024199
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001560.612392,
+   "t1": 1791001560.612458
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001561.122433,
+   "t1": 1791001561.122516
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001561.6324658,
+   "t1": 1791001561.632527
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001562.142504,
+   "t1": 1791001562.1425831
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001562.652564,
+   "t1": 1791001562.652662
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001563.1626072,
+   "t1": 1791001563.162692
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001563.6726432,
+   "t1": 1791001563.6727219
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001564.182697,
+   "t1": 1791001564.182807
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001564.692737,
+   "t1": 1791001564.6928241
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001565.202776,
+   "t1": 1791001565.2028549
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001565.712818,
+   "t1": 1791001565.712898
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001566.222869,
+   "t1": 1791001566.222969
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001566.732907,
+   "t1": 1791001566.732985
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001567.242957,
+   "t1": 1791001567.243048
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001567.7529988,
+   "t1": 1791001567.753077
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001568.263049,
+   "t1": 1791001568.263145
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001568.773084,
+   "t1": 1791001568.773168
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001569.283137,
+   "t1": 1791001569.28323
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001569.793181,
+   "t1": 1791001569.7932649
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001570.3032162,
+   "t1": 1791001570.3032918
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001570.813238,
+   "t1": 1791001570.8132858
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001571.3232708,
+   "t1": 1791001571.323342
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001571.833298,
+   "t1": 1791001571.833357
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001572.343333,
+   "t1": 1791001572.343412
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001572.853368,
+   "t1": 1791001572.853448
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001573.3634,
+   "t1": 1791001573.3634691
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001573.870805,
+   "t1": 1791001573.870878
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001574.3808398,
+   "t1": 1791001574.380914
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001574.8908758,
+   "t1": 1791001574.8909628
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001575.400896,
+   "t1": 1791001575.400945
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001575.910906,
+   "t1": 1791001575.910937
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001576.420931,
+   "t1": 1791001576.420983
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001576.930958,
+   "t1": 1791001576.931028
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001577.4409862,
+   "t1": 1791001577.4410508
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001577.95102,
+   "t1": 1791001577.9510882
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001578.461055,
+   "t1": 1791001578.461132
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001578.971102,
+   "t1": 1791001578.971199
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001579.481143,
+   "t1": 1791001579.481219
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001579.9911838,
+   "t1": 1791001579.9912682
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001580.501227,
+   "t1": 1791001580.5013068
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001581.0112798,
+   "t1": 1791001581.0113769
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001581.521323,
+   "t1": 1791001581.521416
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001582.031362,
+   "t1": 1791001582.031429
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001582.5414028,
+   "t1": 1791001582.541473
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001583.051431,
+   "t1": 1791001583.051487
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001583.5614789,
+   "t1": 1791001583.561569
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001584.07152,
+   "t1": 1791001584.071608
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001584.581556,
+   "t1": 1791001584.581621
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001585.085321,
+   "t1": 1791001585.085388
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001585.586659,
+   "t1": 1791001585.586774
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001586.09672,
+   "t1": 1791001586.096822
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001586.60676,
+   "t1": 1791001586.606844
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001587.116798,
+   "t1": 1791001587.116864
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001587.626841,
+   "t1": 1791001587.626928
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001588.136878,
+   "t1": 1791001588.136946
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001588.6469178,
+   "t1": 1791001588.6470022
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001589.156969,
+   "t1": 1791001589.157087
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001589.667016,
+   "t1": 1791001589.6671202
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001590.1739562,
+   "t1": 1791001590.1740549
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001590.684001,
+   "t1": 1791001590.6840901
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001591.194037,
+   "t1": 1791001591.194113
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001591.704067,
+   "t1": 1791001591.7041311
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001592.214108,
+   "t1": 1791001592.214188
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001592.724158,
+   "t1": 1791001592.724257
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001593.2342,
+   "t1": 1791001593.234284
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001593.744242,
+   "t1": 1791001593.74432
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001594.2542772,
+   "t1": 1791001594.254347
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001594.7643242,
+   "t1": 1791001594.764402
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001595.2743711,
+   "t1": 1791001595.274461
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001595.784388,
+   "t1": 1791001595.7844322
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001596.294414,
+   "t1": 1791001596.2944891
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001596.804441,
+   "t1": 1791001596.8044999
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001597.312104,
+   "t1": 1791001597.3122041
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001597.822134,
+   "t1": 1791001597.822201
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001598.332151,
+   "t1": 1791001598.332191
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001598.842162,
+   "t1": 1791001598.8421881
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001599.352184,
+   "t1": 1791001599.352231
+  },
+  {
+   "event": "attempt",
+   "message": null,
+   "outcome": "ArtifactMissingError",
+   "quarantine": [],
+   "t0": 1791001599.8622348,
+   "t1": 1791001599.86231
+  },
+  {
+   "event": "manifest_seen",
+   "t0": 1791001600.372281
+  }
+ ],
+ "poller_enabled": true,
+ "post": {
+  "final": "<tmp>/laya-ic-cache-ku5rayhj/artifacts/laya-typed-decisions/f9ab0b228f0f/bc1s-masked-L128-B1",
+  "final_exists": true,
+  "leftovers": [],
+  "manifest_exists": true,
+  "manifest_sha256": "6afa4446117105219b36716faba2ffcc896b3da8aaafe1929345e01acabb8dc9",
+  "parity": {
+   "action_prob_max_abs": 0.0,
+   "all_finite": true,
+   "hard_mismatches": 0,
+   "logit_max_abs": 0.053394630551338196,
+   "near_tie_flips": [],
+   "passed": true,
+   "precision": "float16",
+   "prob_max_abs": 0.007666298291743701,
+   "reference": "upstream laya 0.3.20 (NandhaKishorM/laya@23a1752), PyTorch CPU FP32",
+   "repeat_identical": true,
+   "rows": 122,
+   "skipped_rows": 78,
+   "token_mismatch_cases": 0,
+   "tolerance": 0.02
+  },
+  "pending_files": [],
+  "placement": {
+   "compute_units": "CPU_AND_NE",
+   "cost_share": {
+    "ane": 1.0,
+    "cpu": 0.0,
+    "gpu": 0.0
+   },
+   "ops": {
+    "ane": 10594,
+    "cpu": 0,
+    "gpu": 0
+   },
+   "transitions": 0
+  },
+  "quarantine": [],
+  "staging": [],
+  "tree_sha256": "4792ff211eff86b6dea3cec2d687e76169f85f6453721e6b2d7adbdda276ffe8"
+ },
+ "reader": {
+  "F": 0.3332030829624273,
+  "W2": 0.15346987498924136,
+  "bucket": 128,
+  "compute_unit": "ComputeUnit.CPU_AND_NE",
+  "error": null,
+  "ok": true,
+  "predictions": {
+   "cls": {
+    "dtype": "float32",
+    "sha256": "c92d085aba424245db45451c4fcbb449e6f6529c528665e7d6254f141b974aa5",
+    "shape": [
+     1,
+     1024,
+     1,
+     1
+    ]
+   },
+   "logits": {
+    "dtype": "float32",
+    "sha256": "9fa813f8e1879c9d1b371e26052d72f476b5a3e14ba23a80fa8b7551358b3af0",
+    "shape": [
+     1,
+     1,
+     1,
+     32
+    ]
+   }
+  },
+  "probe": {
+   "ane_ms": 9.597,
+   "cpu_ms": 26.011,
+   "ratio": 0.369
+  },
+  "requested_compute_units": "CPU_AND_NE"
+ },
+ "started": "2026-10-03T04:25:24.836500+00:00"
+}

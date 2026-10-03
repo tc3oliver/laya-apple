@@ -1,0 +1,62 @@
+{
+ "classification": {
+  "B": 147.1779435420176,
+  "Eb": 2978528906,
+  "Fb": 0.32445166603429243,
+  "label": "SAVES",
+  "per_repeat": [
+   {
+    "E": 1489264469,
+    "F": 0.3254866669885814,
+    "T": 74.68867641699035,
+    "no_effect": false,
+    "saves": true
+   }
+  ]
+ },
+ "guard": {
+  "baseline-L128-1": [],
+  "final-path-L128-1": [],
+  "inject-i-L64": []
+ },
+ "label": "screen-SAVES",
+ "metrics": {
+  "baseline-L128-1": {
+   "E": 2978528906,
+   "E_count": 6,
+   "F": 0.32445166603429243,
+   "T": 147.1779435420176,
+   "W2": 0.15166504099033773,
+   "phases": {
+    "P": 28.22010458400473,
+    "Q": 3.7469618750037625,
+    "R": 69.78679258399643,
+    "S": 41.14387287496356
+   },
+   "reader_E": 0
+  },
+  "final-path-L128-1": {
+   "E": 1489264469,
+   "E_count": 3,
+   "F": 0.3254866669885814,
+   "T": 74.68867641699035,
+   "W2": 0.1499190420145169,
+   "phases": {
+    "P": 26.660701207991224,
+    "Q": 3.699918665981386,
+    "S": 40.897796707984526
+   },
+   "reader_E": 0
+  }
+ },
+ "mode": "screen",
+ "n_baseline": 1,
+ "n_final": 1,
+ "notes": [
+  "a screen never declares SAVES; screen-SAVES means: full run in a separate slot"
+ ],
+ "reuse": {
+  "baseline-L128-1": true,
+  "final-path-L128-1": true
+ }
+}

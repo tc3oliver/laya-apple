@@ -1,0 +1,34 @@
+{
+ "T": 141.70384608401218,
+ "arm": "final-path",
+ "bucket": 64,
+ "error": {
+  "message": "injected: the probe at the registered path failed ({'ane_ms': 7.93, 'cpu_ms': 15.624, 'ratio': 0.508})",
+  "type": "ComputeUnitMismatchError"
+ },
+ "final": "<tmp>/laya-ic-cache-j5r_rp_d/artifacts/laya-typed-decisions/f9ab0b228f0f/bc1s-masked-L64-B1",
+ "force": true,
+ "inject": "force-replace-probe-fail",
+ "inject_fired": [
+  "force-replace-probe-fail"
+ ],
+ "ok": false,
+ "phases": {
+  "P": 25.999912458006293,
+  "Q": 7.769275168015156,
+  "R": 64.77414545801003,
+  "S": 39.97794066701317
+ },
+ "probes": {
+  "probe:staged": {
+   "ane_ms": 7.635,
+   "cpu_ms": 15.652,
+   "ratio": 0.488
+  },
+  "registered_probe:registered": {
+   "ane_ms": 7.93,
+   "cpu_ms": 15.624,
+   "ratio": 0.508
+  }
+ }
+}

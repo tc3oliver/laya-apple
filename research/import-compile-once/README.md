@@ -3,8 +3,9 @@
 Issue: [#8](https://github.com/tc3oliver/laya-apple/issues/8) (cold start), following
 [#121](https://github.com/tc3oliver/laya-apple/issues/121) decision 1 (`research/coreml-compile-cache/`: Phase B
 "pays twice"). Preregistration: [#162](https://github.com/tc3oliver/laya-apple/issues/162), copied verbatim below.
-It was opened before any data and is not edited after the first row is written. Status: **harness ready, nothing
-measured yet.**
+It was opened before any data and is not edited after the first row is written. Status: **run on macOS 27.0
+([`results.md`](results.md)): screen-SAVES, then full run SAVES (`T` 75.3–75.6 s vs `B` = 145.90 s, `E` 1.489 vs
+2.979 GB), every guard passes. Decision 1 taken: the production PR.**
 
 ## Preregistration (verbatim from #162)
 

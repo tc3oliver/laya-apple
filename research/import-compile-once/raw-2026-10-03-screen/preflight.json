@@ -1,0 +1,15 @@
+{
+ "at": "2026-10-03T04:04:53.508403+00:00",
+ "coremltools": "9.0",
+ "df": "Filesystem     1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s3s1   971350180  13756656 483324764     3%  484014 4293182300    0%   /\n/dev/disk7s1     976557744 147102548 829252904    16%    1891 8292529040    0%   <data>",
+ "e5rt": {},
+ "executable": "python",
+ "git_dirty": false,
+ "git_sha": "0d497893ea25aeb712921e4a292b2531b4f9e37c",
+ "laya_apple": "1.6.2",
+ "pmset_batt": "Now drawing from 'AC Power'",
+ "pmset_therm": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+ "python": "3.12.14",
+ "sw_vers": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0\nBuildVersion:\t\t26A428",
+ "uptime": "12:04  up 4 days, 10:34, 4 users, load averages: 1.85 1.86 1.81"
+}

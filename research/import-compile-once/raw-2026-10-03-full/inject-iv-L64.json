@@ -1,0 +1,222 @@
+{
+ "archive": "laya-typed-decisions-L64.tar.gz",
+ "arm": "final-path",
+ "bucket": 64,
+ "cache_removed": true,
+ "e5rt_import": {
+  "bytes": 744414785,
+  "count": 2,
+  "kb": 726980,
+  "new": [
+   {
+    "bytes": 744414721,
+    "kb": 726976,
+    "name": "python/26A428/2AE49B2A6663C4049760B726C64E44C0F0A3AEEB7A95C06B8E4EEBC76669DD5A"
+   },
+   {
+    "bytes": 64,
+    "kb": 4,
+    "name": "python/26A428/EA062F4C7E9AA392330F3469F6552F37645EECAC072929C8495418F36EA298F4"
+   }
+  ],
+  "removed_count": 0
+ },
+ "e5rt_reader": {
+  "bytes": 0,
+  "count": 0,
+  "kb": 0,
+  "new": [],
+  "removed_count": 0
+ },
+ "finished": "2026-10-03T04:34:38.567685+00:00",
+ "import": {
+  "error": {
+   "message": "rc -9",
+   "type": "NoResult"
+  },
+  "events": [
+   {
+    "arm": "final-path",
+    "final": "<tmp>/laya-ic-cache-r__ti4ol/artifacts/laya-typed-decisions/f9ab0b228f0f/bc1s-masked-L64-B1",
+    "inject": "none",
+    "msg": "start",
+    "pid": 11215,
+    "t": 1791001958.5852642
+   },
+   {
+    "msg": "parity gate for imported laya-typed-decisions L64 on this machine (at the registered path)",
+    "t": 1791002002.8394408
+   }
+  ],
+  "killed": {
+   "after_gate_start_s": 3.001380205154419,
+   "at": 1791002005.840821
+  },
+  "ok": null,
+  "returncode": -9
+ },
+ "inject": "sigkill",
+ "label": "inject-iv-L64",
+ "machine_after": {
+  "at": "2026-10-03T04:34:38.527367+00:00",
+  "coremltools": "9.0",
+  "df": "Filesystem     1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s3s1   971350180  13756656 422180168     4%  484014 4221801680    0%   /\n/dev/disk7s1     976557744 147102548 829252904    16%    1891 8292529040    0%   <data>",
+  "e5rt": {
+   "python/com.apple.e5rt.e5bundlecache/26A428": {
+    "entries": 50,
+    "kb": 23269128
+   }
+  },
+  "executable": "python",
+  "git_dirty": true,
+  "git_sha": "0d497893ea25aeb712921e4a292b2531b4f9e37c",
+  "laya_apple": "1.6.2",
+  "pmset_batt": "Now drawing from 'AC Power'",
+  "pmset_therm": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+  "python": "3.12.14",
+  "sw_vers": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0\nBuildVersion:\t\t26A428",
+  "uptime": "12:34  up 4 days, 11:04, 4 users, load averages: 1.42 1.66 1.77"
+ },
+ "machine_before": {
+  "at": "2026-10-03T04:32:38.469317+00:00",
+  "coremltools": "9.0",
+  "df": "Filesystem     1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s3s1   971350180  13756656 427333744     4%  484014 4273337440    0%   /\n/dev/disk7s1     976557744 147102548 829252904    16%    1891 8292529040    0%   <data>",
+  "e5rt": {
+   "python/com.apple.e5rt.e5bundlecache/26A428": {
+    "entries": 45,
+    "kb": 21087788
+   }
+  },
+  "executable": "python",
+  "git_dirty": true,
+  "git_sha": "0d497893ea25aeb712921e4a292b2531b4f9e37c",
+  "laya_apple": "1.6.2",
+  "pmset_batt": "Now drawing from 'AC Power'",
+  "pmset_therm": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+  "python": "3.12.14",
+  "sw_vers": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0\nBuildVersion:\t\t26A428",
+  "uptime": "12:32  up 4 days, 11:02, 4 users, load averages: 1.95 1.84 1.85"
+ },
+ "model": "laya-typed-decisions",
+ "poller_enabled": false,
+ "post": {
+  "final": "<tmp>/laya-ic-cache-r__ti4ol/artifacts/laya-typed-decisions/f9ab0b228f0f/bc1s-masked-L64-B1",
+  "final_exists": true,
+  "leftovers": [],
+  "manifest_exists": false,
+  "manifest_sha256": null,
+  "pending_files": [
+   "PENDING.json",
+   "manifest.pending.json"
+  ],
+  "quarantine": [],
+  "staging": [],
+  "tree_sha256": "b078691b4df9b1bec80370885fdb67397de9e83486b2e1c20bd2cc03923172d4"
+ },
+ "reader": {
+  "bucket": 64,
+  "error": {
+   "message": "no ANE artifact for laya-typed-decisions@f9ab0b228f0f L64 in <tmp>/laya-ic-cache-r__ti4ol/artifacts/laya-typed-decisions/f9ab0b228f0f. Build it with: laya-apple artifacts build laya-typed-decisions --length 64",
+   "type": "ArtifactMissingError"
+  },
+  "ok": false,
+  "requested_compute_units": "CPU_AND_NE"
+ },
+ "reimport": {
+  "T": 71.49551620800048,
+  "arm": "final-path",
+  "bucket": 64,
+  "error": null,
+  "events": [
+   {
+    "arm": "final-path",
+    "final": "<tmp>/laya-ic-cache-r__ti4ol/artifacts/laya-typed-decisions/f9ab0b228f0f/bc1s-masked-L64-B1",
+    "inject": "none",
+    "msg": "start",
+    "pid": 11385,
+    "t": 1791002006.6236339
+   },
+   {
+    "msg": "laya-typed-decisions L64: removing an unpublished install left at <tmp>/laya-ic-cache-r__ti4ol/artifacts/laya-typed-decisions/f9ab0b228f0f/bc1s-masked-L64-B1",
+    "t": 1791002010.2173371
+   },
+   {
+    "msg": "parity gate for imported laya-typed-decisions L64 on this machine (at the registered path)",
+    "t": 1791002049.617105
+   },
+   {
+    "msg": "laya-typed-decisions L64: parity gate ran in 24.9 s (includes the load)",
+    "t": 1791002074.505515
+   },
+   {
+    "msg": "laya-typed-decisions L64: publishing",
+    "t": 1791002078.118745
+   },
+   {
+    "msg": "laya-typed-decisions L64: published",
+    "t": 1791002078.1188538
+   }
+  ],
+  "final": "<tmp>/laya-ic-cache-r__ti4ol/artifacts/laya-typed-decisions/f9ab0b228f0f/bc1s-masked-L64-B1",
+  "force": false,
+  "inject": "none",
+  "inject_fired": [],
+  "killed": null,
+  "ok": true,
+  "phases": {
+   "P": 24.888211792043876,
+   "Q": 3.6127690420253202,
+   "S": 39.844201498955954
+  },
+  "probes": {
+   "registered_probe:registered": {
+    "ane_ms": 7.96,
+    "cpu_ms": 15.772,
+    "ratio": 0.505
+   }
+  },
+  "returncode": 0
+ },
+ "reimport_post": {
+  "final": "<tmp>/laya-ic-cache-r__ti4ol/artifacts/laya-typed-decisions/f9ab0b228f0f/bc1s-masked-L64-B1",
+  "final_exists": true,
+  "leftovers": [],
+  "manifest_exists": true,
+  "manifest_sha256": "062f72b97f557c5cf54cf330bfb633e66e6b0dff14d57d5ecdd79d60a08bf141",
+  "parity": {
+   "action_prob_max_abs": 0.0,
+   "all_finite": true,
+   "hard_mismatches": 0,
+   "logit_max_abs": 0.03325338661670685,
+   "near_tie_flips": [],
+   "passed": true,
+   "precision": "float16",
+   "prob_max_abs": 0.004626551731036654,
+   "reference": "upstream laya 0.3.20 (NandhaKishorM/laya@23a1752), PyTorch CPU FP32",
+   "repeat_identical": true,
+   "rows": 41,
+   "skipped_rows": 159,
+   "token_mismatch_cases": 0,
+   "tolerance": 0.02
+  },
+  "pending_files": [],
+  "placement": {
+   "compute_units": "CPU_AND_NE",
+   "cost_share": {
+    "ane": 1.0,
+    "cpu": 0.0,
+    "gpu": 0.0
+   },
+   "ops": {
+    "ane": 10594,
+    "cpu": 0,
+    "gpu": 0
+   },
+   "transitions": 0
+  },
+  "quarantine": [],
+  "staging": [],
+  "tree_sha256": "b078691b4df9b1bec80370885fdb67397de9e83486b2e1c20bd2cc03923172d4"
+ },
+ "started": "2026-10-03T04:32:38.461441+00:00"
+}

@@ -1,0 +1,23 @@
+{
+ "T": 71.49551620800048,
+ "arm": "final-path",
+ "bucket": 64,
+ "error": null,
+ "final": "<tmp>/laya-ic-cache-r__ti4ol/artifacts/laya-typed-decisions/f9ab0b228f0f/bc1s-masked-L64-B1",
+ "force": false,
+ "inject": "none",
+ "inject_fired": [],
+ "ok": true,
+ "phases": {
+  "P": 24.888211792043876,
+  "Q": 3.6127690420253202,
+  "S": 39.844201498955954
+ },
+ "probes": {
+  "registered_probe:registered": {
+   "ane_ms": 7.96,
+   "cpu_ms": 15.772,
+   "ratio": 0.505
+  }
+ }
+}

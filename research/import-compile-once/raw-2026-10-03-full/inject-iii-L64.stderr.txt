@@ -1,0 +1,12 @@
+start
+parity gate for imported laya-typed-decisions L64 on this machine (at the registered path)
+<repo>/laya_apple/parity/ane.py:45: RuntimeWarning: laya-apple: checkpoint temperatures that are invalid or outside [0.5, 5.0] are replaced (choice:11+=0.10058280825614929 -> 0.5), as upstream does; treat confidence from those entries as uncalibrated
+  summary = evaluate(
+laya-typed-decisions L64: parity gate ran in 24.9 s (includes the load)
+laya-typed-decisions L64: publishing
+laya-typed-decisions L64: published
+start
+parity gate for imported laya-typed-decisions L64 on this machine
+<repo>/laya_apple/parity/ane.py:45: RuntimeWarning: laya-apple: checkpoint temperatures that are invalid or outside [0.5, 5.0] are replaced (choice:11+=0.10058280825614929 -> 0.5), as upstream does; treat confidence from those entries as uncalibrated
+  summary = evaluate(
+laya-typed-decisions L64: parity gate ran in 26.0 s (includes the staged load)

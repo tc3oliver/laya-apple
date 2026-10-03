@@ -1,0 +1,29 @@
+{
+ "T": 145.89997908298392,
+ "arm": "baseline",
+ "bucket": 128,
+ "error": null,
+ "final": "<tmp>/laya-ic-cache-qtnvgvu1/artifacts/laya-typed-decisions/f9ab0b228f0f/bc1s-masked-L128-B1",
+ "force": false,
+ "inject": "none",
+ "inject_fired": [],
+ "ok": true,
+ "phases": {
+  "P": 27.203080665960442,
+  "Q": 3.7394898750353605,
+  "R": 70.31167237501359,
+  "S": 41.16727841697866
+ },
+ "probes": {
+  "probe:staged": {
+   "ane_ms": 9.69,
+   "cpu_ms": 26.029,
+   "ratio": 0.372
+  },
+  "registered_probe:registered": {
+   "ane_ms": 9.42,
+   "cpu_ms": 25.91,
+   "ratio": 0.364
+  }
+ }
+}
