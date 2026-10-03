@@ -5,6 +5,38 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- **A first `artifacts fetch` or `artifacts import` of a bucket pays the per-path compile at
+  one path instead of two** (#162). Core ML's on-device ANE compile is tied to the model's
+  path. The import ran the parity gate and the placement probe on a staged copy, then loaded
+  and probed the model again after moving it to its registered path, so it paid that compile
+  at two paths. On a first install (no artifact registered for the bucket) the staged copy is
+  now moved to the registered path with its manifest withheld (`manifest.pending.json` and a
+  `PENDING.json` marker). The compute plan, the full parity gate and one placement probe run there. The
+  manifest is published with one atomic rename only after they all pass. The checks, the
+  hooks and `PROBE_MAX_RATIO` are unchanged; only where and in what order they run changed.
+  Until the manifest is published, `load_verified` raises `ArtifactMissingError` for that path
+  and never quarantines it. A failed or interrupted import registers nothing. The next import of
+  that bucket removes an unpublished directory a killed import left behind, and
+  `artifacts prune` lists one once its import has exited and it is older than an hour; one
+  whose import is still running is never listed or deleted. `--force` (replacing a registered
+  artifact) keeps the previous path, with the staged checks, the probe at the registered path
+  and the restore of the previous artifact on failure. Preregistered as #162 and measured on
+  one Mac Studio M4 Max, macOS 27.0 (26A428), coremltools 9.0, laya-typed-decisions L128, each
+  import into an empty cache. The full run (3 + 3 interleaved, fetch's hooks) was SAVES with
+  every guard passing:
+  - import time fell from 145.7 / 146.1 / 145.9 s to 75.4 / 75.6 / 75.3 s;
+  - new Core ML compile bundles fell from 6 to 3 per import;
+  - a reader's first load afterwards took 0.33 s, against 0.34 s after the old import;
+  - the four injected failures (parity, probe, `--force` replace with a failing probe,
+    SIGKILL during the gate followed by a re-import) all left the state the preregistration
+    requires.
+  The #121 Phase B re-run (`artifacts import`, 3 imports) went from 151.1 / 154.0 / 149.2 s
+  with 4 new bundles each (`main` at 484a645) to 76.4 / 91.4 / 78.9 s with 2 each. The 91.4 s
+  import is not explained. Raw data: `research/import-compile-once/raw-2026-10-03-full/` and
+  `research/import-compile-once/raw-2026-10-03-phaseb/`.
+
 ### Fixed
 
 - **A registered artifact no longer carries `BUILDING.json`** (#160). `artifacts import`,

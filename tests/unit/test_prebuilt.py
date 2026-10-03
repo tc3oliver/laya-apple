@@ -29,10 +29,11 @@ from laya_apple.errors import (
     ArtifactError,
     ArtifactIntegrityError,
     ArtifactMissingError,
+    ArtifactParityError,
     BackendUnavailableError,
     ComputeUnitMismatchError,
 )
-from laya_apple.registry import ANE_GRAPH, models
+from laya_apple.registry import ANE_COMPUTE_UNITS, ANE_GRAPH, models
 
 SPEC = models()["laya"]
 HERE = {"soc": "Apple M4 Max", "macos": "26.0.1", "macos_build": "25A1", "coremltools": "9.0"}
@@ -347,12 +348,13 @@ def assert_probed(calls, *, registered: bool):
 
 
 def test_a_failed_placement_probe_registers_nothing(real_import, manifest_factory):
+    """With `force` (the replace path, here with nothing to replace) the staged copy is probed first."""
     files, calls = real_import
     payload = export_archive(manifest_factory, 64)
     put(files, entry(64, payload=payload), payloads={entry(64)["path"]: payload})
     calls["probe_fails"].add(64)
     with pytest.raises(ComputeUnitMismatchError, match="simulated staged probe failure"):
-        prebuilt.fetch(SPEC, [64], repo="o/r", log=lambda m: None)
+        prebuilt.fetch(SPEC, [64], repo="o/r", force=True, log=lambda m: None)
     assert calls["probe"] == [64]
     assert_probed(calls, registered=False)
     assert not artifact_dir(SPEC, 64).exists()
@@ -360,13 +362,15 @@ def test_a_failed_placement_probe_registers_nothing(real_import, manifest_factor
 
 
 def test_a_failed_registered_path_probe_unregisters_the_new_artifact(real_import, manifest_factory):
+    """A first install: its one probe runs at the registered path, before the manifest is published."""
     files, calls = real_import
     payload = export_archive(manifest_factory, 64)
     put(files, entry(64, payload=payload), payloads={entry(64)["path"]: payload})
     calls["registered_fails"].add(64)
     with pytest.raises(ComputeUnitMismatchError, match="simulated registered probe failure"):
         prebuilt.fetch(SPEC, [64], repo="o/r", log=lambda m: None)
-    assert_probed(calls, registered=True)
+    assert calls["probe_paths"] == [artifact_dir(SPEC, 64) / COMPILED]
+    assert not (artifacts_root() / "quarantine").exists()
     assert not artifact_dir(SPEC, 64).exists()
     assert not any(artifact_dir(SPEC, 64).parent.iterdir())  # no .old-* or partial copy either
     assert not any((artifacts_root() / ".staging").iterdir())
@@ -576,7 +580,9 @@ def test_a_registered_artifact_never_carries_the_build_marker(real_import, manif
         staged.append((compiled.parent / lifecycle.BUILDING).exists())
 
     final = lifecycle.import_artifact(archive, local_files_only=True, force=force, log=lambda m: None, probe=probe)
-    assert staged == [True]
+    # a replace probes the staged copy, which carries the marker; a first install probes once at
+    # the registered path, after the marker is gone
+    assert staged == [force]
     assert final == artifact_dir(SPEC, 64)
     assert not list(final.rglob(lifecycle.BUILDING))
     assert sorted(p.name for p in final.iterdir()) == sorted(["manifest.json", COMPILED])
@@ -639,7 +645,7 @@ def test_the_real_probe_loads_the_staged_model_on_the_ane_compute_units(real_imp
     monkeypatch.setattr(coreml_ane, "probe_placement", probe_placement)
     payload = export_archive(manifest_factory, 64)
     put(files, entry(64, payload=payload), payloads={entry(64)["path"]: payload})
-    out = prebuilt.fetch(SPEC, [64], repo="o/r", log=lambda m: None)
+    out = prebuilt.fetch(SPEC, [64], repo="o/r", force=True, log=lambda m: None)  # the replace path
     final = artifact_dir(SPEC, 64) / COMPILED
     # the staged probe's load, the pre-warm load at the registered path, the registered probe's load
     (staged, units), (prewarm, _), (registered_load, registered_units) = loaded
@@ -826,7 +832,7 @@ def test_offline_fetch_from_the_cache_runs_the_full_import(real_import, hf_cache
     cached[entry(64)["path"]] = payload
     out = prebuilt.fetch(SPEC, [64], repo="o/r", local_files_only=True, log=lambda m: None)
     assert all(c["local_files_only"] for c in calls) and len(calls) == 2
-    assert out[64]["path"] == artifact_dir(SPEC, 64) and repo_calls["probe"] == [64, 64]
+    assert out[64]["path"] == artifact_dir(SPEC, 64) and repo_calls["probe"] == [64]  # once, at the registered path
     data = json.loads((artifact_dir(SPEC, 64) / "manifest.json").read_text())
     assert data["imported"]["parity"]["passed"] is True and data["imported"]["from"] == out[64]["source"]
     assert (root / entry(64)["path"]).exists()  # the cached archive is left in the cache
@@ -855,3 +861,261 @@ def test_cli_parses_fetch():
     assert (a.action, a.model, a.length, a.repo, a.revision) == ("fetch", "laya", [64], "o/r", None)
     a = cli.build_parser().parse_args(["artifacts", "fetch", "laya", "--revision", "abc"])
     assert (a.repo, a.revision) == (None, "abc")
+
+
+# ----------------------------------------------------------------------------- first install (#162)
+
+PARITY = {"passed": True, "hard_mismatches": 0, "prob_max_abs": 0.004, "rows": 40, "near_tie_flips": []}
+
+
+class Killed(BaseException):
+    """Stands in for SIGKILL: nothing after it runs, including the import's own cleanup."""
+
+
+def reader_view(final: Path) -> dict:
+    """What a runtime loading the bucket sees at the registered path right now."""
+    try:
+        A.load_verified(SPEC, 64)
+        outcome = "model"
+    except ArtifactMissingError:
+        outcome = "missing"
+    marker = final / lifecycle.PENDING
+    return {
+        "outcome": outcome,
+        "files": sorted(p.name for p in final.iterdir()) if final.exists() else None,
+        "pid": json.loads(marker.read_text())["pid"] if marker.exists() else None,
+        "quarantine": (artifacts_root() / "quarantine").exists(),
+    }
+
+
+@pytest.fixture
+def at_final(real_import, manifest_factory, monkeypatch):
+    """real_import with an L64 archive in the repository, recording where the compute plan and
+    the parity gate ran, what a reader of the registered path saw during the gate, and how many
+    full loads ran. The gate returns state["parity"], or raises it when it is an exception."""
+    files, calls = real_import
+    final = artifact_dir(SPEC, 64)
+    state = {"plan": [], "parity_at": [], "seen": [], "full_loads": 0, "parity": dict(PARITY)}
+
+    def plan(path, *a, **k):
+        state["plan"].append(Path(path))
+        return dict(CLEAN_PLAN)
+
+    def parity(spec, compiled, bucket, ckpt):
+        state["parity_at"].append(Path(compiled))
+        state["seen"].append(reader_view(final))
+        if isinstance(state["parity"], BaseException):
+            raise state["parity"]
+        return dict(state["parity"])
+
+    real_load = A.load_verified
+
+    def load_verified(spec, bucket, *, full=False, **k):
+        state["full_loads"] += bool(full)
+        return real_load(spec, bucket, full=full, **k)
+
+    monkeypatch.setattr(A, "compute_plan_summary", plan)
+    monkeypatch.setattr(parity_ane, "ane_parity", parity)
+    monkeypatch.setattr(A, "load_verified", load_verified)
+    payload = export_archive(manifest_factory, 64)
+    put(files, entry(64, payload=payload), payloads={entry(64)["path"]: payload})
+    return calls, state
+
+
+def assert_nothing_left(final: Path) -> None:
+    """Nothing registered, no `.failed-<pid>` or partial copy, no staging, no quarantine, no stamp."""
+    assert not final.exists()
+    assert list(final.parent.iterdir()) == []
+    assert not any((artifacts_root() / ".staging").iterdir())
+    assert not (artifacts_root() / "quarantine").exists()
+    assert not A._stamp_path(final).exists()
+
+
+def test_a_first_install_is_validated_once_at_its_registered_path(at_final):
+    calls, state = at_final
+    out = prebuilt.fetch(SPEC, [64], repo="o/r", log=lambda m: None)
+    final = artifact_dir(SPEC, 64)
+    assert state["plan"] == [final / COMPILED] and state["parity_at"] == [final / COMPILED]
+    assert calls["probe_paths"] == [final / COMPILED]  # exactly one probe: registered_probe
+    assert state["full_loads"] == 0  # no second load at the registered path
+    assert out[64]["path"] == final and out[64]["probe"]["ratio"] == REGISTERED_RATIO
+    assert sorted(p.name for p in final.iterdir()) == sorted(["manifest.json", COMPILED])
+    assert [p.name for p in final.parent.iterdir()] == [final.name]
+    assert not any((artifacts_root() / ".staging").iterdir())
+    data = json.loads((final / "manifest.json").read_text())
+    assert data["imported"]["parity"] == PARITY and data["imported"]["placement"] == CLEAN_PLAN
+    assert data["imported"]["artifact_sha256_check"] == tree_sha256(final / COMPILED)
+    A.load_verified(SPEC, 64, full=True)
+
+
+def test_the_runtime_sees_no_artifact_until_the_manifest_is_published(at_final):
+    _, state = at_final
+    prebuilt.fetch(SPEC, [64], repo="o/r", log=lambda m: None)
+    (seen,) = state["seen"]  # during the parity gate at the registered path
+    assert seen["outcome"] == "missing" and seen["quarantine"] is False
+    assert seen["files"] == sorted([COMPILED, lifecycle.PENDING, lifecycle.PENDING_MANIFEST])
+    assert seen["pid"] == os.getpid()
+    assert reader_view(artifact_dir(SPEC, 64))["outcome"] == "model"  # once published
+
+
+@pytest.mark.parametrize("full", [False, True], ids=["load", "full-verify"])
+def test_load_verified_never_quarantines_an_unpublished_install(repo, manifest_factory, full):
+    d = registered(manifest_factory, 64)
+    os.rename(d / "manifest.json", d / lifecycle.PENDING_MANIFEST)
+    (d / lifecycle.PENDING).write_text(json.dumps({"pid": os.getpid()}))
+    before = snapshot(d)
+    with pytest.raises(ArtifactMissingError):
+        A.load_verified(SPEC, 64, full=full)
+    assert snapshot(d) == before
+    assert not (artifacts_root() / "quarantine").exists()
+    assert A.list_artifacts() == []
+
+
+def test_the_first_install_records_what_the_replace_path_records(at_final, manifest_factory, tmp_path, monkeypatch):
+    """Same checks, same results: only where and in what order they run differ."""
+    archive = tmp_path / "laya-L64.tar.gz"
+    archive.write_bytes(export_archive(manifest_factory, 64))
+    manifests = {}
+    for force in (False, True):  # nothing is registered in either cache
+        monkeypatch.setenv("LAYA_APPLE_CACHE", str(tmp_path / f"cache-{force}"))
+        final = lifecycle.import_artifact(archive, local_files_only=True, force=force, log=lambda m: None)
+        manifests[force] = json.loads((final / "manifest.json").read_text())
+        manifests[force]["imported"].pop("at")
+    assert manifests[False] == manifests[True]
+    assert manifests[False]["imported"]["parity"] == PARITY
+
+
+def test_cli_import_runs_only_the_parity_gate_at_the_registered_path(at_final, manifest_factory, tmp_path):
+    _, state = at_final
+    archive = tmp_path / "laya-L64.tar.gz"
+    archive.write_bytes(export_archive(manifest_factory, 64))
+    assert cli.main(["--offline", "artifacts", "import", str(archive)]) == 0
+    final = artifact_dir(SPEC, 64)
+    assert state["parity_at"] == [final / COMPILED] and state["full_loads"] == 0
+    assert (final / "manifest.json").exists() and not (final / lifecycle.PENDING).exists()
+
+
+@pytest.mark.parametrize("failure", ["parity", "probe", "interrupt"])
+def test_a_failure_at_the_registered_path_registers_nothing_and_leaves_nothing(at_final, monkeypatch, failure):
+    calls, state = at_final
+
+    def interrupted(spec, bucket, compiled, *, local_files_only):
+        raise KeyboardInterrupt
+
+    if failure == "parity":
+        state["parity"]["passed"] = False
+    elif failure == "probe":
+        calls["registered_fails"].add(64)
+    else:
+        monkeypatch.setattr(prebuilt, "_probe", interrupted)
+    expected = {"parity": ArtifactParityError, "probe": ComputeUnitMismatchError, "interrupt": KeyboardInterrupt}
+    with pytest.raises(expected[failure]):
+        prebuilt.fetch(SPEC, [64], repo="o/r", log=lambda m: None)
+    final = artifact_dir(SPEC, 64)
+    assert [s["outcome"] for s in state["seen"]] == ["missing"]
+    assert_nothing_left(final)
+    with pytest.raises(ArtifactMissingError):
+        A.load_verified(SPEC, 64)
+
+
+def test_an_unpublished_install_left_by_a_killed_import_is_recovered_by_the_next_import(at_final, monkeypatch):
+    import subprocess
+
+    _, state = at_final
+    final = artifact_dir(SPEC, 64)
+    real_remove = lifecycle._remove_aside
+    monkeypatch.setattr(lifecycle, "_remove_aside", lambda final, log: None)  # killed: no cleanup runs
+    state["parity"] = Killed()
+    with pytest.raises(Killed):
+        prebuilt.fetch(SPEC, [64], repo="o/r", log=lambda m: None)
+    monkeypatch.setattr(lifecycle, "_remove_aside", real_remove)
+    assert lifecycle.unpublished(final)
+    proc = subprocess.Popen(["true"])
+    proc.wait()  # a real pid that has exited, as the killed import's has
+    (final / lifecycle.PENDING).write_text(json.dumps({"pid": proc.pid}))
+    with pytest.raises(ArtifactMissingError):
+        A.load_verified(SPEC, 64)
+    assert not (artifacts_root() / "quarantine").exists()
+
+    state["parity"] = dict(PARITY)
+    logs = []
+    out = prebuilt.fetch(SPEC, [64], repo="o/r", log=logs.append)
+    assert out[64]["path"] == final
+    assert any("removing an unpublished install" in m for m in logs)
+    assert not any("not usable" in m for m in logs)  # it was never a registered artifact
+    assert sorted(p.name for p in final.iterdir()) == sorted(["manifest.json", COMPILED])
+    assert [p.name for p in final.parent.iterdir()] == [final.name]  # no `.failed-<pid>` left
+    assert not any((artifacts_root() / ".staging").iterdir())
+    A.load_verified(SPEC, 64, full=True)
+
+
+def test_the_first_install_writes_the_stamp_load_verified_would(at_final, monkeypatch):
+    _, state = at_final
+    monkeypatch.setattr(lifecycle, "platform_profile", lambda: dict(HERE))
+    prebuilt.fetch(SPEC, [64], repo="o/r", log=lambda m: None)
+    final = artifact_dir(SPEC, 64)
+    manifest = A.verify_manifest(SPEC, 64, json.loads((final / "manifest.json").read_text()))
+    stamp = json.loads(A._stamp_path(final).read_text())
+    assert stamp == {"key": A._stamp_key(manifest, final, ANE_COMPUTE_UNITS, dict(HERE)), "placement": CLEAN_PLAN}
+    hashed, plans = [], len(state["plan"])
+    monkeypatch.setattr(A, "verify_files", lambda *a: hashed.append(a))
+    A.load_verified(SPEC, 64)
+    assert hashed == [] and len(state["plan"]) == plans  # the stamp is honoured: no re-hash, no compute plan
+
+
+def test_no_stamp_is_written_when_the_files_change_after_they_were_hashed(
+    at_final, manifest_factory, tmp_path, monkeypatch
+):
+    archive = tmp_path / "laya-L64.tar.gz"
+    archive.write_bytes(export_archive(manifest_factory, 64))
+    final = artifact_dir(SPEC, 64)
+
+    def touch(spec, bucket, compiled):  # runs at the registered path, after the files were stat'ed
+        os.utime(Path(compiled) / "weights.bin", ns=(1_000_000_000, 1_000_000_000))
+
+    logs = []
+    lifecycle.import_artifact(archive, local_files_only=True, log=logs.append, probe=touch)
+    assert (final / "manifest.json").exists() and not (final / lifecycle.PENDING).exists()
+    assert not A._stamp_path(final).exists()
+    assert any("files changed after they were hashed" in m for m in logs)
+    real_verify, hashed = A.verify_files, []
+
+    def verify_files(manifest, directory):
+        hashed.append(directory)
+        return real_verify(manifest, directory)
+
+    monkeypatch.setattr(A, "verify_files", verify_files)
+    A.load_verified(SPEC, 64)
+    assert hashed == [final]  # the first load re-hashes, then stamps
+    assert A._stamp_path(final).exists()
+
+
+def test_an_interrupt_right_after_the_move_into_place_leaves_nothing(at_final, manifest_factory, tmp_path, monkeypatch):
+    _, state = at_final
+    archive = tmp_path / "laya-L64.tar.gz"
+    archive.write_bytes(export_archive(manifest_factory, 64))
+    real_rename = os.rename
+
+    def rename(src, dst):
+        real_rename(src, dst)
+        if Path(src).name.startswith("import-"):  # the staged directory has just moved into place
+            raise KeyboardInterrupt
+
+    monkeypatch.setattr(lifecycle.os, "rename", rename)
+    with pytest.raises(KeyboardInterrupt):
+        lifecycle.import_artifact(archive, local_files_only=True, log=lambda m: None)
+    monkeypatch.setattr(lifecycle.os, "rename", real_rename)
+    assert state["parity_at"] == []
+    assert_nothing_left(artifact_dir(SPEC, 64))
+
+
+def test_force_keeps_the_replace_path(at_final, manifest_factory):
+    calls, state = at_final
+    old = registered(manifest_factory, 64)
+    out = prebuilt.fetch(SPEC, [64], repo="o/r", force=True, log=lambda m: None)
+    (staged,) = state["parity_at"]
+    assert staged.is_relative_to(artifacts_root() / ".staging") and staged.name == COMPILED
+    assert_probed(calls, registered=True)  # staged, then at the registered path
+    assert state["full_loads"] == 1  # the load at the registered path after the move
+    assert out[64]["path"] == old and not (old / lifecycle.PENDING).exists()
+    assert (old / COMPILED / "weights.bin").read_bytes() == b"new weights"
