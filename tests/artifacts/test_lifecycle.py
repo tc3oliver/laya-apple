@@ -6,6 +6,7 @@ import json
 import os
 import threading
 import time
+from pathlib import Path
 
 import pytest
 
@@ -208,6 +209,100 @@ def test_staging_with_dead_pid_is_pruned_once_old(cache):
     os.utime(staging, (old, old))
     plan = lifecycle.plan_prune(PROFILE)
     assert str(staging) in {x["path"] for x in plan}
+
+
+def _old_staging(name, *, building=False):
+    """A staging directory untouched for twice the prune age, with this process's marker if asked."""
+    staging = artifacts_root() / ".staging" / name
+    staging.mkdir(parents=True)
+    if building:
+        (staging / lifecycle.BUILDING).write_text(json.dumps({"pid": os.getpid()}))
+    old = time.time() - 2 * lifecycle.STAGING_MAX_AGE_S
+    os.utime(staging, (old, old))  # after the marker: writing it bumps the directory's mtime
+    return staging
+
+
+def _listed(plan):
+    return {x["path"] for x in plan}
+
+
+def test_unlinking_the_marker_makes_an_old_staging_directory_fresh(cache):
+    """What an import does just before it renames its staging directory into place."""
+    staging = _old_staging("importing", building=True)
+    (staging / lifecycle.BUILDING).unlink()
+    assert str(staging) not in _listed(lifecycle.plan_prune(PROFILE))
+
+
+def test_a_marker_unlinked_between_prune_reading_the_age_and_the_marker_does_not_list_the_directory(cache, monkeypatch):
+    """An import unlinks its marker, then renames the directory into place. A prune that read
+    the age first and the marker second would see an old directory without a marker."""
+    staging = _old_staging("importing", building=True)
+    real_stat = Path.stat
+    raced = []
+
+    def stat(self, *args, **kwargs):
+        result = real_stat(self, *args, **kwargs)
+        if self == staging and not raced:  # the directory's age has just been read
+            raced.append(True)
+            (staging / lifecycle.BUILDING).unlink()
+        return result
+
+    monkeypatch.setattr(Path, "stat", stat)
+    plan = lifecycle.plan_prune(PROFILE)
+    monkeypatch.setattr(Path, "stat", real_stat)
+    assert str(staging) not in _listed(plan)
+
+
+@pytest.mark.parametrize("change", ["a build starts in it", "something touches it"])
+def test_prune_rechecks_a_staging_directory_before_deleting_it(cache, change):
+    staging = _old_staging("abandoned")
+    plan = lifecycle.plan_prune(PROFILE)
+    assert str(staging) in _listed(plan)
+    if change == "a build starts in it":
+        old = staging.stat().st_mtime
+        (staging / lifecycle.BUILDING).write_text(json.dumps({"pid": os.getpid()}))
+        os.utime(staging, (old, old))
+    else:
+        os.utime(staging)
+    assert lifecycle.prune(plan) == []
+    assert staging.exists()
+
+
+def test_prune_rechecks_a_staging_directory_spelled_through_a_symlinked_cache(tmp_path, monkeypatch):
+    """A hand-written plan may name the resolved path while the cache is reached through a symlink."""
+    real = tmp_path / "real"
+    real.mkdir()
+    link = tmp_path / "link"
+    link.symlink_to(real)
+    monkeypatch.setenv("LAYA_APPLE_CACHE", str(link))
+    staging = _old_staging("importing", building=True)
+    plan = [{"path": str(staging.resolve()), "reason": "hand-written"}]
+    assert lifecycle.prune(plan) == []
+    assert staging.exists()
+
+
+def test_a_staging_directory_that_vanishes_during_the_scan_is_skipped(cache, monkeypatch):
+    finished = _old_staging("finished")
+    abandoned = _old_staging("zz-abandoned")
+    real_stat = Path.stat
+    renamed = []
+
+    def stat(self, *args, **kwargs):
+        if self == finished and not renamed:  # the import renames it into place
+            renamed.append(True)
+            os.rename(finished, cache / "registered")
+        return real_stat(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "stat", stat)
+    plan = lifecycle.plan_prune(PROFILE)
+    monkeypatch.setattr(Path, "stat", real_stat)
+    assert renamed and _listed(plan) == {str(abandoned)}
+
+
+def test_prune_skips_a_staging_directory_that_is_gone(cache):
+    gone = artifacts_root() / ".staging" / "gone"
+    gone.parent.mkdir(parents=True)
+    assert lifecycle.prune([{"path": str(gone), "reason": "abandoned staging directory", "bytes": 0}]) == []
 
 
 def _make_export(tmp_path, *, extra_members=(), length=64, model="laya"):

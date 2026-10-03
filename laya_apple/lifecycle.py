@@ -172,6 +172,25 @@ def _dir_bytes(path: Path) -> int:
     return sum(f.stat().st_size for f in path.rglob("*") if f.is_file())
 
 
+def _abandoned_staging(p: Path) -> bool:
+    """True when nothing is building in staging directory `p` and it has been untouched for
+    STAGING_MAX_AGE_S. Raises FileNotFoundError if `p` vanishes meanwhile.
+
+    The marker is read before the age, never after. A finishing import unlinks the marker just
+    before it renames the directory into place, and the unlink refreshes the directory's mtime.
+    Reading the age first could pair the age from before that with a marker that is already
+    gone, and call a live import's directory old and unmarked."""
+    building = p / BUILDING
+    if building.exists():
+        try:
+            pid = json.loads(building.read_text()).get("pid")
+        except ValueError:
+            pid = None
+        if pid is not None and _pid_alive(pid):
+            return False  # build still in progress; not abandoned regardless of age
+    return time.time() - p.stat().st_mtime > STAGING_MAX_AGE_S
+
+
 def plan_prune(profile: dict | None = None) -> list[dict]:
     """Everything prune() would delete, with the reason. Deletes nothing."""
     root = artifacts_root()
@@ -221,19 +240,12 @@ def plan_prune(profile: dict | None = None) -> list[dict]:
             add(p, reason)
     staging = root / ".staging"
     if staging.exists():
-        now = time.time()
         for p in sorted(staging.glob("*")):
-            if now - p.stat().st_mtime <= STAGING_MAX_AGE_S:
-                continue
-            building = p / BUILDING
-            if building.exists():
-                try:
-                    pid = json.loads(building.read_text()).get("pid")
-                except ValueError:
-                    pid = None
-                if pid is not None and _pid_alive(pid):
-                    continue  # build still in progress; not abandoned regardless of age
-            add(p, "abandoned staging directory")
+            try:
+                if _abandoned_staging(p):
+                    add(p, "abandoned staging directory")
+            except FileNotFoundError:
+                continue  # renamed into place, or removed, by the build that owned it
     stamps = cache_root() / "verified" / "artifacts"
     if stamps.exists():
         for s in sorted(stamps.glob("*.json")):
@@ -247,12 +259,21 @@ def prune(plan: list[dict] | None = None) -> list[dict]:
     """Delete what plan_prune() lists (or the given plan). Returns what was removed."""
     plan = plan_prune() if plan is None else plan
     stamps_root = (cache_root() / "verified" / "artifacts").resolve()
+    staging_root = (artifacts_root() / ".staging").resolve()
     removed = []
     for item in plan:
         p = Path(item["path"])
         info = _leftover(p)
         if info and (info[2] or _kept_previous(p)):
             continue  # its import is running, or it is a kept previous artifact (never deleted here)
+        if p.resolve().parent == staging_root and _inside_root(p):  # resolved: a plan may spell the cache differently
+            try:
+                if _abandoned_staging(p):  # checked again: its build may have started or finished since the plan
+                    shutil.rmtree(p) if p.is_dir() else p.unlink()
+                    removed.append(item)
+            except FileNotFoundError:
+                pass  # renamed into place, or removed, since the plan was made
+            continue
         if p.is_file() and p.resolve().parent == stamps_root:
             p.unlink()
         elif _inside_root(p):
@@ -435,6 +456,9 @@ def import_artifact(
                     log(f"{spec.name} L{bucket}: could not restore the previous artifact; it was left at {old}: {e}")
 
             try:
+                # The marker only guards the staging directory; unlinking it also refreshes that
+                # directory's mtime, so `prune` cannot see it unmarked and old before the rename.
+                (stage / BUILDING).unlink(missing_ok=True)
                 os.rename(stage, final)
             except BaseException:
                 restore()
