@@ -268,6 +268,19 @@ def test_prune_rechecks_a_staging_directory_before_deleting_it(cache, change):
     assert staging.exists()
 
 
+def test_prune_rechecks_a_staging_directory_spelled_through_a_symlinked_cache(tmp_path, monkeypatch):
+    """A hand-written plan may name the resolved path while the cache is reached through a symlink."""
+    real = tmp_path / "real"
+    real.mkdir()
+    link = tmp_path / "link"
+    link.symlink_to(real)
+    monkeypatch.setenv("LAYA_APPLE_CACHE", str(link))
+    staging = _old_staging("importing", building=True)
+    plan = [{"path": str(staging.resolve()), "reason": "hand-written"}]
+    assert lifecycle.prune(plan) == []
+    assert staging.exists()
+
+
 def test_a_staging_directory_that_vanishes_during_the_scan_is_skipped(cache, monkeypatch):
     finished = _old_staging("finished")
     abandoned = _old_staging("zz-abandoned")

@@ -259,14 +259,14 @@ def prune(plan: list[dict] | None = None) -> list[dict]:
     """Delete what plan_prune() lists (or the given plan). Returns what was removed."""
     plan = plan_prune() if plan is None else plan
     stamps_root = (cache_root() / "verified" / "artifacts").resolve()
-    staging_root = artifacts_root() / ".staging"
+    staging_root = (artifacts_root() / ".staging").resolve()
     removed = []
     for item in plan:
         p = Path(item["path"])
         info = _leftover(p)
         if info and (info[2] or _kept_previous(p)):
             continue  # its import is running, or it is a kept previous artifact (never deleted here)
-        if p.parent == staging_root and _inside_root(p):
+        if p.resolve().parent == staging_root and _inside_root(p):  # resolved: a plan may spell the cache differently
             try:
                 if _abandoned_staging(p):  # checked again: its build may have started or finished since the plan
                     shutil.rmtree(p) if p.is_dir() else p.unlink()
