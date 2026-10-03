@@ -9,6 +9,7 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 A first `artifacts fetch` or `artifacts import` of a bucket now pays Core ML's on-device compile
 at one path instead of two, and registered artifacts no longer carry a stale `BUILDING.json`.
+`artifacts prune` and forced builds also hold up against concurrent imports and interruptions.
 `predict`, the parity tolerances, the routing rule and the prebuilt-artifact pin are unchanged.
 
 ### Changed
