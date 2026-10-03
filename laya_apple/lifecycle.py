@@ -42,6 +42,7 @@ import os
 import re
 import secrets
 import shutil
+import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -98,14 +99,20 @@ def _kept_previous(d: Path) -> bool:
 
 
 def kept_previous_artifacts() -> list[dict]:
-    """Every `.old-<pid>` with a manifest whose import has exited. prune never deletes them;
-    the user verifies and removes one by hand, or renames it back to its registered path."""
+    """Every `.old-<pid>` with a manifest whose import has exited, and every `.pruning-<pid>-<rand>`
+    copy with a manifest whose prune has exited (a published artifact a prune claimed and could
+    not rename back). prune never deletes them; the user verifies and removes one by hand, or
+    renames it back to its registered path."""
     root = artifacts_root()
     out = []
     for d in sorted(root.glob("*/*/*")) if root.exists() else []:
-        if not _kept_previous(d) or _leftover(d)[2]:
+        m = _PRUNING.search(d.name)
+        if m and d.is_dir() and (d / "manifest.json").exists() and not _pid_alive(int(m.group(1))):
+            registered, what = d.with_name(d.name[: m.start()]), "artifact left by an interrupted prune"
+        elif _kept_previous(d) and not _leftover(d)[2]:
+            registered, what = _leftover(d)[1], "previous artifact kept from an interrupted or failed replace"
+        else:
             continue
-        registered = _leftover(d)[1]
         missing = not (registered / "manifest.json").exists()
         state = "nothing is registered at" if missing else "an artifact is registered at"
         out.append(
@@ -114,7 +121,7 @@ def kept_previous_artifacts() -> list[dict]:
                 "registered": str(registered),
                 "registered_missing": missing,
                 "message": (
-                    f"previous artifact kept from an interrupted or failed replace ({state} {registered}); "
+                    f"{what} ({state} {registered}); "
                     f"verify and remove it by hand, or rename it back: mv {d} {registered}"
                 ),
             }
@@ -239,11 +246,23 @@ def _abandoned_pruning(d: Path) -> bool:
     m = _PRUNING.search(d.name)
     if not m or _pid_alive(int(m.group(1))):
         return False
-    if (d / "manifest.json").exists():
-        return False
+    if d.parent.name != ".staging" and (d / "manifest.json").exists():
+        return False  # possibly a published artifact; kept_previous_artifacts reports it
     if (d / PENDING).exists() and not _abandoned_pending(d):
         return False
     return _abandoned_staging(d)
+
+
+def _named_inside(p: Path, parent: Path | None = None) -> bool:
+    """`p` itself is not a symlink and its directory resolves inside the artifacts root (or to
+    `parent`): a hand-written plan may name a link outside the cache that points into it."""
+    try:
+        where = p.parent.resolve()
+        return not p.is_symlink() and (
+            where == parent if parent is not None else where.is_relative_to(artifacts_root().resolve())
+        )
+    except OSError:
+        return False
 
 
 def _remove_claimed(p: Path, abandoned) -> bool:
@@ -254,8 +273,9 @@ def _remove_claimed(p: Path, abandoned) -> bool:
     again there; only that copy is deleted. A directory another process renames into `p` after
     the claim is never touched, and one it renamed in before the claim fails the second check
     and is renamed back (unless `p` is taken again by then; then the copy stays, and a later
-    prune removes it once it is abandoned)."""
-    if not abandoned(p):
+    prune removes it once it is abandoned, or kept_previous_artifacts reports it if it has a
+    manifest). A symlink, or a path whose directory is outside the cache, is never claimed."""
+    if not abandoned(p) or not _named_inside(p):
         return False
     claimed = p.with_name(f"{p.name}.pruning-{os.getpid()}-{secrets.token_hex(4)}")
     os.rename(p, claimed)
@@ -266,9 +286,12 @@ def _remove_claimed(p: Path, abandoned) -> bool:
     if still:
         shutil.rmtree(claimed) if claimed.is_dir() and not claimed.is_symlink() else claimed.unlink()
         return True
-    if not p.exists():
-        with contextlib.suppress(OSError):
-            os.rename(claimed, p)
+    try:
+        if p.exists():
+            raise FileExistsError(f"{p} was taken meanwhile")
+        os.rename(claimed, p)
+    except OSError as e:
+        print(f"[prune] kept {claimed}: could not rename it back to {p}: {e}", file=sys.stderr, flush=True)
     return False
 
 
@@ -383,13 +406,15 @@ def prune(plan: list[dict] | None = None) -> list[dict]:
         if _PRUNING.search(p.name):
             # Only ever deleted as a copy an exited prune claimed (a plan may be hand-written).
             try:
-                if _inside_root(p) and _abandoned_pruning(p):  # checked again
+                if _inside_root(p) and _named_inside(p) and _abandoned_pruning(p):  # checked again
                     shutil.rmtree(p) if p.is_dir() and not p.is_symlink() else p.unlink()
                     removed.append(item)
             except FileNotFoundError:
                 pass  # removed or renamed back since the plan was made
             continue
         if p.resolve().parent == staging_root and _inside_root(p):  # resolved: a plan may spell the cache differently
+            if not _named_inside(p, staging_root):
+                continue  # a link, or a path outside the cache that resolves into it: never claimed
             try:
                 # Checked again: its build may have started or finished since the plan.
                 if _remove_claimed(p, _abandoned_staging):

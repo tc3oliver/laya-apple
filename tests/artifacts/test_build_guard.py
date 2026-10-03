@@ -181,7 +181,7 @@ def test_a_failed_removal_of_the_replaced_artifact_keeps_the_new_one_registered(
 
 @pytest.mark.parametrize("force", [False, True], ids=["new", "forced-rebuild"])
 def test_an_interrupt_right_after_the_move_into_place_leaves_the_new_artifact_registered(
-    stub_build, monkeypatch, force
+    stub_build, monkeypatch, capsys, force
 ):
     spec = models()["laya"]
     final = artifact_dir(spec, 64)
@@ -207,6 +207,9 @@ def test_an_interrupt_right_after_the_move_into_place_leaves_the_new_artifact_re
     if force:  # the previous artifact is kept beside it, intact
         assert len(left) == 1 and ".old-" in left[0].name
         assert (left[0] / "manifest.json").read_text() == before
+        err = capsys.readouterr().err
+        assert f"interrupted after registering {final}; the previous artifact is at {left[0]}" in err
+        assert "could not restore" not in err
     else:
         assert left == []
 

@@ -61,7 +61,9 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     sibling, checks that copy again with the same rules, and deletes only the copy; a copy
     that is no longer abandoned is renamed back. A copy a crashed prune left is listed and
     removed once that prune has exited and the copy is still abandoned; one with a manifest is
-    never deleted.
+    never deleted, and `artifacts prune` reports it with the `mv` command that puts it back.
+    A symlink in a hand-written plan, or a path outside the cache that resolves into it, is
+    never claimed or reported as removed.
   - A forced `artifacts build` that could not remove the replaced artifact raised although
     the new one was registered. It now logs where the replaced copy is and returns, as
     `artifacts import` does.

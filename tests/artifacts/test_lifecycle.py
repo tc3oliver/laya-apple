@@ -731,3 +731,57 @@ def test_a_copy_left_by_a_prune_is_kept_while_anything_may_still_need_it(cache, 
     )
     assert str(d) not in _listed(lifecycle.plan_prune(PROFILE))
     assert lifecycle.prune([{"path": str(d), "reason": "hand-written", "bytes": 0}]) == [] and d.exists()
+
+
+@pytest.mark.parametrize("kind", ["staging", "pending"])
+def test_a_link_outside_the_cache_is_never_claimed_or_reported_removed(cache, tmp_path_factory, kind):
+    p, _ = _abandoned_entry(kind)
+    link = tmp_path_factory.mktemp("outside") / "link"
+    link.symlink_to(p)
+    reason = "abandoned staging directory" if kind == "staging" else lifecycle._PENDING_REASON
+    assert lifecycle.prune([{"path": str(link), "reason": reason, "bytes": 0}]) == []
+    assert link.is_symlink() and p.exists()
+    assert not [x for x in p.parent.iterdir() if ".pruning-" in x.name]
+
+
+def test_a_link_to_a_leftover_prune_copy_is_never_removed(cache, tmp_path_factory):
+    d = _pruning_copy(artifact_dir(models()["laya"], 64), pid=_dead_pid())
+    link = tmp_path_factory.mktemp("outside") / "x.pruning-1-ab"
+    link.symlink_to(d)
+    assert lifecycle.prune([{"path": str(link), "reason": "hand-written", "bytes": 0}]) == []
+    assert link.is_symlink() and d.exists()
+
+
+def test_a_published_artifact_left_by_a_prune_is_reported_with_how_to_put_it_back(cache):
+    registered = artifact_dir(models()["laya"], 64)
+    d = _pruning_copy(registered, pid=_dead_pid(), manifest=True)
+    [report] = lifecycle.kept_previous_artifacts()
+    assert report["path"] == str(d) and report["registered"] == str(registered) and report["registered_missing"]
+    assert "artifact left by an interrupted prune" in report["message"]
+    assert f"mv {d} {registered}" in report["message"]
+    assert str(d) not in _listed(lifecycle.plan_prune(PROFILE))
+
+
+def test_a_claimed_copy_that_cannot_go_back_is_kept_and_logged(cache, monkeypatch, capsys):
+    p, check = _abandoned_entry("pending")
+    plan = lifecycle.plan_prune(PROFILE)
+    real = getattr(lifecycle, check)
+    calls = []
+
+    def racing(d):
+        result = real(d)
+        calls.append(d)
+        if len(calls) == 1:  # an import puts a live install there before the claim...
+            os.rename(p, cache / "moved-away")
+            _live_entry(p, "pending")
+        elif len(calls) == 2:  # ...and something takes the path again after it
+            p.mkdir()
+            (p / "other").write_text("in use")
+        return result
+
+    monkeypatch.setattr(lifecycle, check, racing)
+    assert lifecycle.prune(plan) == []
+    monkeypatch.setattr(lifecycle, check, real)
+    [kept] = [x for x in p.parent.iterdir() if ".pruning-" in x.name]
+    assert (kept / "live").read_text() == "in use" and (p / "other").read_text() == "in use"
+    assert f"kept {kept}: could not rename it back to {p}" in capsys.readouterr().err
