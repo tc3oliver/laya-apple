@@ -279,6 +279,8 @@ def _build_locked(spec: ModelSpec, length: int, final: Path, *, local_files_only
         (stage / "manifest.json").write_text(json.dumps(manifest, indent=1) + "\n")
 
         final.parent.mkdir(parents=True, exist_ok=True)
+        # The marker only guards the staging directory; a registered artifact must not carry it.
+        (stage / "BUILDING.json").unlink(missing_ok=True)
         if final.exists():  # force: move the old one aside first, then swap
             old = final.with_name(final.name + f".old-{os.getpid()}")
             os.rename(final, old)

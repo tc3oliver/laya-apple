@@ -435,6 +435,9 @@ def import_artifact(
                     log(f"{spec.name} L{bucket}: could not restore the previous artifact; it was left at {old}: {e}")
 
             try:
+                # The marker only guards the staging directory; unlinking it also refreshes that
+                # directory's mtime, so `prune` cannot see it unmarked and old before the rename.
+                (stage / BUILDING).unlink(missing_ok=True)
                 os.rename(stage, final)
             except BaseException:
                 restore()

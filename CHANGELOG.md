@@ -5,6 +5,16 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **A registered artifact no longer carries `BUILDING.json`** (#160). `artifacts import`,
+  `artifacts fetch` and `artifacts build` write that in-progress marker into the staging
+  directory and then renamed the whole directory into place, so every artifact they
+  registered kept it. The marker is now removed just before the rename; it still protects the
+  staging directory from `artifacts prune` while it is built or validated. Artifacts
+  registered earlier keep their copy: neither the manifest, the file hash, `artifacts verify`
+  nor loading looks at it, and it goes away when the artifact is replaced.
+
 ## [1.6.2] - 2026-10-03
 
 Prebuilt ANE artifacts for Apple M4 Max with macOS 27 and coremltools 9.0. `laya-apple

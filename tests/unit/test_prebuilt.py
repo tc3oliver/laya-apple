@@ -558,6 +558,44 @@ def test_a_successful_fetch_registers_with_provenance_and_probe(real_import, man
     assert out[64]["source"] == f"hf://o/r@abc/{entry(64)['path']}#sha256={hashlib.sha256(payload).hexdigest()}"
     assert data["imported"]["parity"]["passed"] is True
     assert not any((artifacts_root() / ".staging").iterdir())
+    assert not list(old.rglob(lifecycle.BUILDING))
+
+
+@pytest.mark.parametrize("force", [False, True], ids=["new", "forced-replacement"])
+def test_a_registered_artifact_never_carries_the_build_marker(real_import, manifest_factory, tmp_path, force):
+    """The marker guards the staging directory while it is validated and is gone once the
+    directory is renamed into place; a replaced artifact that carried one leaves none behind."""
+    if force:
+        stray = registered(manifest_factory, 64)
+        (stray / lifecycle.BUILDING).write_text(json.dumps({"pid": os.getpid()}))
+    archive = tmp_path / "laya-L64.tar.gz"
+    archive.write_bytes(export_archive(manifest_factory, 64))
+    staged = []
+
+    def probe(spec, bucket, compiled):
+        staged.append((compiled.parent / lifecycle.BUILDING).exists())
+
+    final = lifecycle.import_artifact(archive, local_files_only=True, force=force, log=lambda m: None, probe=probe)
+    assert staged == [True]
+    assert final == artifact_dir(SPEC, 64)
+    assert not list(final.rglob(lifecycle.BUILDING))
+    assert sorted(p.name for p in final.iterdir()) == sorted(["manifest.json", COMPILED])
+    assert (final / COMPILED / "weights.bin").read_bytes() == b"new weights"
+    assert [p.name for p in final.parent.iterdir()] == [final.name]
+    assert not any((artifacts_root() / ".staging").iterdir())
+    A.load_verified(SPEC, 64, full=True)
+
+
+def test_a_registered_artifact_with_a_stray_build_marker_still_verifies(repo, manifest_factory):
+    """Artifacts registered before the marker was kept out of them carry one; neither the file
+    hash, the manifest nor `artifacts prune` looks at it."""
+    d = registered(manifest_factory, 64)
+    (d / lifecycle.BUILDING).write_text(json.dumps({"pid": os.getpid()}))
+    _, manifest = A.load_verified(SPEC, 64, full=True)
+    assert manifest.artifact_sha256 == tree_sha256(d / COMPILED)
+    A.load_verified(SPEC, 64)
+    assert str(d) not in {x["path"] for x in lifecycle.plan_prune(HERE)}
+    assert (d / lifecycle.BUILDING).exists()
 
 
 def test_an_archive_for_another_bucket_is_not_registered(real_import, manifest_factory):
