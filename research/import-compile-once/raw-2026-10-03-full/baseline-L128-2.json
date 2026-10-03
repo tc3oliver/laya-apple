@@ -1,0 +1,228 @@
+{
+ "archive": "laya-typed-decisions-L128.tar.gz",
+ "arm": "baseline",
+ "bucket": 128,
+ "cache_removed": true,
+ "e5rt_import": {
+  "bytes": 2978528906,
+  "count": 6,
+  "kb": 2908752,
+  "new": [
+   {
+    "bytes": 744843538,
+    "kb": 727388,
+    "name": "python/26A428/4188E65BE4E47A0D487A805C96FD220885ACC922C5BF673B7BCEDF687474678A"
+   },
+   {
+    "bytes": 744420835,
+    "kb": 726984,
+    "name": "python/26A428/7FAC38613A8E475C55A9A01D87C6D05951904736B3FBD1A4A8FCC663946B9BC1"
+   },
+   {
+    "bytes": 744420835,
+    "kb": 726984,
+    "name": "python/26A428/90FC629FB4C24AE5A212D33B34B43D33880D7A709B4AB044FC2D5740903C7880"
+   },
+   {
+    "bytes": 64,
+    "kb": 4,
+    "name": "python/26A428/9537A162AE8EDE110187DA980E78F5E41843DBE5B7752C48E128242C8DCDA2C0"
+   },
+   {
+    "bytes": 744843570,
+    "kb": 727388,
+    "name": "python/26A428/A404E943006A5B11436DD0EAA38BE007ED5BE26CBCE19B18C6210157EC00CFC1"
+   },
+   {
+    "bytes": 64,
+    "kb": 4,
+    "name": "python/26A428/E168E83EC97A5532F9C91AD5E916F0B56A38DDD848490C584F24FF355275AEB3"
+   }
+  ],
+  "removed_count": 0
+ },
+ "e5rt_reader": {
+  "bytes": 0,
+  "count": 0,
+  "kb": 0,
+  "new": [],
+  "removed_count": 0
+ },
+ "finished": "2026-10-03T04:21:39.803041+00:00",
+ "import": {
+  "T": 146.14177433302393,
+  "arm": "baseline",
+  "bucket": 128,
+  "error": null,
+  "events": [
+   {
+    "arm": "baseline",
+    "final": "<tmp>/laya-ic-cache-1lrtmfu1/artifacts/laya-typed-decisions/f9ab0b228f0f/bc1s-masked-L128-B1",
+    "inject": "none",
+    "msg": "start",
+    "pid": 2677,
+    "t": 1791001152.224606
+   },
+   {
+    "msg": "parity gate for imported laya-typed-decisions L128 on this machine",
+    "t": 1791001196.4134111
+   },
+   {
+    "msg": "laya-typed-decisions L128: parity gate ran in 26.8 s (includes the staged load)",
+    "t": 1791001223.2261891
+   },
+   {
+    "msg": "laya-typed-decisions L128: registered, loaded and probed in 71.2 s",
+    "t": 1791001298.365807
+   }
+  ],
+  "final": "<tmp>/laya-ic-cache-1lrtmfu1/artifacts/laya-typed-decisions/f9ab0b228f0f/bc1s-masked-L128-B1",
+  "force": false,
+  "inject": "none",
+  "inject_fired": [],
+  "killed": null,
+  "ok": true,
+  "phases": {
+   "P": 26.812564374995418,
+   "Q": 3.7306024999707006,
+   "R": 71.16292787593557,
+   "S": 40.988792999938596
+  },
+  "probes": {
+   "probe:staged": {
+    "ane_ms": 9.478,
+    "cpu_ms": 26.128,
+    "ratio": 0.363
+   },
+   "registered_probe:registered": {
+    "ane_ms": 9.429,
+    "cpu_ms": 26.606,
+    "ratio": 0.354
+   }
+  },
+  "returncode": 0
+ },
+ "inject": "none",
+ "label": "baseline-L128-2",
+ "machine_after": {
+  "at": "2026-10-03T04:21:39.758015+00:00",
+  "coremltools": "9.0",
+  "df": "Filesystem     1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s3s1   971350180  13756656 452425308     3%  484014 4293182300    0%   /\n/dev/disk7s1     976557744 147102544 829252908    16%    1891 8292529080    0%   <data>",
+  "e5rt": {
+   "python/com.apple.e5rt.e5bundlecache/26A428": {
+    "entries": 19,
+    "kb": 8725856
+   }
+  },
+  "executable": "python",
+  "git_dirty": true,
+  "git_sha": "0d497893ea25aeb712921e4a292b2531b4f9e37c",
+  "laya_apple": "1.6.2",
+  "pmset_batt": "Now drawing from 'AC Power'",
+  "pmset_therm": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+  "python": "3.12.14",
+  "sw_vers": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0\nBuildVersion:\t\t26A428",
+  "uptime": "12:21  up 4 days, 10:51, 4 users, load averages: 2.64 1.90 1.91"
+ },
+ "machine_before": {
+  "at": "2026-10-03T04:19:12.122082+00:00",
+  "coremltools": "9.0",
+  "df": "Filesystem     1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s3s1   971350180  13756656 459099960     3%  484014 4293182300    0%   /\n/dev/disk7s1     976557744 147102544 829252908    16%    1891 8292529080    0%   <data>",
+  "e5rt": {
+   "python/com.apple.e5rt.e5bundlecache/26A428": {
+    "entries": 13,
+    "kb": 5817104
+   }
+  },
+  "executable": "python",
+  "git_dirty": true,
+  "git_sha": "0d497893ea25aeb712921e4a292b2531b4f9e37c",
+  "laya_apple": "1.6.2",
+  "pmset_batt": "Now drawing from 'AC Power'",
+  "pmset_therm": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+  "python": "3.12.14",
+  "sw_vers": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0\nBuildVersion:\t\t26A428",
+  "uptime": "12:19  up 4 days, 10:48, 4 users, load averages: 1.25 1.67 1.86"
+ },
+ "model": "laya-typed-decisions",
+ "poller": null,
+ "poller_enabled": false,
+ "post": {
+  "final": "<tmp>/laya-ic-cache-1lrtmfu1/artifacts/laya-typed-decisions/f9ab0b228f0f/bc1s-masked-L128-B1",
+  "final_exists": true,
+  "leftovers": [],
+  "manifest_exists": true,
+  "manifest_sha256": "cb66f5b4aee6f20de97485b83817592e8ccf6863d6ae5d66e681502ed882f093",
+  "parity": {
+   "action_prob_max_abs": 0.0,
+   "all_finite": true,
+   "hard_mismatches": 0,
+   "logit_max_abs": 0.053394630551338196,
+   "near_tie_flips": [],
+   "passed": true,
+   "precision": "float16",
+   "prob_max_abs": 0.007666298291743701,
+   "reference": "upstream laya 0.3.20 (NandhaKishorM/laya@23a1752), PyTorch CPU FP32",
+   "repeat_identical": true,
+   "rows": 122,
+   "skipped_rows": 78,
+   "token_mismatch_cases": 0,
+   "tolerance": 0.02
+  },
+  "pending_files": [],
+  "placement": {
+   "compute_units": "CPU_AND_NE",
+   "cost_share": {
+    "ane": 1.0,
+    "cpu": 0.0,
+    "gpu": 0.0
+   },
+   "ops": {
+    "ane": 10594,
+    "cpu": 0,
+    "gpu": 0
+   },
+   "transitions": 0
+  },
+  "quarantine": [],
+  "staging": [],
+  "tree_sha256": "4792ff211eff86b6dea3cec2d687e76169f85f6453721e6b2d7adbdda276ffe8"
+ },
+ "reader": {
+  "F": 0.3407561249914579,
+  "W2": 0.15441004099557176,
+  "bucket": 128,
+  "compute_unit": "ComputeUnit.CPU_AND_NE",
+  "error": null,
+  "ok": true,
+  "predictions": {
+   "cls": {
+    "dtype": "float32",
+    "sha256": "c92d085aba424245db45451c4fcbb449e6f6529c528665e7d6254f141b974aa5",
+    "shape": [
+     1,
+     1024,
+     1,
+     1
+    ]
+   },
+   "logits": {
+    "dtype": "float32",
+    "sha256": "9fa813f8e1879c9d1b371e26052d72f476b5a3e14ba23a80fa8b7551358b3af0",
+    "shape": [
+     1,
+     1,
+     1,
+     32
+    ]
+   }
+  },
+  "probe": {
+   "ane_ms": 9.495,
+   "cpu_ms": 26.253,
+   "ratio": 0.362
+  },
+  "requested_compute_units": "CPU_AND_NE"
+ },
+ "started": "2026-10-03T04:19:12.117799+00:00"
+}

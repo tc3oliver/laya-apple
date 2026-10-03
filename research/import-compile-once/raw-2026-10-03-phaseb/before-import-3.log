@@ -1,0 +1,7 @@
+Fetching 5 files:   0%|          | 0/5 [00:00<?, ?it/s]Fetching 5 files: 100%|██████████| 5/5 [00:00<00:00, 2348.43it/s]
+<repo>/laya_apple/parity/ane.py:45: RuntimeWarning: laya-apple: checkpoint temperatures that are invalid or outside [0.5, 5.0] are replaced (choice:11+=0.10058280825614929 -> 0.5), as upstream does; treat confidence from those entries as uncalibrated
+  summary = evaluate(
+parity gate for imported laya-typed-decisions L128 on this machine
+laya-typed-decisions L128: parity gate ran in 28.6 s (includes the staged load)
+laya-typed-decisions L128: registered and loaded in 69.3 s
+<tmp>/tmp.C5dig7VC2Z/artifacts/laya-typed-decisions/f9ab0b228f0f/bc1s-masked-L128-B1

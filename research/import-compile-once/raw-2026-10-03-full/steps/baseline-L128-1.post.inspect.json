@@ -1,0 +1,41 @@
+{
+ "final": "<tmp>/laya-ic-cache-9r2e9w59/artifacts/laya-typed-decisions/f9ab0b228f0f/bc1s-masked-L128-B1",
+ "final_exists": true,
+ "leftovers": [],
+ "manifest_exists": true,
+ "manifest_sha256": "1a0c1600b388c652bcc675e79f8e2364808d34ac0bc65f63a9b2d88a53fb23b9",
+ "parity": {
+  "action_prob_max_abs": 0.0,
+  "all_finite": true,
+  "hard_mismatches": 0,
+  "logit_max_abs": 0.053394630551338196,
+  "near_tie_flips": [],
+  "passed": true,
+  "precision": "float16",
+  "prob_max_abs": 0.007666298291743701,
+  "reference": "upstream laya 0.3.20 (NandhaKishorM/laya@23a1752), PyTorch CPU FP32",
+  "repeat_identical": true,
+  "rows": 122,
+  "skipped_rows": 78,
+  "token_mismatch_cases": 0,
+  "tolerance": 0.02
+ },
+ "pending_files": [],
+ "placement": {
+  "compute_units": "CPU_AND_NE",
+  "cost_share": {
+   "ane": 1.0,
+   "cpu": 0.0,
+   "gpu": 0.0
+  },
+  "ops": {
+   "ane": 10594,
+   "cpu": 0,
+   "gpu": 0
+  },
+  "transitions": 0
+ },
+ "quarantine": [],
+ "staging": [],
+ "tree_sha256": "4792ff211eff86b6dea3cec2d687e76169f85f6453721e6b2d7adbdda276ffe8"
+}

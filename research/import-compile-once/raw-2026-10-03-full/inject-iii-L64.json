@@ -1,0 +1,278 @@
+{
+ "archive": "laya-typed-decisions-L64.tar.gz",
+ "arm": "final-path",
+ "before": {
+  "final": "<tmp>/laya-ic-cache-j5r_rp_d/artifacts/laya-typed-decisions/f9ab0b228f0f/bc1s-masked-L64-B1",
+  "final_exists": true,
+  "leftovers": [],
+  "manifest_exists": true,
+  "manifest_sha256": "88d03d3f853ac4a4182493644388f4bf21caa6c21b666cbcc3a8be6fa33d0430",
+  "parity": {
+   "action_prob_max_abs": 0.0,
+   "all_finite": true,
+   "hard_mismatches": 0,
+   "logit_max_abs": 0.03325338661670685,
+   "near_tie_flips": [],
+   "passed": true,
+   "precision": "float16",
+   "prob_max_abs": 0.004626551731036654,
+   "reference": "upstream laya 0.3.20 (NandhaKishorM/laya@23a1752), PyTorch CPU FP32",
+   "repeat_identical": true,
+   "rows": 41,
+   "skipped_rows": 159,
+   "token_mismatch_cases": 0,
+   "tolerance": 0.02
+  },
+  "pending_files": [],
+  "placement": {
+   "compute_units": "CPU_AND_NE",
+   "cost_share": {
+    "ane": 1.0,
+    "cpu": 0.0,
+    "gpu": 0.0
+   },
+   "ops": {
+    "ane": 10594,
+    "cpu": 0,
+    "gpu": 0
+   },
+   "transitions": 0
+  },
+  "quarantine": [],
+  "staging": [],
+  "tree_sha256": "b078691b4df9b1bec80370885fdb67397de9e83486b2e1c20bd2cc03923172d4"
+ },
+ "bucket": 64,
+ "cache_removed": true,
+ "e5rt_import": {
+  "bytes": 2978491816,
+  "count": 6,
+  "kb": 2908720,
+  "new": [
+   {
+    "bytes": 744418674,
+    "kb": 726984,
+    "name": "python/26A428/1758633A40AC34D6625C89EB344A26C8C6391125529413EE09BEC96535C88529"
+   },
+   {
+    "bytes": 64,
+    "kb": 4,
+    "name": "python/26A428/37E5AA13A424258A406A80F23A9EE1F17269B0497C08E91892A1A0632C74919A"
+   },
+   {
+    "bytes": 64,
+    "kb": 4,
+    "name": "python/26A428/57C5A252246FF42A94BF0A4609FEED557C92850BC0426862FCB23754FBD855EE"
+   },
+   {
+    "bytes": 744827154,
+    "kb": 727372,
+    "name": "python/26A428/739C0DACC753BBE12C4573BE156433B0E2B70E705E89C2CB795C8E43D9C980D3"
+   },
+   {
+    "bytes": 744418674,
+    "kb": 726984,
+    "name": "python/26A428/CD36C4D6422B907CE26BA8EA6637B9D7D044F565DDAD3882BF3B6244B91C6D02"
+   },
+   {
+    "bytes": 744827186,
+    "kb": 727372,
+    "name": "python/26A428/FA75F294F163C8B35E4C1FC0925979DD7BE381F2C83E4A520A781FE6440D99DE"
+   }
+  ],
+  "removed_count": 0
+ },
+ "finished": "2026-10-03T04:32:38.400968+00:00",
+ "import": {
+  "T": 141.70384608401218,
+  "arm": "final-path",
+  "bucket": 64,
+  "error": {
+   "message": "injected: the probe at the registered path failed ({'ane_ms': 7.93, 'cpu_ms': 15.624, 'ratio': 0.508})",
+   "type": "ComputeUnitMismatchError"
+  },
+  "events": [
+   {
+    "arm": "final-path",
+    "final": "<tmp>/laya-ic-cache-j5r_rp_d/artifacts/laya-typed-decisions/f9ab0b228f0f/bc1s-masked-L64-B1",
+    "inject": "force-replace-probe-fail",
+    "msg": "start",
+    "pid": 8713,
+    "t": 1791001816.165743
+   },
+   {
+    "msg": "parity gate for imported laya-typed-decisions L64 on this machine",
+    "t": 1791001859.059461
+   },
+   {
+    "msg": "laya-typed-decisions L64: parity gate ran in 26.0 s (includes the staged load)",
+    "t": 1791001885.059577
+   }
+  ],
+  "final": "<tmp>/laya-ic-cache-j5r_rp_d/artifacts/laya-typed-decisions/f9ab0b228f0f/bc1s-masked-L64-B1",
+  "force": true,
+  "inject": "force-replace-probe-fail",
+  "inject_fired": [
+   "force-replace-probe-fail"
+  ],
+  "killed": null,
+  "ok": false,
+  "phases": {
+   "P": 25.999912458006293,
+   "Q": 7.769275168015156,
+   "R": 64.77414545801003,
+   "S": 39.97794066701317
+  },
+  "probes": {
+   "probe:staged": {
+    "ane_ms": 7.635,
+    "cpu_ms": 15.652,
+    "ratio": 0.488
+   },
+   "registered_probe:registered": {
+    "ane_ms": 7.93,
+    "cpu_ms": 15.624,
+    "ratio": 0.508
+   }
+  },
+  "returncode": 0
+ },
+ "inject": "force-replace-probe-fail",
+ "label": "inject-iii-L64",
+ "machine_after": {
+  "at": "2026-10-03T04:32:38.346524+00:00",
+  "coremltools": "9.0",
+  "df": "Filesystem     1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s3s1   971350180  13756656 426609476     4%  484014 4266094760    0%   /\n/dev/disk7s1     976557744 147102548 829252904    16%    1891 8292529040    0%   <data>",
+  "e5rt": {
+   "python/com.apple.e5rt.e5bundlecache/26A428": {
+    "entries": 45,
+    "kb": 21087788
+   }
+  },
+  "executable": "python",
+  "git_dirty": true,
+  "git_sha": "0d497893ea25aeb712921e4a292b2531b4f9e37c",
+  "laya_apple": "1.6.2",
+  "pmset_batt": "Now drawing from 'AC Power'",
+  "pmset_therm": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+  "python": "3.12.14",
+  "sw_vers": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0\nBuildVersion:\t\t26A428",
+  "uptime": "12:32  up 4 days, 11:02, 4 users, load averages: 1.95 1.84 1.85"
+ },
+ "machine_before": {
+  "at": "2026-10-03T04:29:03.776470+00:00",
+  "coremltools": "9.0",
+  "df": "Filesystem     1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s3s1   971350180  13756656 436111436     4%  484014 4293182300    0%   /\n/dev/disk7s1     976557744 147102544 829252908    16%    1891 8292529080    0%   <data>",
+  "e5rt": {
+   "python/com.apple.e5rt.e5bundlecache/26A428": {
+    "entries": 36,
+    "kb": 16724708
+   }
+  },
+  "executable": "python",
+  "git_dirty": true,
+  "git_sha": "0d497893ea25aeb712921e4a292b2531b4f9e37c",
+  "laya_apple": "1.6.2",
+  "pmset_batt": "Now drawing from 'AC Power'",
+  "pmset_therm": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+  "python": "3.12.14",
+  "sw_vers": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0\nBuildVersion:\t\t26A428",
+  "uptime": "12:29  up 4 days, 10:58, 4 users, load averages: 1.73 1.78 1.85"
+ },
+ "model": "laya-typed-decisions",
+ "poller": null,
+ "poller_enabled": false,
+ "post": {
+  "final": "<tmp>/laya-ic-cache-j5r_rp_d/artifacts/laya-typed-decisions/f9ab0b228f0f/bc1s-masked-L64-B1",
+  "final_exists": true,
+  "leftovers": [],
+  "manifest_exists": true,
+  "manifest_sha256": "88d03d3f853ac4a4182493644388f4bf21caa6c21b666cbcc3a8be6fa33d0430",
+  "parity": {
+   "action_prob_max_abs": 0.0,
+   "all_finite": true,
+   "hard_mismatches": 0,
+   "logit_max_abs": 0.03325338661670685,
+   "near_tie_flips": [],
+   "passed": true,
+   "precision": "float16",
+   "prob_max_abs": 0.004626551731036654,
+   "reference": "upstream laya 0.3.20 (NandhaKishorM/laya@23a1752), PyTorch CPU FP32",
+   "repeat_identical": true,
+   "rows": 41,
+   "skipped_rows": 159,
+   "token_mismatch_cases": 0,
+   "tolerance": 0.02
+  },
+  "pending_files": [],
+  "placement": {
+   "compute_units": "CPU_AND_NE",
+   "cost_share": {
+    "ane": 1.0,
+    "cpu": 0.0,
+    "gpu": 0.0
+   },
+   "ops": {
+    "ane": 10594,
+    "cpu": 0,
+    "gpu": 0
+   },
+   "transitions": 0
+  },
+  "quarantine": [],
+  "staging": [],
+  "tree_sha256": "b078691b4df9b1bec80370885fdb67397de9e83486b2e1c20bd2cc03923172d4"
+ },
+ "setup": {
+  "T": 71.83678570901975,
+  "arm": "final-path",
+  "bucket": 64,
+  "error": null,
+  "events": [
+   {
+    "arm": "final-path",
+    "final": "<tmp>/laya-ic-cache-j5r_rp_d/artifacts/laya-typed-decisions/f9ab0b228f0f/bc1s-masked-L64-B1",
+    "inject": "none",
+    "msg": "start",
+    "pid": 8604,
+    "t": 1791001743.877398
+   },
+   {
+    "msg": "parity gate for imported laya-typed-decisions L64 on this machine (at the registered path)",
+    "t": 1791001787.159673
+   },
+   {
+    "msg": "laya-typed-decisions L64: parity gate ran in 24.9 s (includes the load)",
+    "t": 1791001812.086049
+   },
+   {
+    "msg": "laya-typed-decisions L64: publishing",
+    "t": 1791001815.7137039
+   },
+   {
+    "msg": "laya-typed-decisions L64: published",
+    "t": 1791001815.713821
+   }
+  ],
+  "final": "<tmp>/laya-ic-cache-j5r_rp_d/artifacts/laya-typed-decisions/f9ab0b228f0f/bc1s-masked-L64-B1",
+  "force": false,
+  "inject": "none",
+  "inject_fired": [],
+  "killed": null,
+  "ok": true,
+  "phases": {
+   "P": 24.92618745903019,
+   "Q": 3.6271929999929853,
+   "S": 39.845256666012574
+  },
+  "probes": {
+   "registered_probe:registered": {
+    "ane_ms": 7.935,
+    "cpu_ms": 15.861,
+    "ratio": 0.5
+   }
+  },
+  "returncode": 0
+ },
+ "started": "2026-10-03T04:29:03.769738+00:00"
+}

@@ -1,0 +1,9 @@
+04:04:54 export L128 and L64 from the source cache
+04:07:38 start baseline-L128-1
+04:10:07 end baseline-L128-1 rc=0
+04:10:07 start final-path-L128-1
+04:11:23 end final-path-L128-1 rc=0
+04:11:23 start inject-i-L64
+04:12:32 end inject-i-L64 rc=0
+04:12:32 cleanup: e5rt entries new since the run started, temp caches, the export directory
+04:12:32 done; restore the local LLM service

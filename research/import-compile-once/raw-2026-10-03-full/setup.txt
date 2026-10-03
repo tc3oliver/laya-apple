@@ -1,0 +1,2 @@
+0d497893ea25aeb712921e4a292b2531b4f9e37c
+coremltools 9.0 laya_apple 1.6.2 python 3.12.14

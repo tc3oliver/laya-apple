@@ -1,0 +1,21 @@
+{
+ "T": 68.4814709170023,
+ "arm": "final-path",
+ "bucket": 64,
+ "error": {
+  "message": "imported laya-typed-decisions L64 failed the parity gate here: {'precision': 'float16', 'tolerance': 0.02, 'rows': 41, 'skipped_rows': 159, 'token_mismatch_cases': 0, 'prob_max_abs': 0.004626551731036654, 'action_prob_max_abs': 0.0, 'logit_max_abs': 0.03325338661670685, 'hard_mismatches': 0, 'near_tie_flips': [], 'all_finite': True, 'repeat_identical': True, 'passed': False, 'reference': 'upstream laya 0.3.20 (NandhaKishorM/laya@23a1752), PyTorch CPU FP32'}",
+  "type": "ArtifactParityError"
+ },
+ "final": "<tmp>/laya-ic-cache-ouy8_8ib/artifacts/laya-typed-decisions/f9ab0b228f0f/bc1s-masked-L64-B1",
+ "force": false,
+ "inject": "parity-fail",
+ "inject_fired": [
+  "parity-fail"
+ ],
+ "ok": false,
+ "phases": {
+  "P": 25.02749062498333,
+  "S": 39.96101412503049
+ },
+ "probes": {}
+}

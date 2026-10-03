@@ -1,0 +1,20 @@
+{
+ "at": "2026-10-03T04:12:32.890987+00:00",
+ "coremltools": "9.0",
+ "df": "Filesystem     1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s3s1   971350180  13756656 474220404     3%  484014 4293182300    0%   /\n/dev/disk7s1     976557744 147102544 829252908    16%    1891 8292529080    0%   <data>",
+ "e5rt": {
+  "python/com.apple.e5rt.e5bundlecache/26A428": {
+   "entries": 0,
+   "kb": 0
+  }
+ },
+ "executable": "python",
+ "git_dirty": true,
+ "git_sha": "0d497893ea25aeb712921e4a292b2531b4f9e37c",
+ "laya_apple": "1.6.2",
+ "pmset_batt": "Now drawing from 'AC Power'",
+ "pmset_therm": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+ "python": "3.12.14",
+ "sw_vers": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0\nBuildVersion:\t\t26A428",
+ "uptime": "12:12  up 4 days, 10:42, 4 users, load averages: 1.38 2.09 2.04"
+}

@@ -1,0 +1,28 @@
+mode: full  baseline rows: 3  final-path rows: 3
+
+| row | T s | S | P | Q | R | E count | E GB | reader F s | W' s | reuse F<=W'+10 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| baseline-L128-1 | 145.7 | 41.2 | 27.0 | 3.7 | 70.3 | 6 | 2.979 | 0.3 | 0.2 | True |
+| baseline-L128-2 | 146.1 | 41.0 | 26.8 | 3.7 | 71.2 | 6 | 2.979 | 0.3 | 0.2 | True |
+| baseline-L128-3 | 145.9 | 41.2 | 27.2 | 3.7 | 70.3 | 6 | 2.979 | 0.3 | 0.2 | True |
+| final-path-L128-1 | 75.4 | 41.4 | 26.8 | 3.7 | - | 3 | 1.489 | 0.3 | 0.2 | True |
+| final-path-L128-2 | 75.6 | 41.4 | 27.0 | 3.7 | - | 3 | 1.489 | 0.3 | 0.2 | True |
+| final-path-L128-3 | 75.3 | 41.2 | 26.9 | 3.7 | - | 3 | 1.489 | 0.3 | 0.2 | True |
+
+guard baseline-L128-1: pass
+guard baseline-L128-2: pass
+guard baseline-L128-3: pass
+guard final-path-L128-1: pass
+guard final-path-L128-2: pass
+guard final-path-L128-3: pass
+guard inject-i-L64: pass
+guard inject-ii-L64: pass
+guard inject-iii-L64: pass
+guard inject-iv-L64: pass
+
+B = 145.90 s, Eb = 2.979 GB, baseline F = 0.34 s
+final-path 1: T 75.37 s, E 1.489 GB, F 0.33 s, SAVES rule True, NO EFFECT rule False
+final-path 2: T 75.63 s, E 1.489 GB, F 0.33 s, SAVES rule True, NO EFFECT rule False
+final-path 3: T 75.28 s, E 1.489 GB, F 0.33 s, SAVES rule True, NO EFFECT rule False
+
+LABEL: SAVES

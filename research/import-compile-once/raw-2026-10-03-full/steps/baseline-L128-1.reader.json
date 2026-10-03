@@ -1,0 +1,36 @@
+{
+ "F": 0.34906533401226625,
+ "W2": 0.1558244579937309,
+ "bucket": 128,
+ "compute_unit": "ComputeUnit.CPU_AND_NE",
+ "error": null,
+ "ok": true,
+ "predictions": {
+  "cls": {
+   "dtype": "float32",
+   "sha256": "c92d085aba424245db45451c4fcbb449e6f6529c528665e7d6254f141b974aa5",
+   "shape": [
+    1,
+    1024,
+    1,
+    1
+   ]
+  },
+  "logits": {
+   "dtype": "float32",
+   "sha256": "9fa813f8e1879c9d1b371e26052d72f476b5a3e14ba23a80fa8b7551358b3af0",
+   "shape": [
+    1,
+    1,
+    1,
+    32
+   ]
+  }
+ },
+ "probe": {
+  "ane_ms": 9.432,
+  "cpu_ms": 25.864,
+  "ratio": 0.365
+ },
+ "requested_compute_units": "CPU_AND_NE"
+}

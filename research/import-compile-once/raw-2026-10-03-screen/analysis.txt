@@ -1,0 +1,16 @@
+mode: screen  baseline rows: 1  final-path rows: 1
+
+| row | T s | S | P | Q | R | E count | E GB | reader F s | W' s | reuse F<=W'+10 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| baseline-L128-1 | 147.2 | 41.1 | 28.2 | 3.7 | 69.8 | 6 | 2.979 | 0.3 | 0.2 | True |
+| final-path-L128-1 | 74.7 | 40.9 | 26.7 | 3.7 | - | 3 | 1.489 | 0.3 | 0.1 | True |
+
+guard baseline-L128-1: pass
+guard final-path-L128-1: pass
+guard inject-i-L64: pass
+
+B = 147.18 s, Eb = 2.979 GB, baseline F = 0.32 s
+final-path 1: T 74.69 s, E 1.489 GB, F 0.33 s, SAVES rule True, NO EFFECT rule False
+note: a screen never declares SAVES; screen-SAVES means: full run in a separate slot
+
+LABEL: screen-SAVES

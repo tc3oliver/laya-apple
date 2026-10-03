@@ -1,0 +1,5 @@
+{"t": 1791001525.0581179, "msg": "start", "final": "<tmp>/laya-ic-cache-ku5rayhj/artifacts/laya-typed-decisions/f9ab0b228f0f/bc1s-masked-L128-B1", "arm": "final-path", "inject": "none", "pid": 7848}
+{"t": 1791001569.689318, "msg": "parity gate for imported laya-typed-decisions L128 on this machine (at the registered path)"}
+{"t": 1791001596.6234062, "msg": "laya-typed-decisions L128: parity gate ran in 26.9 s (includes the load)"}
+{"t": 1791001600.334711, "msg": "laya-typed-decisions L128: publishing"}
+{"t": 1791001600.334823, "msg": "laya-typed-decisions L128: published"}
