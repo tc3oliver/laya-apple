@@ -16,6 +16,9 @@
   - abandoned staging directories;
   - copies an import left beside an artifact, once that import has exited: `.failed-<pid>`,
     and `.old-<pid>` without a manifest;
+  - an unpublished install an import left at the registered path (`PENDING.json`, no
+    `manifest.json`), once that import has exited and the directory is older than
+    STAGING_MAX_AGE_S;
   - orphaned verification stamps.
   A `.old-<pid>` with a manifest is a previous artifact an interrupted or failed replace
   kept, possibly the only good copy: prune never deletes one, even from a hand-written plan,
@@ -52,6 +55,11 @@ from .registry import ANE_GRAPH, ModelSpec, models
 STAGING_MAX_AGE_S = 3600
 MAX_IMPORT_BYTES = 4 * 1024**3
 BUILDING = "BUILDING.json"
+# A first install is validated at its registered path with its manifest withheld: the manifest
+# waits as PENDING_MANIFEST and PENDING (the import's pid) marks the directory as unpublished.
+PENDING = "PENDING.json"
+PENDING_MANIFEST = "manifest.pending.json"
+_PENDING_REASON = "unpublished install left by an import that exited"
 _LEFTOVER = re.compile(r"\.(old|failed)-(\d+)$")
 
 
@@ -191,6 +199,45 @@ def _abandoned_staging(p: Path) -> bool:
     return time.time() - p.stat().st_mtime > STAGING_MAX_AGE_S
 
 
+def unpublished(d: Path) -> bool:
+    """`d` holds a first install whose manifest was never published: `PENDING.json` and no
+    `manifest.json`. The runtime treats such a path as missing (ArtifactMissingError)."""
+    return (d / PENDING).exists() and not (d / "manifest.json").exists()
+
+
+def _abandoned_pending(d: Path) -> bool:
+    """True when `d` is unpublished, the import that wrote it has exited (or its marker is
+    unreadable), and it has been untouched for STAGING_MAX_AGE_S. Raises FileNotFoundError if
+    `d` or its marker vanishes meanwhile.
+
+    Read in this order: the marker, the manifest, then the age. An import that is still running
+    is kept by its pid whatever it does next; a dead one can no longer publish."""
+    try:
+        marker = json.loads((d / PENDING).read_text())
+    except ValueError:
+        marker = None
+    pid = marker.get("pid") if isinstance(marker, dict) else None
+    if pid is not None and _pid_alive(pid):
+        return False  # its import is still validating it
+    if (d / "manifest.json").exists():
+        return False  # published; the marker is only a leftover
+    return time.time() - d.stat().st_mtime > STAGING_MAX_AGE_S
+
+
+def _remove_aside(final: Path, log) -> None:
+    """Free the registered path with one rename to `.failed-<pid>`, then remove that copy; prune
+    removes whatever the removal leaves once this process has exited."""
+    failed = final.with_name(final.name + f".failed-{os.getpid()}")
+    try:
+        os.rename(final, failed)
+    except FileNotFoundError:
+        return
+    except OSError as e:
+        log(f"could not move {final} aside: {e}")
+        return
+    shutil.rmtree(failed, ignore_errors=True)
+
+
 def plan_prune(profile: dict | None = None) -> list[dict]:
     """Everything prune() would delete, with the reason. Deletes nothing."""
     root = artifacts_root()
@@ -208,8 +255,17 @@ def plan_prune(profile: dict | None = None) -> list[dict]:
         # artifact, possibly partly removed (no manifest). Kept while that import still runs.
         # A `.old-<pid>` with a manifest is never listed (kept_previous_artifacts reports it).
         info = _leftover(d)
-        if info and not info[2] and not _kept_previous(d):
-            add(d, f"leftover {info[0]} copy from an earlier import")
+        if info:
+            if not info[2] and not _kept_previous(d):
+                add(d, f"leftover {info[0]} copy from an earlier import")
+        elif (d / PENDING).exists():
+            # An install whose manifest was never published (manifest.json absent): kept while
+            # its import runs; listed once that import has exited and the directory is old.
+            try:
+                if _abandoned_pending(d):
+                    add(d, _PENDING_REASON)
+            except FileNotFoundError:
+                continue  # published, removed or recovered by an import meanwhile
     for mf in sorted(root.glob("*/*/*/manifest.json")):
         d = mf.parent
         if _LEFTOVER.search(d.name):
@@ -273,6 +329,16 @@ def prune(plan: list[dict] | None = None) -> list[dict]:
                     removed.append(item)
             except FileNotFoundError:
                 pass  # renamed into place, or removed, since the plan was made
+            continue
+        if _inside_root(p) and not info and (item.get("reason") == _PENDING_REASON or unpublished(p)):
+            # Only ever deleted as an unpublished install: by now an import may have recovered and
+            # published it, or be validating a new one there (and a plan may be hand-written).
+            try:
+                if _abandoned_pending(p):  # checked again
+                    shutil.rmtree(p)
+                    removed.append(item)
+            except FileNotFoundError:
+                pass  # published, removed or recovered by an import since the plan was made
             continue
         if p.is_file() and p.resolve().parent == stamps_root:
             p.unlink()
@@ -343,6 +409,27 @@ def import_artifact(
     right after the manifest is verified, before any other check; anything else is refused
     with ArtifactIntegrityError (`artifacts fetch` passes the index entry's).
 
+    **First install** (`force=False`; #162). Core ML's on-device ANE compile is tied to the
+    model's path, so the checks that load the model run once, at the registered path, before
+    the artifact is registered there. The archive, manifest, `expect`, profile and file hash
+    are checked in a staging directory. Then, under the build lock, the staging directory is
+    renamed into the registered path with its manifest withheld (`manifest.pending.json`, plus
+    a `PENDING.json` marker naming this pid): until it is published the runtime finds no
+    artifact there and raises ArtifactMissingError, and nothing quarantines it. At the
+    registered path run the compute plan, the weight check, the full parity gate and exactly
+    one placement probe (`registered_probe` if given, else `probe`, called with the registered
+    compiled path); the CLI passes neither, so only the parity gate loads the model. Then the
+    manifest is published with one `os.replace`, the marker is removed and the verification
+    stamp `load_verified` would write is written. If anything fails or the import is
+    interrupted, the directory is renamed to `.failed-<pid>` and removed, so nothing is
+    registered. An unpublished directory an import left at the registered path when it died
+    is removed (under the build lock, so its import cannot be running) before installing.
+    `artifacts prune` lists one only once its import has exited and it is older than
+    STAGING_MAX_AGE_S. A registered artifact (with a manifest) is refused without `force`.
+
+    **Replace** (`force=True`) keeps the path below: every check on the staged copy, the move
+    into place, then a load and the probe at the registered path.
+
     `probe`, when given, is called as probe(spec, bucket, staged_compiled_path) after every
     check above and before registration (`artifacts fetch` runs the runtime placement probe
     there). If any check or the probe raises, nothing is registered and an artifact already
@@ -365,6 +452,8 @@ def import_artifact(
     import tempfile
 
     from .artifacts import (
+        _stamp_key,
+        _stamp_path,
         check_ane_placement,
         compute_plan_summary,
         load_verified,
@@ -417,8 +506,63 @@ def import_artifact(
         verify_files(manifest, stage)
         final = artifact_dir(spec, bucket)
         with build_lock(spec, bucket, log=log):
-            if final.exists() and not force:
-                raise ArtifactError(f"{final} already exists; pass force=True (--force) to replace it")
+            if not force:  # first install: validated at the registered path (see the docstring)
+                if final.is_dir() and unpublished(final):  # the lock means its import has exited
+                    log(f"{spec.name} L{bucket}: removing an unpublished install left at {final}")
+                    _remove_aside(final, log)
+                if final.exists():
+                    raise ArtifactError(f"{final} already exists; pass force=True (--force) to replace it")
+                sha_check = tree_sha256(stage / COMPILED)
+                os.rename(stage / "manifest.json", stage / PENDING_MANIFEST)
+                (stage / PENDING).write_text(
+                    json.dumps({"pid": os.getpid(), "since": datetime.now(timezone.utc).isoformat()})
+                )
+                final.parent.mkdir(parents=True, exist_ok=True)
+                (stage / BUILDING).unlink(missing_ok=True)  # PENDING guards it from here on
+                os.rename(stage, final)
+                try:
+                    placement = compute_plan_summary(final / COMPILED, ANE_COMPUTE_UNITS)
+                    check_ane_placement(placement)
+                    ckpt = checkpoint_path(spec, local_files_only=local_files_only)
+                    verify_weights(spec, ckpt)
+                    log(f"parity gate for imported {spec.name} L{bucket} on this machine, at its registered path")
+                    t = time.perf_counter()
+                    parity = ane_parity(spec, final / COMPILED, bucket, ckpt)
+                    took = time.perf_counter() - t
+                    log(f"{spec.name} L{bucket}: parity gate ran in {took:.1f} s (includes the load)")
+                    if not parity["passed"]:
+                        raise ArtifactParityError(
+                            f"imported {spec.name} L{bucket} failed the parity gate here: {parity}"
+                        )
+                    one_probe = registered_probe if registered_probe is not None else probe
+                    if one_probe is not None:
+                        one_probe(spec, bucket, final / COMPILED)
+                    profile = platform_profile()
+                    data["imported"] = {
+                        "at": datetime.now(timezone.utc).isoformat(),
+                        "from": source or str(archive),
+                        "platform": profile,
+                        "placement": placement,
+                        "parity": parity,
+                        "artifact_sha256_check": sha_check,
+                    }
+                    (final / PENDING_MANIFEST).write_text(json.dumps(data, indent=1) + "\n")
+                    os.replace(final / PENDING_MANIFEST, final / "manifest.json")  # registers it
+                except BaseException:
+                    _remove_aside(final, log)
+                    raise
+                (final / PENDING).unlink(missing_ok=True)
+                try:  # the stamp load_verified writes after the same checks on the same files
+                    stamp = _stamp_path(final)
+                    stamp.parent.mkdir(parents=True, exist_ok=True)
+                    tmp = stamp.with_suffix(f".{os.getpid()}.tmp")
+                    key = _stamp_key(manifest, final, ANE_COMPUTE_UNITS, profile)
+                    tmp.write_text(json.dumps({"key": key, "placement": placement}))
+                    os.replace(tmp, stamp)
+                except OSError as e:  # registered; the first load re-hashes and stamps it instead
+                    log(f"{spec.name} L{bucket}: registered, but the verification stamp was not written: {e}")
+                log(f"{spec.name} L{bucket}: registered after validation at its registered path")
+                return final
             placement = compute_plan_summary(stage / COMPILED, ANE_COMPUTE_UNITS)
             check_ane_placement(placement)
             ckpt = checkpoint_path(spec, local_files_only=local_files_only)

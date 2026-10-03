@@ -540,7 +540,9 @@ bucket. If the system evicts its cache, the next load pays it again.
 - **Cleanup is explicit.** `laya-apple artifacts prune` lists what it would delete and why:
   - other revisions or weights, unregistered models, buckets no longer offered;
   - builds from another platform profile, unvalidated or rejected builds;
-  - quarantined entries, abandoned staging directories, orphaned verification stamps.
+  - quarantined entries, abandoned staging directories, orphaned verification stamps;
+  - unpublished installs a killed import left at the registered path, once that import has
+    exited and they are older than an hour.
   Add `--yes` to delete. It only ever deletes inside the cache.
 - **Warm after eviction.** `laya-apple artifacts warm MODEL` pays Core ML's on-device ANE
   compile ahead of the first request.
@@ -561,7 +563,16 @@ An import is registered only after the receiving machine has checked, itself:
 - the compute plan (100% ANE, 0 transitions);
 - the full parity gate against the shipped goldens (the checkpoint must be downloaded).
 
-The local results are recorded in the manifest under `imported`.
+The local results are recorded in the manifest under `imported`. The archive, manifest,
+profile and file hash are checked in a staging directory. Core ML's on-device compile is tied
+to the model's path, so on a first install the checks that load the model (compute plan,
+parity gate) run at the registered path, with the manifest withheld until they pass; the model
+is compiled once, there ([`research/import-compile-once/`](../research/import-compile-once/)).
+Until the manifest is published, the runtime treats that path as having no artifact. If a check
+fails or the import is killed, nothing is registered: the next import of that bucket removes the
+unpublished directory, and `artifacts prune` lists it once its import has exited and it is
+older than an hour. `--force` (replacing a registered artifact) runs the checks on the staged
+copy, then moves it into place and loads it there.
 
 **Prebuilt artifacts** (since 1.6). `laya-apple artifacts fetch MODEL [--length L ...]
 [--repo OWNER/NAME] [--revision REV]` downloads `artifacts export` archives from a Hugging
@@ -571,10 +582,11 @@ this machine. In addition:
 - only archives built on this machine's platform profile (same SoC, macOS major and
   coremltools) are selected. Any other profile gets `ArtifactMissingError`, which names the
   build command;
-- each fetched bucket must pass the runtime placement probe twice: on the staged copy before
-  it is moved into place, and again at the registered path after a full load there, because
-  Core ML's on-device compile is tied to the model's path. The fetch result reports the
-  second probe. Registration is all-or-nothing: a bucket that fails any check is not kept,
+- each fetched bucket must pass the runtime placement probe at the registered path. On a
+  first install it runs there once, after the parity gate and before the manifest is
+  published. With `--force` it runs on the staged copy before the move into place, and again
+  at the registered path after a full load there. The fetch result reports the probe at the
+  registered path. Registration is all-or-nothing: a bucket that fails any check is not kept,
   and with `--force` the artifact it would replace is kept or put back;
 - a bucket is skipped as already registered only if its artifact passes the runtime's load
   checks (manifest, platform profile, file hash, compute plan). One that does not is fetched

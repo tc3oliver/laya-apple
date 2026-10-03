@@ -535,3 +535,116 @@ def test_an_abandoned_staging_directory_with_a_non_int_pid_is_kept(cache):
     old = time.time() - 2 * lifecycle.STAGING_MAX_AGE_S
     os.utime(staging, (old, old))
     assert lifecycle.plan_prune(PROFILE) == []
+
+
+# ----------------------------------------------------------------------------- unpublished installs (#162)
+
+
+def _dead_pid() -> int:
+    import subprocess
+
+    proc = subprocess.Popen(["true"])
+    proc.wait()  # a real, valid pid that has definitely exited
+    return proc.pid
+
+
+def _unpublished(marker, *, old=True, manifest_factory=None):
+    """An install an import left at the registered path with its manifest withheld. `marker` is
+    the PENDING.json text; with `manifest_factory` the manifest is published too."""
+    spec = models()["laya-typed-decisions"]
+    d = artifact_dir(spec, 64)
+    if manifest_factory:
+        _artifact(spec, 64, manifest_factory)
+    else:
+        (d / COMPILED).mkdir(parents=True)
+        (d / COMPILED / "weights.bin").write_bytes(os.urandom(64))
+        (d / lifecycle.PENDING_MANIFEST).write_text("{}")
+    (d / lifecycle.PENDING).write_text(marker)
+    if old:
+        age = time.time() - 2 * lifecycle.STAGING_MAX_AGE_S
+        os.utime(d, (age, age))  # after the marker: writing it bumps the directory's mtime
+    return d
+
+
+@pytest.mark.parametrize(
+    "marker", ["dead", "unreadable", "no-pid"], ids=["dead-pid", "unreadable-marker", "marker-without-pid"]
+)
+def test_an_old_unpublished_install_whose_import_exited_is_pruned(cache, marker):
+    text = {
+        "dead": json.dumps({"pid": _dead_pid()}),
+        "unreadable": "{not json",
+        "no-pid": json.dumps({"since": "x"}),
+    }[marker]
+    d = _unpublished(text)
+    plan = lifecycle.plan_prune(PROFILE)
+    assert [(x["path"], x["reason"]) for x in plan] == [(str(d), "unpublished install left by an import that exited")]
+    assert [x["path"] for x in lifecycle.prune(plan)] == [str(d)]
+    assert not d.exists()
+
+
+@pytest.mark.parametrize("pid", [os.getpid(), "not-a-pid"], ids=["live-pid", "non-int-pid"])
+def test_an_unpublished_install_whose_import_may_be_running_is_never_pruned(cache, pid):
+    d = _unpublished(json.dumps({"pid": pid}))
+    assert lifecycle.plan_prune(PROFILE) == []
+    forged = [{"path": str(d), "reason": "hand-written", "bytes": 0}]
+    assert lifecycle.prune(forged) == [] and d.exists()
+
+
+def test_a_recent_unpublished_install_is_not_pruned(cache):
+    d = _unpublished(json.dumps({"pid": _dead_pid()}), old=False)
+    assert lifecycle.plan_prune(PROFILE) == []
+    assert lifecycle.prune([{"path": str(d), "reason": "hand-written", "bytes": 0}]) == [] and d.exists()
+
+
+def test_a_published_artifact_with_a_leftover_marker_is_not_an_unpublished_install(cache, manifest_factory):
+    """An import that died between publishing the manifest and removing its marker."""
+    d = _unpublished(json.dumps({"pid": _dead_pid()}), manifest_factory=manifest_factory)
+    assert not lifecycle.unpublished(d)
+    assert lifecycle.plan_prune(PROFILE) == []
+
+
+@pytest.mark.parametrize(
+    "change", ["an import starts validating there", "an import recovers and publishes it", "something touches it"]
+)
+def test_prune_rechecks_an_unpublished_install_before_deleting_it(cache, change):
+    d = _unpublished(json.dumps({"pid": _dead_pid()}))
+    plan = lifecycle.plan_prune(PROFILE)
+    assert str(d) in _listed(plan)
+    age = d.stat().st_mtime
+    if change == "an import starts validating there":
+        (d / lifecycle.PENDING).write_text(json.dumps({"pid": os.getpid()}))
+        os.utime(d, (age, age))
+    elif change == "an import recovers and publishes it":
+        os.replace(d / lifecycle.PENDING_MANIFEST, d / "manifest.json")
+        (d / lifecycle.PENDING).unlink()
+        os.utime(d, (age, age))
+    else:
+        os.utime(d)
+    assert lifecycle.prune(plan) == []
+    assert d.exists()
+
+
+def test_prune_skips_an_unpublished_install_that_is_gone(cache):
+    import shutil
+
+    d = _unpublished(json.dumps({"pid": _dead_pid()}))
+    plan = lifecycle.plan_prune(PROFILE)
+    shutil.rmtree(d)  # recovered by an import since the plan was made
+    assert lifecycle.prune(plan) == []
+
+
+def test_an_unpublished_install_that_vanishes_during_the_scan_is_skipped(cache, monkeypatch):
+    d = _unpublished(json.dumps({"pid": _dead_pid()}))
+    real_stat = Path.stat
+    gone = []
+
+    def stat(self, *args, **kwargs):
+        if self == d and not gone:  # an import removes it just before prune reads its age
+            gone.append(True)
+            os.rename(d, cache / "elsewhere")
+        return real_stat(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "stat", stat)
+    plan = lifecycle.plan_prune(PROFILE)
+    monkeypatch.setattr(Path, "stat", real_stat)
+    assert gone and plan == []

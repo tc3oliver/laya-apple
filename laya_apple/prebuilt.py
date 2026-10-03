@@ -12,19 +12,23 @@ trusted because it was downloaded; before an artifact is registered this machine
 - the archive's SHA-256 against the repository index, and every file against the manifest;
 - the compute plan (100% Neural Engine, no transitions);
 - the full parity gate against the shipped goldens;
-- the runtime placement probe (`backends.coreml_ane.probe_placement`) on the staged model.
-Only then is the artifact moved to the path the runtime loads from, where it is loaded and
-probed again, because Core ML's on-device compile is tied to the model's path; the reported
-probe result is this one. A bucket that fails any check is not registered, and with `force`
-the artifact it would replace is kept or put back. The runtime repeats the probe on every
-load.
+- the runtime placement probe (`backends.coreml_ane.probe_placement`).
+Core ML's on-device compile is tied to the model's path, so on a first install the compute
+plan, the parity gate and the probe run at the path the runtime loads from, with the manifest
+withheld until all of them pass; the runtime sees no artifact there until then (#162). With
+`force` (a replace) they run on a staged copy, and after the move into place the artifact is
+loaded and probed again there. The reported probe result is the one at the registered path. A
+bucket that fails any check is not registered, and with `force` the artifact it would replace
+is kept or put back. The runtime repeats the probe on every load.
 
 A bucket counts as already registered only if its artifact passes `artifacts.load_verified`,
 the runtime's own checks. One that does not is fetched again and replaced (a corrupt one is
 quarantined first, by `load_verified`); it is never reported as registered.
 
 The Core ML on-device ANE compile still happens on this machine, when the imported artifact is
-first loaded at its registered location (`import_artifact` pre-warms it). Prebuilt artifacts
+first loaded at its registered location: on a first install, by the parity gate there, once
+(research/import-compile-once/); on a replace, by the staged checks and again by the load at
+the registered path. Prebuilt artifacts
 remove the build (and the PyTorch dependency), not that compile; see
 research/coreml-compile-cache/ for the measurement plan on the remaining cost.
 
@@ -260,15 +264,19 @@ def fetch(
     fetched again and replaced. Raises ArtifactMissingError when a requested bucket has no
     archive for this checkpoint and platform profile (nothing is imported then),
     ArtifactIntegrityError on a hash mismatch, and whatever the import checks or the placement
-    probe raise. The probe runs on the staged copy before it is moved into place, then again
-    at the registered path (Core ML compiles per path); "probe" in the result is the second.
+    probe raise. On a first install the probe runs once, at the registered path, before the
+    manifest is published there; on a replace it runs on the staged copy before the move into
+    place, then again at the registered path (Core ML compiles per path). "probe" in the result
+    is the one at the registered path. An unpublished install an earlier import left behind
+    (it died before publishing) is not a registered artifact: it is installed over, not
+    replaced.
     If anything fails, the new artifact is not kept and an artifact it would replace is put
     back, so registration is all-or-nothing.
 
     Offline (`local_files_only`, or HF_HUB_OFFLINE) the index and archives are read from the
     Hugging Face cache only, and BackendUnavailableError is raised when they are not there;
     the network is never used. Every check above still runs."""
-    from .lifecycle import BUILDING, import_artifact
+    from .lifecycle import BUILDING, import_artifact, unpublished
 
     repo = resolve_repo(repo)
     revision = resolve_revision(repo, revision)
@@ -276,13 +284,19 @@ def fetch(
     unoffered = [b for b in buckets if b not in spec.ane_buckets]
     if unoffered:
         raise ArtifactError(f"{spec.name} does not offer ANE buckets {unoffered}; offered: {list(spec.ane_buckets)}")
+
+    def occupied(b: int) -> bool:
+        """Something other than an unpublished install (which the import recovers) is there."""
+        d = artifact_dir(spec, b)
+        return d.exists() and not unpublished(d)
+
     todo, replace = [], set()
     for b in buckets:
         if not force:
             try:
                 load_verified(spec, b)
             except Exception as e:  # any failure to load it here, not only ArtifactError, means not usable
-                if not isinstance(e, ArtifactMissingError) or artifact_dir(spec, b).exists():
+                if not isinstance(e, ArtifactMissingError) or occupied(b):
                     log(
                         f"{spec.name} L{b}: the registered artifact is not usable "
                         f"({type(e).__name__}: {e}); fetching a replacement"
@@ -291,7 +305,7 @@ def fetch(
                 log(f"{spec.name} L{b}: already registered and verified, skipped (--force replaces it)")
                 continue
         todo.append(b)
-        if artifact_dir(spec, b).exists():  # replaced only after its replacement passes every check
+        if occupied(b):  # replaced only after its replacement passes every check
             replace.add(b)
     if not todo:
         return {}
