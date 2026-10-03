@@ -1,6 +1,6 @@
 """Apple-native inference runtime for Laya: MLX GPU by default, validated fixed-shape ANE paths."""
 
-__version__ = "1.6.2"
+__version__ = "1.6.3"
 
 from .errors import (  # noqa: E402
     ArtifactError,
