@@ -1063,6 +1063,52 @@ def test_the_first_install_writes_the_stamp_load_verified_would(at_final, monkey
     assert hashed == [] and len(state["plan"]) == plans  # the stamp is honoured: no re-hash, no compute plan
 
 
+def test_no_stamp_is_written_when_the_files_change_after_they_were_hashed(
+    at_final, manifest_factory, tmp_path, monkeypatch
+):
+    archive = tmp_path / "laya-L64.tar.gz"
+    archive.write_bytes(export_archive(manifest_factory, 64))
+    final = artifact_dir(SPEC, 64)
+
+    def touch(spec, bucket, compiled):  # runs at the registered path, after the files were stat'ed
+        os.utime(Path(compiled) / "weights.bin", ns=(1_000_000_000, 1_000_000_000))
+
+    logs = []
+    lifecycle.import_artifact(archive, local_files_only=True, log=logs.append, probe=touch)
+    assert (final / "manifest.json").exists() and not (final / lifecycle.PENDING).exists()
+    assert not A._stamp_path(final).exists()
+    assert any("files changed after they were hashed" in m for m in logs)
+    real_verify, hashed = A.verify_files, []
+
+    def verify_files(manifest, directory):
+        hashed.append(directory)
+        return real_verify(manifest, directory)
+
+    monkeypatch.setattr(A, "verify_files", verify_files)
+    A.load_verified(SPEC, 64)
+    assert hashed == [final]  # the first load re-hashes, then stamps
+    assert A._stamp_path(final).exists()
+
+
+def test_an_interrupt_right_after_the_move_into_place_leaves_nothing(at_final, manifest_factory, tmp_path, monkeypatch):
+    _, state = at_final
+    archive = tmp_path / "laya-L64.tar.gz"
+    archive.write_bytes(export_archive(manifest_factory, 64))
+    real_rename = os.rename
+
+    def rename(src, dst):
+        real_rename(src, dst)
+        if Path(src).name.startswith("import-"):  # the staged directory has just moved into place
+            raise KeyboardInterrupt
+
+    monkeypatch.setattr(lifecycle.os, "rename", rename)
+    with pytest.raises(KeyboardInterrupt):
+        lifecycle.import_artifact(archive, local_files_only=True, log=lambda m: None)
+    monkeypatch.setattr(lifecycle.os, "rename", real_rename)
+    assert state["parity_at"] == []
+    assert_nothing_left(artifact_dir(SPEC, 64))
+
+
 def test_force_keeps_the_replace_path(at_final, manifest_factory):
     calls, state = at_final
     old = registered(manifest_factory, 64)

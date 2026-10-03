@@ -26,11 +26,11 @@ the runtime's own checks. One that does not is fetched again and replaced (a cor
 quarantined first, by `load_verified`); it is never reported as registered.
 
 The Core ML on-device ANE compile still happens on this machine, when the imported artifact is
-first loaded at its registered location: on a first install, by the parity gate there, once
-(research/import-compile-once/); on a replace, by the staged checks and again by the load at
-the registered path. Prebuilt artifacts
-remove the build (and the PyTorch dependency), not that compile; see
-research/coreml-compile-cache/ for the measurement plan on the remaining cost.
+first loaded at its registered location. A first install pays that per-path compile at one
+path instead of two (research/import-compile-once/); a replace pays it at the staged path and
+again at the registered path. Prebuilt artifacts remove the build (and the PyTorch dependency),
+not that compile; see research/coreml-compile-cache/ for the measurement plan on the
+remaining cost.
 
 Repository layout (written by scripts/publish_prebuilt.py):
 

@@ -410,25 +410,32 @@ def import_artifact(
     with ArtifactIntegrityError (`artifacts fetch` passes the index entry's).
 
     **First install** (`force=False`; #162). Core ML's on-device ANE compile is tied to the
-    model's path, so the checks that load the model run once, at the registered path, before
-    the artifact is registered there. The archive, manifest, `expect`, profile and file hash
-    are checked in a staging directory. Then, under the build lock, the staging directory is
-    renamed into the registered path with its manifest withheld (`manifest.pending.json`, plus
-    a `PENDING.json` marker naming this pid): until it is published the runtime finds no
-    artifact there and raises ArtifactMissingError, and nothing quarantines it. At the
-    registered path run the compute plan, the weight check, the full parity gate and exactly
-    one placement probe (`registered_probe` if given, else `probe`, called with the registered
-    compiled path); the CLI passes neither, so only the parity gate loads the model. Then the
-    manifest is published with one `os.replace`, the marker is removed and the verification
-    stamp `load_verified` would write is written. If anything fails or the import is
-    interrupted, the directory is renamed to `.failed-<pid>` and removed, so nothing is
-    registered. An unpublished directory an import left at the registered path when it died
-    is removed (under the build lock, so its import cannot be running) before installing.
-    `artifacts prune` lists one only once its import has exited and it is older than
-    STAGING_MAX_AGE_S. A registered artifact (with a manifest) is refused without `force`.
+    model's path, so the checks that load the model run at the registered path, before the
+    artifact is registered there, and the import pays that compile at one path instead of two.
+    In order:
+    1. in a staging directory: the archive, the manifest, `expect`, the profile and the file
+       hash;
+    2. under the build lock, the staging directory is renamed into the registered path with
+       its manifest withheld (`manifest.pending.json`, plus a `PENDING.json` marker naming
+       this pid): until it is published the runtime finds no artifact there and raises
+       ArtifactMissingError, and nothing quarantines it;
+    3. at the registered path: the compute plan, the weight check, the full parity gate and
+       exactly one placement probe (`registered_probe` if given, else `probe`, called with the
+       registered compiled path; the CLI passes neither, so only the parity gate loads the
+       model);
+    4. the manifest is published with one `os.replace` and the marker is removed;
+    5. the verification stamp `load_verified` would write is written, only if the files are
+       still exactly the ones hashed in staging (size, mtime, inode); otherwise the first load
+       re-hashes them.
+    If anything in 2-4 fails or the import is interrupted, the directory is renamed to
+    `.failed-<pid>` and removed, so nothing is registered. An unpublished directory an import
+    left at the registered path when it died is removed (under the build lock, so its import
+    cannot be running) before installing. `artifacts prune` lists one only once its import has
+    exited and it is older than STAGING_MAX_AGE_S. A registered artifact (with a manifest) is refused without `force`.
 
-    **Replace** (`force=True`) keeps the path below: every check on the staged copy, the move
-    into place, then a load and the probe at the registered path.
+    **Replace** (`force=True`): every check on the staged copy, the move into place, then a
+    load and the probe at the registered path. The two paragraphs below, about `probe` on the
+    staged copy and the pre-warm load, describe this path only.
 
     `probe`, when given, is called as probe(spec, bucket, staged_compiled_path) after every
     check above and before registration (`artifacts fetch` runs the runtime placement probe
@@ -519,8 +526,12 @@ def import_artifact(
                 )
                 final.parent.mkdir(parents=True, exist_ok=True)
                 (stage / BUILDING).unlink(missing_ok=True)  # PENDING guards it from here on
-                os.rename(stage, final)
                 try:
+                    os.rename(stage, final)
+                    profile = platform_profile()
+                    # The files as hashed in staging (a rename keeps size, mtime and inode); the stamp
+                    # is written only if they are still exactly these after publishing.
+                    key = _stamp_key(manifest, final, ANE_COMPUTE_UNITS, profile)
                     placement = compute_plan_summary(final / COMPILED, ANE_COMPUTE_UNITS)
                     check_ane_placement(placement)
                     ckpt = checkpoint_path(spec, local_files_only=local_files_only)
@@ -537,7 +548,6 @@ def import_artifact(
                     one_probe = registered_probe if registered_probe is not None else probe
                     if one_probe is not None:
                         one_probe(spec, bucket, final / COMPILED)
-                    profile = platform_profile()
                     data["imported"] = {
                         "at": datetime.now(timezone.utc).isoformat(),
                         "from": source or str(archive),
@@ -549,17 +559,28 @@ def import_artifact(
                     (final / PENDING_MANIFEST).write_text(json.dumps(data, indent=1) + "\n")
                     os.replace(final / PENDING_MANIFEST, final / "manifest.json")  # registers it
                 except BaseException:
-                    _remove_aside(final, log)
+                    # The rename into place is the only way the staging directory leaves, so its
+                    # absence (not a flag set after the rename, which an interrupt can pre-empt)
+                    # says the directory at the registered path is this import's.
+                    if not stage.exists():
+                        _remove_aside(final, log)
                     raise
                 (final / PENDING).unlink(missing_ok=True)
-                try:  # the stamp load_verified writes after the same checks on the same files
-                    stamp = _stamp_path(final)
-                    stamp.parent.mkdir(parents=True, exist_ok=True)
-                    tmp = stamp.with_suffix(f".{os.getpid()}.tmp")
-                    key = _stamp_key(manifest, final, ANE_COMPUTE_UNITS, profile)
-                    tmp.write_text(json.dumps({"key": key, "placement": placement}))
-                    os.replace(tmp, stamp)
-                except OSError as e:  # registered; the first load re-hashes and stamps it instead
+                # The stamp load_verified writes after the same checks on the same files. Without it
+                # the first load re-hashes the files and stamps them itself.
+                try:
+                    if _stamp_key(manifest, final, ANE_COMPUTE_UNITS, profile) != key:
+                        log(
+                            f"{spec.name} L{bucket}: registered, but its files changed after they were hashed; "
+                            "the verification stamp was not written"
+                        )
+                    else:
+                        stamp = _stamp_path(final)
+                        stamp.parent.mkdir(parents=True, exist_ok=True)
+                        tmp = stamp.with_suffix(f".{os.getpid()}.tmp")
+                        tmp.write_text(json.dumps({"key": key, "placement": placement}))
+                        os.replace(tmp, stamp)
+                except OSError as e:
                     log(f"{spec.name} L{bucket}: registered, but the verification stamp was not written: {e}")
                 log(f"{spec.name} L{bucket}: registered after validation at its registered path")
                 return final
