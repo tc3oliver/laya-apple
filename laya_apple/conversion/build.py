@@ -45,6 +45,7 @@ from ..artifacts import (
 )
 from ..errors import ArtifactError, ArtifactParityError, ComputeUnitMismatchError, UnsupportedShapeError
 from ..hub import checkpoint_path, verify_weights
+from ..lifecycle import BUILDING, build_lock
 from ..prompt import Tokenizer, prepare
 from ..registry import ANE_COMPUTE_UNITS, ANE_GRAPH, ANE_MAX_OPTIONS, ANE_PRECISION, ModelSpec
 from ..workload import make_request
@@ -139,8 +140,6 @@ def build(spec: ModelSpec, length: int, *, local_files_only: bool = False, force
             "building artifacts needs: the [ane] and [convert] extras (uv sync --extra ane --extra convert)"
         ) from e
 
-    from ..lifecycle import build_lock
-
     final = artifact_dir(spec, length)
     if final.exists() and not force:
         raise ArtifactError(f"{final} already exists; pass force=True (--force) to rebuild")
@@ -172,7 +171,7 @@ def _build_locked(spec: ModelSpec, length: int, final: Path, *, local_files_only
     staging_root = artifacts_root() / ".staging"
     staging_root.mkdir(parents=True, exist_ok=True)
     stage = Path(tempfile.mkdtemp(prefix=f"{spec.name}-L{length}-", dir=staging_root))
-    (stage / "BUILDING.json").write_text(json.dumps({"pid": os.getpid()}))
+    (stage / BUILDING).write_text(json.dumps({"pid": os.getpid()}))
     try:
         _log(f"{spec.name} L{length}: loading PyTorch FP32 reference")
         torch.set_num_threads(max(1, (os.cpu_count() or 8) // 2))
@@ -279,15 +278,23 @@ def _build_locked(spec: ModelSpec, length: int, final: Path, *, local_files_only
         (stage / "manifest.json").write_text(json.dumps(manifest, indent=1) + "\n")
 
         final.parent.mkdir(parents=True, exist_ok=True)
-        # The marker only guards the staging directory; a registered artifact must not carry it.
-        (stage / "BUILDING.json").unlink(missing_ok=True)
+        old = None
         if final.exists():  # force: move the old one aside first, then swap
             old = final.with_name(final.name + f".old-{os.getpid()}")
             os.rename(final, old)
+        try:
+            # The marker only guards the staging directory; a registered artifact must not carry it.
+            (stage / BUILDING).unlink(missing_ok=True)
             os.rename(stage, final)
+        except BaseException:
+            if old is not None:  # put the previous artifact back; the original error is raised
+                try:
+                    os.rename(old, final)
+                except OSError as e:
+                    _log(f"{spec.name} L{length}: could not restore the previous artifact; it was left at {old}: {e}")
+            raise
+        if old is not None:
             shutil.rmtree(old)
-        else:
-            os.rename(stage, final)
         _log(f"registered {final} ({timings['total_s']:.0f} s)")
         # Core ML's on-device ANE compile is cached per model location, so the load at the
         # staging path does not cover the registered path. Pay that compile now, through the

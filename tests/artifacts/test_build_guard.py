@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import sys
+import tempfile
 import types
 from pathlib import Path
 
@@ -50,8 +51,8 @@ def stub_build(tmp_path, monkeypatch):
         (Path(path) / "Data/model.mil").write_text("model")
 
     def compile_model(path):
-        out = tmp_path / "compiled" / "model.mlmodelc"
-        out.mkdir(parents=True)
+        out = Path(tempfile.mkdtemp(dir=tmp_path)) / "model.mlmodelc"
+        out.mkdir()
         (out / "weights.bin").write_bytes(b"weights")
         return str(out)
 
@@ -113,3 +114,47 @@ def test_build_keeps_the_build_marker_out_of_the_registered_artifact(stub_build,
     assert [p.name for p in final.parent.iterdir()] == [final.name]
     assert not any((artifacts_root() / ".staging").iterdir())
     load_verified(spec, 64, full=True)
+
+
+def test_a_failed_move_into_place_restores_the_previous_artifact_on_a_forced_rebuild(stub_build, monkeypatch):
+    spec = models()["laya"]
+    final = artifact_dir(spec, 64)
+    build(spec, 64)
+    before = {str(f.relative_to(final)): f.read_bytes() for f in sorted(final.rglob("*")) if f.is_file()}
+    real_rename = os.rename
+
+    def rename(src, dst):
+        if Path(src).name.startswith(f"{spec.name}-L64-"):  # the staged artifact moving into place
+            raise OSError("simulated rename failure")
+        return real_rename(src, dst)
+
+    monkeypatch.setattr(os, "rename", rename)
+    with pytest.raises(OSError, match="simulated rename failure"):
+        build(spec, 64, force=True)
+    monkeypatch.setattr(os, "rename", real_rename)
+    assert {str(f.relative_to(final)): f.read_bytes() for f in sorted(final.rglob("*")) if f.is_file()} == before
+    assert [p.name for p in final.parent.iterdir()] == [final.name]  # no leftover .old-* directory
+    assert not any((artifacts_root() / ".staging").iterdir())
+    load_verified(spec, 64, full=True)
+
+
+def test_a_failed_restore_after_a_failed_forced_rebuild_says_where_the_previous_artifact_is(
+    stub_build, monkeypatch, capsys
+):
+    spec = models()["laya"]
+    final = artifact_dir(spec, 64)
+    build(spec, 64)
+    real_rename = os.rename
+
+    def rename(src, dst):
+        if Path(src).name.startswith(f"{spec.name}-L64-") or ".old-" in Path(src).name:
+            raise OSError("simulated rename failure")  # the move into place, then the restore
+        return real_rename(src, dst)
+
+    monkeypatch.setattr(os, "rename", rename)
+    with pytest.raises(OSError, match="simulated rename failure"):
+        build(spec, 64, force=True)
+    monkeypatch.setattr(os, "rename", real_rename)
+    left = [p for p in final.parent.iterdir() if ".old-" in p.name]
+    assert len(left) == 1 and not final.exists()
+    assert f"could not restore the previous artifact; it was left at {left[0]}" in capsys.readouterr().err
