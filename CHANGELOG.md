@@ -22,8 +22,20 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   `artifacts prune` lists one once its import has exited and it is older than an hour; one
   whose import is still running is never listed or deleted. `--force` (replacing a registered
   artifact) keeps the previous path, with the staged checks, the probe at the registered path
-  and the restore of the previous artifact on failure. Preregistered as #162; the
-  measurements are in `research/import-compile-once/`.
+  and the restore of the previous artifact on failure. Preregistered as #162 and measured on
+  one Mac Studio M4 Max, macOS 27.0 (26A428), coremltools 9.0, laya-typed-decisions L128, each
+  import into an empty cache. The full run (3 + 3 interleaved, fetch's hooks) was SAVES with
+  every guard passing:
+  - import time fell from 145.7 / 146.1 / 145.9 s to 75.4 / 75.6 / 75.3 s;
+  - new Core ML compile bundles fell from 6 to 3 per import;
+  - a reader's first load afterwards took 0.34 s, against 0.33 s after the old import;
+  - the four injected failures (parity, probe, `--force` replace with a failing probe,
+    SIGKILL during the gate followed by a re-import) all left the state the preregistration
+    requires.
+  The #121 Phase B re-run (`artifacts import`, 3 imports) went from 151.1 / 154.0 / 149.2 s
+  with 4 new bundles each (`main` at 484a645) to 76.4 / 91.4 / 78.9 s with 2 each. The 91.4 s
+  import is not explained. Raw data: `research/import-compile-once/raw-2026-10-03-full/` and
+  `research/import-compile-once/raw-2026-10-03-phaseb/`.
 
 ### Fixed
 

@@ -567,7 +567,11 @@ The local results are recorded in the manifest under `imported`. The archive, ma
 profile and file hash are checked in a staging directory. Core ML's on-device compile is tied
 to the model's path, so on a first install the checks that load the model (compute plan,
 parity gate) run at the registered path, with the manifest withheld until they pass; the model
-is compiled once, there ([`research/import-compile-once/`](../research/import-compile-once/)).
+is compiled once, there. On one M4 Max (macOS 27.0, laya-typed-decisions L128, an empty cache)
+that took an `artifacts import` from 149–154 s to 76–91 s, and an `artifacts fetch`-style
+import from about 146 s to about 75 s, with half the new Core ML compile bundles
+([`research/import-compile-once/`](../research/import-compile-once/), raw data in
+`raw-2026-10-03-phaseb/` and `raw-2026-10-03-full/`, 3 imports each).
 Until the manifest is published, the runtime treats that path as having no artifact. If a check
 fails or the import is killed, nothing is registered: the next import of that bucket removes the
 unpublished directory, and `artifacts prune` lists it once its import has exited and it is
