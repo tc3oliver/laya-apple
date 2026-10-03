@@ -13,8 +13,9 @@ the same time, and use the Neural Engine only where it gives upstream's answers.
 Laya answers typed questions about a context (`choice`, `score`, `noul`) in one forward pass.
 laya-apple runs upstream Laya on both engines and picks one per request.
 
-New in 1.6.2: prebuilt ANE artifacts for an M4 Max with macOS 27, so `artifacts fetch` works
-there too ([release notes](docs/releases/v1.6.2.md)).
+New in 1.6.3 (measured on macOS 27.0): a first `artifacts fetch` compiles once instead of twice.
+One L128 import took about 75 s instead of 146 s in the preregistered run, and 76–91 s instead of
+149–154 s with the shipped `artifacts import` ([release notes](docs/releases/v1.6.3.md)).
 
 ## Why use it
 
@@ -126,7 +127,11 @@ with Laya.from_pretrained("auto") as model:       # laya or laya-multilingual, p
   manifest and platform profile, compute plan, the full FP16 parity gate and the placement
   probe, all on the receiving machine. A download is trusted no more than a local build.
   Fetch reads that repository at a pinned, validated commit, never its mutable `main`. You
-  skip the local build, and with it PyTorch and the `convert` extra.
+  skip the local build, and with it PyTorch and the `convert` extra. On a first install those
+  checks run at the registered path, so the on-device compile is paid once, not twice. On an
+  M4 Max with macOS 27.0, one laya-typed-decisions L128 import took about 75 s instead of 146 s in
+  the preregistered run, and 76–91 s instead of 149–154 s with the shipped `artifacts import`
+  ([`research/import-compile-once/results.md`](research/import-compile-once/results.md)).
 - **`predict` as before; `predict_shortlist` opt-in.** For `choice` questions with many
   labels, `predict_shortlist(..., embed_fn, k=20)` keeps the `k` labels most similar to the
   request, then runs one `predict`. `predict` itself is unchanged
@@ -148,7 +153,8 @@ Limits:
   2.7 s warm ([`research/coreml-compile-cache/screen.md`](research/coreml-compile-cache/screen.md));
   about 210 s on macOS 27.0
   ([`research/coreml-compile-cache/results.md`](research/coreml-compile-cache/results.md)).
-  Fetching does not remove it. `ane_startup="background"` serves on MLX in the meantime.
+  Fetching does not remove it: the import pays it once, at the registered path.
+  `ane_startup="background"` serves on MLX in the meantime.
 
 Smaller 1.6 changes: an MLX fast path (a token-id cache on by default; `mx.compile`
 and length-bucketed batching opt-in; see [Limitations](#limitations) for what was measured),
@@ -390,7 +396,8 @@ Definitions, every configuration tested and the fallback audit:
   ([`research/coreml-compile-cache/screen.md`](research/coreml-compile-cache/screen.md)).
 - **Core ML's compile cache grows without eviction:** 0.7–1.4 GB per bucket for every new
   artifact location (a fetch, an import, a moved cache). laya-apple never evicts it
-  ([guide](docs/guide.md#artifact-lifecycle)).
+  ([guide](docs/guide.md#artifact-lifecycle)). Core ML keeps it per process name, so a process
+  with a different name may compile again.
 - **Prebuilt artifacts exist for two platform profiles only** (Apple M4 Max with coremltools
   9.0, on macOS 26 and 27), and have been fetched only on the machine that built them, with an
   empty cache ([macOS 26.6.2](benchmarks/prebuilt-artifacts-1.6.0.md),
@@ -425,8 +432,8 @@ in [`docs/serve.md`](docs/serve.md#limits), and what has not been measured in
 - **Research.** The research behind the 1.5 and 1.6 releases, failed routes included, is mapped in
   [`research/README.md`](research/README.md).
 - **Releases.** Every change is in [`CHANGELOG.md`](CHANGELOG.md); release notes are in
-  [`docs/releases/`](docs/releases/), most recently [1.6.2](docs/releases/v1.6.2.md),
-  [1.6.1](docs/releases/v1.6.1.md) and [1.6.0](docs/releases/v1.6.0.md).
+  [`docs/releases/`](docs/releases/), most recently [1.6.3](docs/releases/v1.6.3.md),
+  [1.6.2](docs/releases/v1.6.2.md) and [1.6.1](docs/releases/v1.6.1.md).
 
 ## Contributing
 
