@@ -15,8 +15,9 @@ Neural Engine 只在结果与上游一致时才启用。**
 给 Laya 一段 context，一次 forward pass 就能答完多个带类型的问题（`choice`、`score`、`noul`）。
 laya-apple 在 Mac 的两个引擎上运行上游 Laya，每个请求自动选一个引擎。
 
-1.6.3 新变化：首次 `artifacts fetch` 只编译一次，不再是两次。在 M4 Max + macOS 27.0 上，一次 L128 import
-从约 146 s 缩短到约 75 s（[release notes](docs/releases/v1.6.3.md)）。
+1.6.3 新变化（在 macOS 27.0 上测得）：首次 `artifacts fetch` 只编译一次，不再是两次。M4 Max 上，一次 L128
+import 在预先注册的实验中从约 146 s 降到约 75 s，用正式的 `artifacts import` 则是从 149–154 s 降到 76–91 s
+（[release notes](docs/releases/v1.6.3.md)）。
 
 ## 为什么要用
 
@@ -120,8 +121,9 @@ with Laya.from_pretrained("auto") as model:       # laya or laya-multilingual, p
   manifest、平台 profile 和 compute plan，再跑完整的 FP16 parity 关卡和 placement probe，全部在你的
   机器上完成。下载的 artifact 和本地构建的一视同仁，检查一项不少。fetch 固定读取该 repository 中验证过的
   commit，不读可变的 `main`。有了它就不用在本地构建，也不必装 PyTorch 和 `convert` extra。
-  首次安装时，这些检查直接在注册路径上进行，设备上的编译只需付一次，不用付两次：在 M4 Max + macOS 27.0 上，
-  一次 laya-typed-decisions L128 的 import 从约 146 s 降到约 75 s
+  首次安装时，这些检查直接在注册路径上进行，设备端编译只做一次，不再做两次。
+  在 M4 Max + macOS 27.0 上，一次 laya-typed-decisions L128 的 import，预先注册的实验中从约 146 s 降到约 75 s，
+  用正式的 `artifacts import` 则是从 149–154 s 降到 76–91 s
   （[`research/import-compile-once/results.md`](research/import-compile-once/results.md)）。
 - **`predict` 不变；`predict_shortlist` 需手动启用。** 标签很多的 `choice` 问题可以用
   `predict_shortlist(..., embed_fn, k=20)`：先保留与请求最相近的 `k` 个标签，再运行一次 `predict`。
@@ -141,7 +143,7 @@ with Laya.from_pretrained("auto") as model:       # laya or laya-multilingual, p
   （bucket 64/96/128）在新位置冷启动用了 273.5 s，热启动只要 2.7 s
   （[`research/coreml-compile-cache/screen.md`](research/coreml-compile-cache/screen.md)）；
   macOS 27.0 上约 210 s（[`research/coreml-compile-cache/results.md`](research/coreml-compile-cache/results.md)）。
-  下载 artifact 省不掉这段编译，只是 import 现在只在注册路径上编译一次。设置 `ane_startup="background"` 时，
+  下载 artifact 省不掉这段编译，不过 import 现在只在注册路径上编译一次。设置 `ane_startup="background"` 时，
   这段时间会先用 MLX 提供服务。
 
 1.6 的其他小改动：MLX 快速路径（token-id 缓存默认开启；`mx.compile` 和按长度分组的
@@ -361,7 +363,7 @@ macOS 27 上只测量了构建、parity、路由，以及预构建 artifact 的 
   （[`research/coreml-compile-cache/screen.md`](research/coreml-compile-cache/screen.md)）。
 - **Core ML 的编译缓存只增不减：** 每个新的 artifact 位置（一次 fetch、一次 import、移动过的缓存）
   每个 bucket 会多出 0.7–1.4 GB。laya-apple 从不清理它（[用户指南](docs/guide.md#artifact-lifecycle)）。
-  Core ML 按进程名称分别存放这份缓存，换成别的进程可能还会再编译一次。
+  Core ML 按进程名分别缓存，进程名不同的话可能还要再编译一次。
 - **预构建的 artifact 只有两个平台 profile**（Apple M4 Max + coremltools 9.0，macOS 26 和 27），
   而且只在构建它们的那台机器上用空缓存下载验证过
   （[macOS 26.6.2](benchmarks/prebuilt-artifacts-1.6.0.md)、

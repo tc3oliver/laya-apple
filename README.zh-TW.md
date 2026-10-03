@@ -15,8 +15,9 @@ Neural Engine 只在結果跟上游一致時才上場。**
 Laya 讀一段 context，一次 forward pass 就能回答多個有型別的問題（`choice`、`score`、`noul`）。
 laya-apple 在 Mac 的兩個引擎上跑上游 Laya，每個請求自動挑一個引擎。
 
-1.6.3 更新：第一次 `artifacts fetch` 只編譯一次，不再編兩次。在 M4 Max + macOS 27.0 上，一次 L128 import
-從約 146 s 縮短到約 75 s（[release notes](docs/releases/v1.6.3.md)）。
+1.6.3 更新（在 macOS 27.0 上量測）：第一次 `artifacts fetch` 只編譯一次，不再編兩次。M4 Max 上，一次 L128
+import 在預先註冊的實驗中從約 146 s 降到約 75 s，用正式的 `artifacts import` 則是從 149–154 s 降到 76–91 s
+（[release notes](docs/releases/v1.6.3.md)）。
 
 ## 為什麼要用
 
@@ -120,8 +121,9 @@ with Laya.from_pretrained("auto") as model:       # laya or laya-multilingual, p
   manifest、平台 profile 與 compute plan，再跑完整的 FP16 parity 關卡和 placement probe，全部在你的
   機器上完成。下載的 artifact 跟本機建置的一視同仁，該過的檢查一個都不少。fetch 固定讀取這個
   repository 中驗證過的 commit，不會讀可變動的 `main`。有了它就不用在本機建置，也不必裝 PyTorch 和
-  `convert` extra。第一次安裝時，這些檢查直接在註冊路徑上跑，裝置上的編譯只要付一次，不必付兩次：
-  在 M4 Max + macOS 27.0 上，一次 laya-typed-decisions L128 的 import 從約 146 s 降到約 75 s
+  `convert` extra。第一次安裝時，這些檢查直接在註冊路徑上跑，裝置端編譯只會跑一次，不會再跑第二次。
+  在 M4 Max + macOS 27.0 上，一次 laya-typed-decisions L128 的 import，預先註冊的實驗中從約 146 s 降到約 75 s，
+  用正式的 `artifacts import` 則是從 149–154 s 降到 76–91 s
   （[`research/import-compile-once/results.md`](research/import-compile-once/results.md)）。
 - **`predict` 照舊；`predict_shortlist` 需自行開啟。** 標籤很多的 `choice` 問題可以用
   `predict_shortlist(..., embed_fn, k=20)`：先留下與請求最相近的 `k` 個標籤，再跑一次 `predict`。
@@ -141,7 +143,7 @@ with Laya.from_pretrained("auto") as model:       # laya or laya-multilingual, p
   （bucket 64/96/128）在新位置冷啟動花了 273.5 s，暖啟動只要 2.7 s
   （[`research/coreml-compile-cache/screen.md`](research/coreml-compile-cache/screen.md)）；
   macOS 27.0 上約 210 s（[`research/coreml-compile-cache/results.md`](research/coreml-compile-cache/results.md)）。
-  下載 artifact 省不掉這段編譯，只是 import 現在只在註冊路徑上編一次。設定 `ane_startup="background"` 時，
+  下載 artifact 省不掉這段編譯，不過 import 現在只會在註冊路徑上編一次。設定 `ane_startup="background"` 時，
   這段期間會先用 MLX 服務。
 
 1.6 其他較小的變動：MLX 快速路徑（token-id 快取預設開啟；`mx.compile` 與依長度分組的
@@ -361,7 +363,7 @@ macOS 27 上只量測了建置、parity、路由，以及預先建置 artifact �
   （[`research/coreml-compile-cache/screen.md`](research/coreml-compile-cache/screen.md)）。
 - **Core ML 的編譯快取只增不減：** 每個新的 artifact 位置（一次 fetch、一次 import、搬移過的快取）
   每個 bucket 會多出 0.7–1.4 GB。laya-apple 從不清除它（[使用指南](docs/guide.md#artifact-lifecycle)）。
-  Core ML 是依 process 名稱各存一份，換成別的 process 可能還會再編譯一次。
+  Core ML 是依 process 名稱分開存放，換成不同名稱的 process 可能會再編譯一次。
 - **預先建置的 artifact 只有兩個平台 profile**（Apple M4 Max + coremltools 9.0，macOS 26 與 27），
   而且只在建置它們的那台機器上用空快取下載驗證過
   （[macOS 26.6.2](benchmarks/prebuilt-artifacts-1.6.0.md)、
