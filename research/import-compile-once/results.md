@@ -69,7 +69,7 @@ NO EFFECT rule: false for every repeat.
 All ten rows pass (`analysis.json`, `guard`, all empty). From the step records:
 
 1. Parity summary identical to baseline's, `passed=True`, 0 hard mismatches, 0 near-tie flips. Probe ratios
-   0.354–0.372 (≤ 0.8).
+   0.354–0.372 (L128 rows); 0.488–0.512 (L64 injection rows); all ≤ 0.8.
 2. Readers load on CPU_AND_NE with probe ratios 0.362–0.372, predictions bit-identical to the baseline reader.
    No reader created an e5rt bundle (`e5rt_reader.count` = 0 in every row).
 3. Poller: 147 (screen), 149, 149 and 148 attempts during the final-path imports, every one
@@ -97,7 +97,10 @@ All ten rows pass (`analysis.json`, `guard`, all empty). From the step records:
 
 The production change (branch `perf/validate-imports-at-registered-path`, 2be8b43) measured with #121's Phase B
 method: `laya-apple artifacts import` of the L128 export archive, 3 times, each into a new empty cache. Script:
-`run-phaseb.sh`. Source: `raw-2026-10-03-phaseb/`.
+`run-phaseb.sh`, which reads the cache path from `LAYA_APPLE_CACHE` (the run used the real cache path through
+that variable). Source: `raw-2026-10-03-phaseb/`. The local LLM service (oMLX) stayed stopped during Phase B and
+was restored after it finished (stated by the operator; not in the raw files). The harness's "restore the local
+LLM service" line at 04:34:38 in `raw-2026-10-03-full/progress.log` is only the script's reminder.
 
 | | Commit | import-1 | import-2 | import-3 | New e5rt bundles per import |
 |---|---|---:|---:|---:|---:|
@@ -110,11 +113,12 @@ reports the parity gate on the staged copy (29.5, 29.5, 28.6 s) and then "regist
 
 import-2 after (91.42 s) is about 13–15 s slower than the other two, with the same gate time and the same 2
 bundles. It is unexplained. The load average rose during the after runs (3.24 at the start, 4.35 at the end,
-`after-before.txt`, `after-after.txt`); this was not an exclusive preregistered slot.
+`after-before.txt`, `after-after.txt`). With oMLX stopped, that rise is not explained by it; it is kept as an
+unexplained observation. Phase B was not a preregistered slot.
 
 ## Decisions (as preregistered)
 
-1. **Taken.** Full-run SAVES with every guard passing. The production PR rebuilds mechanism A in
+1. **Taken.** Full-run SAVES with every guard passing. The production PR, #164, rebuilds mechanism A in
    `lifecycle.import_artifact`; its Phase B comparison is the table above.
 2. `--force` replace stays on the current path. Held: the production change is first install only.
 3. Not applicable (not NO EFFECT or INCONCLUSIVE).
@@ -146,4 +150,4 @@ largest remaining phase of an import and is untouched by this change.
 The harness removed the e5rt entries new since each run started: 15 after the screen, 50 after the full run
 (`cleanup.json`, none skipped), plus the temp caches and export directory. Phase B's temp caches and export
 directory were removed by the script, and its e5rt bundles were cleared after the run. The local LLM service was
-restored after the run.
+restored after Phase B finished.

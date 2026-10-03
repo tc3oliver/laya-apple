@@ -4,7 +4,7 @@ set -u
 zmodload zsh/datetime
 WT=$1; LABEL=$2; OUT=$3; mkdir -p $OUT
 export HF_HUB_OFFLINE=1
-CACHE=<cache>
+CACHE=${LAYA_APPLE_CACHE:?}
 E5S=($HOME/Library/Caches/python*/com.apple.e5rt.e5bundlecache(N))
 cd $WT || exit 1
 { git rev-parse HEAD; date -u; sw_vers; uptime; pmset -g therm; pmset -g batt | head -1; } > $OUT/$LABEL-before.txt 2>&1
