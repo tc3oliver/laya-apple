@@ -11,6 +11,7 @@ from pathlib import Path
 import numpy as np
 
 from ..errors import BackendUnavailableError
+from ..hub import check_option_layout
 from ..registry import DTYPES, ModelSpec
 
 # Opt-in compiled forward (mx.compile). It was bitwise identical to the eager forward on every
@@ -120,6 +121,7 @@ class MLXBackend:
         # None: the LAYA_APPLE_MLX_LENGTH_BUCKETS environment variable decides (it also reaches workers).
         self.length_buckets = length_buckets_enabled() if length_buckets is None else bool(length_buckets)
         agent_cfg = json.loads((checkpoint / "rl_agent_config.json").read_text())
+        check_option_layout(agent_cfg)
         enc_cfg = EncoderConfig.from_dict(json.loads((checkpoint / "encoder/config.json").read_text()))
         mdtype = {"float16": mx.float16, "float32": mx.float32}[dtype]
         with mx.stream(mx.gpu):

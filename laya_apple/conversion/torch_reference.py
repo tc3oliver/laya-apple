@@ -14,6 +14,8 @@ from safetensors.torch import load_file
 from torch import nn
 from torch.nn import functional as F
 
+from ..hub import check_option_layout
+
 
 def attention(q, k, v, mask, implementation):
     if implementation == "sdpa":
@@ -216,6 +218,7 @@ def load_model(path, max_length, attention_implementation="explicit"):
     path = Path(path)
     cfg = json.loads((path / "encoder/config.json").read_text())
     agent_cfg = json.loads((path / "rl_agent_config.json").read_text())
+    check_option_layout(agent_cfg)
     model = DecisionModel(cfg, agent_cfg, max_length)
     if attention_implementation not in ("explicit", "sdpa"):
         raise ValueError("attention_implementation must be explicit or sdpa")

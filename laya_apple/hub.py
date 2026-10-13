@@ -7,7 +7,7 @@ import json
 import os
 from pathlib import Path
 
-from .errors import ArtifactRevisionError, BackendUnavailableError
+from .errors import ArtifactRevisionError, BackendUnavailableError, LayaAppleError
 from .registry import ModelSpec
 
 CHECKPOINT_FILES = ["model.safetensors", "rl_agent_config.json", "encoder/config.json", "tokenizer/*"]
@@ -85,3 +85,15 @@ def verify_weights(spec: ModelSpec, path: Path) -> str:
     stamp_dir.mkdir(parents=True, exist_ok=True)
     stamp.write_text(json.dumps({"key": key, "sha256": digest}))
     return digest
+
+
+def check_option_layout(agent_cfg: dict) -> None:
+    """Fail closed on a checkpoint trained for a non-sequential option layout: running it with
+    sequential semantics gives wrong decisions, and a built artifact would look valid.
+
+    Upstream stores it as a top-level `option_layout` key of rl_agent_config.json
+    (`uses_parallel_layout` in https://github.com/NandhaKishorM/laya/blob/main/laya/common.py;
+    same key in https://github.com/mizorewww/laya-mlx/blob/main/laya_mlx/common.py)."""
+    layout = agent_cfg.get("option_layout", "sequential")
+    if layout != "sequential":
+        raise LayaAppleError(f"option_layout={layout!r} is not supported; only 'sequential' is validated")
