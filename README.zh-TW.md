@@ -391,8 +391,8 @@ macOS 27 上只量測了建置、parity、路由，以及預先建置 artifact �
   [`research/coreml-adaptive-breaker/`](research/coreml-adaptive-breaker/README.md)。
 - **研究。** 1.5 與 1.6 版本背後的研究脈絡，包括失敗的路線，整理在 [`research/README.md`](research/README.md)。
 - **版本。** 所有變更都記錄在 [`CHANGELOG.md`](CHANGELOG.md)；release notes 放在
-  [`docs/releases/`](docs/releases/)，最新的是 [1.6.3](docs/releases/v1.6.3.md)、
-  [1.6.2](docs/releases/v1.6.2.md) 與 [1.6.1](docs/releases/v1.6.1.md)。
+  [`docs/releases/`](docs/releases/)，最新的是 [1.6.4](docs/releases/v1.6.4.md)、
+  [1.6.3](docs/releases/v1.6.3.md) 與 [1.6.2](docs/releases/v1.6.2.md)。
 
 ## 參與貢獻
 

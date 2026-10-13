@@ -5,12 +5,27 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.6.4] - 2026-10-13
+
+`laya-apple serve` now reports Jev's confidence formula next to its own, and a checkpoint trained
+for a non-sequential option layout is refused instead of decided wrongly. `predict`, the parity
+tolerances, the routing rule and the prebuilt-artifact pin are unchanged.
+
 ### Added
 
 - **`laya-apple serve` reports Jev's confidence formula as `x_jev_confidence`** (#168). Each
   `choice` and `score` answer carries the `confidence` Jev would report for the same
   probabilities, as upstream Laya #1066 defines it. `confidence` is unchanged and the two are
   never aliased. A `noul` answer, or one without usable probabilities, gets no field.
+
+### Fixed
+
+- **A checkpoint with a non-sequential `option_layout` now raises instead of running** (#167,
+  #171). Upstream stores the layout as a top-level `option_layout` key of
+  `rl_agent_config.json`. laya-apple only validates sequential semantics, so a checkpoint
+  trained for another layout gave wrong decisions, and a built artifact from it looked valid.
+  `Laya(...)` and the conversion and parity paths now raise `LayaAppleError`. A checkpoint
+  without the key is treated as sequential, as before.
 
 ## [1.6.3] - 2026-10-03
 

@@ -432,8 +432,8 @@ in [`docs/serve.md`](docs/serve.md#limits), and what has not been measured in
 - **Research.** The research behind the 1.5 and 1.6 releases, failed routes included, is mapped in
   [`research/README.md`](research/README.md).
 - **Releases.** Every change is in [`CHANGELOG.md`](CHANGELOG.md); release notes are in
-  [`docs/releases/`](docs/releases/), most recently [1.6.3](docs/releases/v1.6.3.md),
-  [1.6.2](docs/releases/v1.6.2.md) and [1.6.1](docs/releases/v1.6.1.md).
+  [`docs/releases/`](docs/releases/), most recently [1.6.4](docs/releases/v1.6.4.md),
+  [1.6.3](docs/releases/v1.6.3.md) and [1.6.2](docs/releases/v1.6.2.md).
 
 ## Contributing
 
