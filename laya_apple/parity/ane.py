@@ -11,6 +11,7 @@ from pathlib import Path
 
 import numpy as np
 
+from ..hub import check_option_layout
 from ..prompt import Tokenizer, prepare
 from ..registry import ANE_COMPUTE_UNITS, ANE_MAX_OPTIONS, ANE_PRECISION, ModelSpec
 from . import evaluate
@@ -25,6 +26,7 @@ def ane_parity(spec: ModelSpec, compiled: Path, length: int, checkpoint: Path) -
     from ..backends.coreml_ane import HostWeights, ane_features
 
     cfg = json.loads((checkpoint / "rl_agent_config.json").read_text())
+    check_option_layout(cfg)
     enc = json.loads((checkpoint / "encoder/config.json").read_text())
     tok = Tokenizer(checkpoint / "tokenizer")
     host = HostWeights(checkpoint, int(enc["local_attention"]))

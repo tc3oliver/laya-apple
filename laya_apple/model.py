@@ -36,7 +36,7 @@ from .errors import (
     InvalidRequestError,
     LayaAppleError,
 )
-from .hub import checkpoint_path, verify_weights
+from .hub import check_option_layout, checkpoint_path, verify_weights
 from .prompt import Calibration, Tokenizer, format_answers, prepare
 from .registry import ANE_COMPUTE_UNITS, ANE_PRECISION, DTYPES, ModelSpec, resolve, routing_table
 from .result import Result, RuntimeInfo
@@ -184,6 +184,7 @@ class Laya:
         self._handoff_unavailable = None  # why "auto" runs the 1.4 path on this machine
         self.config = json.loads((checkpoint / "rl_agent_config.json").read_text())
         self._encoder_cfg = json.loads((checkpoint / "encoder/config.json").read_text())
+        check_option_layout(self.config)
         self.tokenizer = Tokenizer(checkpoint / "tokenizer")
         self.calibration = Calibration(self.config)
         self.mlx = self.ane = None  # backends (inline) or parent-side views (workers)

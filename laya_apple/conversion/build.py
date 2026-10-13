@@ -44,7 +44,7 @@ from ..artifacts import (
     tree_sha256,
 )
 from ..errors import ArtifactError, ArtifactParityError, ComputeUnitMismatchError, UnsupportedShapeError
-from ..hub import checkpoint_path, verify_weights
+from ..hub import check_option_layout, checkpoint_path, verify_weights
 from ..lifecycle import BUILDING, build_lock
 from ..prompt import Tokenizer, prepare
 from ..registry import ANE_COMPUTE_UNITS, ANE_GRAPH, ANE_MAX_OPTIONS, ANE_PRECISION, ModelSpec
@@ -163,6 +163,7 @@ def _build_locked(spec: ModelSpec, length: int, final: Path, *, local_files_only
     ckpt = checkpoint_path(spec, local_files_only=local_files_only)
     verify_weights(spec, ckpt)
     cfg = json.loads((ckpt / "rl_agent_config.json").read_text())
+    check_option_layout(cfg)
     enc_cfg = json.loads((ckpt / "encoder/config.json").read_text())
     tok = Tokenizer(ckpt / "tokenizer")
     host = HostWeights(ckpt, int(enc_cfg["local_attention"]))
