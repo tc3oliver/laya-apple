@@ -4,6 +4,7 @@ mapping, the truncation flag, loopback-only binding, and that two slow requests 
 
 from __future__ import annotations
 
+import dataclasses
 import threading
 import time
 from concurrent.futures import Future
@@ -591,3 +592,73 @@ def test_unexpected_error_outside_inference_is_json_500(monkeypatch):
     with TestClient(c.app, base_url=BASE, raise_server_exceptions=False) as c2:
         r = post(c2, {"state": "s", "questions": QUESTIONS})
     assert r.status_code == 500 and r.json() == {"detail": "inference failed"}
+
+
+def _answer(kind, *p):
+    keys = [f"o{i}" for i in range(len(p))] if kind == "choice" else [str(i) for i in range(len(p))]
+    return {"type": kind, "probabilities": dict(zip(keys, p))}
+
+
+@pytest.mark.parametrize(
+    "answer, expected",
+    [
+        (_answer("choice", 0.5, 0.5), 0.0),
+        (_answer("choice", 0.82, 0.18), 0.64),
+        (_answer("choice", 1.0), 1.0),
+        (_answer("choice", 0.0, 0.0), 0.0),  # a zero total is read as uniform
+        (_answer("score", *[0.2] * 5), 0.0),
+        (_answer("score", 0.01, 0.02, 0.07, 0.3, 0.6), 0.55),
+        (_answer("score", 0.0, 0.95, 0.05), 0.925),
+        (_answer("score", 1.0), 1.0),
+        ({"type": "score", "probabilities": {**{str(i): 0.0 for i in range(11)}, "10": 1.0}}, 1.0),
+    ],
+)
+def test_jev_confidence_matches_typesafe_vectors(answer, expected):
+    assert serve.jev_confidence(answer) == pytest.approx(expected)
+
+
+@pytest.mark.parametrize(
+    "answer",
+    [
+        {"type": "noul", "noul": 0.9},
+        {"type": "weird", "probabilities": {"a": 1.0}},
+        {"type": "choice"},
+        {"type": "choice", "probabilities": {}},
+        _answer("choice", 0.5, "high"),
+        _answer("choice", True, False),
+        _answer("choice", float("nan"), 0.5),
+        {"type": "score", "probabilities": {"low": 0.5, "high": 0.5}},
+        "not an answer",
+    ],
+)
+def test_jev_confidence_is_none_rather_than_a_guess(answer):
+    assert serve.jev_confidence(answer) is None
+
+
+def test_response_carries_x_jev_confidence_beside_distinct_confidence():
+    class WithProbs(FakeLaya):
+        def _result(self, questions):
+            res = super()._result(questions)
+            return dataclasses.replace(
+                res,
+                answers={
+                    "c": {**_answer("choice", 0.82, 0.18), "choice": "o0", "confidence": 0.31},
+                    "s": {**_answer("score", 0.01, 0.02, 0.07, 0.3, 0.6), "score": 3.4, "confidence": 0.2},
+                    "n": {"type": "noul", "noul": 0.9, "confidence": 0.9},
+                },
+            )
+
+    app = serve.create_app(loader=lambda name: WithProbs(name), api_key=None, default_model=serve.DEFAULT_MODEL)
+    with TestClient(app, base_url=BASE) as c:
+        a = post(c, {"state": "x", "questions": QUESTIONS}).json()["answers"]
+    assert (a["c"]["x_jev_confidence"], a["c"]["confidence"]) == (0.64, 0.31)
+    assert (a["s"]["x_jev_confidence"], a["s"]["confidence"]) == (0.55, 0.2)
+    assert "x_jev_confidence" not in a["n"]
+    assert list(a["c"])[-1] == "x_jev_confidence"  # appended, upstream's field order kept
+
+
+def test_response_without_probabilities_has_no_extension_field():
+    c, _ = client()
+    with c:
+        answer = post(c, {"state": "x", "questions": QUESTIONS}).json()["answers"]["next"]
+    assert "x_jev_confidence" not in answer

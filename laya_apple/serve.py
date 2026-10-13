@@ -44,6 +44,7 @@ import hmac
 import ipaddress
 import json
 import logging
+import math
 import os
 import time
 from contextlib import asynccontextmanager
@@ -446,12 +447,57 @@ def checkpoint_named(requested: Any) -> bool:
     return True
 
 
+def jev_confidence(answer: Any) -> float | None:
+    """The `confidence` Jev reports for a choice or score answer's probabilities, or None.
+
+    Laya's `confidence` is normalized entropy, so a threshold tuned on Jev gates differently
+    on it. These are TypeSafe's formulas, as upstream Laya #1066 reproduces them:
+    choice `(max(p) - 1/n) / (1 - 1/n)`; score `max(0, 1 - sum(p_i * |i - mode|) / D)` with D
+    the same sum for a uniform distribution. A noul answer or malformed probabilities give
+    None, never a guess.
+    """
+    if not isinstance(answer, dict) or answer.get("type") not in ("choice", "score"):
+        return None
+    probs = answer.get("probabilities")
+    if not isinstance(probs, dict) or not probs or any(isinstance(v, bool) for v in probs.values()):
+        return None
+    try:
+        keys = sorted(probs, key=int) if answer["type"] == "score" else list(probs)
+        p = [float(probs[k]) for k in keys]
+    except (TypeError, ValueError):
+        return None
+    if not all(math.isfinite(v) for v in p):
+        return None
+    n = len(p)
+    if n == 1:
+        return 1.0
+    total = sum(p)
+    p = [v / total for v in p] if total else [1.0 / n] * n
+    if answer["type"] == "choice":
+        return (max(p) - 1.0 / n) / (1.0 - 1.0 / n)
+    mode = max(range(n), key=p.__getitem__)
+    spread = sum(v * abs(i - mode) for i, v in enumerate(p))
+    uniform = sum(abs(i - (n - 1) / 2) for i in range(n)) / n
+    return max(0.0, 1.0 - spread / uniform)
+
+
+def with_jev_confidence(answers: Any) -> Any:
+    """`answers` with `x_jev_confidence` appended to each answer that has one; copies, never edits."""
+    if not isinstance(answers, dict):
+        return answers
+    out = {}
+    for qid, answer in answers.items():
+        conf = jev_confidence(answer)
+        out[qid] = answer if conf is None else {**answer, "x_jev_confidence": round(conf, 4)}
+    return out
+
+
 def response_body(result: Any, routing: dict) -> dict:
     """Upstream's `{model, answers, usage, routing}` plus the `laya_apple` block."""
     rt = result.runtime
     return {
         "model": result.model,
-        "answers": result.answers,
+        "answers": with_jev_confidence(result.answers),
         "usage": result.usage,
         "routing": routing,
         "laya_apple": {

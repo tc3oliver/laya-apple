@@ -70,7 +70,7 @@ A response looks like this:
   "answers": {"next": {"type": "choice", "choice": "run_tests",
                        "probabilities": {"run_tests": 0.8865, "ask_user": 0.0117, "commit": 0.1018},
                        "confidence": 0.6436, "answer_confidence": 0.8865,
-                       "action": {"act_probability": 1.0}}},
+                       "action": {"act_probability": 1.0}, "x_jev_confidence": 0.8298}},
   "usage": {"input_tokens": 35, "output_tokens": 0},
   "routing": {"model": "english", "repo": "convaiinnovations/laya",
               "reason": "Latin script, language not identified and no non-English letters; using default (english)",
@@ -85,12 +85,16 @@ A response looks like this:
 ```
 
 - **Fields as upstream:** `model`, `answers`, `usage` and `routing` are upstream's, and each
-  answer carries upstream's fields in upstream's order. Jev clients read `answers` and
+  answer carries upstream's fields in upstream's order (plus `x_jev_confidence` last). Jev clients read `answers` and
   `usage` and ignore the rest.
 - **Which confidence to use.**
   - `answer_confidence` is the probability of the chosen answer.
   - `confidence` is upstream's entropy-based certainty, which is lower when there are many
     options.
+  - `x_jev_confidence` is the `confidence` Jev reports for the same probabilities, on `choice`
+    and `score` answers only (a `noul` answer has none). It is not `confidence`: the two are
+    different formulas and are never aliased. A threshold tuned on Jev belongs against this
+    field. It follows upstream Laya #1066 and is appended after the other answer fields.
   - If your client lets you pick the field or its threshold, `answer_confidence` is the one
     that reads like a probability.
 - **`routing.workflow`** names the typed-decisions workflow whose question ids the request
@@ -279,8 +283,9 @@ the same protocol and criteria as run 2, on laya-apple 1.5.0 beside the same mod
   - Its episodes and breaker only see GPU work from laya-apple's own worker, not from another
     process such as the LLM.
 - **No Jev accuracy claim.** Only runtime fidelity to upstream Laya is guaranteed and tested.
-- **Client thresholds tuned on Jev** may rarely trigger on Laya's confidences (see
-  "Client compatibility").
+- **Client thresholds tuned on Jev** may rarely trigger on Laya's `confidence` (see
+  "Client compatibility"); `x_jev_confidence` carries Jev's formula for a client that can read it.
+  The seven tested clients were not re-run against the extra field.
 - **Client compatibility was tested once,** on 2026-09-25, at the client versions listed
   and on the tested M4 Max. A later client release may change what it sends or accepts.
 - **`auto` routes between English and multilingual only.** Upstream's opt-in typed-decisions
