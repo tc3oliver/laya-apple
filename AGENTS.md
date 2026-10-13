@@ -72,6 +72,7 @@ Rules:
 - **Never commit generated or local-only files:**
   - generated Core ML models (`*.mlpackage`, `*.mlmodelc`);
   - model weights;
+  - credentials;
   - machine-specific absolute paths.
 - **`docs/private/` and `docs/DEVELOPMENT_PLAN.md` are gitignored private notes.** Never
   link them from `README.md` or published `docs/`, or copy their contents there.
