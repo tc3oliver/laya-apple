@@ -599,9 +599,13 @@ def _answer(kind, *p):
     return {"type": kind, "probabilities": dict(zip(keys, p))}
 
 
+# Vectors are TypeSafe's own, copied from upstream Laya PR #1066 (tests/test_confidence.py), with
+# hand-written expected values: https://github.com/NandhaKishorM/laya/pull/1066
+# #1066 gives a noul answer no x_jev_confidence (Jev reports none), so there is no bool vector.
 @pytest.mark.parametrize(
     "answer, expected",
     [
+        (_answer("score", *[0.04] * 5), 0.0),  # unnormalized uniform
         (_answer("choice", 0.5, 0.5), 0.0),
         (_answer("choice", 0.82, 0.18), 0.64),
         (_answer("choice", 1.0), 1.0),

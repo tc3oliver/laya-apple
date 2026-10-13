@@ -453,7 +453,8 @@ def jev_confidence(answer: Any) -> float | None:
     Laya's `confidence` is normalized entropy, so a threshold tuned on Jev gates differently
     on it. These are TypeSafe's formulas, as upstream Laya #1066 reproduces them:
     choice `(max(p) - 1/n) / (1 - 1/n)`; score `max(0, 1 - sum(p_i * |i - mode|) / D)` with D
-    the same sum for a uniform distribution. A noul answer or malformed probabilities give
+    the spread of a uniform distribution, measured around its centre `(n-1)/2` (1.2 for n=5).
+    Source: https://github.com/NandhaKishorM/laya/pull/1066 (`laya/confidence.py`). A noul answer or malformed probabilities give
     None, never a guess.
     """
     if not isinstance(answer, dict) or answer.get("type") not in ("choice", "score"):

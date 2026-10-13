@@ -55,7 +55,9 @@ choices.
 
 ## API
 
-The wire format follows upstream `laya.serve` (Laya v0.3.20).
+The wire format follows upstream `laya.serve` (Laya v0.3.20), plus `x_jev_confidence` on
+`choice` and `score` answers, which Laya v0.3.20 predates (upstream #1066). The 792-request
+comparison exempts that field, as it does the `laya_apple` block.
 
 ### `POST /v1/systemone`
 

@@ -74,7 +74,8 @@ def compare(ours: dict, theirs: dict, auto: bool = False) -> list[str]:
         if got is None:
             problems.append(f"{qid}: missing")
             continue
-        if set(got) != set(want):
+        # x_jev_confidence is ours (upstream 0.3.20 predates its #1066), like the top-level laya_apple
+        if set(got) - {"x_jev_confidence"} != set(want):
             problems.append(f"{qid}: answer keys ours {sorted(got)}, upstream {sorted(want)}")
         if got.get("choice") != want.get("choice"):
             problems.append(f"{qid}: choice ours {got.get('choice')!r}, upstream {want.get('choice')!r}")
