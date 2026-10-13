@@ -76,6 +76,15 @@ def _handoff_eligible(model: str, execution: str, device: str, ane_placement: st
     return execution == "workers" and device == "auto" and placement == "thread" and measured == "thread"
 
 
+def _check_option_layout(*configs: dict) -> None:
+    """Fail closed on a checkpoint trained for a non-sequential option layout (upstream
+    `option_layout="parallel"`): running it with sequential semantics gives wrong decisions."""
+    for cfg in configs:
+        layout = cfg.get("option_layout")
+        if layout not in (None, "sequential"):
+            raise LayaAppleError(f"option_layout={layout!r} is not supported; only 'sequential' is validated")
+
+
 def _check_ane_handoff(
     ane_handoff, model: str, execution: str, device: str, ane_placement: str, ane_startup: str = "wait"
 ) -> str:
@@ -184,6 +193,7 @@ class Laya:
         self._handoff_unavailable = None  # why "auto" runs the 1.4 path on this machine
         self.config = json.loads((checkpoint / "rl_agent_config.json").read_text())
         self._encoder_cfg = json.loads((checkpoint / "encoder/config.json").read_text())
+        _check_option_layout(self.config, self._encoder_cfg)
         self.tokenizer = Tokenizer(checkpoint / "tokenizer")
         self.calibration = Calibration(self.config)
         self.mlx = self.ane = None  # backends (inline) or parent-side views (workers)
