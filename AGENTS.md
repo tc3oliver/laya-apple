@@ -74,17 +74,24 @@ Rules:
   - model weights;
   - credentials;
   - machine-specific absolute paths.
+- **`docs/private/` and `docs/DEVELOPMENT_PLAN.md` are gitignored private notes.** Never
+  link them from `README.md` or published `docs/`, or copy their contents there.
 
 ## Validation
 
 Run what the change needs. The table in `CONTRIBUTING.md` ("Which tests a PR needs")
 gives the exact commands.
 
+Sync with `uv sync --extra dev --extra serve`, as CI does. The fast suite imports
+`fastapi` (`tests/unit/test_serve.py`), so `--extra dev` alone fails at collection, and
+`uv sync` removes every extra it is not given: add `--extra ane` or `--extra convert`
+alongside these, not instead of them.
+
 | Change | Minimum validation |
 |---|---|
-| Any change | `uv run ruff check .`, `uv run ruff format --check laya_apple scripts tests`, and the fast suite: `uv run pytest -q -m "not integration and not parity and not ane and not stress"` |
+| Any change | What CI (`.github/workflows/ci.yml`) runs: `uv run ruff check .`, `uv run ruff format --check laya_apple scripts tests`, the fast suite `HF_HUB_OFFLINE=1 uv run pytest -q -m "not integration and not parity and not ane and not stress"`, the data-drift checks (`scripts/derive_routing.py`, `scripts/derive_placement.py`, `scripts/make_goldens.py`, `scripts/generate_readme_svgs.py`, each with `--check`) and `scripts/check_file_sizes.py` |
 | Docs only | Fast suite and CI. For packaging or README changes, also run `uv build` and `uvx twine check --strict dist/*` |
-| Runtime, routing, scheduler, backend, model or ANE code | The relevant `integration`, `parity` and `ane` tests on Apple silicon, plus the `scripts/derive_*.py --check`, `scripts/make_goldens.py --check` and `scripts/generate_readme_svgs.py --check` data checks |
+| Runtime, routing, scheduler, backend, model or ANE code | Also the relevant `integration`, `parity` and `ane` tests on Apple silicon (CI runs none of them) |
 | Performance-sensitive change | Re-run the affected benchmark and compare it with the recorded baseline in `benchmarks/` (`scripts/compare_bench.py`). Report the comparison in the PR |
 
 - **Never loosen a gate to make CI or a benchmark pass.** This covers:
