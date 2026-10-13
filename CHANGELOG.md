@@ -5,6 +5,13 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- **`laya-apple serve` reports Jev's confidence formula as `x_jev_confidence`** (#168). Each
+  `choice` and `score` answer carries the `confidence` Jev would report for the same
+  probabilities, as upstream Laya #1066 defines it. `confidence` is unchanged and the two are
+  never aliased. A `noul` answer, or one without usable probabilities, gets no field.
+
 ## [1.6.3] - 2026-10-03
 
 A first `artifacts fetch` or `artifacts import` of a bucket now pays Core ML's on-device compile

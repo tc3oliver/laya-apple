@@ -52,7 +52,11 @@ def test_http_answers_match_the_runtime(http, direct):
     assert set(body["answers"]) == set(expected.answers)
     for qid, want in expected.answers.items():
         got = body["answers"][qid]
-        assert got.keys() == want.keys()
+        assert got.keys() - {"x_jev_confidence"} == want.keys()
+        if want["type"] == "noul":
+            assert "x_jev_confidence" not in got
+        else:
+            assert got["x_jev_confidence"] == round(serve.jev_confidence(want), 4)
         assert got.get("choice") == want.get("choice")
         for field in ("score", "noul", "confidence"):
             if field in want:
