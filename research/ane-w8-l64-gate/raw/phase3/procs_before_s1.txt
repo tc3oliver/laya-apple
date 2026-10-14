@@ -1,0 +1,4 @@
+ %CPU COMM
+ 11.1 /System/Library/ExtensionKit/Extensions/WallpaperAerialsExtension.appex/Contents/MacOS/WallpaperAerialsExtension
+ 10.7 claude
+  5.8 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
