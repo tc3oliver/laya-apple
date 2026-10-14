@@ -124,3 +124,35 @@ Reported without a verdict:
 `research/ane-w8-l64-s5-open-loop/`: this file, scripts, raw per-window and per-request data
 (each file under 1 MiB), a `README.md` with the tables and the recorded outcome. A separate
 pull request stacked on PR #174; no merge, no production PR.
+
+## Amendment 1 (2026-10-15, before any measurement)
+
+The validity rule "client-lag P99 <= 5 ms" cannot be met by arm A in this process, and this was
+found by the harness smoke run before any screen or replicate. The smoke results are not data
+and are not committed.
+
+- Mechanism, checked in isolation: while a worker thread runs `laya.predict` on the L64 ANE path,
+  a sleeping dispatcher thread in the same process is delayed by about 5 to 14 ms, even with
+  `sys.setswitchinterval(0.0002)`. The Core ML predict holds the GIL. GPU-routed requests did not
+  delay it. Smoke lag P99 was 7.4 to 7.6 ms in A windows and 4.7 ms in B windows, tracking one
+  ANE predict (about 8 ms for A, 5 ms for B).
+- Why this is not a departure from open-loop: `Laya` serializes calls on its lock. A request
+  issued late only while a predict is running would have waited for that lock anyway, so its
+  start time does not change. Latency is measured from the scheduled arrival, so it stays honest.
+- Lowering the rates does not shorten a predict, so the rate fallback above does not address this.
+
+Replacement for the lag condition in **Validity**: client-lag P99 <= 14 ms in every window, the
+same bound for both arms (5 ms plus about one A-arm L64 predict of 8.2 ms, rounded up). Lag is
+still recorded and reported per window, and the strict 5 ms figure is reported next to it for
+information. All other validity conditions (0 drops, 0 errors, queue drained within 5 s, at
+least 6 of 8 cycles per cell) are unchanged, as are the rates, cells, metrics, decision rules and
+stop rules.
+
+Harness-only changes that go with this: `sys.setswitchinterval(0.0002)`, and a chunked 0.2 ms
+sleep followed by a spin instead of one long `time.sleep`, because a single long sleep overshoots
+by 4 to 7 ms on this machine. The dispatcher stays a single thread in the process.
+
+Two environment records made while rebuilding: the rebuilt A artifact has a different
+`artifact_sha256` from the one in `ane-w8-l64-gate` (the rebuild is not byte-reproducible); its
+parity, placement and probe results match. The isolated cache holds only the L64 artifacts, as in
+the gate run.
