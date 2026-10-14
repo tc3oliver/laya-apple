@@ -1,0 +1,186 @@
+{"id": "id-000", "slice": "id", "label": "lint-fix", "text": "CI is red on rubocop: W291 at src/api/client.py:12. Make it pass."}
+{"id": "id-001", "slice": "id", "label": "lint-fix", "text": "Run the formatter over web/components/ and commit the whitespace-only changes."}
+{"id": "id-002", "slice": "id", "label": "lint-fix", "text": "Remove the unused imports rubocop reports in web/components/Cart.tsx."}
+{"id": "id-003", "slice": "id", "label": "small-bugfix", "text": "compute_total in app/models/order.rb throws a TypeError when the cache is cold. Fix it."}
+{"id": "id-004", "slice": "id", "label": "small-bugfix", "text": "Off-by-one in compute_total: the last item is skipped. Failing test: test_merge_dupes."}
+{"id": "id-005", "slice": "id", "label": "small-bugfix", "text": "test_merge_dupes fails since the date format became ISO; make render_cart parse it."}
+{"id": "id-006", "slice": "id", "label": "small-bugfix", "text": "Missing null check for payload.meta in parse_date causes a KeyError."}
+{"id": "id-007", "slice": "id", "label": "refactor", "text": "Extract the duplicated validation logic in src/parser/tokens.py and tools/ into one shared helper."}
+{"id": "id-008", "slice": "id", "label": "refactor", "text": "Rename render_cart to send_with_retry across the codebase; behaviour must not change."}
+{"id": "id-009", "slice": "id", "label": "refactor", "text": "Split src/parser/tokens.py (2400 lines) into smaller modules without changing the public API."}
+{"id": "id-010", "slice": "id", "label": "refactor", "text": "Replace the nested callbacks in parse_date with async/await."}
+{"id": "id-011", "slice": "id", "label": "docs", "text": "Update the README to describe the new --dry-run flag."}
+{"id": "id-012", "slice": "id", "label": "docs", "text": "Add docstrings to the public functions in web/components/Cart.tsx."}
+{"id": "id-013", "slice": "id", "label": "docs", "text": "Fix the typo in the Usage section of CONTRIBUTING.md."}
+{"id": "id-014", "slice": "id", "label": "docs", "text": "Document the environment variables billing-worker reads in docs/config.md."}
+{"id": "id-015", "slice": "id", "label": "needs-human", "text": "Migrate the payments table to a new schema in production with no downtime."}
+{"id": "id-016", "slice": "id", "label": "needs-human", "text": "Rotate the credentials gateway uses and roll the change out to every deployment."}
+{"id": "id-017", "slice": "id", "label": "needs-human", "text": "Decide whether report-service should move from REST to gRPC and plan the cutover."}
+{"id": "id-018", "slice": "id", "label": "needs-human", "text": "Change the permission model so support agents can read billing data."}
+{"id": "id-019", "slice": "id", "label": "lint-fix", "text": "Fix the clippy warning `D100` in core/scheduler.rs."}
+{"id": "id-020", "slice": "id", "label": "lint-fix", "text": "CI is red on prettier: no-shadow at lib/auth/session.ts:88. Make it pass."}
+{"id": "id-021", "slice": "id", "label": "lint-fix", "text": "Run the formatter over pkg/ and commit the whitespace-only changes."}
+{"id": "id-022", "slice": "id", "label": "lint-fix", "text": "Remove the unused imports eslint reports in src/api/client.py."}
+{"id": "id-023", "slice": "id", "label": "small-bugfix", "text": "split_batches in lib/auth/session.ts throws an IndexError when the list is empty. Fix it."}
+{"id": "id-024", "slice": "id", "label": "small-bugfix", "text": "test_total_rounding fails since the date format became ISO; make flush_buffer parse it."}
+{"id": "id-025", "slice": "id", "label": "small-bugfix", "text": "Missing null check for payload.meta in merge_orders causes a ZeroDivisionError."}
+{"id": "id-026", "slice": "id", "label": "refactor", "text": "Extract the duplicated validation logic in pkg/cache/lru.go and web/components/ into one shared helper."}
+{"id": "id-027", "slice": "id", "label": "refactor", "text": "Rename parse_date to parse_timestamp across the codebase; behaviour must not change."}
+{"id": "id-028", "slice": "id", "label": "refactor", "text": "Split internal/billing/invoice.go (950 lines) into smaller modules without changing the public API."}
+{"id": "id-029", "slice": "id", "label": "refactor", "text": "Replace the nested callbacks in merge_orders with async/await."}
+{"id": "id-030", "slice": "id", "label": "docs", "text": "Add docstrings to the public functions in internal/billing/invoice.go."}
+{"id": "id-031", "slice": "id", "label": "needs-human", "text": "Migrate the sessions table to a new schema in production with no downtime."}
+{"id": "id-032", "slice": "id", "label": "needs-human", "text": "Rotate the credentials billing-worker uses and roll the change out to every deployment."}
+{"id": "id-033", "slice": "id", "label": "needs-human", "text": "Decide whether mailer should move from REST to gRPC and plan the cutover."}
+{"id": "id-034", "slice": "id", "label": "needs-human", "text": "Change the permission model so interns can read billing data."}
+{"id": "id-035", "slice": "id", "label": "lint-fix", "text": "Fix the ruff warning `S1192` in tools/export_report.py."}
+{"id": "id-036", "slice": "id", "label": "lint-fix", "text": "CI is red on golangci-lint: F401 at src/api/client.py:88. Make it pass."}
+{"id": "id-037", "slice": "id", "label": "lint-fix", "text": "Run the formatter over src/ and commit the whitespace-only changes."}
+{"id": "id-038", "slice": "id", "label": "lint-fix", "text": "Remove the unused imports golangci-lint reports in tools/export_report.py."}
+{"id": "id-039", "slice": "id", "label": "small-bugfix", "text": "retry_request in src/utils/dates.js throws a KeyError when the list is empty. Fix it."}
+{"id": "id-040", "slice": "id", "label": "small-bugfix", "text": "Off-by-one in render_cart: the last item is skipped. Failing test: test_parse_empty."}
+{"id": "id-041", "slice": "id", "label": "small-bugfix", "text": "test_total_rounding fails since the date format became ISO; make normalize_path parse it."}
+{"id": "id-042", "slice": "id", "label": "small-bugfix", "text": "Missing null check for config.timeout in refresh_token_cache causes a ZeroDivisionError."}
+{"id": "id-043", "slice": "id", "label": "refactor", "text": "Extract the duplicated validation logic in lib/auth/session.ts and src/ into one shared helper."}
+{"id": "id-044", "slice": "id", "label": "refactor", "text": "Rename split_batches to combine_orders across the codebase; behaviour must not change."}
+{"id": "id-045", "slice": "id", "label": "refactor", "text": "Split core/scheduler.rs (3100 lines) into smaller modules without changing the public API."}
+{"id": "id-046", "slice": "id", "label": "refactor", "text": "Replace the nested callbacks in normalize_path with async/await."}
+{"id": "id-047", "slice": "id", "label": "docs", "text": "Add docstrings to the public functions in tools/export_report.py."}
+{"id": "id-048", "slice": "id", "label": "docs", "text": "Fix the typo in the Troubleshooting section of CONTRIBUTING.md."}
+{"id": "id-049", "slice": "id", "label": "docs", "text": "Document the environment variables search-indexer reads in docs/config.md."}
+{"id": "id-050", "slice": "id", "label": "needs-human", "text": "Migrate the audit_log table to a new schema in production with no downtime."}
+{"id": "id-051", "slice": "id", "label": "needs-human", "text": "Decide whether search-indexer should move from REST to gRPC and plan the cutover."}
+{"id": "id-052", "slice": "id", "label": "lint-fix", "text": "Fix the rubocop warning `no-unused-vars` in pkg/cache/lru.go."}
+{"id": "id-053", "slice": "id", "label": "lint-fix", "text": "CI is red on eslint: F401 at src/utils/dates.js:12. Make it pass."}
+{"id": "id-054", "slice": "id", "label": "lint-fix", "text": "Run the formatter over lib/ and commit the whitespace-only changes."}
+{"id": "id-055", "slice": "id", "label": "lint-fix", "text": "Remove the unused imports clippy reports in src/utils/dates.js."}
+{"id": "id-056", "slice": "id", "label": "small-bugfix", "text": "load_config in src/utils/dates.js throws a KeyError when the list is empty. Fix it."}
+{"id": "id-057", "slice": "id", "label": "small-bugfix", "text": "Off-by-one in load_config: the last item is skipped. Failing test: test_parse_empty."}
+{"id": "id-058", "slice": "id", "label": "small-bugfix", "text": "test_parse_empty fails since the date format became ISO; make render_cart parse it."}
+{"id": "id-059", "slice": "id", "label": "small-bugfix", "text": "Missing null check for payload.meta in render_cart causes a ZeroDivisionError."}
+{"id": "id-060", "slice": "id", "label": "refactor", "text": "Extract the duplicated validation logic in web/components/Cart.tsx and web/components/ into one shared helper."}
+{"id": "id-061", "slice": "id", "label": "refactor", "text": "Rename split_batches to parse_timestamp across the codebase; behaviour must not change."}
+{"id": "id-062", "slice": "id", "label": "refactor", "text": "Split tools/export_report.py (1800 lines) into smaller modules without changing the public API."}
+{"id": "id-063", "slice": "id", "label": "refactor", "text": "Replace the nested callbacks in render_cart with async/await."}
+{"id": "id-064", "slice": "id", "label": "docs", "text": "Update the README to describe the new --format json flag."}
+{"id": "id-065", "slice": "id", "label": "docs", "text": "Add docstrings to the public functions in core/scheduler.rs."}
+{"id": "id-066", "slice": "id", "label": "docs", "text": "Fix the typo in the Installation section of CONTRIBUTING.md."}
+{"id": "id-067", "slice": "id", "label": "needs-human", "text": "Migrate the orders table to a new schema in production with no downtime."}
+{"id": "id-068", "slice": "id", "label": "needs-human", "text": "Change the permission model so contractors can read billing data."}
+{"id": "id-069", "slice": "id", "label": "lint-fix", "text": "Fix the eslint warning `F401` in tools/export_report.py."}
+{"id": "id-070", "slice": "id", "label": "lint-fix", "text": "CI is red on ruff: no-shadow at src/parser/tokens.py:141. Make it pass."}
+{"id": "id-071", "slice": "id", "label": "lint-fix", "text": "Run the formatter over tools/ and commit the whitespace-only changes."}
+{"id": "id-072", "slice": "id", "label": "lint-fix", "text": "Remove the unused imports prettier reports in src/parser/tokens.py."}
+{"id": "id-073", "slice": "id", "label": "small-bugfix", "text": "load_config in tools/export_report.py throws a NullPointerException when the list is empty. Fix it."}
+{"id": "id-074", "slice": "id", "label": "small-bugfix", "text": "Off-by-one in retry_request: the last item is skipped. Failing test: test_retry_backoff."}
+{"id": "id-075", "slice": "id", "label": "small-bugfix", "text": "CartTest.testEmpty fails since the date format became ISO; make compute_total parse it."}
+{"id": "id-076", "slice": "id", "label": "small-bugfix", "text": "Missing null check for payload.meta in parse_date causes an IndexError."}
+{"id": "id-077", "slice": "id", "label": "refactor", "text": "Extract the duplicated validation logic in app/models/order.rb and pkg/ into one shared helper."}
+{"id": "id-078", "slice": "id", "label": "refactor", "text": "Rename refresh_token_cache to combine_orders across the codebase; behaviour must not change."}
+{"id": "id-079", "slice": "id", "label": "refactor", "text": "Split pkg/cache/lru.go (1800 lines) into smaller modules without changing the public API."}
+{"id": "id-080", "slice": "id", "label": "refactor", "text": "Replace the nested callbacks in refresh_token_cache with async/await."}
+{"id": "id-081", "slice": "id", "label": "docs", "text": "Fix the typo in the FAQ section of CONTRIBUTING.md."}
+{"id": "id-082", "slice": "id", "label": "docs", "text": "Document the environment variables gateway reads in docs/config.md."}
+{"id": "id-083", "slice": "id", "label": "needs-human", "text": "Migrate the users table to a new schema in production with no downtime."}
+{"id": "id-084", "slice": "id", "label": "needs-human", "text": "Rotate the credentials report-service uses and roll the change out to every deployment."}
+{"id": "id-085", "slice": "id", "label": "lint-fix", "text": "Fix the eslint warning `unused_must_use` in core/scheduler.rs."}
+{"id": "id-086", "slice": "id", "label": "lint-fix", "text": "CI is red on prettier: D100 at src/api/client.py:12. Make it pass."}
+{"id": "id-087", "slice": "id", "label": "lint-fix", "text": "Remove the unused imports rubocop reports in src/parser/tokens.py."}
+{"id": "id-088", "slice": "id", "label": "small-bugfix", "text": "normalize_path in core/scheduler.rs throws a TypeError when the cache is cold. Fix it."}
+{"id": "id-089", "slice": "id", "label": "small-bugfix", "text": "test_merge_dupes fails since the date format became ISO; make load_config parse it."}
+{"id": "id-090", "slice": "id", "label": "small-bugfix", "text": "Missing null check for payload.meta in parse_date causes a TypeError."}
+{"id": "id-091", "slice": "id", "label": "refactor", "text": "Rename retry_request to send_with_retry across the codebase; behaviour must not change."}
+{"id": "id-092", "slice": "id", "label": "refactor", "text": "Split app/models/order.rb (2400 lines) into smaller modules without changing the public API."}
+{"id": "id-093", "slice": "id", "label": "needs-human", "text": "Decide whether billing-worker should move from REST to gRPC and plan the cutover."}
+{"id": "id-094", "slice": "id", "label": "needs-human", "text": "Change the permission model so partner accounts can read billing data."}
+{"id": "id-095", "slice": "id", "label": "lint-fix", "text": "Fix the rubocop warning `D100` in pkg/cache/lru.go."}
+{"id": "id-096", "slice": "id", "label": "lint-fix", "text": "CI is red on prettier: S1192 at pkg/cache/lru.go:12. Make it pass."}
+{"id": "id-097", "slice": "id", "label": "lint-fix", "text": "Remove the unused imports mypy reports in pkg/cache/lru.go."}
+{"id": "id-098", "slice": "id", "label": "small-bugfix", "text": "split_batches in core/scheduler.rs throws a NullPointerException when the list is empty. Fix it."}
+{"id": "id-099", "slice": "id", "label": "small-bugfix", "text": "Off-by-one in parse_date: the last item is skipped. Failing test: CartTest.testEmpty."}
+{"id": "id-100", "slice": "id", "label": "small-bugfix", "text": "CartTest.testEmpty fails since the date format became ISO; make load_config parse it."}
+{"id": "id-101", "slice": "id", "label": "small-bugfix", "text": "Missing null check for order.items in load_config causes a ZeroDivisionError."}
+{"id": "id-102", "slice": "id", "label": "refactor", "text": "Extract the duplicated validation logic in src/api/client.py and src/ into one shared helper."}
+{"id": "id-103", "slice": "id", "label": "refactor", "text": "Rename flush_buffer to parse_timestamp across the codebase; behaviour must not change."}
+{"id": "id-104", "slice": "id", "label": "refactor", "text": "Split core/scheduler.rs (2400 lines) into smaller modules without changing the public API."}
+{"id": "id-105", "slice": "id", "label": "refactor", "text": "Replace the nested callbacks in flush_buffer with async/await."}
+{"id": "id-106", "slice": "id", "label": "docs", "text": "Update the README to describe the new --since flag."}
+{"id": "id-107", "slice": "id", "label": "docs", "text": "Add docstrings to the public functions in src/parser/tokens.py."}
+{"id": "id-108", "slice": "id", "label": "docs", "text": "Document the environment variables report-service reads in docs/config.md."}
+{"id": "id-109", "slice": "id", "label": "lint-fix", "text": "Fix the eslint warning `no-unused-vars` in app/models/order.rb."}
+{"id": "id-110", "slice": "id", "label": "lint-fix", "text": "CI is red on golangci-lint: no-shadow at tools/export_report.py:88. Make it pass."}
+{"id": "id-111", "slice": "id", "label": "lint-fix", "text": "Remove the unused imports prettier reports in internal/billing/invoice.go."}
+{"id": "id-112", "slice": "id", "label": "small-bugfix", "text": "load_config in src/parser/tokens.py throws a NullPointerException when the value is negative. Fix it."}
+{"id": "id-113", "slice": "id", "label": "small-bugfix", "text": "Off-by-one in refresh_token_cache: the last item is skipped. Failing test: test_retry_backoff."}
+{"id": "id-114", "slice": "id", "label": "small-bugfix", "text": "CartTest.testEmpty fails since the date format became ISO; make split_batches parse it."}
+{"id": "id-115", "slice": "id", "label": "small-bugfix", "text": "Missing null check for order.items in compute_total causes a TypeError."}
+{"id": "id-116", "slice": "id", "label": "refactor", "text": "Extract the duplicated validation logic in src/api/client.py and lib/ into one shared helper."}
+{"id": "id-117", "slice": "id", "label": "refactor", "text": "Rename normalize_path to read_settings across the codebase; behaviour must not change."}
+{"id": "id-118", "slice": "id", "label": "refactor", "text": "Split core/scheduler.rs (1800 lines) into smaller modules without changing the public API."}
+{"id": "id-119", "slice": "id", "label": "refactor", "text": "Replace the nested callbacks in load_config with async/await."}
+{"id": "confusable-000", "slice": "confusable", "label": "docs", "text": "The example output in docs/usage.md no longer matches what flush_buffer prints; update the docs."}
+{"id": "confusable-001", "slice": "confusable", "label": "small-bugfix", "text": "Fix the typo in the error message of refresh_token_cache; test_merge_dupes asserts the old text."}
+{"id": "confusable-002", "slice": "confusable", "label": "needs-human", "text": "Fix the SQL injection in refresh_token_cache in tools/export_report.py."}
+{"id": "confusable-003", "slice": "confusable", "label": "refactor", "text": "Add type hints to render_cart in src/api/client.py."}
+{"id": "confusable-004", "slice": "confusable", "label": "lint-fix", "text": "Fix the markdown lint errors in README.md."}
+{"id": "confusable-005", "slice": "confusable", "label": "docs", "text": "The example output in docs/usage.md no longer matches what load_config prints; update the docs."}
+{"id": "confusable-006", "slice": "confusable", "label": "small-bugfix", "text": "Fix the typo in the error message of refresh_token_cache; test_parse_empty asserts the old text."}
+{"id": "confusable-007", "slice": "confusable", "label": "needs-human", "text": "Fix the SQL injection in load_config in internal/billing/invoice.go."}
+{"id": "confusable-008", "slice": "confusable", "label": "refactor", "text": "Add type hints to split_batches in pkg/cache/lru.go."}
+{"id": "confusable-009", "slice": "confusable", "label": "docs", "text": "The example output in docs/usage.md no longer matches what normalize_path prints; update the docs."}
+{"id": "confusable-010", "slice": "confusable", "label": "small-bugfix", "text": "Fix the typo in the error message of split_batches; test_merge_dupes asserts the old text."}
+{"id": "confusable-011", "slice": "confusable", "label": "needs-human", "text": "Fix the SQL injection in split_batches in src/parser/tokens.py."}
+{"id": "confusable-012", "slice": "confusable", "label": "refactor", "text": "Add type hints to normalize_path in src/api/client.py."}
+{"id": "confusable-013", "slice": "confusable", "label": "docs", "text": "The example output in docs/usage.md no longer matches what split_batches prints; update the docs."}
+{"id": "confusable-014", "slice": "confusable", "label": "small-bugfix", "text": "Fix the typo in the error message of flush_buffer; CartTest.testEmpty asserts the old text."}
+{"id": "confusable-015", "slice": "confusable", "label": "needs-human", "text": "Fix the SQL injection in render_cart in src/api/client.py."}
+{"id": "confusable-016", "slice": "confusable", "label": "refactor", "text": "Add type hints to refresh_token_cache in core/scheduler.rs."}
+{"id": "confusable-017", "slice": "confusable", "label": "docs", "text": "The example output in docs/usage.md no longer matches what render_cart prints; update the docs."}
+{"id": "confusable-018", "slice": "confusable", "label": "small-bugfix", "text": "Fix the typo in the error message of render_cart; test_merge_dupes asserts the old text."}
+{"id": "confusable-019", "slice": "confusable", "label": "needs-human", "text": "Fix the SQL injection in load_config in tools/export_report.py."}
+{"id": "confusable-020", "slice": "confusable", "label": "refactor", "text": "Add type hints to retry_request in core/scheduler.rs."}
+{"id": "confusable-021", "slice": "confusable", "label": "small-bugfix", "text": "Fix the typo in the error message of merge_orders; test_merge_dupes asserts the old text."}
+{"id": "confusable-022", "slice": "confusable", "label": "needs-human", "text": "Fix the SQL injection in merge_orders in src/utils/dates.js."}
+{"id": "confusable-023", "slice": "confusable", "label": "refactor", "text": "Add type hints to compute_total in lib/auth/session.ts."}
+{"id": "confusable-024", "slice": "confusable", "label": "docs", "text": "The example output in docs/usage.md no longer matches what refresh_token_cache prints; update the docs."}
+{"id": "confusable-025", "slice": "confusable", "label": "small-bugfix", "text": "Fix the typo in the error message of split_batches; test_retry_backoff asserts the old text."}
+{"id": "confusable-026", "slice": "confusable", "label": "needs-human", "text": "Fix the SQL injection in flush_buffer in app/models/order.rb."}
+{"id": "confusable-027", "slice": "confusable", "label": "refactor", "text": "Add type hints to retry_request in src/utils/dates.js."}
+{"id": "confusable-028", "slice": "confusable", "label": "docs", "text": "The example output in docs/usage.md no longer matches what parse_date prints; update the docs."}
+{"id": "confusable-029", "slice": "confusable", "label": "small-bugfix", "text": "Fix the typo in the error message of merge_orders; test_retry_backoff asserts the old text."}
+{"id": "abstain-000", "slice": "abstain", "label": "needs-more-info", "text": "Make it better."}
+{"id": "abstain-001", "slice": "abstain", "label": "needs-more-info", "text": "The dark mode isn't working like before."}
+{"id": "abstain-002", "slice": "abstain", "label": "needs-more-info", "text": "Look at the failing build."}
+{"id": "abstain-003", "slice": "abstain", "label": "needs-more-info", "text": "Something is off with report-service."}
+{"id": "abstain-004", "slice": "abstain", "label": "needs-more-info", "text": "Please take a look at parse_date."}
+{"id": "abstain-005", "slice": "abstain", "label": "needs-more-info", "text": "Handle the orders thing."}
+{"id": "abstain-006", "slice": "abstain", "label": "needs-more-info", "text": "web/components/Cart.tsx is weird, can you check?"}
+{"id": "abstain-007", "slice": "abstain", "label": "needs-more-info", "text": "Fix the export problem."}
+{"id": "abstain-008", "slice": "abstain", "label": "needs-more-info", "text": "It's broken, please fix."}
+{"id": "abstain-009", "slice": "abstain", "label": "needs-more-info", "text": "The search isn't working like before."}
+{"id": "abstain-010", "slice": "abstain", "label": "needs-more-info", "text": "Please take a look at normalize_path."}
+{"id": "abstain-011", "slice": "abstain", "label": "needs-more-info", "text": "Handle the audit_log thing."}
+{"id": "abstain-012", "slice": "abstain", "label": "needs-more-info", "text": "lib/auth/session.ts is weird, can you check?"}
+{"id": "abstain-013", "slice": "abstain", "label": "needs-more-info", "text": "Something is off with billing-worker."}
+{"id": "abstain-014", "slice": "abstain", "label": "needs-more-info", "text": "Please take a look at split_batches."}
+{"id": "abstain-015", "slice": "abstain", "label": "needs-more-info", "text": "Fix the dark mode problem."}
+{"id": "abstain-016", "slice": "abstain", "label": "needs-more-info", "text": "The notifications isn't working like before."}
+{"id": "abstain-017", "slice": "abstain", "label": "needs-more-info", "text": "Something is off with mailer."}
+{"id": "abstain-018", "slice": "abstain", "label": "needs-more-info", "text": "src/api/client.py is weird, can you check?"}
+{"id": "abstain-019", "slice": "abstain", "label": "needs-more-info", "text": "Fix the notifications problem."}
+{"id": "abstain-020", "slice": "abstain", "label": "needs-more-info", "text": "Something is off with gateway."}
+{"id": "abstain-021", "slice": "abstain", "label": "needs-more-info", "text": "core/scheduler.rs is weird, can you check?"}
+{"id": "abstain-022", "slice": "abstain", "label": "needs-more-info", "text": "The checkout isn't working like before."}
+{"id": "abstain-023", "slice": "abstain", "label": "needs-more-info", "text": "Please take a look at compute_total."}
+{"id": "long-000", "slice": "long", "label": "needs-human", "text": "CI log: step 'test' started 10:02:11 ... 214 passed, 3 skipped in 41.2s ... step 'package' ok\n\nCI log: step 'test' started 10:02:11 ... 214 passed, 3 skipped in 41.2s ... step 'package' ok\n\nBackground: the team shipped v2.4 last week; the on-call rotation changes on Monday; the staging cluster was resized and the nightly job now takes 40 minutes.\n\ndiff --git a/src/utils/dates.js b/core/scheduler.rs\n@@ -12,7 +88,9 @@\n-    items = fetch()\n+    items = fetch() or []\n     for it in items:\n         process(it)\n\nRequest: Rotate the credentials billing-worker uses and roll the change out to every deployment.\n\n$ git log --oneline -5\n3f2a1c9 wip\n91be0d4 update deps\nc02d7aa add retry\n88e1f03 tweak CI\nd41a9b2 init"}
+{"id": "long-001", "slice": "long", "label": "lint-fix", "text": "$ git log --oneline -5\n3f2a1c9 wip\n91be0d4 update deps\nc02d7aa add retry\n88e1f03 tweak CI\nd41a9b2 init\n\nBackground: the team shipped v2.4 last week; the on-call rotation changes on Monday; the staging cluster was resized and the nightly job now takes 40 minutes.\n\nRequest: Run the formatter over tools/ and commit the whitespace-only changes.\n\ndiff --git a/src/api/client.py b/tools/export_report.py\n@@ -88,7 +307,9 @@\n-    items = fetch()\n+    items = fetch() or []\n     for it in items:\n         process(it)"}
+{"id": "long-002", "slice": "long", "label": "needs-human", "text": "$ git log --oneline -5\n3f2a1c9 wip\n91be0d4 update deps\nc02d7aa add retry\n88e1f03 tweak CI\nd41a9b2 init\n\nCI log: step 'test' started 10:02:11 ... 214 passed, 3 skipped in 41.2s ... step 'package' ok\n\nRequest: Migrate the payments table to a new schema in production with no downtime.\n\ndiff --git a/core/scheduler.rs b/src/parser/tokens.py\n@@ -12,7 +12,9 @@\n-    items = fetch()\n+    items = fetch() or []\n     for it in items:\n         process(it)"}
+{"id": "long-003", "slice": "long", "label": "lint-fix", "text": "diff --git a/app/models/order.rb b/pkg/cache/lru.go\n@@ -12,7 +141,9 @@\n-    items = fetch()\n+    items = fetch() or []\n     for it in items:\n         process(it)\n\nBackground: the team shipped v2.4 last week; the on-call rotation changes on Monday; the staging cluster was resized and the nightly job now takes 40 minutes.\n\nRequest: Run the formatter over lib/ and commit the whitespace-only changes.\n\ndiff --git a/web/components/Cart.tsx b/app/models/order.rb\n@@ -12,7 +141,9 @@\n-    items = fetch()\n+    items = fetch() or []\n     for it in items:\n         process(it)"}
+{"id": "long-004", "slice": "long", "label": "refactor", "text": "Background: the team shipped v2.4 last week; the on-call rotation changes on Monday; the staging cluster was resized and the nightly job now takes 40 minutes.\n\nCI log: step 'test' started 10:02:11 ... 214 passed, 3 skipped in 41.2s ... step 'package' ok\n\nTraceback (most recent call last):\n  File \"src/parser/tokens.py\", line 307, in merge_orders\n    return handler(ctx)\nRuntimeError: unexpected state while processing batch 17\n\nCI log: step 'test' started 10:02:11 ... 214 passed, 3 skipped in 41.2s ... step 'package' ok\n\nRequest: Replace the nested callbacks in parse_date with async/await.\n\n$ git log --oneline -5\n3f2a1c9 wip\n91be0d4 update deps\nc02d7aa add retry\n88e1f03 tweak CI\nd41a9b2 init"}
+{"id": "long-005", "slice": "long", "label": "docs", "text": "CI log: step 'test' started 10:02:11 ... 214 passed, 3 skipped in 41.2s ... step 'package' ok\n\nBackground: the team shipped v2.4 last week; the on-call rotation changes on Monday; the staging cluster was resized and the nightly job now takes 40 minutes.\n\n$ git log --oneline -5\n3f2a1c9 wip\n91be0d4 update deps\nc02d7aa add retry\n88e1f03 tweak CI\nd41a9b2 init\n\nBackground: the team shipped v2.4 last week; the on-call rotation changes on Monday; the staging cluster was resized and the nightly job now takes 40 minutes.\n\nRequest: Fix the typo in the FAQ section of CONTRIBUTING.md.\n\n$ git log --oneline -5\n3f2a1c9 wip\n91be0d4 update deps\nc02d7aa add retry\n88e1f03 tweak CI\nd41a9b2 init"}
+{"id": "long-006", "slice": "long", "label": "lint-fix", "text": "CI log: step 'test' started 10:02:11 ... 214 passed, 3 skipped in 41.2s ... step 'package' ok\n\nTraceback (most recent call last):\n  File \"lib/auth/session.ts\", line 88, in render_cart\n    return handler(ctx)\nRuntimeError: unexpected state while processing batch 17\n\ndiff --git a/src/utils/dates.js b/pkg/cache/lru.go\n@@ -307,7 +12,9 @@\n-    items = fetch()\n+    items = fetch() or []\n     for it in items:\n         process(it)\n\nRequest: Remove the unused imports prettier reports in pkg/cache/lru.go.\n\nBackground: the team shipped v2.4 last week; the on-call rotation changes on Monday; the staging cluster was resized and the nightly job now takes 40 minutes."}
+{"id": "long-007", "slice": "long", "label": "needs-human", "text": "CI log: step 'test' started 10:02:11 ... 214 passed, 3 skipped in 41.2s ... step 'package' ok\n\n$ git log --oneline -5\n3f2a1c9 wip\n91be0d4 update deps\nc02d7aa add retry\n88e1f03 tweak CI\nd41a9b2 init\n\nBackground: the team shipped v2.4 last week; the on-call rotation changes on Monday; the staging cluster was resized and the nightly job now takes 40 minutes.\n\nTraceback (most recent call last):\n  File \"web/components/Cart.tsx\", line 12, in flush_buffer\n    return handler(ctx)\nRuntimeError: unexpected state while processing batch 17\n\nRequest: Change the permission model so support agents can read billing data.\n\nBackground: the team shipped v2.4 last week; the on-call rotation changes on Monday; the staging cluster was resized and the nightly job now takes 40 minutes."}
+{"id": "long-008", "slice": "long", "label": "docs", "text": "Background: the team shipped v2.4 last week; the on-call rotation changes on Monday; the staging cluster was resized and the nightly job now takes 40 minutes.\n\nTraceback (most recent call last):\n  File \"app/models/order.rb\", line 307, in normalize_path\n    return handler(ctx)\nRuntimeError: unexpected state while processing batch 17\n\nRequest: Document the environment variables report-service reads in docs/config.md.\n\nCI log: step 'test' started 10:02:11 ... 214 passed, 3 skipped in 41.2s ... step 'package' ok"}
+{"id": "long-009", "slice": "long", "label": "needs-human", "text": "Background: the team shipped v2.4 last week; the on-call rotation changes on Monday; the staging cluster was resized and the nightly job now takes 40 minutes.\n\nCI log: step 'test' started 10:02:11 ... 214 passed, 3 skipped in 41.2s ... step 'package' ok\n\nTraceback (most recent call last):\n  File \"src/api/client.py\", line 307, in merge_orders\n    return handler(ctx)\nRuntimeError: unexpected state while processing batch 17\n\nRequest: Migrate the audit_log table to a new schema in production with no downtime.\n\ndiff --git a/core/scheduler.rs b/lib/auth/session.ts\n@@ -12,7 +88,9 @@\n-    items = fetch()\n+    items = fetch() or []\n     for it in items:\n         process(it)"}
+{"id": "long-010", "slice": "long", "label": "needs-human", "text": "diff --git a/tools/export_report.py b/src/utils/dates.js\n@@ -141,7 +12,9 @@\n-    items = fetch()\n+    items = fetch() or []\n     for it in items:\n         process(it)\n\nTraceback (most recent call last):\n  File \"app/models/order.rb\", line 141, in render_cart\n    return handler(ctx)\nRuntimeError: unexpected state while processing batch 17\n\n$ git log --oneline -5\n3f2a1c9 wip\n91be0d4 update deps\nc02d7aa add retry\n88e1f03 tweak CI\nd41a9b2 init\n\nRequest: Rotate the credentials mailer uses and roll the change out to every deployment.\n\ndiff --git a/internal/billing/invoice.go b/tools/export_report.py\n@@ -12,7 +88,9 @@\n-    items = fetch()\n+    items = fetch() or []\n     for it in items:\n         process(it)"}
+{"id": "long-011", "slice": "long", "label": "lint-fix", "text": "diff --git a/pkg/cache/lru.go b/tools/export_report.py\n@@ -12,7 +12,9 @@\n-    items = fetch()\n+    items = fetch() or []\n     for it in items:\n         process(it)\n\ndiff --git a/src/parser/tokens.py b/lib/auth/session.ts\n@@ -88,7 +141,9 @@\n-    items = fetch()\n+    items = fetch() or []\n     for it in items:\n         process(it)\n\n$ git log --oneline -5\n3f2a1c9 wip\n91be0d4 update deps\nc02d7aa add retry\n88e1f03 tweak CI\nd41a9b2 init\n\nRequest: Fix the eslint warning `S1192` in app/models/order.rb.\n\nBackground: the team shipped v2.4 last week; the on-call rotation changes on Monday; the staging cluster was resized and the nightly job now takes 40 minutes."}
