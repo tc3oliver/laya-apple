@@ -1,7 +1,8 @@
 """Claude arm: `claude -p --model haiku`, JSON-schema output, no tools, no session persistence.
 
 Usage: run_claude.py SPLIT [LIMIT]. Resumable: ids already in the output file are skipped.
-Calls ~/.local/bin/claude by absolute path with the ambient environment (no ANTHROPIC_* set here).
+Calls the `claude` CLI named by $CLAUDE_BIN (default: `claude` on PATH) with the ambient
+environment (no ANTHROPIC_* set here).
 """
 
 import json
@@ -13,7 +14,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 HERE = Path(__file__).parent
-CLAUDE = os.path.expanduser("~/.local/bin/claude")
+CLAUDE = os.environ.get("CLAUDE_BIN", "claude")
 LABELS = ["lint-fix", "small-bugfix", "refactor", "docs", "needs-human", "needs-more-info"]
 SYSTEM = (
     "You route software work requests. Reply only with the structured result. Labels: "

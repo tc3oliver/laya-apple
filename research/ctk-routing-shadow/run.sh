@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Reproduce the shadow benchmark. Read-only: nothing here routes, gates or approves real work.
-# Needs: the laya-typed-decisions checkpoint in the local HF cache, ~/.local/bin/claude logged in.
+# Needs: the laya-typed-decisions checkpoint in the local HF cache, a logged-in `claude` CLI
+# (on PATH, or set CLAUDE_BIN to its path).
 # Set SKIP_CLAUDE=1 to reuse results/claude_*.jsonl (Claude calls are resumable and cost ~US$0.4 total).
 set -euo pipefail
 cd "$(dirname "$0")"
