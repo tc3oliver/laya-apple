@@ -160,7 +160,8 @@ Limits:
 
 Smaller 1.6 changes: an MLX fast path (a token-id cache on by default; `mx.compile`
 and length-bucketed batching opt-in; see [Limitations](#limitations) for what was measured),
-and W8 ANE research that ships nothing ([Limitations](#limitations)). Release notes:
+and W8 ANE research that shipped nothing in 1.6 (W8 became an opt-in in 1.7; see
+[Limitations](#limitations)). Release notes:
 [`docs/releases/v1.6.0.md`](docs/releases/v1.6.0.md).
 
 ## GPU + ANE benchmarks
@@ -408,9 +409,12 @@ Definitions, every configuration tested and the fallback audit:
   No independent check on a second machine of either profile has been done yet. We
   recommend one before publishing, but it is not required ([`docs/publishing.md`](docs/publishing.md));
   each receiving machine still validates every artifact before registering it.
-- **No quantized artifact ships.** In the W8 research only the laya-typed-decisions L64
-  `w8-pt` result is reproduced (0.650 of FP16 latency); laya and laya-multilingual failed the
-  parity gate ([`research/ane-w8/README.md`](research/ane-w8/README.md)).
+- **The only quantized artifact is an experimental opt-in.** Since 1.7 the laya-typed-decisions
+  L64 `w8-pt` artifact can be built locally and enabled with `ane_quantization="w8"`. It is off
+  by default, is not prebuilt or fetchable, and is limited to Apple M4 Max on macOS 27. Its
+  preregistered production gate failed (conditions 5 and 7; verdict Research Only / No Ship;
+  [`research/ane-w8-l64-gate/README.md`](research/ane-w8-l64-gate/README.md)). laya and
+  laya-multilingual failed the parity gate ([`research/ane-w8/README.md`](research/ane-w8/README.md)).
 - **The MLX fast-path gains (about 1–4%) come from a screen,** not a full benchmark
   ([`benchmarks/mlx-fast-path-screen/README.md`](benchmarks/mlx-fast-path-screen/README.md)).
 - **Switchyard does not counterbalance round order:** with the standard seed, GPU + ANE ran
