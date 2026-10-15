@@ -1,14 +1,17 @@
 # Open-loop S5: is the GPU LLM slowdown caused by W8?
 
-**Outcome (preregistered rule, applied literally): No inherent W8 interference detected.**
+**Outcome: No W8-specific LLM slowdown detected at matched offered load.** (The preregistered
+rule's label for this branch is "No inherent W8 interference detected"; this README uses the
+narrower wording because the experiment shows matched-load behaviour on one machine, not every
+load.)
 At equal offered load, a GPU LLM runs 1.2% *faster* next to the W8 arm than next to FP16
 (tokens/s B/A 1.012, 1.013, 1.012; TTFT P95 B/A 1.004, 0.995, 1.001).
 
 This is an independent record. It does **not** change the verdict of
 [`../ane-w8-l64-gate/`](../ane-w8-l64-gate/README.md) (PR #174: **Research Only / No Ship**;
 conditions 5 and 7 failed there and still stand as recorded). Condition 7 (a real L64 request
-distribution) remains unproven, so this result cannot move W8 toward production. No
-`laya_apple/` code, runtime default, golden, tolerance or release gate is touched.
+distribution) remains unproven, so this result does not pass the gate. No `laya_apple/` code,
+runtime default, golden, tolerance or release gate is touched by this record.
 
 Protocol: [`PREREGISTRATION.md`](PREREGISTRATION.md) (committed before any data; one amendment,
 also before any data, widens the client-lag validity bound, see below). This was the last
@@ -52,7 +55,7 @@ byte-reproducible); its parity, placement and probe match.
 | 3 | 337.4 | 341.5 | **1.012** | 76.8 / 76.8 | **1.001** |
 
 Pooled mean B/A (mean of the per-replicate ratios) 1.013. All three replicates are inside both
-bounds, so the rule gives "No inherent W8 interference detected". The "confirmed" arm of the rule
+bounds, so the rule gives its "no interference" branch ("No inherent W8 interference detected"). The "confirmed" arm of the rule
 (tokens/s < 0.97 in >= 2 of 3 and pooled < 0.97) is not met in any replicate.
 
 Noise floor, `null` A'/A (tokens/s, TTFT P95): (0.998, 1.006), (1.000, 0.998), (1.000, 1.008). All
@@ -138,7 +141,7 @@ Established (for this load model, this machine and this LLM):
 Not established, and recorded as limits:
 
 - Condition 7 (a real L64 request distribution) is still unproven, and PR #174's verdict is
-  unchanged: **Research Only / No Ship**. Passing here does not move W8 to production.
+  unchanged: **Research Only / No Ship**. Passing here does not pass the gate.
 - The reason B is slightly faster for the LLM was not investigated (no counters are available to
   attribute it; for example less ANE work or less memory traffic per request). It is an observation.
 - 3 replicates, intervals not computed (the three ratios agree to 0.001, so a t-interval over df=2
