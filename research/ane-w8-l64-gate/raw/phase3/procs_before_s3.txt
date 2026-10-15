@@ -1,0 +1,4 @@
+ %CPU COMM
+ 29.1 claude
+ 11.3 /System/Library/ExtensionKit/Extensions/WallpaperAerialsExtension.appex/Contents/MacOS/WallpaperAerialsExtension
+ 11.0 claude
