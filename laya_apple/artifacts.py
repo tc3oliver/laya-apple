@@ -502,7 +502,7 @@ def artifact_capabilities() -> list[dict]:
                     "near_tie_flips": len(near_tie) if isinstance(near_tie, list) else None,
                 },
                 "artifact_sha256": integrity.get("artifact_sha256"),
-                "offered_by_auto": bool(spec) and bucket in spec.auto_ane_buckets,
+                "offered_by_auto": bool(spec) and bucket in spec.auto_ane_buckets and not art.get("quantization"),
                 "offered_explicit": bool(spec) and bucket in spec.ane_buckets,
             }
         )

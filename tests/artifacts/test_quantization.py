@@ -208,3 +208,32 @@ def test_cli_quantize_refuses_what_it_does_not_cover(model, args):
     argv = ["artifacts", *args, *([model] if model else []), "--quantize", "w8"]
     with pytest.raises(SystemExit):
         main(argv)
+
+
+class _DeadWorker:
+    alive = False
+
+
+def _auto_workers(quantization):
+    from laya_apple import model
+
+    laya = model.Laya.__new__(model.Laya)
+    laya.execution, laya.device, laya.spec = "workers", "auto", SPEC
+    laya._workers, laya._ane_dead_warned, laya.ane_quantization = {"ane": _DeadWorker()}, False, quantization
+    laya.ane_state = None
+    return laya
+
+
+def test_a_w8_request_raises_when_the_ane_worker_has_exited():
+    with pytest.raises(BackendUnavailableError, match="does not fall back"):
+        _auto_workers("w8-pt").route(object(), backlogs=(0.0, 0.0))
+
+
+def test_offered_by_auto_is_false_for_a_quantized_record(cache, manifest_factory):
+    from laya_apple.artifacts import artifact_capabilities
+
+    quant = _artifact(SPEC, 64, manifest_factory, artifact_dir(SPEC, 64, "w8"), **{"artifact.quantization": W8})
+    plain = _artifact(SPEC, 96, manifest_factory, artifact_dir(SPEC, 96))
+    by_path = {r["path"]: r for r in artifact_capabilities()}
+    assert by_path[str(quant)]["offered_by_auto"] is False and by_path[str(quant)]["quantization"] == W8
+    assert by_path[str(plain)]["offered_by_auto"] is True and by_path[str(plain)]["quantization"] is None

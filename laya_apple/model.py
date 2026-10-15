@@ -385,6 +385,7 @@ class Laya:
             self.ane_state = routing.AneState(None, self.ane.buckets)
         elif self.device == "auto":
             if not self.spec.auto_ane_buckets:
+                self._require_ane_for_quantization("no ANE bucket is offered for auto routing")
                 self.ane_state = routing.AneState(None, ())
             elif (why := self._ane_gate()) is not None:
                 self._require_ane_for_quantization(why)
@@ -427,6 +428,7 @@ class Laya:
         want_ane = self.device == "ane"
         if self.device == "auto":
             if not self.spec.ane_buckets:
+                self._require_ane_for_quantization("no ANE bucket is offered for this model")
                 self.ane_state = routing.AneState(None, ())
             elif (why := self._ane_gate()) is not None:
                 self._require_ane_for_quantization(why)
@@ -632,6 +634,10 @@ class Laya:
         ane_state = self.ane_state
         worker = self._workers.get("ane")
         if self.device == "auto" and worker is not None and not worker.alive:
+            if self.ane_quantization:  # an explicit W8 request is never moved to the GPU
+                raise BackendUnavailableError(
+                    f"the ANE worker exited; ane_quantization={self.ane_quantization!r} does not fall back to MLX"
+                )
             # A dead ANE worker is reported, never hidden: auto records the reason on every
             # result and warns once; explicit device="ane" requests keep raising.
             if not self._ane_dead_warned:

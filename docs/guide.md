@@ -558,8 +558,10 @@ Scope, enforced at load time:
 - Not supported with `device="gpu"`, `ane_startup="background"` or `from_pretrained("auto")`
   (`ValueError` / `UnsupportedShapeError`), by `artifacts export`/`import`/`fetch` (build it
   locally), or by `laya-apple serve`.
-- It never degrades silently: a missing, stale or failing W8 artifact raises, in `device="auto"`
-  too. It does not fall back to FP16 or to the GPU.
+- It never degrades silently: a missing, stale or failing W8 artifact raises at load, in
+  `device="auto"` too, and a request raises if the ANE worker has exited (`execution="workers"` with
+  `ane_placement="process"`). It does not fall back to FP16 or to the GPU. (`artifacts list`
+  reports `offered_by_auto: false` for it: auto uses it only on this explicit request.)
 - The routing thresholds and calibrated service times are the FP16 ones; they were not
   re-derived for W8.
 
@@ -569,7 +571,8 @@ Apple M4 Max): forward predict P50 0.651x of FP16 (pooled B/A, 3 processes), sin
 end-to-end P50 8.2 -> 5.4 ms and 1.52x throughput, 0 hard mismatches, max probability error 0.0170
 against the 0.02 gate, 369.7 MB of weights against 738.9 MB, 100% ANE.
 
-Published limitations. The preregistered production gate of that research is **not passed**:
+Published limitations. The preregistered production gate of that research is **not passed**; its
+recorded verdict is **Research Only / No Ship**, and W8 ships here only as this explicit opt-in:
 - Condition 5 failed as written: with a continuous GPU LLM and a closed-loop client, the LLM
   generated about 4% fewer tokens/s next to W8 (B/A 0.953 to 0.962 in 12 of 12 cells). An
   open-loop follow-up at equal offered load found no W8-specific slowdown (B/A 1.012 to 1.013),
@@ -577,6 +580,9 @@ Published limitations. The preregistered production gate of that research is **n
   real for a client that sends as fast as it is served.
 - Condition 7 is unproven: no real request corpus exists, so how often real requests fall in the
   L64 bucket is unknown. This is why W8 is not the default.
+- The adaptive-execution breaker was exercised with W8 only in a quiet system: no real GPU-busy
+  episode tripped it, so its trip behaviour with W8 is untested
+  ([`research/ane-w8-l64-gate/`](../research/ane-w8-l64-gate/README.md), S6).
 - Two near-tie flips against the FP16 reference (listed in the research record), and the
   measurements are one machine, thread-level concurrency, and research-side injection.
 
