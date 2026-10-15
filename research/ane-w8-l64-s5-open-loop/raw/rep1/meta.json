@@ -1,0 +1,55 @@
+{
+ "pid": 41537,
+ "args": {
+  "root": "~/Developer/scratch/w8-l64-s5/w8",
+  "out_dir": "research/ane-w8-l64-s5-open-loop/raw/rep1",
+  "rate_eq": 52.0,
+  "rate_hi": 65.0,
+  "cycles": 8,
+  "window_s": 30.0,
+  "cells": [
+   "eq",
+   "hi",
+   "null"
+  ],
+  "drain_s": 5.0,
+  "settle_s": 2.0,
+  "llm_block_s": 60.0,
+  "llm_python": "~/Developer/ai/omlx-production/releases/hpcp14-20261003/.venv/bin/python3",
+  "llm_model": "/Volumes/Data/models/mlx-community/Qwen3.5-0.8B-MLX-4bit",
+  "dry_run": false
+ },
+ "mix": [
+  [
+   0.8,
+   64,
+   1
+  ],
+  [
+   0.1,
+   64,
+   3
+  ],
+  [
+   0.1,
+   256,
+   1
+  ]
+ ],
+ "macos_build": "26A428",
+ "python": "3.12.14",
+ "coremltools": "9.0",
+ "mlx": "0.32.2",
+ "model": "laya-typed-decisions",
+ "revision": "f9ab0b228f0fc0f14d873dbc99038f135c2da1b2",
+ "b_artifact": "~/Developer/scratch/w8-l64-s5/w8/laya-typed-decisions/f9ab0b228f0f/bc1s-masked-w8-pt-L64-B1/model.mlmodelc",
+ "cache": "~/Developer/scratch/w8-l64-s5/cache",
+ "loadavg_start": [
+  2.71337890625,
+  2.96923828125,
+  3.41015625
+ ],
+ "thermal_start": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+ "switchinterval_s": 0.00019999999999999998,
+ "n_windows": 48
+}

@@ -1,0 +1,4 @@
+ 2:06  up 16 days, 36 mins, 4 users, load averages: 1.99 2.24 2.51
+Note: No thermal warning level has been recorded
+Note: No performance warning level has been recorded
+Note: No CPU power status has been recorded

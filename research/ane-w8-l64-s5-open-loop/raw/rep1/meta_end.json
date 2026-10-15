@@ -1,0 +1,17 @@
+{
+ "llm_only_pre": [
+  1791997891.078227,
+  1791997951.079375
+ ],
+ "llm_only_post": [
+  1791999491.2603252,
+  1791999551.263524
+ ],
+ "loadavg_end": [
+  2.51025390625,
+  2.57763671875,
+  2.791015625
+ ],
+ "thermal_end": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+ "llm_rc": 0
+}
