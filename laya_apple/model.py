@@ -30,6 +30,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from . import routing, scheduling
+from .artifacts import check_quantization_supported, normalize_quantization, quantized_buckets
 from .errors import (
     ArtifactMissingError,
     BackendUnavailableError,
@@ -74,6 +75,19 @@ def _handoff_eligible(model: str, execution: str, device: str, ane_placement: st
     measured = ane_placement_for(model)
     placement = measured if ane_placement == "auto" else ane_placement
     return execution == "workers" and device == "auto" and placement == "thread" and measured == "thread"
+
+
+def _check_ane_quantization(ane_quantization, spec: ModelSpec, device: str, ane_startup: str) -> str | None:
+    """Validate an explicit W8 request before anything loads; return its canonical name or None."""
+    name = normalize_quantization(ane_quantization)
+    if name is None:
+        return None
+    if device == "gpu":
+        raise ValueError(f"ane_quantization={name!r} applies to the ANE; device='gpu' does not use it")
+    if ane_startup != "wait":
+        raise ValueError(f'ane_quantization={name!r} needs ane_startup="wait": its load failure must raise, not warn')
+    check_quantization_supported(spec, name)
+    return name
 
 
 def _check_ane_handoff(
@@ -136,6 +150,7 @@ class Laya:
     """A loaded checkpoint plus the backends its `device` setting allows."""
 
     ane_handoff = False  # adaptive execution in use (mode "auto" or "on"); set per instance by __init__
+    ane_quantization = None  # the opt-in quantized ANE artifact requested ("w8-pt"); None is FP16
     _handoff_mode = "off"
     _handoff = None
     _handoff_unavailable: str | None = None
@@ -153,6 +168,7 @@ class Laya:
         ane_startup: str = "wait",
         trace: TraceCallback | None = None,
         ane_handoff: bool | None = None,
+        ane_quantization: str | None = None,
     ):
         if device not in routing.DEVICES:
             raise ValueError(f"device must be one of {routing.DEVICES}, got {device!r}")
@@ -165,6 +181,7 @@ class Laya:
             raise ValueError(f"device='ane' runs {ANE_PRECISION} only; dtype={dtype!r} is not validated on the ANE")
         self.spec, self.checkpoint, self.device, self.dtype = spec, checkpoint, device, dtype
         self.execution = execution
+        self.ane_quantization = _check_ane_quantization(ane_quantization, spec, device, ane_startup)
         if trace is not None and execution != "workers":
             raise ValueError('trace applies only to execution="workers"')
         self._trace = trace
@@ -223,6 +240,7 @@ class Laya:
         ane_startup: str = "wait",
         trace: TraceCallback | None = None,
         ane_handoff: bool | None = None,
+        ane_quantization: str | None = None,
     ) -> "Laya | LayaRouter":
         """Load a pinned checkpoint.
 
@@ -250,6 +268,13 @@ class Laya:
         the 1.4 path otherwise, with one warning when an eligible instance cannot use it.
         False always runs the 1.4 path. True requires it: ValueError on an ineligible
         configuration (before anything loads), BackendUnavailableError when unavailable.
+        ane_quantization: None (the default) runs the FP16 ANE artifacts. "w8" opts in to the 8-bit
+        palettized artifact (`laya-apple artifacts build --quantize w8-pt`) for the buckets it was
+        validated on (laya-typed-decisions L64; the other buckets stay FP16), on the machine it was
+        validated on (Apple M4 Max, macOS 27). It is explicit and never silent: an unsupported
+        model, machine, device or startup mode raises ValueError / UnsupportedShapeError /
+        BackendUnavailableError, and a missing or invalid W8 artifact raises instead of falling back
+        to FP16 or to the GPU. model_id="auto" (language routing) does not support it.
         """
         if device not in routing.DEVICES:
             raise ValueError(f"device must be one of {routing.DEVICES}, got {device!r}")
@@ -268,8 +293,10 @@ class Laya:
                 ane_startup=ane_startup,
                 trace=trace,
                 ane_handoff=ane_handoff,
+                ane_quantization=ane_quantization,
             )
         spec = resolve(model_id)
+        _check_ane_quantization(ane_quantization, spec, device, ane_startup)  # before any download
         if ane_handoff is not None and ane_handoff is not False:  # checked before any download
             if ane_placement not in ANE_PLACEMENTS:
                 raise ValueError(f"ane_placement must be one of {ANE_PLACEMENTS}, got {ane_placement!r}")
@@ -287,6 +314,7 @@ class Laya:
             ane_startup=ane_startup,
             trace=trace,
             ane_handoff=ane_handoff,
+            ane_quantization=ane_quantization,
         )
 
     def _routing_profile(self):
@@ -359,6 +387,7 @@ class Laya:
             if not self.spec.auto_ane_buckets:
                 self.ane_state = routing.AneState(None, ())
             elif (why := self._ane_gate()) is not None:
+                self._require_ane_for_quantization(why)
                 self.ane_state = routing.AneState(why)
             else:
                 self.ane = self._load_ane_inline(self.spec.auto_ane_buckets, strict=False)
@@ -381,7 +410,15 @@ class Laya:
             int(self._encoder_cfg["local_attention"]),
             buckets,
             strict=strict,
+            quantization=self.ane_quantization,
         )
+
+    def _require_ane_for_quantization(self, why: str) -> None:
+        """ane_quantization is an explicit request for the ANE: if auto cannot use it, say so."""
+        if self.ane_quantization:
+            raise BackendUnavailableError(
+                f"ane_quantization={self.ane_quantization!r} needs the ANE, which auto cannot use here ({why})"
+            )
 
     def _start_workers(self, batch_size):
         from .executor import DeviceWorker
@@ -392,6 +429,7 @@ class Laya:
             if not self.spec.ane_buckets:
                 self.ane_state = routing.AneState(None, ())
             elif (why := self._ane_gate()) is not None:
+                self._require_ane_for_quantization(why)
                 self.ane_state = routing.AneState(why)
             else:
                 want_ane = True
@@ -408,6 +446,8 @@ class Laya:
                 buckets=list(self.spec.ane_buckets),  # auto also loads the tie band for queue-aware routing
                 strict=self.device == "ane",
             )
+            if self.ane_quantization:
+                ane_args["quantization"] = self.ane_quantization
             if gpu_activity is not None:
                 ane_args["async_models"] = True
             self._workers["ane"] = DeviceWorker("ane", ane_args, placement=self.ane_placement, wait=False)
@@ -864,6 +904,11 @@ class Laya:
                 "tie_buckets": list(self._tie_buckets),
             },
         }
+        if self.ane_quantization:  # opt-in only: info() is unchanged otherwise
+            info["ane_quantization"] = {
+                "scheme": self.ane_quantization,
+                "buckets": list(quantized_buckets(self.spec, self.ane_quantization)),
+            }
         if self.ane_handoff:  # eligible instances only: info() is unchanged otherwise
             if self._handoff is not None:
                 info["ane_handoff"] = self._handoff.snapshot()

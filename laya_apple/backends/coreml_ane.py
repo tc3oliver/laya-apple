@@ -17,7 +17,14 @@ from pathlib import Path
 
 import numpy as np
 
-from ..artifacts import COMPILED, artifact_dir, load_verified
+from ..artifacts import (
+    COMPILED,
+    artifact_dir,
+    check_quantization_supported,
+    load_verified,
+    normalize_quantization,
+    quantized_buckets,
+)
 from ..errors import ArtifactError, ArtifactMissingError, ComputeUnitMismatchError, UnsupportedShapeError
 from ..registry import ANE_COMPUTE_UNITS, ANE_MAX_OPTIONS, ModelSpec
 
@@ -149,6 +156,10 @@ class HostWeights:
         return logits, act.astype(np.float32)
 
 
+def _artifact_path(spec: ModelSpec, bucket: int, quantization: str | None) -> Path:
+    return (artifact_dir(spec, bucket) if quantization is None else artifact_dir(spec, bucket, quantization)) / COMPILED
+
+
 class ANEShapes:
     """Which rows an ANE backend can serve, and with which artifact.
 
@@ -200,6 +211,8 @@ class ANEShapes:
 class ANEBackend(ANEShapes):
     handoff = None  # a laya_apple.handoff.StagedHandoff, attached by Laya once loaded (adaptive execution)
     async_error: BaseException | None = None  # why the async models did not load
+    quantization: str | None = None  # the opt-in quantized artifact in use (None: FP16 everywhere)
+    quantized: tuple = ()  # the buckets that use it
 
     def __init__(
         self,
@@ -211,6 +224,7 @@ class ANEBackend(ANEShapes):
         *,
         strict=True,
         async_models=False,
+        quantization=None,
     ):
         """Load and verify every offered bucket.
 
@@ -227,7 +241,21 @@ class ANEBackend(ANEShapes):
         the 1.4 path (or, with ane_handoff=True, raises BackendUnavailableError) when it attaches
         the handoff. False (the default) imports and
         loads nothing for it.
+
+        quantization (None, or "w8"): load the opt-in quantized artifact for the buckets it was
+        validated on (artifacts.quantized_buckets) and FP16 for the others. The request is explicit,
+        so a quantized bucket never degrades: its missing or rejected artifact raises even in
+        non-strict mode, and an unsupported model or machine raises before anything loads.
         """
+        quantization = normalize_quantization(quantization)
+        check_quantization_supported(spec, quantization)
+        self.quantization = quantization
+        self.quantized = tuple(b for b in sorted(buckets) if b in quantized_buckets(spec, quantization))
+        if quantization and not self.quantized:
+            raise UnsupportedShapeError(
+                f"ane_quantization={quantization!r} applies to buckets {list(quantized_buckets(spec, quantization))} "
+                f"of {spec.name}, none of which is offered here ({sorted(buckets)})"
+            )
         self.pad_id = pad_id
         self.async_models: dict = {}  # bucket -> coreml_async.AsyncPrebindModel, when requested and verified
         self.async_probes: dict = {}
@@ -236,12 +264,15 @@ class ANEBackend(ANEShapes):
         self.probes: dict = {}
         tolerated = ArtifactMissingError if strict else ArtifactError
         for b in sorted(buckets):
+            q = quantization if b in self.quantized else None
             try:
-                self.models[b], self.manifests[b] = load_verified(spec, b)
+                self.models[b], self.manifests[b] = load_verified(spec, b, quantization=q)
                 self.probes[b] = probe_placement(
-                    spec, b, self.models[b], artifact_dir(spec, b) / COMPILED, self._probe_features(b)
+                    spec, b, self.models[b], _artifact_path(spec, b, q), self._probe_features(b)
                 )
             except tolerated as e:
+                if q is not None:
+                    raise  # an explicit quantized request never degrades to FP16, to MLX or to a missing bucket
                 self.models.pop(b, None)
                 self.manifests.pop(b, None)
                 load_errors[b] = e
@@ -265,7 +296,8 @@ class ANEBackend(ANEShapes):
         models, probes = {}, {}
         try:
             for b in sorted(self.models):
-                model = AsyncPrebindModel(artifact_dir(spec, b) / COMPILED)
+                q = self.quantization if b in self.quantized else None
+                model = AsyncPrebindModel(_artifact_path(spec, b, q))
                 checks = self._check_features(b)
                 for i, feats in enumerate(checks):
                     ref, out = self.models[b].predict(feats), model.predict(feats)
