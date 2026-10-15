@@ -13,9 +13,11 @@ the same time, and use the Neural Engine only where it gives upstream's answers.
 Laya answers typed questions about a context (`choice`, `score`, `noul`) in one forward pass.
 laya-apple runs upstream Laya on both engines and picks one per request.
 
-New in 1.6.3 (measured on macOS 27.0): a first `artifacts fetch` compiles once instead of twice.
-One L128 import took about 75 s instead of 146 s in the preregistered run, and 76–91 s instead of
-149–154 s with the shipped `artifacts import` ([release notes](docs/releases/v1.6.3.md)).
+New in 1.7.0 (measured on macOS 27.0, Apple M4 Max): an opt-in 8-bit (W8) ANE artifact for
+`laya-typed-decisions` L64, enabled with `ane_quantization="w8"`. A single L64 request took 5.4 ms
+instead of 8.2 ms at P50 (1.52x throughput) with 0 hard mismatches against the FP16 gate. It is
+experimental and off by default: its preregistered production gate was not passed, and how often
+real requests are L64 is unmeasured ([release notes](docs/releases/v1.7.0.md)).
 
 ## Why use it
 
@@ -432,8 +434,8 @@ in [`docs/serve.md`](docs/serve.md#limits), and what has not been measured in
 - **Research.** The research behind the 1.5 and 1.6 releases, failed routes included, is mapped in
   [`research/README.md`](research/README.md).
 - **Releases.** Every change is in [`CHANGELOG.md`](CHANGELOG.md); release notes are in
-  [`docs/releases/`](docs/releases/), most recently [1.6.3](docs/releases/v1.6.3.md),
-  [1.6.2](docs/releases/v1.6.2.md) and [1.6.1](docs/releases/v1.6.1.md).
+  [`docs/releases/`](docs/releases/), most recently [1.7.0](docs/releases/v1.7.0.md),
+  [1.6.3](docs/releases/v1.6.3.md) and [1.6.2](docs/releases/v1.6.2.md).
 
 ## Contributing
 

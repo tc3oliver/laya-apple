@@ -5,12 +5,40 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.7.0] - 2026-10-15
+
+Adds an experimental, opt-in 8-bit (W8) ANE artifact for `laya-typed-decisions` L64. FP16 stays
+the default, and nothing changes unless `ane_quantization="w8"` or `--quantize w8` is passed. Also
+adds `x_jev_confidence` to `laya-apple serve` and refuses checkpoints with a non-sequential
+`option_layout`. The parity tolerances, the routing rule and the prebuilt-artifact pin are
+unchanged.
+
 ### Added
 
+- **Opt-in W8 ANE artifact for `laya-typed-decisions` L64** (#176; research: #174, #175).
+  `laya-apple artifacts build laya-typed-decisions --length 64 --quantize w8` builds an 8-bit
+  palettized artifact beside the FP16 one, behind the unchanged parity (probability error
+  <= 0.02, 0 hard mismatches), 100% Neural Engine placement, runtime probe and hash checks.
+  `Laya.from_pretrained(..., ane_quantization="w8")` loads it for L64 and keeps FP16 for the
+  other buckets, with workers and adaptive execution. It is limited to that model, bucket and to
+  Apple M4 Max on macOS 27, and an unsupported request or a missing or failing W8 artifact raises
+  instead of falling back. On the tested machine the single-request P50 went from 8.2 to 5.4 ms
+  and throughput rose 1.52x. The preregistered production gate was **not passed** (GPU LLM
+  tokens/s about -4% in the closed-loop run, no real L64 request corpus), so W8 is experimental
+  and off by default; see `docs/guide.md` and `docs/releases/v1.7.0.md`.
 - **`laya-apple serve` reports Jev's confidence formula as `x_jev_confidence`** (#168). Each
   `choice` and `score` answer carries the `confidence` Jev would report for the same
   probabilities, as upstream Laya #1066 defines it. `confidence` is unchanged and the two are
   never aliased. A `noul` answer, or one without usable probabilities, gets no field.
+
+### Fixed
+
+- **A checkpoint with a non-sequential `option_layout` now raises instead of running** (#167,
+  #171). Upstream stores the layout as a top-level `option_layout` key of
+  `rl_agent_config.json`. laya-apple only validates sequential semantics, so a checkpoint
+  trained for another layout gave wrong decisions, and a built artifact from it looked valid.
+  `Laya(...)` and the conversion and parity paths now raise `LayaAppleError`. A checkpoint
+  without the key is treated as sequential, as before.
 
 ## [1.6.3] - 2026-10-03
 
