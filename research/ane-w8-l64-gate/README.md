@@ -123,9 +123,24 @@ side. The S3 load is closed-loop, so the faster arm B completes about 24% more r
 second, and more of the non-ANE requests (3-question and L256) reach the GPU while the LLM is
 generating. The offered load therefore differs between arms, and the data cannot tell "W8
 disturbs the GPU" from "B does more GPU work". This is an interpretation that was not tested.
-The preregistration did not specify an open-loop S5 and the criterion was not changed. An
-open-loop, fixed-arrival-rate S5 would be a new small preregistered experiment. It cannot
-change this verdict.
+The preregistration did not specify an open-loop S5 and the criterion was not changed. The
+open-loop check was run afterwards as its own preregistered experiment and cannot change this
+verdict; it is recorded below.
+
+### Follow-up: open-loop S5 (`../ane-w8-l64-s5-open-loop/`)
+
+With open-loop arrivals (one byte-identical schedule and request mix for both arms, 3 fresh-process
+replicates, A/B interleaved), a GPU LLM ran at tokens/s B/A 1.012, 1.013, 1.012 and TTFT P95 B/A
+1.004, 0.995, 1.001 at equal offered load: **no W8-specific LLM slowdown at matched offered load**.
+Raising the offered rate by 25% slowed the LLM by about 3% in both arms. The roughly 4% drop above
+therefore most likely came from the extra GPU-routed work that the faster arm B completed in the
+closed loop (+24% requests), not from W8 itself. This reading is supported by that experiment but
+was not a direct decomposition of the closed-loop runs.
+
+This does not change the gate: condition 5 as preregistered (S3 against arm A) **stays FAIL**,
+condition 7 stays unproven, and the verdict stays **Research Only / No Ship**. The W8 research is
+closed at **Research Completed / No Ship**. Re-evaluation waits for a real L64 request corpus; no
+further benchmark is planned before then.
 
 ## Other notes
 
@@ -138,4 +153,5 @@ change this verdict.
 - oMLX production was not running during this work (no LaunchAgent loaded, nothing on :8000);
   nothing was stopped or restored. The GPU LLM load used model files only, not the service.
 - If a real request capture appears, condition 7 can be evaluated directly. The Phase 2 and
-  Phase 3 results remain valid for the re-run, and the S5 question above is the remaining blocker.
+  Phase 3 results remain valid for the re-run. The open-loop follow-up above answers the S5
+  question; the missing real request corpus is the remaining blocker.
