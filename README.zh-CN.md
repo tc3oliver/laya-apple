@@ -148,7 +148,7 @@ with Laya.from_pretrained("auto") as model:       # laya or laya-multilingual, p
   这段时间会先用 MLX 提供服务。
 
 1.6 的其他小改动：MLX 快速路径（token-id 缓存默认开启；`mx.compile` 和按长度分组的
-batching 需手动启用；测量范围见[局限](#局限)），以及没有进入正式版的 W8 ANE 研究（见[局限](#局限)）。Release notes：
+batching 需手动启用；测量范围见[局限](#局限)），以及 1.6 时没有进入正式版的 W8 ANE 研究（1.7 起成为可选功能；见[局限](#局限)）。Release notes：
 [`docs/releases/v1.6.0.md`](docs/releases/v1.6.0.md)。
 
 ## GPU + ANE benchmark
@@ -371,9 +371,11 @@ macOS 27 上只测量了构建、parity、路由，以及预构建 artifact 的 
   [macOS 27.0](benchmarks/prebuilt-artifacts-1.6.2-macos27.md)）。macOS 27 的 profile 对所有 27.x 生效，
   不过只实测过 27.0。两个 profile 都还没有在第二台机器上做独立验证。建议发布前做一次，但不强制
   （[`docs/publishing.md`](docs/publishing.md)）；每一台接收端机器仍会在注册前验证每个 artifact。
-- **目前不发布任何量化 artifact。** W8 研究中只有 laya-typed-decisions L64 `w8-pt` 的结果得到复现
-  （延迟为 FP16 的 0.650）；laya 和 laya-multilingual 没有通过 parity 关卡
-  （[`research/ane-w8/README.md`](research/ane-w8/README.md)）。
+- **唯一的量化 artifact 是实验性的可选功能。** 1.7 起，laya-typed-decisions L64 的 `w8-pt`
+  artifact 可在本机构建，并通过 `ane_quantization="w8"` 启用。默认关闭，没有预构建版本、无法 fetch，
+  且仅限 macOS 27 上的 Apple M4 Max。它的预先登记的正式上线关卡没有通过（条件 5 和 7 未通过，结论为 Research Only / No Ship；
+  [`research/ane-w8-l64-gate/README.md`](research/ane-w8-l64-gate/README.md)）。laya 和
+  laya-multilingual 没有通过 parity 关卡（[`research/ane-w8/README.md`](research/ane-w8/README.md)）。
 - **MLX 快速路径的提升（约 1–4%）来自筛选测试，** 不是完整的 benchmark
   （[`benchmarks/mlx-fast-path-screen/README.md`](benchmarks/mlx-fast-path-screen/README.md)）。
 - **Switchyard 没有平衡轮次顺序：** 使用标准 seed 时，三次运行都是 GPU + ANE 先跑。
