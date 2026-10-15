@@ -138,9 +138,15 @@ closed loop (+24% requests), not from W8 itself. This reading is supported by th
 was not a direct decomposition of the closed-loop runs.
 
 This does not change the gate: condition 5 as preregistered (S3 against arm A) **stays FAIL**,
-condition 7 stays unproven, and the verdict stays **Research Only / No Ship**. The W8 research is
-closed at **Research Completed / No Ship**. Re-evaluation waits for a real L64 request corpus; no
-further benchmark is planned before then.
+condition 7 stays unproven, and the preregistered verdict stays **Research Only / No Ship**. The
+gate is not retroactively passed.
+
+Decision after the follow-up (maintainer, not a gate result): the evidence is enough to pursue W8
+as an explicit opt-in feature, never a default, in a separate production pull request that goes
+through the normal artifact lifecycle, parity, placement and reliability tests. The unmet gate
+conditions (5 as written, and 7) are carried into that pull request as published limitations,
+not removed. Condition 7 bears on whether W8 should ever be a default, and no real L64 request
+corpus exists yet. No further S5 benchmark is planned.
 
 ## Other notes
 
