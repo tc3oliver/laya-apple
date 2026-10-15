@@ -15,9 +15,10 @@ Neural Engine 只在结果与上游一致时才启用。**
 给 Laya 一段 context，一次 forward pass 就能答完多个带类型的问题（`choice`、`score`、`noul`）。
 laya-apple 在 Mac 的两个引擎上运行上游 Laya，每个请求自动选一个引擎。
 
-1.6.3 新变化（在 macOS 27.0 上测得）：首次 `artifacts fetch` 只编译一次，不再是两次。M4 Max 上，一次 L128
-import 在预先注册的实验中从约 146 s 降到约 75 s，用正式的 `artifacts import` 则是从 149–154 s 降到 76–91 s
-（[release notes](docs/releases/v1.6.3.md)）。
+1.7.0 新变化（在 macOS 27.0、Apple M4 Max 上测得）：新增可选的 8-bit（W8）ANE artifact，适用于
+`laya-typed-decisions` 的 L64，用 `ane_quantization="w8"` 启用。单个 L64 请求的 P50 从 8.2 ms 降到 5.4 ms
+（throughput 1.52 倍），对 FP16 的 parity 门槛有 0 个 hard mismatch。这是实验功能，默认关闭：事先登记的
+production gate 没有通过，真实请求落在 L64 的比例也没有量过（[release notes](docs/releases/v1.7.0.md)）。
 
 ## 为什么要用
 
@@ -391,8 +392,8 @@ macOS 27 上只测量了构建、parity、路由，以及预构建 artifact 的 
   [`research/coreml-adaptive-breaker/`](research/coreml-adaptive-breaker/README.md)。
 - **研究。** 1.5 和 1.6 版本背后的研究脉络，包括失败的路线，整理在 [`research/README.md`](research/README.md)。
 - **版本。** 所有变更都记录在 [`CHANGELOG.md`](CHANGELOG.md)；release notes 放在
-  [`docs/releases/`](docs/releases/)，最新的是 [1.6.3](docs/releases/v1.6.3.md)、
-  [1.6.2](docs/releases/v1.6.2.md) 和 [1.6.1](docs/releases/v1.6.1.md)。
+  [`docs/releases/`](docs/releases/)，最新的是 [1.7.0](docs/releases/v1.7.0.md)、
+  [1.6.3](docs/releases/v1.6.3.md) 和 [1.6.2](docs/releases/v1.6.2.md)。
 
 ## 参与贡献
 
