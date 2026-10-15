@@ -7,6 +7,8 @@ Pipeline, all inside a private staging directory on the cache filesystem:
   1. load the original checkpoint in PyTorch FP32 (verified weights) and build the BC1S body
   2. layout check: FP32 BC1S body vs the FP32 PyTorch DecisionModel on an exact-length row
   3. trace and convert: FP16 compute, FP16 I/O, fixed B=1 x L, macOS 15 target
+  3b. only with quantization="w8" (opt-in, `--quantize w8-pt`): palettize the conv weights to 8-bit
+     look-up tables (conversion/palettize.py); the graph, inputs and outputs are unchanged
   4. compile to model.mlmodelc (the .mlpackage is not kept)
   5. placement: Core ML compute plan on CPU_AND_NE must be 100% ANE with 0 transitions
   6. parity: every golden row that fits the bucket, against the upstream PyTorch FP32
@@ -39,15 +41,18 @@ from ..artifacts import (
     artifact_dir,
     artifacts_root,
     check_ane_placement,
+    check_quantization_supported,
     compute_plan_summary,
+    normalize_quantization,
     platform_profile,
+    quantized_buckets,
     tree_sha256,
 )
 from ..errors import ArtifactError, ArtifactParityError, ComputeUnitMismatchError, UnsupportedShapeError
 from ..hub import check_option_layout, checkpoint_path, verify_weights
 from ..lifecycle import BUILDING, build_lock
 from ..prompt import Tokenizer, prepare
-from ..registry import ANE_COMPUTE_UNITS, ANE_GRAPH, ANE_MAX_OPTIONS, ANE_PRECISION, ModelSpec
+from ..registry import ANE_COMPUTE_UNITS, ANE_GRAPH, ANE_MAX_OPTIONS, ANE_PRECISION, ANE_QUANTIZATIONS, ModelSpec
 from ..workload import make_request
 
 DEPLOYMENT_TARGET = "macOS15"
@@ -72,7 +77,13 @@ def _package_versions() -> dict:
 
 def conversion_code_sha256() -> dict:
     here = Path(__file__).parent
-    files = [here / "bc1s.py", here / "torch_reference.py", here / "build.py", here.parent / "backends/coreml_ane.py"]
+    files = [
+        here / "bc1s.py",
+        here / "torch_reference.py",
+        here / "build.py",
+        here / "palettize.py",
+        here.parent / "backends/coreml_ane.py",
+    ]
     return {f.name: hashlib.sha256(f.read_bytes()).hexdigest() for f in files}
 
 
@@ -126,8 +137,19 @@ def _layout_check(spec, source, body, tok, cfg, length, host) -> float:
     return float(np.abs(got[:k] - ref.numpy()[0, :k]).max())
 
 
-def build(spec: ModelSpec, length: int, *, local_files_only: bool = False, force: bool = False) -> Path:
-    """Build and register spec@length; return the artifact directory, or raise."""
+def build(
+    spec: ModelSpec,
+    length: int,
+    *,
+    local_files_only: bool = False,
+    force: bool = False,
+    quantization: str | None = None,
+) -> Path:
+    """Build and register spec@length; return the artifact directory, or raise.
+
+    `quantization="w8"` builds the opt-in 8-bit palettized variant beside the FP16 artifact
+    (it never replaces it), for the model, bucket and machine it was validated on only."""
+    quantization = normalize_quantization(quantization)
     if length not in spec.ane_buckets:
         raise UnsupportedShapeError(
             f"{spec.name} L{length} is not a validated ANE configuration; offered buckets: {list(spec.ane_buckets)}"
@@ -140,17 +162,28 @@ def build(spec: ModelSpec, length: int, *, local_files_only: bool = False, force
             "building artifacts needs: the [ane] and [convert] extras (uv sync --extra ane --extra convert)"
         ) from e
 
-    final = artifact_dir(spec, length)
+    if quantization is not None:
+        check_quantization_supported(spec, quantization)
+        if length not in quantized_buckets(spec, quantization):
+            raise UnsupportedShapeError(
+                f"{quantization} is not validated for {spec.name} L{length}; "
+                f"validated buckets: {list(quantized_buckets(spec, quantization))}"
+            )
+    final = artifact_dir(spec, length, quantization)
     if final.exists() and not force:
         raise ArtifactError(f"{final} already exists; pass force=True (--force) to rebuild")
     with build_lock(spec, length, log=_log):
         if final.exists() and not force:  # another process registered it while we waited
             _log(f"{final} was built by another process")
             return final
-        return _build_locked(spec, length, final, local_files_only=local_files_only, force=force)
+        return _build_locked(
+            spec, length, final, local_files_only=local_files_only, force=force, quantization=quantization
+        )
 
 
-def _build_locked(spec: ModelSpec, length: int, final: Path, *, local_files_only: bool, force: bool) -> Path:
+def _build_locked(
+    spec: ModelSpec, length: int, final: Path, *, local_files_only: bool, force: bool, quantization: str | None
+) -> Path:
     import coremltools as ct
     import torch
 
@@ -171,7 +204,9 @@ def _build_locked(spec: ModelSpec, length: int, final: Path, *, local_files_only
 
     staging_root = artifacts_root() / ".staging"
     staging_root.mkdir(parents=True, exist_ok=True)
-    stage = Path(tempfile.mkdtemp(prefix=f"{spec.name}-L{length}-", dir=staging_root))
+    stage = Path(
+        tempfile.mkdtemp(prefix=f"{spec.name}-L{length}{f'-{quantization}' if quantization else ''}-", dir=staging_root)
+    )
     (stage / BUILDING).write_text(json.dumps({"pid": os.getpid()}))
     try:
         _log(f"{spec.name} L{length}: loading PyTorch FP32 reference")
@@ -205,6 +240,16 @@ def _build_locked(spec: ModelSpec, length: int, final: Path, *, local_files_only
             skip_model_load=True,
         )
         timings["convert_s"] = time.perf_counter() - t
+        inventory = None
+        if quantization is not None:
+            from .palettize import palettize
+
+            t = time.perf_counter()
+            mlmodel, inventory = palettize(mlmodel, quantization)
+            timings["palettize_s"] = time.perf_counter() - t
+            _log(
+                f"palettized {inventory['conv_palettized']} conv weights ({quantization}) in {timings['palettize_s']:.0f} s"
+            )
         del traced, source, body
         package = stage / "model.mlpackage"
         mlmodel.save(str(package))
@@ -238,6 +283,7 @@ def _build_locked(spec: ModelSpec, length: int, final: Path, *, local_files_only
                 "compute_precision": "FLOAT16",
                 "io_dtype": "float16",
                 "layout_check_max_abs_logit_fp32": layout,
+                **({"palettization": inventory} if inventory else {}),
             },
             "artifact": {
                 "graph": ANE_GRAPH,
@@ -245,6 +291,11 @@ def _build_locked(spec: ModelSpec, length: int, final: Path, *, local_files_only
                 "batch": 1,
                 "precision": ANE_PRECISION,
                 "max_options": ANE_MAX_OPTIONS,
+                **(
+                    {"quantization": {"scheme": quantization, **ANE_QUANTIZATIONS[quantization]}}
+                    if quantization
+                    else {}
+                ),
                 "inputs": list(INPUTS),
                 "outputs": ["logits", "cls"],
             },
@@ -257,7 +308,7 @@ def _build_locked(spec: ModelSpec, length: int, final: Path, *, local_files_only
         try:
             check_ane_placement(placement)
         except ComputeUnitMismatchError as e:
-            _reject(spec, length, manifest, f"placement: {e}")
+            _reject(spec, length, manifest, f"placement: {e}", quantization)
             raise
 
         _log("parity gate against the PyTorch FP32 goldens")
@@ -270,7 +321,7 @@ def _build_locked(spec: ModelSpec, length: int, final: Path, *, local_files_only
             f"hard={parity['hard_mismatches']} passed={parity['passed']}"
         )
         if not parity["passed"]:
-            _reject(spec, length, manifest, "parity gate failed")
+            _reject(spec, length, manifest, "parity gate failed", quantization)
             raise ArtifactParityError(f"{spec.name} L{length} failed the parity gate: {json.dumps(parity)[:800]}")
 
         manifest["integrity"] = {"artifact_sha256": tree_sha256(stage / COMPILED), "tree_hash": "laya-apple tree v1"}
@@ -316,7 +367,7 @@ def _build_locked(spec: ModelSpec, length: int, final: Path, *, local_files_only
         t = time.perf_counter()
         from ..artifacts import load_verified
 
-        load_verified(spec, length, full=True)
+        load_verified(spec, length, full=True, quantization=quantization)
         _log(f"pre-warmed the ANE compile at the registered path in {time.perf_counter() - t:.1f} s")
         return final
     finally:
@@ -324,9 +375,12 @@ def _build_locked(spec: ModelSpec, length: int, final: Path, *, local_files_only
             shutil.rmtree(stage, ignore_errors=True)
 
 
-def _reject(spec, length, manifest, why):
+def _reject(spec, length, manifest, why, quantization=None):
     manifest = dict(manifest, status="rejected", rejected_because=why)
     d = artifacts_root() / "rejected"
     d.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    (d / f"{spec.name}-{spec.revision[:12]}-L{length}-{stamp}.json").write_text(json.dumps(manifest, indent=1) + "\n")
+    tag = f"-{quantization}" if quantization else ""
+    (d / f"{spec.name}-{spec.revision[:12]}-L{length}{tag}-{stamp}.json").write_text(
+        json.dumps(manifest, indent=1) + "\n"
+    )

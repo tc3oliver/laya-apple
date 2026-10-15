@@ -64,6 +64,7 @@ def load_backend(kind: str, args: dict):
         args["buckets"],
         strict=args["strict"],
         async_models=bool(args.get("async_models", False)),  # adaptive execution only
+        quantization=args.get("quantization"),  # opt-in W8 only
     )
 
 

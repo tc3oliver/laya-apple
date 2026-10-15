@@ -195,7 +195,11 @@ def _artifact_table(records: list[dict]) -> str:
                 _cell(cell)
                 for cell in (
                     r.get("model") or "-",
-                    "-" if r.get("bucket") is None else r["bucket"],
+                    "-"
+                    if r.get("bucket") is None
+                    else f"{r['bucket']} {r['quantization']['scheme']}"
+                    if isinstance(r.get("quantization"), dict) and r["quantization"].get("scheme")
+                    else r["bucket"],
                     r.get("status") or "-",
                     "yes" if passed is True else "no" if passed is False else "-",
                     _compute_plan(r.get("compute_target")),
@@ -213,6 +217,8 @@ def _artifact_table(records: list[dict]) -> str:
 
 
 def cmd_artifacts(a):
+    if a.quantize and a.action not in ("build", "verify", "warm"):
+        raise SystemExit("--quantize applies to artifacts build, verify and warm only")
     from .artifacts import list_artifacts, load_verified
     from .registry import models, resolve
 
@@ -267,6 +273,14 @@ def cmd_artifacts(a):
             print(f"{len(plan)} entries, {total / 1e9:.2f} GB; rerun with --yes to delete")
         return 0
     specs = [resolve(a.model)] if a.model else list(models().values())
+    quantization = a.quantize
+    if quantization:
+        if not a.model:
+            raise SystemExit(f"artifacts {a.action} --quantize needs MODEL")
+        from .artifacts import quantized_buckets
+
+        if not quantized_buckets(specs[0], quantization):
+            raise SystemExit(f"--quantize {quantization} is not validated for {specs[0].name}")
     if a.action == "fetch":
         from .prebuilt import fetch
 
@@ -289,25 +303,25 @@ def cmd_artifacts(a):
         from .lifecycle import warm
 
         for spec in specs:
-            for b, sec in warm(spec, a.length).items():
+            for b, sec in warm(spec, a.length, quantization).items():
                 print(f"{spec.name} L{b}: loaded in {sec:.2f} s")
         return 0
     if a.action == "build":
         from .conversion.build import build
 
         for spec in specs:
-            for length in a.length or spec.ane_buckets:
-                if a.skip_existing and _artifact_ok(spec, length):
+            for length in a.length or _buckets(spec, quantization):
+                if a.skip_existing and _artifact_ok(spec, length, quantization):
                     print(f"{spec.name} L{length}: present and verified, skipped")
                     continue
-                print(build(spec, length, local_files_only=a.offline, force=a.force))
+                print(build(spec, length, local_files_only=a.offline, force=a.force, quantization=quantization))
         return 0
     # verify
     failed = 0
     for spec in specs:
-        for length in a.length or spec.ane_buckets:
+        for length in a.length or _buckets(spec, quantization):
             try:
-                _, m = load_verified(spec, length, full=True)
+                _, m = load_verified(spec, length, full=True, quantization=quantization)
                 print(f"OK    {spec.name} L{length} {m.artifact_sha256[:12]}")
             except Exception as e:
                 failed += 1
@@ -315,11 +329,17 @@ def cmd_artifacts(a):
     return 1 if failed else 0
 
 
-def _artifact_ok(spec, length) -> bool:
+def _buckets(spec, quantization):
+    from .artifacts import quantized_buckets
+
+    return quantized_buckets(spec, quantization) if quantization else spec.ane_buckets
+
+
+def _artifact_ok(spec, length, quantization=None) -> bool:
     from .artifacts import load_verified
 
     try:
-        load_verified(spec, length)
+        load_verified(spec, length, quantization=quantization)
         return True
     except Exception:
         return False
@@ -433,6 +453,12 @@ def build_parser():
     s.add_argument("--length", type=int, action="append")
     s.add_argument("--force", action="store_true")
     s.add_argument("--skip-existing", action="store_true")
+    s.add_argument(
+        "--quantize",
+        choices=["w8", "w8-pt"],
+        help="build, verify, warm: the opt-in 8-bit palettized artifact (needs MODEL; only the buckets and "
+        "the machine it was validated on; FP16 stays the default)",
+    )
     s.add_argument("--yes", action="store_true", help="prune: actually delete (default is a dry run)")
     s.add_argument("--out", help="export: output directory")
     s.add_argument("--repo", help="fetch: Hugging Face repository of prebuilt artifacts (or $LAYA_APPLE_PREBUILT_REPO)")

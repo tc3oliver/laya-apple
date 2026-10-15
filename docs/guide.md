@@ -528,6 +528,64 @@ on the tested machine); the system caches the result. `artifacts build` pays
 this cost once at the registered path, so later loads take 0.14–0.31 s per
 bucket. If the system evicts its cache, the next load pays it again.
 
+## Opt-in W8 ANE artifact (experimental, since 1.7)
+
+FP16 stays the default everywhere. W8 is an 8-bit weight-palettized variant of the L64 ANE
+artifact of `laya-typed-decisions`, which you choose explicitly:
+
+```bash
+laya-apple artifacts build laya-typed-decisions --length 64 --quantize w8
+laya-apple artifacts verify laya-typed-decisions --quantize w8
+```
+
+```python
+laya = Laya.from_pretrained("laya-typed-decisions", device="auto", ane_quantization="w8")
+```
+
+What it is: k-means look-up tables, 8 bits, one table per tensor, on the conv weights; compute and
+I/O stay FP16 and the graph is the production one. The artifact is registered beside the FP16
+one (`bc1s-masked-w8-pt-L64-B1`) and never replaces it. The same parity gate (probability error
+<= 0.02, 0 hard mismatches), the 100% Neural Engine placement check, the runtime placement probe
+and the file hash apply, and the manifest records `artifact.quantization` and the palettization
+inventory. `result.runtime.artifact_revision` is the W8 artifact hash, and
+`laya.info()["ane_quantization"]` is present only when the option is set.
+
+Scope, enforced at load time:
+- Model and bucket: `laya-typed-decisions` L64. The other buckets (96, 128) keep using the FP16
+  artifacts, and other models raise `UnsupportedShapeError`.
+- Machine: Apple M4 Max on macOS 27 (the profile it was validated on); elsewhere
+  `BackendUnavailableError`.
+- Not supported with `device="gpu"`, `ane_startup="background"` or `from_pretrained("auto")`
+  (`ValueError` / `UnsupportedShapeError`), by `artifacts export`/`import`/`fetch` (build it
+  locally), or by `laya-apple serve`.
+- It never degrades silently: a missing, stale or failing W8 artifact raises at load, in
+  `device="auto"` too, and a request raises if the ANE worker has exited (`execution="workers"` with
+  `ane_placement="process"`). It does not fall back to FP16 or to the GPU. (`artifacts list`
+  reports `offered_by_auto: false` for it: auto uses it only on this explicit request.)
+- The routing thresholds and calibrated service times are the FP16 ones; they were not
+  re-derived for W8.
+
+Evidence ([`research/ane-w8-l64-gate/`](../research/ane-w8-l64-gate/README.md),
+[`research/ane-w8-l64-s5-open-loop/`](../research/ane-w8-l64-s5-open-loop/README.md), macOS 27.0,
+Apple M4 Max): forward predict P50 0.651x of FP16 (pooled B/A, 3 processes), single-request
+end-to-end P50 8.2 -> 5.4 ms and 1.52x throughput, 0 hard mismatches, max probability error 0.0170
+against the 0.02 gate, 369.7 MB of weights against 738.9 MB, 100% ANE.
+
+Published limitations. The preregistered production gate of that research is **not passed**; its
+recorded verdict is **Research Only / No Ship**, and W8 ships here only as this explicit opt-in:
+- Condition 5 failed as written: with a continuous GPU LLM and a closed-loop client, the LLM
+  generated about 4% fewer tokens/s next to W8 (B/A 0.953 to 0.962 in 12 of 12 cells). An
+  open-loop follow-up at equal offered load found no W8-specific slowdown (B/A 1.012 to 1.013),
+  which points to the extra GPU-routed work the faster arm completes, but the closed-loop cost is
+  real for a client that sends as fast as it is served.
+- Condition 7 is unproven: no real request corpus exists, so how often real requests fall in the
+  L64 bucket is unknown. This is why W8 is not the default.
+- The adaptive-execution breaker was exercised with W8 only in a quiet system: no real GPU-busy
+  episode tripped it, so its trip behaviour with W8 is untested
+  ([`research/ane-w8-l64-gate/`](../research/ane-w8-l64-gate/README.md), S6).
+- Two near-tie flips against the FP16 reference (listed in the research record), and the
+  measurements are one machine, thread-level concurrency, and research-side injection.
+
 ## Artifact lifecycle
 
 - **Concurrent builds are safe.** One build per (model, revision, bucket) runs at a time
@@ -756,10 +814,10 @@ Commands:
 laya-apple predict MODEL --context TEXT --questions JSON [--device auto|gpu|ane] [--dtype float16|float32]
 laya-apple info [MODEL]
 laya-apple download MODEL...
-laya-apple artifacts build MODEL [--length L ...] [--force] [--skip-existing]
+laya-apple artifacts build MODEL [--length L ...] [--force] [--skip-existing] [--quantize w8]
 laya-apple artifacts list [--capabilities] [--format json|table]
-laya-apple artifacts verify [MODEL] [--length L ...]
-laya-apple artifacts warm [MODEL] [--length L ...]
+laya-apple artifacts verify [MODEL] [--length L ...] [--quantize w8]
+laya-apple artifacts warm [MODEL] [--length L ...] [--quantize w8]
 laya-apple artifacts prune [--yes]
 laya-apple artifacts export MODEL [--length L ...] [--out DIR]
 laya-apple artifacts import ARCHIVE.tar.gz [--force]

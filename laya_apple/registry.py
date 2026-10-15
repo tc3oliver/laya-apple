@@ -21,6 +21,18 @@ ANE_PRECISION = "float16"
 DTYPES = ("float16", "float32")  # MLX; the ANE runs ANE_PRECISION only
 ANE_MAX_OPTIONS = 32
 
+# Opt-in weight palettization of the ANE artifacts. Only the configuration measured in
+# research/ane-w8-l64-gate and research/ane-w8-l64-s5-open-loop exists: 8-bit k-means look-up
+# tables per tensor on the conv weights (FP16 look-up values, FP16 compute and I/O, same graph).
+# It is never the default: it needs `ane_quantization="w8"` and its own artifact.
+ANE_QUANTIZATIONS = {
+    "w8-pt": {"mode": "kmeans", "nbits": 8, "granularity": "per_tensor", "weight_threshold": 65536, "op_type": "conv"},
+}
+QUANTIZATION_ALIASES = {"w8": "w8-pt"}
+# Where each quantization was validated: (model, bucket) pairs, and (SoC, macOS major) pairs.
+QUANTIZATION_BUCKETS = {"w8-pt": {"laya-typed-decisions": (64,)}}
+QUANTIZATION_PLATFORMS = {"w8-pt": (("Apple M4 Max", "27"),)}
+
 
 @dataclass(frozen=True)
 class ModelSpec:

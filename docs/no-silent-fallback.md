@@ -37,6 +37,14 @@ decision in `laya_apple/`, as of the 1.0.0 release.
    - parity status;
    - the runtime placement probe (below).
 
+5. **Opt-in W8 never degrades.** `ane_quantization="w8"` (since 1.7) is an explicit request
+   for the 8-bit palettized L64 artifact. An unsupported model, device, startup mode or
+   machine, and a missing, stale or failing W8 artifact, raise, also under `device="auto"`; so
+   does a request after the ANE worker has exited.
+   It never runs the FP16 artifact or the GPU in its place, and a W8 artifact is never loaded
+   where FP16 was requested (the manifest declares `artifact.quantization`, matched exactly).
+   Tests: `tests/artifacts/test_quantization.py`, `tests/integration/test_w8_opt_in.py`.
+
 ## Paths and how they are handled
 
 | # | Path | Handling | Pinned by |

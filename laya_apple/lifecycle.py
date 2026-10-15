@@ -54,10 +54,11 @@ from .artifacts import (
     artifacts_root,
     platform_profile,
     profile_matches,
+    quantized_buckets,
 )
 from .errors import ArtifactError, ArtifactIntegrityError, BackendUnavailableError
 from .hub import cache_root
-from .registry import ANE_GRAPH, ModelSpec, models
+from .registry import ANE_GRAPH, ANE_QUANTIZATIONS, ModelSpec, models
 
 STAGING_MAX_AGE_S = 3600
 MAX_IMPORT_BYTES = 4 * 1024**3
@@ -363,7 +364,11 @@ def plan_prune(profile: dict | None = None) -> list[dict]:
             add(d, f"built from revision {str(src.get('revision'))[:12]}, pinned is {spec.revision[:12]}")
         elif art.get("graph") != ANE_GRAPH or int(art.get("length", -1)) not in spec.ane_buckets:
             add(d, f"{art.get('graph')} L{art.get('length')} is no longer an offered configuration")
-        elif d != artifact_dir(spec, int(art["length"])):
+        elif (q := _declared_quantization(art)) is False or (
+            q is not None and int(art["length"]) not in quantized_buckets(spec, q)
+        ):
+            add(d, f"quantization {art.get('quantization')!r} is no longer an offered configuration")
+        elif d != artifact_dir(spec, int(art["length"]), q):
             add(d, "not at the path the runtime uses for this configuration")
         elif not profile_matches(data.get("platform") or {}, profile):
             add(d, "built on another platform profile (SoC / macOS major / coremltools)")
@@ -441,14 +446,25 @@ def prune(plan: list[dict] | None = None) -> list[dict]:
     return removed
 
 
-def warm(spec: ModelSpec, buckets=None) -> dict:
-    """Load each artifact once (paying any evicted ANE compile now); seconds per bucket."""
+def _declared_quantization(art: dict):
+    """The registered quantization a manifest declares: None for FP16, False if it is unknown."""
+    declared = art.get("quantization")
+    if declared is None:
+        return None
+    scheme = declared.get("scheme") if isinstance(declared, dict) else None
+    return scheme if scheme in ANE_QUANTIZATIONS else False
+
+
+def warm(spec: ModelSpec, buckets=None, quantization: str | None = None) -> dict:
+    """Load each artifact once (paying any evicted ANE compile now); seconds per bucket.
+
+    With `quantization`, the opt-in quantized artifact: only the buckets it was validated on."""
     from .artifacts import load_verified
 
     out = {}
-    for b in buckets or spec.ane_buckets:
+    for b in buckets or (quantized_buckets(spec, quantization) if quantization else spec.ane_buckets):
         t = time.perf_counter()
-        load_verified(spec, b)
+        load_verified(spec, b, quantization=quantization)
         out[b] = time.perf_counter() - t
     return out
 

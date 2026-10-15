@@ -28,9 +28,20 @@ from .errors import (
     ArtifactRevisionError,
     BackendUnavailableError,
     ComputeUnitMismatchError,
+    UnsupportedShapeError,
 )
 from .hub import cache_root
-from .registry import ANE_COMPUTE_UNITS, ANE_GRAPH, ANE_MAX_OPTIONS, ANE_PRECISION, ModelSpec
+from .registry import (
+    ANE_COMPUTE_UNITS,
+    ANE_GRAPH,
+    ANE_MAX_OPTIONS,
+    ANE_PRECISION,
+    ANE_QUANTIZATIONS,
+    QUANTIZATION_ALIASES,
+    QUANTIZATION_BUCKETS,
+    QUANTIZATION_PLATFORMS,
+    ModelSpec,
+)
 from .schema import manifest_errors
 
 MANIFEST_FORMAT = "laya-apple-artifact"
@@ -42,8 +53,54 @@ def artifacts_root() -> Path:
     return cache_root() / "artifacts"
 
 
-def artifact_dir(spec: ModelSpec, bucket: int) -> Path:
-    return artifacts_root() / spec.name / spec.revision[:12] / f"{ANE_GRAPH}-L{bucket}-B1"
+def normalize_quantization(quantization: str | None) -> str | None:
+    """None (FP16, the default) or a validated quantization name; "w8" is an alias of "w8-pt"."""
+    if quantization is None:
+        return None
+    name = QUANTIZATION_ALIASES.get(quantization, quantization)
+    if name not in ANE_QUANTIZATIONS:
+        raise ValueError(
+            f"ane_quantization must be None or one of {sorted(QUANTIZATION_ALIASES)}, got {quantization!r}"
+        )
+    return name
+
+
+def quantized_buckets(spec: ModelSpec, quantization: str | None) -> tuple:
+    """The buckets of `spec` that have a validated quantized artifact (none for FP16)."""
+    name = normalize_quantization(quantization)
+    return tuple(QUANTIZATION_BUCKETS.get(name, {}).get(spec.name, ())) if name else ()
+
+
+def check_quantization_supported(spec: ModelSpec, quantization: str | None, profile: dict | None = None) -> None:
+    """Raise unless `quantization` was validated for this model and for this machine.
+
+    A quantized artifact is only ever used on explicit request, so an unsupported request
+    raises; it never falls back to FP16 silently."""
+    name = normalize_quantization(quantization)
+    if name is None:
+        return
+    if not quantized_buckets(spec, name):
+        raise UnsupportedShapeError(
+            f"ane_quantization={name!r} is not validated for {spec.name}; validated: "
+            f"{ {m: list(b) for m, b in QUANTIZATION_BUCKETS[name].items()} }"
+        )
+    profile = profile or platform_profile()
+    here = (profile.get("soc"), _major(profile.get("macos")))
+    if here not in QUANTIZATION_PLATFORMS[name]:
+        raise BackendUnavailableError(
+            f"ane_quantization={name!r} is validated only on {list(QUANTIZATION_PLATFORMS[name])} "
+            f"(SoC, macOS major); this machine is {here}. Use FP16 here."
+        )
+
+
+def artifact_dir(spec: ModelSpec, bucket: int, quantization: str | None = None) -> Path:
+    graph = ANE_GRAPH if quantization is None else f"{ANE_GRAPH}-{normalize_quantization(quantization)}"
+    return artifacts_root() / spec.name / spec.revision[:12] / f"{graph}-L{bucket}-B1"
+
+
+def _build_hint(spec: ModelSpec, bucket: int, quantization: str | None) -> str:
+    flag = f" --quantize {quantization}" if quantization else ""
+    return f"laya-apple artifacts build {spec.name} --length {bucket}{flag}"
 
 
 def tree_sha256(path: Path) -> str:
@@ -121,8 +178,18 @@ class Manifest:
         return int(self.data["artifact"]["length"])
 
 
-def verify_manifest(spec: ModelSpec, bucket: int, data: dict, *, compute_units: str = ANE_COMPUTE_UNITS) -> Manifest:
-    """Pure validation of a manifest against what is requested. Raises on any mismatch."""
+def verify_manifest(
+    spec: ModelSpec,
+    bucket: int,
+    data: dict,
+    *,
+    compute_units: str = ANE_COMPUTE_UNITS,
+    quantization: str | None = None,
+) -> Manifest:
+    """Pure validation of a manifest against what is requested. Raises on any mismatch.
+
+    `quantization=None` accepts FP16 artifacts only: a manifest that declares a quantization
+    is refused, so a quantized artifact can never be loaded where FP16 was asked for."""
     if not isinstance(data, dict):
         raise ArtifactIntegrityError(f"manifest is not a JSON object (got {type(data).__name__})")
     if data.get("format") != MANIFEST_FORMAT or data.get("format_version") != MANIFEST_VERSION:
@@ -131,7 +198,7 @@ def verify_manifest(spec: ModelSpec, bucket: int, data: dict, *, compute_units: 
         )
     problems = manifest_errors(data)
     try:
-        manifest = _verify_fields(spec, bucket, data, compute_units)
+        manifest = _verify_fields(spec, bucket, data, compute_units, normalize_quantization(quantization))
     except (TypeError, ValueError, AttributeError):
         manifest = None  # malformed values; the schema errors below say which
     if problems or manifest is None:
@@ -139,7 +206,7 @@ def verify_manifest(spec: ModelSpec, bucket: int, data: dict, *, compute_units: 
     return manifest
 
 
-def _verify_fields(spec: ModelSpec, bucket: int, data: dict, compute_units: str) -> Manifest:
+def _verify_fields(spec: ModelSpec, bucket: int, data: dict, compute_units: str, quantization: str | None) -> Manifest:
     src, art = data.get("source", {}), data.get("artifact", {})
     if src.get("model") != spec.name or src.get("repo") != spec.repo:
         raise ArtifactRevisionError(f"artifact is for {src.get('repo')!r}, not {spec.repo!r}")
@@ -157,6 +224,19 @@ def _verify_fields(spec: ModelSpec, bucket: int, data: dict, compute_units: str)
         )
     if art.get("precision") != ANE_PRECISION or int(art.get("max_options", -1)) != ANE_MAX_OPTIONS:
         raise ArtifactRevisionError("artifact precision/options do not match the validated configuration")
+    declared = art.get("quantization")
+    if quantization is None:
+        if declared is not None:
+            raise ArtifactRevisionError(
+                f"artifact is quantized ({declared.get('scheme') if isinstance(declared, dict) else declared!r}) "
+                "but an FP16 artifact was requested"
+            )
+    else:
+        wanted = {"scheme": quantization, **ANE_QUANTIZATIONS[quantization]}
+        if declared != wanted:
+            raise ArtifactRevisionError(f"artifact quantization {declared!r} does not match the validated {wanted!r}")
+        if bucket not in quantized_buckets(spec, quantization):
+            raise ArtifactRevisionError(f"{quantization} is not validated for {spec.name} L{bucket}")
     placement = data.get("placement", {})
     if compute_units != ANE_COMPUTE_UNITS:
         raise ComputeUnitMismatchError(
@@ -188,13 +268,13 @@ def verify_profile(data: dict, current: dict | None = None) -> None:
         )
 
 
-def read_manifest(spec: ModelSpec, bucket: int) -> dict:
-    d = artifact_dir(spec, bucket)
+def read_manifest(spec: ModelSpec, bucket: int, quantization: str | None = None) -> dict:
+    d = artifact_dir(spec, bucket, quantization)
     path = d / "manifest.json"
     if not path.exists() or not (d / COMPILED).exists():
         raise ArtifactMissingError(
             f"no ANE artifact for {spec.name}@{spec.revision[:12]} L{bucket} in {d.parent}. "
-            f"Build it with: laya-apple artifacts build {spec.name} --length {bucket}"
+            f"Build it with: {_build_hint(spec, bucket, normalize_quantization(quantization))}"
         )
     try:
         return json.loads(path.read_text())
@@ -278,7 +358,14 @@ def _stamp_path(directory: Path) -> Path:
     return cache_root() / "verified" / "artifacts" / (str(rel).replace("/", "__") + ".json")
 
 
-def load_verified(spec: ModelSpec, bucket: int, *, compute_units: str = ANE_COMPUTE_UNITS, full: bool = False):
+def load_verified(
+    spec: ModelSpec,
+    bucket: int,
+    *,
+    compute_units: str = ANE_COMPUTE_UNITS,
+    full: bool = False,
+    quantization: str | None = None,
+):
     """Return (CompiledMLModel, Manifest) after every check, or raise.
 
     Manifest, profile and compute-unit checks run on every load. The file hash and the
@@ -286,22 +373,27 @@ def load_verified(spec: ModelSpec, bucket: int, *, compute_units: str = ANE_COMP
     and again whenever the artifact's files (size, mtime, inode), the macOS build or the
     coremltools version change; the passing result is stamped in the cache. `full=True`
     (`laya-apple artifacts verify`) always runs both.
+
+    `quantization` selects an opt-in quantized artifact (`"w8"`); it is refused unless it was
+    validated for this model, bucket and machine (check_quantization_supported).
     """
+    quantization = normalize_quantization(quantization)
+    check_quantization_supported(spec, quantization)
     try:
         import coremltools as ct
     except ImportError as e:
         raise BackendUnavailableError(
             "the ANE path needs coremltools: install the [ane] extra (uv sync --extra ane)"
         ) from e
-    d = artifact_dir(spec, bucket)
+    d = artifact_dir(spec, bucket, quantization)
     try:
-        data = read_manifest(spec, bucket)
+        data = read_manifest(spec, bucket, quantization)
     except ArtifactIntegrityError as e:
-        raise _quarantined(spec, bucket, d, e) from e
+        raise _quarantined(spec, bucket, d, e, quantization) from e
     try:
-        manifest = verify_manifest(spec, bucket, data, compute_units=compute_units)
+        manifest = verify_manifest(spec, bucket, data, compute_units=compute_units, quantization=quantization)
     except ArtifactIntegrityError as e:
-        raise _quarantined(spec, bucket, d, e) from e
+        raise _quarantined(spec, bucket, d, e, quantization) from e
     profile = platform_profile()
     verify_profile(manifest.data, profile)
     key, stamp = _stamp_key(manifest, d, compute_units, profile), _stamp_path(d)
@@ -319,11 +411,11 @@ def load_verified(spec: ModelSpec, bucket: int, *, compute_units: str = ANE_COMP
             # contents between our manifest read and our hash. Re-read and re-hash once
             # before quarantining a freshly (re)built artifact.
             try:
-                data2 = read_manifest(spec, bucket)
-                manifest2 = verify_manifest(spec, bucket, data2, compute_units=compute_units)
+                data2 = read_manifest(spec, bucket, quantization)
+                manifest2 = verify_manifest(spec, bucket, data2, compute_units=compute_units, quantization=quantization)
                 verify_files(manifest2, d)
             except ArtifactError:
-                raise _quarantined(spec, bucket, d, e) from e
+                raise _quarantined(spec, bucket, d, e, quantization) from e
             manifest = manifest2
         placement = compute_plan_summary(d / COMPILED, compute_units)
         check_ane_placement(placement)
@@ -335,15 +427,15 @@ def load_verified(spec: ModelSpec, bucket: int, *, compute_units: str = ANE_COMP
     return model, manifest
 
 
-def _quarantined(spec: ModelSpec, bucket: int, directory: Path, error: ArtifactIntegrityError):
+def _quarantined(
+    spec: ModelSpec, bucket: int, directory: Path, error: ArtifactIntegrityError, quantization: str | None = None
+):
     """Move a corrupt artifact aside and return an error that says where and how to rebuild."""
     from .lifecycle import quarantine
 
     moved = quarantine(directory, str(error))
     where = f"; moved to {moved}" if moved else ""
-    return ArtifactIntegrityError(
-        f"{error}{where}. Rebuild it with: laya-apple artifacts build {spec.name} --length {bucket}"
-    )
+    return ArtifactIntegrityError(f"{error}{where}. Rebuild it with: {_build_hint(spec, bucket, quantization)}")
 
 
 def list_artifacts() -> list[dict]:
@@ -400,6 +492,7 @@ def artifact_capabilities() -> list[dict]:
                     "transitions": placement.get("transitions"),
                 },
                 "precision": art.get("precision"),
+                "quantization": art.get("quantization"),
                 "platform": m.get("platform"),
                 "parity": {
                     "passed": parity.get("passed"),
@@ -409,7 +502,7 @@ def artifact_capabilities() -> list[dict]:
                     "near_tie_flips": len(near_tie) if isinstance(near_tie, list) else None,
                 },
                 "artifact_sha256": integrity.get("artifact_sha256"),
-                "offered_by_auto": bool(spec) and bucket in spec.auto_ane_buckets,
+                "offered_by_auto": bool(spec) and bucket in spec.auto_ane_buckets and not art.get("quantization"),
                 "offered_explicit": bool(spec) and bucket in spec.ane_buckets,
             }
         )
