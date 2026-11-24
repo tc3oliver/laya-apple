@@ -236,7 +236,7 @@ ANE 跑在同一进程的线程上时，同步的 Core ML 调用在每次预测�
 ### 社区 benchmark
 
 本 README 中所有 benchmark 都是在 M4 Max 上跑的。[社区矩阵](docs/community-benchmarks.md)单独记录
-其他 Mac 的结果，目前已有 M4 Pro、M4 和 M2 Pro（仅 MLX）。一条命令就能把你的 Mac 加进来：
+其他 Mac 的结果，目前已有 M4 Pro、两台 M4 和 M2 Pro（仅 MLX）。一条命令就能把你的 Mac 加进来：
 
 ```bash
 uv run python scripts/hardware_report.py --quick

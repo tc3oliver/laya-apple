@@ -257,7 +257,7 @@ The full story, from the GIL diagnosis to the adaptive breaker:
 
 Every benchmark in this README ran on an M4 Max. The
 [community matrix](docs/community-benchmarks.md) keeps results from other Macs separate, and
-already has an M4 Pro, an M4 and an M2 Pro (MLX only). One command adds yours:
+already has an M4 Pro, two M4s and an M2 Pro (MLX only). One command adds yours:
 
 ```bash
 uv run python scripts/hardware_report.py --quick

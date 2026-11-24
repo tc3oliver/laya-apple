@@ -34,12 +34,14 @@ their results are from macOS 26.6.2 only.
 Community hardware results are recorded separately, in
 [`community-benchmarks.md`](community-benchmarks.md) and `hardware-results/`. They do not
 change the shipped routing table or the status in this page's **Tested** column. There are
-three so far, all `--quick` runs of `laya-typed-decisions`:
+four so far, all `--quick` runs of `laya-typed-decisions`:
 
 - Apple M4 Pro (48 GB, macOS 27.0, coremltools 9.0), with a locally calibrated profile:
   [`hardware-results/apple-m4-pro-macos27/`](../hardware-results/apple-m4-pro-macos27/summary.md) ([#32](https://github.com/tc3oliver/laya-apple/pull/32)).
 - Apple M4 (32 GB, macOS 26.2, coremltools 9.0), not calibrated:
   [`hardware-results/apple-m4-macos26/`](../hardware-results/apple-m4-macos26/summary.md) ([#41](https://github.com/tc3oliver/laya-apple/pull/41)).
+- Apple M4 (16 GB, macOS 26.2, coremltools 9.0), with a locally calibrated profile:
+  [`hardware-results/apple-m4-macos26-20261108-170205/`](../hardware-results/apple-m4-macos26-20261108-170205/summary.md) ([#180](https://github.com/tc3oliver/laya-apple/pull/180)).
 - Apple M2 Pro (16 GB, macOS 26.6.2), MLX only, without coremltools:
   [`hardware-results/apple-m2-pro-macos26/`](../hardware-results/apple-m2-pro-macos26/summary.md) ([#47](https://github.com/tc3oliver/laya-apple/pull/47)).
 
@@ -47,7 +49,7 @@ three so far, all `--quick` runs of `laya-typed-decisions`:
 
 | Dimension | Tested | Expected | Unknown |
 |---|---|---|---|
-| SoC | Apple M4 Max | Other Apple M-series SoCs run MLX correctly (hypothesis: MLX itself is validated across Apple Silicon upstream). One community data point outside the M4 family: on an M2 Pro (macOS 26.6.2), `laya-typed-decisions` passed MLX FP16 parity; ANE was not tested there | ANE placement, correctness and routing thresholds on any other SoC, except one community data point: on an M4 Pro (macOS 27.0, coremltools 9.0), `laya-typed-decisions` passed MLX and ANE parity with 0 hard mismatches, a locally calibrated profile routed short requests to the ANE, and the heterogeneous check passed; on an M4 (macOS 26.2, coremltools 9.0), `laya-typed-decisions` passed MLX and ANE parity with 0 hard mismatches, and without calibration `auto` stayed on MLX ([community matrix](community-benchmarks.md#matrix)). Each covers one machine and one model, not every M4 or M4 Pro and not the shipped routing |
+| SoC | Apple M4 Max | Other Apple M-series SoCs run MLX correctly (hypothesis: MLX itself is validated across Apple Silicon upstream). One community data point outside the M4 family: on an M2 Pro (macOS 26.6.2), `laya-typed-decisions` passed MLX FP16 parity; ANE was not tested there | ANE placement, correctness and routing thresholds on any other SoC, except these community data points: on an M4 Pro (macOS 27.0, coremltools 9.0), `laya-typed-decisions` passed MLX and ANE parity with 0 hard mismatches, a locally calibrated profile routed short requests to the ANE, and the heterogeneous check passed; on an M4 (32 GB, macOS 26.2, coremltools 9.0), `laya-typed-decisions` passed MLX and ANE parity with 0 hard mismatches, and without calibration `auto` stayed on MLX; and a second M4 (16 GB, same macOS) with a locally calibrated profile routed short requests to the ANE and passed the heterogeneous check ([community matrix](community-benchmarks.md#matrix)). Each covers one machine and one model, not every M4 or M4 Pro and not the shipped routing |
 | macOS | 26.6.2; 27.0 on the M4 Max (build, parity and a shipped routing profile; no release benchmarks) | macOS 15–26 run MLX correctly | ANE behaviour on any macOS other than 26.6.2 and, on the M4 Max, 27.0; macOS 27.x specifically — prior third-party work (laya-coreml, M3 Max, macOS 27.2) saw an enumerated-shape package run on the GPU. macOS 27.0 evidence so far:
 - the release M4 Max, after its upgrade to macOS 27.0 (coremltools 9.0): a build and parity validation of all three models, in which every explicit ANE bucket recorded 100% Neural Engine placement with 0 transitions and passed parity ([`research/macos27-validation/`](../research/macos27-validation/README.md));
 - the M4 Pro community result above, whose ANE placement is inferred from its artifacts registering.

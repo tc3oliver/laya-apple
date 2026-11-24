@@ -236,7 +236,7 @@ runtime 就退回已知安全的 1.4 同步路徑。在 `execution="workers"`、
 ### 社群 benchmark
 
 本 README 中所有 benchmark 都是在 M4 Max 上跑的。[社群矩陣](docs/community-benchmarks.md)分開記錄
-其他 Mac 的結果，目前已有 M4 Pro、M4 與 M2 Pro（僅 MLX）。一個指令就能加入你的 Mac：
+其他 Mac 的結果，目前已有 M4 Pro、兩台 M4 與 M2 Pro（僅 MLX）。一個指令就能加入你的 Mac：
 
 ```bash
 uv run python scripts/hardware_report.py --quick
