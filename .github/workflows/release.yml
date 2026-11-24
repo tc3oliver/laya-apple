@@ -32,7 +32,7 @@ jobs:
   build:
     name: Build and check distributions
     # Apple silicon runner: the import check needs MLX, which is darwin/arm64 only.
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - name: Resolve the tag
         id: tag
