@@ -35,6 +35,7 @@ been measured; any Mac without a result is wanted, with or without an issue.
 | M3 Max | – | – | – | – | **Wanted** — [submit a benchmark](#add-your-mac) |
 | M3 Ultra | – | – | – | – | **Wanted** — [submit a benchmark](#add-your-mac) |
 | M4 (32 GB, macOS 26.2) | ✓ | ✓ | no | untested | [bundle](../hardware-results/apple-m4-macos26/summary.md) ([#41](https://github.com/tc3oliver/laya-apple/pull/41); `--quick`, laya-typed-decisions only; not calibrated, so `auto` stays on MLX and the heterogeneous check does not run) |
+| M4 (16 GB, macOS 26.2) | ✓ | ✓ | yes, local calibrated profile | ✓ | [bundle](../hardware-results/apple-m4-macos26-20261108-170205/summary.md) ([#180](https://github.com/tc3oliver/laya-apple/pull/180); `--quick`, laya-typed-decisions only; the same SoC as the row above, but this Mac ran `laya-apple calibrate`) |
 | M4 Pro (48 GB, macOS 27.0) | ✓ | ✓ | yes, local calibrated profile | ✓ | [bundle](../hardware-results/apple-m4-pro-macos27/summary.md) ([#32](https://github.com/tc3oliver/laya-apple/pull/32); `--quick`, laya-typed-decisions only) |
 | M4 Max (macOS 26.6.2) | ✓ | ✓ | yes | ✓ | [`benchmarks/v1.0.md`](../benchmarks/v1.0.md), [bundle](../hardware-results/apple-m4-max-macos26/summary.md) |
 | M5 | – | – | – | – | **Wanted** — [submit a benchmark](#add-your-mac) |

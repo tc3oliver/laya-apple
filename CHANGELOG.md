@@ -5,6 +5,16 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- **Community hardware result: Apple M4 with a locally calibrated profile** (16 GB, macOS 26.2), in
+  `hardware-results/apple-m4-macos26-20261108-170205/` (#180, thanks @engirugger42). MLX and ANE parity
+  passed for `laya-typed-decisions`; after `laya-apple calibrate`, `auto` routed L64, L96 and L128
+  single-question requests to the ANE and the heterogeneous check passed (10.52x, 0 mismatches). The
+  other M4 result (#41) was uncalibrated. Docs only: the M4 rows of `docs/community-benchmarks.md` and
+  `docs/support-matrix.md`, the community results and SoC cell in `docs/compatibility.md`, and the
+  README community status. No runtime, routing, parity or benchmark code changed.
+
 ## [1.7.0] - 2026-10-15
 
 Adds an experimental, opt-in 8-bit (W8) ANE artifact for `laya-typed-decisions` L64. FP16 stays
